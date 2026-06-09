@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit these
+.env
+.env.*
+
+# Local data directory (SQLite DB, local pipeline files)
+local-data/
+
+# Pipeline scripts (uploaded to Railway Volume separately)
+pipeline/
+
+# Episode output files
+episodes/
+data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db

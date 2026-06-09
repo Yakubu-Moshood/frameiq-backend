@@ -1,0 +1,29 @@
+# ============================================================
+# railway.toml — Frameiq Backend
+# ============================================================
+# Docs: https://docs.railway.com/reference/config-as-code
+
+[build]
+# Use our Dockerfile — do NOT let Railway auto-detect with Nixpacks.
+# Nixpacks won't install the canvas/FFmpeg system deps we need.
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Railway injects $PORT automatically.
+# startCommand is optional here since Dockerfile sets CMD.
+startCommand = "node server.js"
+
+# Health check — Railway will wait for this before routing traffic.
+# Matches the GET /health route you should add to server.js (see below).
+healthcheckPath = "/health"
+healthcheckTimeout = 120   # seconds — canvas compile can be slow on first boot
+
+# Auto-restart on crash
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[deploy.volumeMounts]]
+# Mount the persistent Volume at /data
+# Create the Volume in the Railway dashboard first, then link it here.
+mountPath = "/data"
