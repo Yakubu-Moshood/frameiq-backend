@@ -14,6 +14,7 @@
  *   0D — image generation
  *   0E — animation
  *   1  — render engine
+ *   7  — short extractor (59s vertical clip)
  */
 
 require('dotenv').config();
@@ -32,18 +33,61 @@ const { PIPELINE_DIR, EPISODES_DIR } = require('../startup-init');
 // Map<episodeDbId, resolve_fn> — approval gate promises
 const approvalGates = new Map();
 
+// Set<episodeDbId> — episodes with a live pipeline in THIS process.
+// Lets the retry endpoint refuse to double-start an episode, and lets
+// us know that anything marked 'running' in the DB but absent from
+// this set was orphaned by a restart.
+const activeEpisodes = new Set();
+
+// Map<`${episodeDbId}:${act}`, actVideoPath> — act preview videos
+// currently awaiting approval, served by GET /:id/preview/:act
+const actPreviews = new Map();
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Start running the pipeline for an episode.
  * Fires and forgets — progress comes through SSE.
+ * Returns false if this episode already has a live pipeline.
  */
 function startJob(episodeDbId, channelKey, episodeId, topic) {
-  runPipeline(episodeDbId, channelKey, episodeId, topic).catch(async err => {
-    console.error(`[runner] Fatal error for ${episodeDbId}:`, err.message);
-    await queries.updateEpisodeStatus('failed', episodeDbId);
-    sse.close(episodeDbId, { step: 'fatal', status: 'failed', error: err.message });
-  });
+  if (activeEpisodes.has(episodeDbId)) {
+    console.warn(`[runner] Refusing to double-start ${episodeDbId} — already running`);
+    return false;
+  }
+  activeEpisodes.add(episodeDbId);
+
+  runPipeline(episodeDbId, channelKey, episodeId, topic)
+    .catch(async err => {
+      console.error(`[runner] Fatal error for ${episodeDbId}:`, err.message);
+      await queries.updateEpisodeStatus('failed', episodeDbId);
+      sse.close(episodeDbId, { step: 'fatal', status: 'failed', error: err.message });
+    })
+    .finally(() => {
+      activeEpisodes.delete(episodeDbId);
+      // Drop any preview entries left over for this episode
+      for (const key of actPreviews.keys()) {
+        if (key.startsWith(`${episodeDbId}:`)) actPreviews.delete(key);
+      }
+    });
+
+  return true;
+}
+
+/**
+ * Is this episode's pipeline live in this process right now?
+ * (After a server restart this returns false for episodes the DB
+ * still thinks are 'running' — that's how we detect orphans.)
+ */
+function isRunning(episodeDbId) {
+  return activeEpisodes.has(episodeDbId);
+}
+
+/**
+ * Path to the act video currently awaiting approval, or null.
+ */
+function getActPreview(episodeDbId, act) {
+  return actPreviews.get(`${episodeDbId}:${act}`) || null;
 }
 
 /**
@@ -55,6 +99,7 @@ function resolveApproval(episodeDbId, act, approved) {
   const resolve = approvalGates.get(key);
   if (resolve) {
     approvalGates.delete(key);
+    actPreviews.delete(key);
     resolve(approved);
   }
 }
@@ -233,7 +278,22 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
 
   async function approvalCallback(act, actVideoPath) {
-    progress('1_render', 'awaiting_approval', null, `Review act: ${act}`);
+    // Register the act video so GET /:id/preview/:act can stream it
+    if (actVideoPath && fs.existsSync(actVideoPath)) {
+      actPreviews.set(`${episodeDbId}:${act}`, actVideoPath);
+    }
+
+    // Emit a richer event than plain progress: the frontend gets the
+    // act name and whether a preview is available to play inline.
+    sse.emit(episodeDbId, {
+      step:             '1_render',
+      status:           'awaiting_approval',
+      progress:         null,
+      detail:           `Review act: ${act}`,
+      act,
+      previewAvailable: actPreviews.has(`${episodeDbId}:${act}`),
+    });
+
     await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
 
     return new Promise((resolve) => {
@@ -251,6 +311,8 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   });
 
   // ── Final result ──
+  // Episode is marked complete here so the main MP4 is downloadable
+  // even if the short extractor (Step 7) hits a problem afterwards.
   await queries.updateEpisodeResult(
     'complete',
     renderResult.title || script.title,
@@ -267,7 +329,61 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   });
 
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
-  sse.close(episodeDbId, { step: 'done', status: 'complete', outputPath: renderResult.path });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // STEP 7 — SHORT EXTRACTOR (59s vertical clip from act4)
+  // ══════════════════════════════════════════════════════════════════════════
+  // Non-fatal by design: if this step fails, the episode stays complete
+  // and the main MP4 is unaffected. The job row may not exist for
+  // episodes created before Step 7 shipped — handle that gracefully.
+
+  const job7 = jobFor('7_short'); // may be undefined on older episodes
+
+  let shortResult = null;
+  try {
+    if (job7) {
+      await queries.updateJob(job7.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
+    }
+    progress('7_short', 'running', 0, 'Extracting 59s vertical short from act4...');
+
+    const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
+
+    shortResult = await extractShort({
+      episodeDir,
+      episodeId,
+      channel:        channelKey,
+      finalVideoPath: renderResult.path,
+      onProgress:     (pct, detail) => progress('7_short', 'running', pct, detail),
+    });
+
+    if (job7) {
+      await queries.updateJob(job7.id, {
+        status:      'complete',
+        progress:    100,
+        detail:      `${shortResult.durationSeconds.toFixed(0)}s, ${shortResult.captions} captions`,
+        finished_at: new Date().toISOString(),
+      });
+    }
+    progress('7_short', 'complete', 100, `Short ready — ${shortResult.durationSeconds.toFixed(0)}s vertical clip`);
+
+  } catch (shortErr) {
+    console.error(`[runner] Step 7 (short extractor) failed for ${episodeId}:`, shortErr.message);
+    if (job7) {
+      await queries.updateJob(job7.id, {
+        status:      'failed',
+        detail:      shortErr.message.slice(0, 200),
+        finished_at: new Date().toISOString(),
+      });
+    }
+    progress('7_short', 'failed', null, `Short extraction failed: ${shortErr.message.slice(0, 200)}`);
+  }
+
+  sse.close(episodeDbId, {
+    step:       'done',
+    status:     'complete',
+    outputPath: renderResult.path,
+    shortPath:  shortResult ? shortResult.path : null,
+  });
 }
 
-module.exports = { startJob, resolveApproval };
+module.exports = { startJob, resolveApproval, isRunning, getActPreview };
