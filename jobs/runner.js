@@ -43,6 +43,33 @@ const activeEpisodes = new Set();
 // currently awaiting approval, served by GET /:id/preview/:act
 const actPreviews = new Map();
 
+// ── Pipeline auto-sync ────────────────────────────────────────────
+// Anything in <repo>/pipeline-updates/ is copied onto the Volume's
+// pipeline dir before each run. This means new or updated pipeline
+// modules ship via plain `git push` — no manual Volume uploads.
+const PIPELINE_UPDATES_DIR = path.join(__dirname, '..', 'pipeline-updates');
+
+function syncPipelineUpdates() {
+  try {
+    if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_UPDATES_DIR)) return [];
+    const copied = [];
+    for (const f of fs.readdirSync(PIPELINE_UPDATES_DIR)) {
+      if (!f.endsWith('.cjs') && !f.endsWith('.json')) continue;
+      const src = path.join(PIPELINE_UPDATES_DIR, f);
+      const dst = path.join(PIPELINE_DIR, f);
+      fs.copyFileSync(src, dst);
+      copied.push(f);
+    }
+    if (copied.length) {
+      console.log(`[runner] Synced pipeline updates to Volume: ${copied.join(', ')}`);
+    }
+    return copied;
+  } catch (e) {
+    console.warn('[runner] pipeline-updates sync failed:', e.message);
+    return [];
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
@@ -129,6 +156,9 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   const CHANNEL = CONFIG.channels[channelKey];
 
   if (!CHANNEL) throw new Error(`Channel "${channelKey}" not found in pipeline.config.json`);
+
+  // Install/refresh any pipeline modules shipped with the backend repo
+  syncPipelineUpdates();
 
   // ── Episode directories ───────────────────────────────────────
   // All episode output goes to the persistent EPISODES_DIR on the Volume.
@@ -386,4 +416,4 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   });
 }
 
-module.exports = { startJob, resolveApproval, isRunning, getActPreview };
+module.exports = { startJob, resolveApproval, isRunning, getActPreview, syncPipelineUpdates };

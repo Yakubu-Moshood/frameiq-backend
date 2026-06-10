@@ -12,7 +12,7 @@ const { v4: uuid } = require('uuid');
 const { queries }      = require('../db');
 const { requireAuth }  = require('../middleware/auth');
 const sse              = require('../sse');
-const { startJob, resolveApproval, isRunning, getActPreview } = require('../jobs/runner');
+const { startJob, resolveApproval, isRunning, getActPreview, syncPipelineUpdates } = require('../jobs/runner');
 
 // ── Episode output path uses EPISODES_DIR from startup-init ──
 const { EPISODES_DIR, PIPELINE_DIR } = require('../startup-init');
@@ -255,6 +255,64 @@ router.get('/:id/preview/:act', async (req, res) => {
       return res.status(403).json({ error: 'Preview path outside data roots' });
 
     streamVideo(req, res, previewPath);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/episodes/:id/short/generate ───────────────────────────────────
+// Generate (or regenerate) the 59s short for an episode that has
+// already completed — e.g. episodes finished before Step 7 existed.
+// Takes 1-3 minutes; the response waits for the result. Even if the
+// HTTP request times out, the short still gets written to the Volume
+// and becomes downloadable via GET /:id/short.
+
+router.post('/:id/short/generate', async (req, res) => {
+  const userId = authFlexible(req);
+  if (!userId) return res.status(401).json({ error: 'Invalid or missing token' });
+
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== userId) return res.status(403).json({ error: 'Forbidden' });
+
+    if (episode.status !== 'complete')
+      return res.status(400).json({ error: 'Episode must be complete before generating a short' });
+    if (isRunning(episode.id))
+      return res.status(409).json({ error: 'Episode pipeline is currently running' });
+    if (!episode.output_path || !fs.existsSync(episode.output_path))
+      return res.status(404).json({ error: 'Final video not found on disk' });
+
+    // Make sure the latest short-extractor.cjs is on the Volume
+    syncPipelineUpdates();
+
+    const epFolder   = episode.episode_id || episode.episodeId;
+    const channelKey = episode.channel    || episode.channel_key || 'EmpireOmitted';
+
+    const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
+    const result = await extractShort({
+      episodeDir:     path.join(EPISODES_DIR, epFolder),
+      episodeId:      epFolder,
+      channel:        channelKey,
+      finalVideoPath: episode.output_path,
+    });
+
+    // Reflect the result in the 7_short job row (create it if missing)
+    const jobs = await queries.getJobsForEpisode(episode.id);
+    let job7   = jobs.find(j => j.step === '7_short');
+    if (!job7) {
+      const newId = uuid();
+      await queries.createJob(newId, episode.id, '7_short');
+      job7 = { id: newId };
+    }
+    await queries.updateJob(job7.id, {
+      status:      'complete',
+      progress:    100,
+      detail:      `${result.durationSeconds.toFixed(0)}s, ${result.captions} captions`,
+      finished_at: new Date().toISOString(),
+    });
+
+    return res.json({ ok: true, ...result });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
