@@ -2,12 +2,17 @@
  * jobs/runner.js
  * Frameiq — Pipeline job runner
  *
- * Wraps the existing Surface Pipeline v2 modules.
- * Instead of console.log + readline approval gates,
- * this runner emits SSE progress events and pauses at
- * approval gates waiting for an HTTP signal.
+ * Sprint 1A changes:
+ *   1. Episode folder namespaced by channel: ${channel}_${episodeId}
+ *      (fixes cross-channel EP1 collision bug)
+ *   2. runPipeline() is now a thin dispatcher that reads the episode's
+ *      blueprint_id and routes to the correct workflow function.
+ *   3. runFullRenderWorkflow() = the exact prior runPipeline() body,
+ *      only the function name and folder path changed.
+ *   4. All other workflow types log a warning and fall back to full_render
+ *      until their sprints are implemented.
  *
- * Steps mirror surface-pipeline.cjs exactly:
+ * Steps (full_render workflow):
  *   0A — script writer
  *   0B — VO generator
  *   0C — shot definitions
@@ -24,29 +29,18 @@ const path = require('path');
 
 const { queries }                   = require('../db');
 const sse                           = require('../sse');
-
-// ── Pipeline root comes from startup-init ─────────────────────
-// On Railway: /data/pipeline   (files uploaded to Volume)
-// Locally:    ./local-data/pipeline
 const { PIPELINE_DIR, EPISODES_DIR } = require('../startup-init');
 
 // Map<episodeDbId, resolve_fn> — approval gate promises
 const approvalGates = new Map();
 
-// Set<episodeDbId> — episodes with a live pipeline in THIS process.
-// Lets the retry endpoint refuse to double-start an episode, and lets
-// us know that anything marked 'running' in the DB but absent from
-// this set was orphaned by a restart.
+// Set<episodeDbId> — episodes with a live pipeline in THIS process
 const activeEpisodes = new Set();
 
 // Map<`${episodeDbId}:${act}`, actVideoPath> — act preview videos
-// currently awaiting approval, served by GET /:id/preview/:act
 const actPreviews = new Map();
 
-// ── Pipeline auto-sync ────────────────────────────────────────────
-// Anything in <repo>/pipeline-updates/ is copied onto the Volume's
-// pipeline dir before each run. This means new or updated pipeline
-// modules ship via plain `git push` — no manual Volume uploads.
+// ── Pipeline auto-sync ────────────────────────────────────────────────────────
 const PIPELINE_UPDATES_DIR = path.join(__dirname, '..', 'pipeline-updates');
 
 function syncPipelineUpdates() {
@@ -61,7 +55,7 @@ function syncPipelineUpdates() {
       copied.push(f);
     }
     if (copied.length) {
-      console.log(`[runner] Synced pipeline updates to Volume: ${copied.join(', ')}`);
+      console.log(`[runner] Synced pipeline updates: ${copied.join(', ')}`);
     }
     return copied;
   } catch (e) {
@@ -72,11 +66,6 @@ function syncPipelineUpdates() {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Start running the pipeline for an episode.
- * Fires and forgets — progress comes through SSE.
- * Returns false if this episode already has a live pipeline.
- */
 function startJob(episodeDbId, channelKey, episodeId, topic) {
   if (activeEpisodes.has(episodeDbId)) {
     console.warn(`[runner] Refusing to double-start ${episodeDbId} — already running`);
@@ -92,7 +81,6 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
     })
     .finally(() => {
       activeEpisodes.delete(episodeDbId);
-      // Drop any preview entries left over for this episode
       for (const key of actPreviews.keys()) {
         if (key.startsWith(`${episodeDbId}:`)) actPreviews.delete(key);
       }
@@ -101,26 +89,14 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
   return true;
 }
 
-/**
- * Is this episode's pipeline live in this process right now?
- * (After a server restart this returns false for episodes the DB
- * still thinks are 'running' — that's how we detect orphans.)
- */
 function isRunning(episodeDbId) {
   return activeEpisodes.has(episodeDbId);
 }
 
-/**
- * Path to the act video currently awaiting approval, or null.
- */
 function getActPreview(episodeDbId, act) {
   return actPreviews.get(`${episodeDbId}:${act}`) || null;
 }
 
-/**
- * Resolve an approval gate for a specific act.
- * Called by the episodes route when the user taps Approve/Reject.
- */
 function resolveApproval(episodeDbId, act, approved) {
   const key     = `${episodeDbId}:${act}`;
   const resolve = approvalGates.get(key);
@@ -131,9 +107,41 @@ function resolveApproval(episodeDbId, act, approved) {
   }
 }
 
-// ─── Main pipeline runner ─────────────────────────────────────────────────────
+// ─── Dispatcher ───────────────────────────────────────────────────────────────
+// Reads the episode's blueprint, determines workflow_type, routes accordingly.
+// Unknown/unimplemented workflow types fall back to full_render safely.
 
 async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
+  let workflowType = 'full_render';
+  try {
+    const ep = await queries.getEpisode(episodeDbId);
+    if (ep && ep.blueprint_id) {
+      const bp = await queries.getBlueprint(ep.blueprint_id);
+      if (bp && bp.workflow_type) workflowType = bp.workflow_type;
+    }
+  } catch (e) {
+    console.warn('[runner] Could not load blueprint, defaulting to full_render:', e.message);
+  }
+
+  switch (workflowType) {
+    case 'full_render':
+      return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
+
+    default:
+      // Future sprint: motion_graphics, short_render, vo_only, carousel
+      console.warn(`[runner] Workflow type "${workflowType}" not yet implemented — falling back to full_render`);
+      return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
+  }
+}
+
+// ─── Full render workflow ─────────────────────────────────────────────────────
+// This is the complete existing pipeline, unchanged except:
+//   - function name: runPipeline → runFullRenderWorkflow
+//   - episodeDir: path.join(EPISODES_DIR, episodeId)
+//              → path.join(EPISODES_DIR, `${channelKey}_${episodeId}`)
+//     (the folder collision fix — one line change)
+
+async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) {
 
   if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_DIR)) {
     throw new Error(
@@ -143,7 +151,6 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     );
   }
 
-  // Load channel config from the pipeline.config.json on the Volume
   const configPath = path.join(PIPELINE_DIR, 'pipeline.config.json');
   if (!fs.existsSync(configPath)) {
     throw new Error(
@@ -154,17 +161,14 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
 
   const CONFIG  = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const CHANNEL = CONFIG.channels[channelKey];
-
   if (!CHANNEL) throw new Error(`Channel "${channelKey}" not found in pipeline.config.json`);
 
-  // Install/refresh any pipeline modules shipped with the backend repo
   syncPipelineUpdates();
 
-  // ── Episode directories ───────────────────────────────────────
-  // All episode output goes to the persistent EPISODES_DIR on the Volume.
-  // On Railway: /data/episodes/EP7/...
-  // Locally:    ./local-data/episodes/EP7/...
-  const episodeDir = path.join(EPISODES_DIR, episodeId);
+  // ── SPRINT 1A FIX: namespace episode folder by channel ────────────────────
+  // Before: /data/episodes/EP7          (all channels collide)
+  // After:  /data/episodes/EmpireOmitted_EP7  (per-channel isolation)
+  const episodeDir = path.join(EPISODES_DIR, `${channelKey}_${episodeId}`);
   const audioDir   = path.join(episodeDir, 'assets', 'audio');
   const stillsDir  = path.join(episodeDir, 'assets', 'stills');
   const clipsDir   = path.join(episodeDir, 'assets', 'clips');
@@ -174,7 +178,6 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   fs.mkdirSync(clipsDir,  { recursive: true });
   fs.mkdirSync(path.join(episodeDir, 'output'), { recursive: true });
 
-  // ── Helpers ──
   const progress = (step, status, pct, detail) => {
     sse.emit(episodeDbId, { step, status, progress: pct, detail });
   };
@@ -264,14 +267,11 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: 'all exist', finished_at: new Date().toISOString() });
   } else {
     progress('0D_images', 'running', 0, `Generating ${needed.length} images via gpt-image-1...`);
-
     const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt }));
     const promptsPath = path.join(stillsDir, 'pending-prompts.json');
     fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
-
     const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));
     await generateImages({ promptsFile: promptsPath, outputDir: stillsDir });
-
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
@@ -304,17 +304,12 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   const job1 = jobFor('1_render');
   await queries.updateJob(job1.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('1_render', 'running', 0, 'Starting render engine...');
-
   await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
 
   async function approvalCallback(act, actVideoPath) {
-    // Register the act video so GET /:id/preview/:act can stream it
     if (actVideoPath && fs.existsSync(actVideoPath)) {
       actPreviews.set(`${episodeDbId}:${act}`, actVideoPath);
     }
-
-    // Emit a richer event than plain progress: the frontend gets the
-    // act name and whether a preview is available to play inline.
     sse.emit(episodeDbId, {
       step:             '1_render',
       status:           'awaiting_approval',
@@ -323,16 +318,13 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
       act,
       previewAvailable: actPreviews.has(`${episodeDbId}:${act}`),
     });
-
     await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
-
     return new Promise((resolve) => {
       approvalGates.set(`${episodeDbId}:${act}`, resolve);
     });
   }
 
   const { renderEpisode } = require(path.join(PIPELINE_DIR, 'surface-renderer.cjs'));
-
   const renderResult = await renderEpisode({
     episodeDir,
     episodeId,
@@ -340,9 +332,6 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     approvalCallback,
   });
 
-  // ── Final result ──
-  // Episode is marked complete here so the main MP4 is downloadable
-  // even if the short extractor (Step 7) hits a problem afterwards.
   await queries.updateEpisodeResult(
     'complete',
     renderResult.title || script.title,
@@ -361,15 +350,12 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // STEP 7 — SHORT EXTRACTOR (59s vertical clip from act4)
+  // STEP 7 — SHORT EXTRACTOR
   // ══════════════════════════════════════════════════════════════════════════
-  // Non-fatal by design: if this step fails, the episode stays complete
-  // and the main MP4 is unaffected. The job row may not exist for
-  // episodes created before Step 7 shipped — handle that gracefully.
 
-  const job7 = jobFor('7_short'); // may be undefined on older episodes
-
+  const job7 = jobFor('7_short');
   let shortResult = null;
+
   try {
     if (job7) {
       await queries.updateJob(job7.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
@@ -377,7 +363,6 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     progress('7_short', 'running', 0, 'Extracting 59s vertical short from act4...');
 
     const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
-
     shortResult = await extractShort({
       episodeDir,
       episodeId,
@@ -397,7 +382,7 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     progress('7_short', 'complete', 100, `Short ready — ${shortResult.durationSeconds.toFixed(0)}s vertical clip`);
 
   } catch (shortErr) {
-    console.error(`[runner] Step 7 (short extractor) failed for ${episodeId}:`, shortErr.message);
+    console.error(`[runner] Step 7 failed for ${episodeId}:`, shortErr.message);
     if (job7) {
       await queries.updateJob(job7.id, {
         status:      'failed',
