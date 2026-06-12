@@ -253,13 +253,27 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const jobFor = (step) => jobs.find(j => j.step === step);
 
   // ── TEST_MODE PRE-FLIGHT ──────────────────────────────────────────────────
-  // Write VO stubs BEFORE calling writeScript. surface-script-writer.cjs
-  // chains directly into vo-generator internally. Silent files must already
-  // exist on disk so that internal chain finds them and skips ElevenLabs.
+  // Write stubs BEFORE calling writeScript:
+  //
+  // 1. VO files: surface-script-writer.cjs chains directly into vo-generator
+  //    internally. Silent files must already exist so that chain skips ElevenLabs.
+  //
+  // 2. word-timestamps.json: surface-renderer.cjs calls Whisper (OpenAI) as its
+  //    very first step to get word-level timestamps. It checks if this file already
+  //    exists and skips Whisper if so. Writing an empty array here bypasses OpenAI
+  //    entirely. The renderer renders without caption overlays — acceptable for validation.
   const voFiles = ['VO_Act1.mp3','VO_Act2.mp3','VO_Act3.mp3','VO_Act3B.mp3','VO_Act4.mp3','VO_Act5.mp3'];
   if (isTestMode()) {
+    // Stub 1: silent VO files
     const written = testStubVO(audioDir, voFiles);
-    if (written > 0) console.log(`[TEST_MODE] Pre-flight: wrote ${written} silent VO files before script generation`);
+    if (written > 0) console.log(`[TEST_MODE] Pre-flight: wrote ${written} silent VO files`);
+
+    // Stub 2: dummy word-timestamps.json — skips Whisper in surface-renderer.cjs
+    const tsPath = path.join(episodeDir, 'word-timestamps.json');
+    if (!fs.existsSync(tsPath)) {
+      fs.writeFileSync(tsPath, '[]', 'utf8');
+      console.log('[TEST_MODE] Pre-flight: wrote dummy word-timestamps.json — Whisper will be skipped');
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
