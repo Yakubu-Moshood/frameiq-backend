@@ -4,13 +4,15 @@
  *
  * Sprint 1A changes:
  *   1. Episode folder namespaced by channel: ${channel}_${episodeId}
- *      (fixes cross-channel EP1 collision bug)
- *   2. runPipeline() is now a thin dispatcher that reads the episode's
- *      blueprint_id and routes to the correct workflow function.
- *   3. runFullRenderWorkflow() = the exact prior runPipeline() body,
- *      only the function name and folder path changed.
- *   4. All other workflow types log a warning and fall back to full_render
- *      until their sprints are implemented.
+ *   2. runPipeline() dispatcher reads blueprint_id, routes to workflow
+ *   3. runFullRenderWorkflow() = exact prior pipeline body
+ *   4. Unknown workflow types fall back to full_render safely
+ *
+ * TEST_MODE (Sprint 1A validation only):
+ *   Set TEST_MODE=true in Railway Variables to run without paid APIs.
+ *   Stubs are Option B: only generated when files do not already exist.
+ *   Existing script, VO, shot-defs, images, clips are always reused.
+ *   Remove TEST_MODE variable after Sprint 1A validation is complete.
  *
  * Steps (full_render workflow):
  *   0A — script writer
@@ -24,11 +26,12 @@
 
 require('dotenv').config();
 
-const fs   = require('fs');
-const path = require('path');
+const fs            = require('fs');
+const path          = require('path');
+const { execSync }  = require('child_process');
 
-const { queries }                   = require('../db');
-const sse                           = require('../sse');
+const { queries }                    = require('../db');
+const sse                            = require('../sse');
 const { PIPELINE_DIR, EPISODES_DIR } = require('../startup-init');
 
 // Map<episodeDbId, resolve_fn> — approval gate promises
@@ -61,6 +64,114 @@ function syncPipelineUpdates() {
   } catch (e) {
     console.warn('[runner] pipeline-updates sync failed:', e.message);
     return [];
+  }
+}
+
+// ── TEST_MODE helpers ─────────────────────────────────────────────────────────
+// TEST_MODE=true bypasses all paid API calls using local FFmpeg stubs.
+// Stubs are Option B: only created when the file does not already exist.
+// The render stage (surface-renderer.cjs) always runs — it is what we validate.
+
+function isTestMode() {
+  return process.env.TEST_MODE === 'true';
+}
+
+// Stub 0A: write a minimal valid script.json if none exists
+function testStubScript(episodeDir, topic) {
+  const acts = {};
+  const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const labels  = ['The Setup', 'The Rise', 'The Fracture', 'The Human Cost', 'The Collapse', 'The Verdict'];
+  actKeys.forEach((k, i) => {
+    acts[k] = {
+      label:    labels[i],
+      voScript: `This is a FrameIQ Sprint 1A validation episode. Act ${i + 1} placeholder narration for testing purposes only. The pipeline is being validated end to end without paid API calls.`,
+    };
+  });
+  const script = {
+    topic,
+    title:      `Sprint 1A Validation — ${topic}`,
+    channel:    'EmpireOmitted',
+    acts,
+  };
+  fs.writeFileSync(path.join(episodeDir, 'script.json'), JSON.stringify(script, null, 2), 'utf8');
+  console.log('[TEST_MODE] Wrote stub script.json');
+  return script;
+}
+
+// Stub 0B: write silent 3-second MP3 files using FFmpeg
+function testStubVO(audioDir, voFiles) {
+  for (const f of voFiles) {
+    const outPath = path.join(audioDir, f);
+    if (fs.existsSync(outPath)) continue;
+    execSync(
+      `ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=stereo -t 3 -q:a 9 -acodec libmp3lame "${outPath}"`,
+      { stdio: 'pipe' }
+    );
+    console.log(`[TEST_MODE] Wrote silent VO: ${f}`);
+  }
+}
+
+// Stub 0C: write minimal valid shot-definitions.json if none exists
+function testStubShotDefs(episodeDir) {
+  const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const acts    = {};
+  const allShots = [];
+  actKeys.forEach(actKey => {
+    const prefix = actKey.replace('act', 'ACT').replace('b', 'B');
+    const shots  = [1, 2].map(n => {
+      const shotId = `${prefix}_00${n}`;
+      return {
+        shotId,
+        actKey,
+        triggerWord:      'validation',
+        visualType:       'STILL',
+        estimatedDuration: 5,
+        imagePrompt:      `Sprint 1A validation placeholder image ${shotId}`,
+        animationPrompt:  '',
+        colorGrade:       'cold_blue',
+        sfx:              null,
+        cinematic:        null,
+      };
+    });
+    acts[actKey] = shots;
+    allShots.push(...shots);
+  });
+  const shotDefs = {
+    topic:      'Sprint 1A Validation',
+    totalShots: allShots.length,
+    acts,
+    allShots,
+  };
+  fs.writeFileSync(path.join(episodeDir, 'shot-definitions.json'), JSON.stringify(shotDefs, null, 2), 'utf8');
+  console.log(`[TEST_MODE] Wrote stub shot-definitions.json (${allShots.length} shots)`);
+  return shotDefs;
+}
+
+// Stub 0D: generate a solid black 1920x1080 PNG for each missing shot
+function testStubImages(stillsDir, shots) {
+  for (const shot of shots) {
+    const outPath = path.join(stillsDir, `${shot.shotId}.png`);
+    if (fs.existsSync(outPath)) continue;
+    execSync(
+      `ffmpeg -y -f lavfi -i color=c=black:size=1920x1080:rate=1 -frames:v 1 "${outPath}"`,
+      { stdio: 'pipe' }
+    );
+    console.log(`[TEST_MODE] Wrote stub image: ${shot.shotId}.png`);
+  }
+}
+
+// Stub 0E: wrap each missing CLIP shot's PNG as a 5-second MP4
+function testStubClips(stillsDir, clipsDir, shots) {
+  for (const shot of shots) {
+    const outPath = path.join(clipsDir, `${shot.shotId}.mp4`);
+    if (fs.existsSync(outPath)) continue;
+    const imgPath = path.join(stillsDir, `${shot.shotId}.png`);
+    if (!fs.existsSync(imgPath)) continue;
+    execSync(
+      `ffmpeg -y -loop 1 -i "${imgPath}" -f lavfi -i anullsrc=r=44100:cl=stereo -c:v libx264 -tune stillimage -c:a aac -b:a 8k -t 5 -pix_fmt yuv420p "${outPath}"`,
+      { stdio: 'pipe' }
+    );
+    console.log(`[TEST_MODE] Wrote stub clip: ${shot.shotId}.mp4`);
   }
 }
 
@@ -108,8 +219,6 @@ function resolveApproval(episodeDbId, act, approved) {
 }
 
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
-// Reads the episode's blueprint, determines workflow_type, routes accordingly.
-// Unknown/unimplemented workflow types fall back to full_render safely.
 
 async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   let workflowType = 'full_render';
@@ -123,40 +232,30 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
     console.warn('[runner] Could not load blueprint, defaulting to full_render:', e.message);
   }
 
+  if (isTestMode()) {
+    console.log(`[TEST_MODE] Active — blueprint resolved: ${workflowType}`);
+  }
+
   switch (workflowType) {
     case 'full_render':
       return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
-
     default:
-      // Future sprint: motion_graphics, short_render, vo_only, carousel
       console.warn(`[runner] Workflow type "${workflowType}" not yet implemented — falling back to full_render`);
       return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
   }
 }
 
 // ─── Full render workflow ─────────────────────────────────────────────────────
-// This is the complete existing pipeline, unchanged except:
-//   - function name: runPipeline → runFullRenderWorkflow
-//   - episodeDir: path.join(EPISODES_DIR, episodeId)
-//              → path.join(EPISODES_DIR, `${channelKey}_${episodeId}`)
-//     (the folder collision fix — one line change)
 
 async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) {
 
   if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_DIR)) {
-    throw new Error(
-      `Pipeline directory not found at: ${PIPELINE_DIR}\n` +
-      `On Railway: upload your .cjs files to /data/pipeline via the Railway CLI.\n` +
-      `Locally: make sure local-data/pipeline/ exists and contains the .cjs files.`
-    );
+    throw new Error(`Pipeline directory not found at: ${PIPELINE_DIR}`);
   }
 
   const configPath = path.join(PIPELINE_DIR, 'pipeline.config.json');
   if (!fs.existsSync(configPath)) {
-    throw new Error(
-      `pipeline.config.json not found at: ${configPath}\n` +
-      `Upload it to /data/pipeline/ along with the .cjs files.`
-    );
+    throw new Error(`pipeline.config.json not found at: ${configPath}`);
   }
 
   const CONFIG  = JSON.parse(fs.readFileSync(configPath, 'utf8'));
@@ -165,9 +264,6 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
 
   syncPipelineUpdates();
 
-  // ── SPRINT 1A FIX: namespace episode folder by channel ────────────────────
-  // Before: /data/episodes/EP7          (all channels collide)
-  // After:  /data/episodes/EmpireOmitted_EP7  (per-channel isolation)
   const episodeDir = path.join(EPISODES_DIR, `${channelKey}_${episodeId}`);
   const audioDir   = path.join(episodeDir, 'assets', 'audio');
   const stillsDir  = path.join(episodeDir, 'assets', 'stills');
@@ -196,12 +292,18 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const job0A      = jobFor('0A_script');
 
   await queries.updateJob(job0A.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-  progress('0A_script', 'running', 0, 'Writing script via Claude API...');
+  progress('0A_script', 'running', 0, 'Writing script...');
 
   if (fs.existsSync(scriptPath)) {
+    // Option B: file exists — always reuse, TEST_MODE or not
     script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'));
     await queries.updateJob(job0A.id, { status: 'complete', progress: 100, detail: 'loaded existing', finished_at: new Date().toISOString() });
     progress('0A_script', 'complete', 100, `Loaded existing script: "${script.title}"`);
+  } else if (isTestMode()) {
+    // TEST_MODE stub — only when file does not exist
+    script = testStubScript(episodeDir, topic);
+    await queries.updateJob(job0A.id, { status: 'complete', progress: 100, detail: '[TEST] stub script', finished_at: new Date().toISOString() });
+    progress('0A_script', 'complete', 100, `[TEST] Stub script: "${script.title}"`);
   } else {
     const { writeScript } = require(path.join(PIPELINE_DIR, 'surface-script-writer.cjs'));
     script = await writeScript({ topic, channel: channelKey, outputDir: episodeDir });
@@ -218,11 +320,17 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const voReady = voFiles.every(f => fs.existsSync(path.join(audioDir, f)));
 
   await queries.updateJob(job0B.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-  progress('0B_vo', 'running', 0, 'Generating voiceover via ElevenLabs...');
+  progress('0B_vo', 'running', 0, 'Generating voiceover...');
 
   if (voReady) {
+    // Option B: all files exist — always reuse
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, detail: 'existing VO files used', finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, 'All VO files already exist');
+  } else if (isTestMode()) {
+    // TEST_MODE stub — only for missing files
+    testStubVO(audioDir, voFiles);
+    await queries.updateJob(job0B.id, { status: 'complete', progress: 100, detail: '[TEST] silent VO files', finished_at: new Date().toISOString() });
+    progress('0B_vo', 'complete', 100, '[TEST] Silent VO files written');
   } else {
     const { generateVO } = require(path.join(PIPELINE_DIR, 'surface-vo-generator.cjs'));
     await generateVO({ script, outputDir: audioDir });
@@ -239,12 +347,18 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const job0C        = jobFor('0C_shots');
 
   await queries.updateJob(job0C.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-  progress('0C_shots', 'running', 0, 'Generating shot definitions via Claude API...');
+  progress('0C_shots', 'running', 0, 'Generating shot definitions...');
 
   if (fs.existsSync(shotDefsPath)) {
+    // Option B: file exists — always reuse
     shotDefs = JSON.parse(fs.readFileSync(shotDefsPath, 'utf8'));
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots loaded`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `Loaded ${shotDefs.totalShots} existing shot definitions`);
+  } else if (isTestMode()) {
+    // TEST_MODE stub — only when file does not exist
+    shotDefs = testStubShotDefs(episodeDir);
+    await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `[TEST] ${shotDefs.totalShots} stub shots`, finished_at: new Date().toISOString() });
+    progress('0C_shots', 'complete', 100, `[TEST] ${shotDefs.totalShots} stub shot definitions`);
   } else {
     const { generateShotDefinitions } = require(path.join(PIPELINE_DIR, 'surface-shot-definitions.cjs'));
     shotDefs = await generateShotDefinitions({ script, outputDir: episodeDir });
@@ -263,8 +377,15 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   await queries.updateJob(job0D.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
 
   if (needed.length === 0) {
+    // Option B: all images exist — always reuse
     progress('0D_images', 'complete', 100, 'All images already exist');
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: 'all exist', finished_at: new Date().toISOString() });
+  } else if (isTestMode()) {
+    // TEST_MODE stub — only for missing images
+    progress('0D_images', 'running', 0, `[TEST] Generating ${needed.length} placeholder images...`);
+    testStubImages(stillsDir, needed);
+    await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `[TEST] ${needed.length} stub images`, finished_at: new Date().toISOString() });
+    progress('0D_images', 'complete', 100, `[TEST] ${needed.length} placeholder images written`);
   } else {
     progress('0D_images', 'running', 0, `Generating ${needed.length} images via gpt-image-1...`);
     const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt }));
@@ -287,8 +408,17 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   await queries.updateJob(job0E.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
 
   if (needsAnim.length === 0) {
+    // Option B: all clips exist — always reuse
     progress('0E_anim', 'complete', 100, 'All animations already exist');
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: 'all exist', finished_at: new Date().toISOString() });
+  } else if (isTestMode()) {
+    // TEST_MODE stub — only for missing clips
+    // Note: stub shot-defs use STILL only, so needsAnim will be 0 on a fresh TEST_MODE run.
+    // This branch fires only if a real shot-defs file with CLIP shots was reused (Option B).
+    progress('0E_anim', 'running', 0, `[TEST] Wrapping ${needsAnim.length} images as stub clips...`);
+    testStubClips(stillsDir, clipsDir, needsAnim);
+    await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `[TEST] ${needsAnim.length} stub clips`, finished_at: new Date().toISOString() });
+    progress('0E_anim', 'complete', 100, `[TEST] ${needsAnim.length} stub clips written`);
   } else {
     progress('0E_anim', 'running', 0, `Animating ${needsAnim.length} clips via fal.ai Kling v1.6... (~60-90s each)`);
     const { animateClips } = require(path.join(PIPELINE_DIR, 'surface-animator.cjs'));
@@ -298,7 +428,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // STEP 1 — RENDER
+  // STEP 1 — RENDER (always production — this is what we are validating)
   // ══════════════════════════════════════════════════════════════════════════
 
   const job1 = jobFor('1_render');
@@ -350,7 +480,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
 
   // ══════════════════════════════════════════════════════════════════════════
-  // STEP 7 — SHORT EXTRACTOR
+  // STEP 7 — SHORT EXTRACTOR (non-fatal)
   // ══════════════════════════════════════════════════════════════════════════
 
   const job7 = jobFor('7_short');
