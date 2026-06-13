@@ -5,18 +5,17 @@
  * Sprint 1A additions:
  *   - blueprintRoutes mounted at /api/blueprints
  *   - runMigrations() called after initSchema(), before app.listen()
- *     Sequence: initSchema → runMigrations → app.listen
  *
  * Sprint 1C additions:
- *   - recommendationsRouter mounted at /api/episodes/recommend
- *     Must be mounted BEFORE /api/episodes to avoid Express route shadowing
+ *   - recommendationsRouter at /api/episodes/recommend (BEFORE /api/episodes)
  *
- * Sprint 2A additions:
- *   - revisionsRouter mounted at /api/episodes/:episodeId/revisions
- *     Uses mergeParams: true in router — episodeId available in route handlers
+ * Sprint 2A Phase A additions:
+ *   - revisionsRouter at /api/episodes/:episodeId/revisions
+ *
+ * Sprint 2A Phase B additions:
+ *   - previewRouter at /api/episodes/:episodeId/preview
  */
 
-// ── Startup checks (MUST be first) ───────────────────────────
 require('./startup-init');
 require('dotenv').config();
 
@@ -32,7 +31,8 @@ const episodeRoutes         = require('./routes/episodes');
 const suggestionRoutes      = require('./routes/suggestions');
 const blueprintRoutes       = require('./routes/blueprints');                     // Sprint 1A
 const recommendationRoutes  = require('./routes/recommendations');                // Sprint 1C
-const revisionsRouter       = require('./routes/revisions');                      // Sprint 2A
+const revisionsRouter       = require('./routes/revisions');                      // Sprint 2A Phase A
+const previewRouter         = require('./routes/preview');                        // Sprint 2A Phase B
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -56,14 +56,14 @@ app.use(cors({
 app.use(express.json());
 
 // ── Routes ────────────────────────────────────────────────────
-// NOTE: /api/episodes/recommend MUST remain before /api/episodes
-// Sprint 2A: /api/episodes/:episodeId/revisions mounted after episodes
-app.use('/api/auth',                          authRoutes);
-app.use('/api/episodes/recommend',            recommendationRoutes);   // Sprint 1C — BEFORE episodes
-app.use('/api/episodes',                      episodeRoutes);
-app.use('/api/episodes/:episodeId/revisions', revisionsRouter);        // Sprint 2A
-app.use('/api/suggestions',                   suggestionRoutes);
-app.use('/api/blueprints',                    blueprintRoutes);        // Sprint 1A
+// IMPORTANT: /api/episodes/recommend must remain BEFORE /api/episodes
+app.use('/api/auth',                                    authRoutes);
+app.use('/api/episodes/recommend',                      recommendationRoutes);   // Sprint 1C
+app.use('/api/episodes',                                episodeRoutes);
+app.use('/api/episodes/:episodeId/revisions',           revisionsRouter);        // Sprint 2A Phase A
+app.use('/api/episodes/:episodeId/preview',             previewRouter);          // Sprint 2A Phase B
+app.use('/api/suggestions',                             suggestionRoutes);
+app.use('/api/blueprints',                              blueprintRoutes);        // Sprint 1A
 
 // ── Health check ──────────────────────────────────────────────
 app.get('/health', (_, res) => {
