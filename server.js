@@ -6,24 +6,30 @@
  *   - blueprintRoutes mounted at /api/blueprints
  *   - runMigrations() called after initSchema(), before app.listen()
  *     Sequence: initSchema → runMigrations → app.listen
+ *
+ * Sprint 1C additions:
+ *   - recommendationsRouter mounted at /api/episodes/recommend
+ *     Must be mounted BEFORE /api/episodes to avoid Express route shadowing
  */
 
 // ── Startup checks (MUST be first) ───────────────────────────
 // Creates /data subdirs on Railway Volume, validates env vars.
 // Exits with a clear error message if anything is missing.
 require('./startup-init');
-
 require('dotenv').config();
+
 'use strict';
 
 const express = require('express');
 const cors    = require('cors');
 
 const { initSchema, runMigrations } = require('./db');
+
 const authRoutes        = require('./routes/auth');
 const episodeRoutes     = require('./routes/episodes');
 const suggestionRoutes  = require('./routes/suggestions');
-const blueprintRoutes   = require('./routes/blueprints');   // Sprint 1A
+const blueprintRoutes   = require('./routes/blueprints');                       // Sprint 1A
+const { createRecommendationsRouter } = require('./routes/recommendations');   // Sprint 1C
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -44,12 +50,18 @@ app.use(cors({
   },
   credentials: true,
 }));
+
 app.use(express.json());
 
-app.use('/api/auth',        authRoutes);
-app.use('/api/episodes',    episodeRoutes);
-app.use('/api/suggestions', suggestionRoutes);
-app.use('/api/blueprints',  blueprintRoutes);              // Sprint 1A
+// ── Routes ────────────────────────────────────────────────────
+// NOTE: /api/episodes/recommend MUST be mounted before /api/episodes
+// Express matches top-to-bottom — if /api/episodes is first it will
+// swallow the /recommend subroute before this router sees it.
+app.use('/api/auth',             authRoutes);
+app.use('/api/episodes/recommend', createRecommendationsRouter(requireAuth)); // Sprint 1C
+app.use('/api/episodes',         episodeRoutes);
+app.use('/api/suggestions',      suggestionRoutes);
+app.use('/api/blueprints',       blueprintRoutes);                             // Sprint 1A
 
 // ── Health check — Railway uses this to confirm the app is up ─
 app.get('/health', (_, res) => {
