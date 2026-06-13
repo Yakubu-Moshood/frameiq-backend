@@ -13,8 +13,6 @@
  */
 
 // ── Startup checks (MUST be first) ───────────────────────────
-// Creates /data subdirs on Railway Volume, validates env vars.
-// Exits with a clear error message if anything is missing.
 require('./startup-init');
 require('dotenv').config();
 
@@ -25,19 +23,18 @@ const cors    = require('cors');
 
 const { initSchema, runMigrations } = require('./db');
 
-const authRoutes        = require('./routes/auth');
-const episodeRoutes     = require('./routes/episodes');
-const suggestionRoutes  = require('./routes/suggestions');
-const blueprintRoutes   = require('./routes/blueprints');                       // Sprint 1A
-const { createRecommendationsRouter } = require('./routes/recommendations');   // Sprint 1C
+const authRoutes            = require('./routes/auth');
+const episodeRoutes         = require('./routes/episodes');
+const suggestionRoutes      = require('./routes/suggestions');
+const blueprintRoutes       = require('./routes/blueprints');            // Sprint 1A
+const recommendationRoutes  = require('./routes/recommendations');       // Sprint 1C
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-// Allow any localhost port in dev, plus the configured FRONTEND_URL in prod
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // non-browser requests
+    if (!origin) return callback(null, true);
     const allowed = [
       process.env.FRONTEND_URL,
       'http://localhost:5173',
@@ -57,13 +54,13 @@ app.use(express.json());
 // NOTE: /api/episodes/recommend MUST be mounted before /api/episodes
 // Express matches top-to-bottom — if /api/episodes is first it will
 // swallow the /recommend subroute before this router sees it.
-app.use('/api/auth',             authRoutes);
-app.use('/api/episodes/recommend', createRecommendationsRouter(requireAuth)); // Sprint 1C
-app.use('/api/episodes',         episodeRoutes);
-app.use('/api/suggestions',      suggestionRoutes);
-app.use('/api/blueprints',       blueprintRoutes);                             // Sprint 1A
+app.use('/api/auth',               authRoutes);
+app.use('/api/episodes/recommend', recommendationRoutes);   // Sprint 1C — BEFORE episodes
+app.use('/api/episodes',           episodeRoutes);
+app.use('/api/suggestions',        suggestionRoutes);
+app.use('/api/blueprints',         blueprintRoutes);         // Sprint 1A
 
-// ── Health check — Railway uses this to confirm the app is up ─
+// ── Health check ──────────────────────────────────────────────
 app.get('/health', (_, res) => {
   res.json({
     ok:      true,
@@ -83,9 +80,6 @@ app.use((err, req, res, next) => {
 });
 
 // ── Boot sequence ─────────────────────────────────────────────
-// 1. initSchema   — creates core tables (users, episodes, jobs) if absent
-// 2. runMigrations — applies Sprint 1A schema additions, seeds blueprints/platforms/channels
-// 3. app.listen   — start accepting requests
 initSchema()
   .then(() => runMigrations())
   .then(() => {
