@@ -32,7 +32,7 @@ async function resolveEpisode(episodeId, userId, res) {
 }
 
 router.post('/', requireAuth, async (req, res) => {
-  const { id: episodeId } = req.params;
+  const episodeId = req.params.episodeId || req.params.id;
   const { act, comment, revision_type } = req.body || {};
 
   const episode = await resolveEpisode(episodeId, req.userId, res);
@@ -70,7 +70,7 @@ router.post('/', requireAuth, async (req, res) => {
 });
 
 router.get('/', requireAuth, async (req, res) => {
-  const { id: episodeId } = req.params;
+  const episodeId = req.params.episodeId || req.params.id;
   const episode = await resolveEpisode(episodeId, req.userId, res);
   if (!episode) return;
   try {
@@ -86,7 +86,8 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 router.get('/:revId', requireAuth, async (req, res) => {
-  const { id: episodeId, revId } = req.params;
+  const episodeId = req.params.episodeId || req.params.id;
+  const { revId } = req.params;
   const episode = await resolveEpisode(episodeId, req.userId, res);
   if (!episode) return;
   try {
@@ -102,7 +103,8 @@ router.get('/:revId', requireAuth, async (req, res) => {
 });
 
 router.patch('/:revId', requireAuth, async (req, res) => {
-  const { id: episodeId, revId } = req.params;
+  const episodeId = req.params.episodeId || req.params.id;
+  const { revId } = req.params;
   const { status } = req.body || {};
   const episode = await resolveEpisode(episodeId, req.userId, res);
   if (!episode) return;
