@@ -78,6 +78,8 @@ router.get('/', requireAuth, async (req, res) => {
       `SELECT * FROM revisions WHERE episode_id = ? ORDER BY created_at DESC`,
       [episodeId]
     );
+    // Prevent browser caching so fresh data is always returned
+    res.set('Cache-Control', 'no-store');
     return res.json(revisions);
   } catch (err) {
     console.error('[revisions] list error:', err.message);
