@@ -16,6 +16,10 @@
  *   - runMigrations() refactored — removed early return after 001
  *     Each migration now checked independently so 004 always runs
  *   - Migration 004_review_foundation wired in
+ *
+ * Sprint 1.5 Phase A additions:
+ *   - Migration 005_sprint15_phase_a wired in
+ *     provider columns on channel_dna + episodes, provider_events table
  */
 
 require('dotenv').config();
@@ -175,12 +179,24 @@ async function runMigrations() {
     console.log('[migrations] 004_review_foundation already applied — skipping');
   } else {
     console.log('[migrations] Applying 004_review_foundation...');
-
     const { up } = require('./migrations/004_review_foundation');
     await up({ run, all });
-
     await run(`INSERT INTO schema_migrations (id) VALUES ('004_review_foundation')`);
     console.log('[migrations] 004_review_foundation complete');
+  }
+
+  // ── Migration 005_sprint15_phase_a ────────────────────────────────────────
+  // Sprint 1.5 Phase A: provider columns on channel_dna + episodes,
+  // provider_events table.
+  const m005 = await get(`SELECT id FROM schema_migrations WHERE id = '005_sprint15_phase_a'`);
+  if (m005) {
+    console.log('[migrations] 005_sprint15_phase_a already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 005_sprint15_phase_a...');
+    const { up: up005 } = require('./migrations/005_sprint15_phase_a');
+    await up005({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('005_sprint15_phase_a')`);
+    console.log('[migrations] 005_sprint15_phase_a complete');
   }
 }
 
