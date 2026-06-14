@@ -15,6 +15,9 @@
  *   surface-script-writer.cjs chains directly into vo-generator internally.
  *   Writing silent VO files first causes the internal chain to skip them.
  *   Remove TEST_MODE variable after Sprint 1A validation is complete.
+ *
+ * Sprint 1.5 Phase B changes:
+ *   - generateVO() call now passes channel and episodeId for provider tracking
  */
 
 require('dotenv').config();
@@ -57,7 +60,6 @@ function isTestMode() {
   return process.env.TEST_MODE === 'true';
 }
 
-// Stub 0A: write a minimal valid script.json
 function testStubScript(episodeDir, topic) {
   const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const labels  = ['The Setup', 'The Rise', 'The Fracture', 'The Human Cost', 'The Collapse', 'The Verdict'];
@@ -79,9 +81,6 @@ function testStubScript(episodeDir, topic) {
   return script;
 }
 
-// Stub 0B: write silent 3-second MP3 files using FFmpeg (only for missing files)
-// IMPORTANT: called BEFORE writeScript in TEST_MODE so the internal script→VO
-// chain finds the files already present and skips ElevenLabs automatically.
 function testStubVO(audioDir, voFiles) {
   let written = 0;
   for (const f of voFiles) {
@@ -97,7 +96,6 @@ function testStubVO(audioDir, voFiles) {
   return written;
 }
 
-// Stub 0C: write minimal valid shot-definitions.json
 function testStubShotDefs(episodeDir) {
   const actKeys  = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const acts     = {};
@@ -128,7 +126,6 @@ function testStubShotDefs(episodeDir) {
   return shotDefs;
 }
 
-// Stub 0D: generate solid black 1920x1080 PNG for each missing shot
 function testStubImages(stillsDir, shots) {
   let written = 0;
   for (const shot of shots) {
@@ -144,7 +141,6 @@ function testStubImages(stillsDir, shots) {
   return written;
 }
 
-// Stub 0E: wrap each missing CLIP shot's PNG as a 5-second MP4
 function testStubClips(stillsDir, clipsDir, shots) {
   let written = 0;
   for (const shot of shots) {
@@ -252,23 +248,10 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const jobs   = await queries.getJobsForEpisode(episodeDbId);
   const jobFor = (step) => jobs.find(j => j.step === step);
 
-  // ── TEST_MODE PRE-FLIGHT ──────────────────────────────────────────────────
-  // Write stubs BEFORE calling writeScript:
-  //
-  // 1. VO files: surface-script-writer.cjs chains directly into vo-generator
-  //    internally. Silent files must already exist so that chain skips ElevenLabs.
-  //
-  // 2. word-timestamps.json: surface-renderer.cjs calls Whisper (OpenAI) as its
-  //    very first step to get word-level timestamps. It checks if this file already
-  //    exists and skips Whisper if so. Writing an empty array here bypasses OpenAI
-  //    entirely. The renderer renders without caption overlays — acceptable for validation.
   const voFiles = ['VO_Act1.mp3','VO_Act2.mp3','VO_Act3.mp3','VO_Act3B.mp3','VO_Act4.mp3','VO_Act5.mp3'];
   if (isTestMode()) {
-    // Stub 1: silent VO files
     const written = testStubVO(audioDir, voFiles);
     if (written > 0) console.log(`[TEST_MODE] Pre-flight: wrote ${written} silent VO files`);
-
-    // Stub 2: dummy word-timestamps.json — skips Whisper in surface-renderer.cjs
     const tsPath = path.join(episodeDir, 'word-timestamps.json');
     if (!fs.existsSync(tsPath)) {
       fs.writeFileSync(tsPath, '[]', 'utf8');
@@ -276,9 +259,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 0A — SCRIPT
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 0A — SCRIPT ──────────────────────────────────────────────────────
 
   let script;
   const scriptPath = path.join(episodeDir, 'script.json');
@@ -302,9 +283,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0A_script', 'complete', 100, `Script written: "${script.title}"`);
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 0B — VOICEOVER
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 0B — VOICEOVER ───────────────────────────────────────────────────
 
   const job0B   = jobFor('0B_vo');
   const voReady = voFiles.every(f => fs.existsSync(path.join(audioDir, f)));
@@ -313,24 +292,21 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   progress('0B_vo', 'running', 0, 'Generating voiceover...');
 
   if (voReady) {
-    // Option B: files exist (production reuse OR TEST_MODE pre-flight already wrote them)
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, detail: isTestMode() ? '[TEST] silent VO files' : 'existing VO files used', finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, isTestMode() ? '[TEST] Silent VO files ready' : 'All VO files already exist');
   } else if (isTestMode()) {
-    // Safety net: pre-flight should have handled this, but catch any stragglers
     testStubVO(audioDir, voFiles);
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, detail: '[TEST] silent VO files', finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, '[TEST] Silent VO files written');
   } else {
     const { generateVO } = require(path.join(PIPELINE_DIR, 'surface-vo-generator.cjs'));
-    await generateVO({ script, outputDir: audioDir });
+    // Sprint 1.5 Phase B: pass channel and episodeId for provider tracking
+    await generateVO({ script, outputDir: audioDir, channel: channelKey, episodeId: episodeDbId });
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, 'All 6 VO files generated');
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 0C — SHOT DEFINITIONS
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 0C — SHOT DEFINITIONS ────────────────────────────────────────────
 
   let shotDefs;
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
@@ -354,9 +330,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0C_shots', 'complete', 100, `${shotDefs.totalShots} shots defined`);
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 0D — IMAGE GENERATION
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 0D — IMAGE GENERATION ────────────────────────────────────────────
 
   const job0D  = jobFor('0D_images');
   const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
@@ -382,9 +356,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 0E — ANIMATION
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 0E — ANIMATION ───────────────────────────────────────────────────
 
   const job0E     = jobFor('0E_anim');
   const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
@@ -408,9 +380,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 1 — RENDER (always production — this is what we are validating)
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 1 — RENDER ───────────────────────────────────────────────────────
 
   const job1 = jobFor('1_render');
   await queries.updateJob(job1.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
@@ -437,9 +407,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // STEP 7 — SHORT EXTRACTOR (non-fatal)
-  // ══════════════════════════════════════════════════════════════════════════
+  // ── STEP 7 — SHORT EXTRACTOR ──────────────────────────────────────────────
 
   const job7 = jobFor('7_short');
   let shortResult = null;
