@@ -11,7 +11,7 @@
 const express   = require('express');
 const Anthropic  = require('@anthropic-ai/sdk');
 const { requireAuth } = require('../middleware/auth');
-const { getChannelConfigByLabel } = require('../data/config-reader-proxy');
+const { getChannelConfigByLabel } = require('./config-reader-proxy');
 
 const router = express.Router();
 const client = new Anthropic.default({ apiKey: process.env.ANTHROPIC_API_KEY });
