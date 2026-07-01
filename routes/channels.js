@@ -9,7 +9,7 @@
 
 const express = require('express');
 const { requireAuth } = require('../middleware/auth');
-const { getAllChannelConfigs } = require('../data/config-reader-proxy');
+const { getAllChannelConfigs } = require('./config-reader-proxy');
 
 const router = express.Router();
 
