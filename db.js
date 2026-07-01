@@ -20,6 +20,12 @@
  * Sprint 1.5 Phase A additions:
  *   - Migration 005_sprint15_phase_a wired in
  *     provider columns on channel_dna + episodes, provider_events table
+ *
+ * Migration 006 additions:
+ *   - Migration 006_channel_dna_v2 wired in
+ *     Full pipeline-awareness columns on channel_dna
+ *   - listEpisodes query updated to LEFT JOIN channel_dna
+ *     returning ui_theme_color + blueprint_label per episode
  */
 
 require('dotenv').config();
@@ -198,6 +204,21 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('005_sprint15_phase_a')`);
     console.log('[migrations] 005_sprint15_phase_a complete');
   }
+
+  // ── Migration 006_channel_dna_v2 ──────────────────────────────────────────
+  // Channel DNA v2: full pipeline-awareness columns + seed all 5 channels.
+  const m006 = await get(`SELECT id FROM schema_migrations WHERE id = '006_channel_dna_v2'`);
+  if (m006) {
+    console.log('[migrations] 006_channel_dna_v2 already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 006_channel_dna_v2...');
+    const { up: up006 } = require('./migrations/006_channel_dna_v2');
+    await up006({ run, all });
+    const { seedChannelDnaV2 } = require('./data/seed-006-channel-dna-v2');
+    await seedChannelDnaV2(run, all);
+    await run(`INSERT INTO schema_migrations (id) VALUES ('006_channel_dna_v2')`);
+    console.log('[migrations] 006_channel_dna_v2 complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
@@ -235,7 +256,19 @@ const queries = {
     get(`SELECT * FROM episodes WHERE id = ?`, [id]),
 
   listEpisodes: (userId) =>
-    all(`SELECT * FROM episodes WHERE user_id = ? ORDER BY created_at DESC`, [userId]),
+    all(`
+      SELECT
+        e.*,
+        c.ui_theme_color,
+        c.blueprint_label,
+        c.channel_id      AS dna_channel_id,
+        c.slug            AS channel_slug,
+        c.active          AS channel_active
+      FROM episodes e
+      LEFT JOIN channel_dna c ON e.channel = c.label
+      WHERE e.user_id = ?
+      ORDER BY e.created_at DESC
+    `, [userId]),
 
   updateEpisodeStatus: (status, id) =>
     run(`UPDATE episodes SET status = ?, updated_at = datetime('now') WHERE id = ?`, [status, id]),
