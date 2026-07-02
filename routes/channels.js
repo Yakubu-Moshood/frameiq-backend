@@ -20,7 +20,7 @@ router.get('/', requireAuth, async (req, res) => {
     const active = Object.values(all)
       .filter(ch => ch.active === 1)
       .map(ch => ({
-        key:            ch.label,
+        key:            ch.id,
         name:           ch.label,
         slug:           ch.slug,
         blueprint_label: ch.blueprint_label,
