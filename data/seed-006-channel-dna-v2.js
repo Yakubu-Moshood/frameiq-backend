@@ -1,12 +1,14 @@
 /**
  * seed-006-channel-dna-v2.js
  * Populates all Channel DNA v2 fields for all 5 channels.
- * Matches on existing label column — safe to re-run (UPDATE only, no INSERT).
+ * Safe to re-run: creates missing local rows, then updates v2 fields.
  */
 
 const channelSeeds = [
   {
     label:                  'EmpireOmitted',
+    display_label:          'Empire Omitted',
+    description:            'Premium investigative documentaries about hidden scandals, corporate deception, and power.',
     channel_id:             'empire-omitted',
     slug:                   'empire-omitted',
     active:                 1,
@@ -28,6 +30,8 @@ const channelSeeds = [
   },
   {
     label:                  'MoneyExplained',
+    display_label:          'Money Explained',
+    description:            'Clear finance and economic explainers for everyday viewers.',
     channel_id:             'money-explained',
     slug:                   'money-explained',
     active:                 1,
@@ -49,6 +53,8 @@ const channelSeeds = [
   },
   {
     label:                  'TrueCrimeWeekly',
+    display_label:          'True Crime Weekly',
+    description:            'Suspenseful true crime documentary episodes with a cinematic weekly format.',
     channel_id:             'true-crime-weekly',
     slug:                   'true-crime-weekly',
     active:                 1,
@@ -70,6 +76,8 @@ const channelSeeds = [
   },
   {
     label:                  'HistoryHidden',
+    display_label:          'History Hidden',
+    description:            'Archival-style documentaries about suppressed history and forgotten events.',
     channel_id:             'history-hidden',
     slug:                   'history-hidden',
     active:                 1,
@@ -91,6 +99,8 @@ const channelSeeds = [
   },
   {
     label:                  'ServedCold',
+    display_label:          'Served Cold',
+    description:            'Revenge-comedy story videos with a sharp, sardonic voice.',
     channel_id:             'served-cold',
     slug:                   'served-cold',
     active:                 0,
@@ -121,8 +131,41 @@ async function seedChannelDnaV2(dbRun, dbAll) {
     );
 
     if (existing.length === 0) {
-      console.log(`[seed-006] No row found for label "${ch.label}" — skipping`);
-      continue;
+      await dbRun(`
+        INSERT INTO channel_dna (
+          id,
+          label,
+          description,
+          brand_voice,
+          primary_colour,
+          secondary_colour,
+          background_colour,
+          font_display,
+          font_body,
+          watermark_text,
+          default_blueprint_id,
+          allowed_blueprints,
+          monetisation_enabled,
+          credits_per_episode
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        ch.channel_id,
+        ch.label,
+        ch.description,
+        ch.narration_style,
+        ch.ui_theme_color,
+        '#C9A84C',
+        '#000000',
+        'Bebas Neue',
+        'Barlow',
+        ch.display_label,
+        'documentary',
+        JSON.stringify(['documentary', 'investigative', 'educational']),
+        0,
+        1,
+      ]);
+
+      console.log(`[seed-006] Inserted missing row: ${ch.label}`);
     }
 
     await dbRun(`
