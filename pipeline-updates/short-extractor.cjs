@@ -41,9 +41,12 @@ const LEAD_IN       = 1.0;  // start slightly before act4 for a natural breath
 const ACTS_BEFORE_ACT4 = ['VO_Act1.mp3', 'VO_Act2.mp3', 'VO_Act3.mp3', 'VO_Act3B.mp3'];
 
 // Channel branding (self-contained so this module has zero config dependencies)
+// NOTE (Macro Decode onboarding): renamed from MoneyExplained. Accent hex
+// is provisional navy/gold — confirm against final brand work, and keep
+// this in sync with the BRANDS map in surface-renderer.cjs.
 const BRANDS = {
   EmpireOmitted:   { display: 'EMPIRE OMITTED',    accent: 'C9A84C' }, // gold
-  MoneyExplained:  { display: 'MONEY EXPLAINED',   accent: '2E9BFF' }, // electric blue
+  MacroDecode:     { display: 'MACRO DECODE',      accent: 'E8B34C' }, // amber/gold
   HistoryHidden:   { display: 'HISTORY HIDDEN',    accent: 'D8C49A' }, // sepia cream
   TrueCrimeWeekly: { display: 'TRUE CRIME WEEKLY', accent: 'C41E1E' }, // red
 };

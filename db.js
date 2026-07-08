@@ -219,6 +219,20 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('006_channel_dna_v2')`);
     console.log('[migrations] 006_channel_dna_v2 complete');
   }
+
+  // ── Migration 007_macro_decode_rename ─────────────────────────────────────
+  // Renames the "Money Explained" channel_dna row to Macro Decode and
+  // populates its creative DNA per macro-decode-channel-dna-v2.md.
+  const m007 = await get(`SELECT id FROM schema_migrations WHERE id = '007_macro_decode_rename'`);
+  if (m007) {
+    console.log('[migrations] 007_macro_decode_rename already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 007_macro_decode_rename...');
+    const { up: up007 } = require('./migrations/007_macro_decode_rename');
+    await up007({ run, get });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('007_macro_decode_rename')`);
+    console.log('[migrations] 007_macro_decode_rename complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────

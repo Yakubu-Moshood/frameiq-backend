@@ -1,0 +1,25 @@
+{
+  "id": "macro-decode",
+  "name": "Macro Decode",
+  "publicName": "Macro Decode",
+  "internalName": "Money Explained",
+  "niche": "Money & Finance",
+  "description": "Decodes complex economic systems and modern financial anxieties through data-driven forensics and premium visual explanations. Tone of an investigative journalist: skeptical of hype, heavily data-reliant, slightly contrarian. Positions itself as the Truth-Teller revealing the hidden mechanics of the economy.",
+  "status": "planned",
+  "_sourceOfTruthNote": "This file is UI/catalog presentation metadata only (read by channelRegistryService.buildCreativeDNA for the /api/channels response). It is NOT what drives actual episode production. Production behavior (narration_style, image_style, animation_style, voice ID, etc.) is owned by the channel_dna DB table, populated by migrations/007_macro_decode_rename.js, and read at render time via config-reader.cjs. Keep this file's creativeDNA in sync with that migration by eye, but do not treat it as authoritative — see macro-decode-channel-dna-v2.md for the real source brief.",
+  "creativeDNA": {
+    "tone": "analytical, skeptical, contrarian, data-driven — investigative journalist validating macro-anxiety, then explaining the real mechanism with hard data",
+    "storyStructure": "Curiosity Loop + Problem Stack: contrarian hook (0-15s) -> context (15-60s) -> the common understanding (1-4m) -> what's actually happening, the turn (4-7m) -> why it matters for you (7-10m) -> conclusion / open loop (10-12m)",
+    "hookFormula": "Pattern Interrupt — bold contrarian claim + specific value promise, e.g. \"The index-fund advice you have heard is mostly right. But three specific cases break it.\"",
+    "visualStyle": "deep navy blue, gold/amber, white — clean, geometric, professional. Motion graphics mandatory: charts build dynamically, numbers count up. Static graphs are never used.",
+    "narrationStyle": "crisp, confident, analytical, direct-address (\"you\"), data-heavy but conversational — not calm/soft, not documentary-cinematic",
+    "targetEpisodeLength": "10-15 minutes",
+    "contentPillars": [
+      "Financial Systems Explained",
+      "Money Investigations",
+      "Economic Deep Dives",
+      "Personal Finance Mechanics"
+    ],
+    "differentiation": "Explains the rules of the game (economics/finance), not people breaking the rules — no boardroom villains or rise-and-fall arcs like corporate-scandal channels. Never generic budgeting advice. If a claim can't be backed by a chart, a statistic, or an established economic principle, it doesn't belong on this channel."
+  }
+}

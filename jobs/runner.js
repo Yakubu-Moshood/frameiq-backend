@@ -325,7 +325,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0C_shots', 'complete', 100, `[TEST] ${shotDefs.totalShots} stub shot definitions`);
   } else {
     const { generateShotDefinitions } = require(path.join(PIPELINE_DIR, 'surface-shot-definitions.cjs'));
-    shotDefs = await generateShotDefinitions({ script, outputDir: episodeDir });
+    shotDefs = await generateShotDefinitions({ script, outputDir: episodeDir, channel: channelKey });
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `${shotDefs.totalShots} shots defined`);
   }
@@ -351,7 +351,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     const promptsPath = path.join(stillsDir, 'pending-prompts.json');
     fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
     const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));
-    await generateImages({ promptsFile: promptsPath, outputDir: stillsDir });
+    await generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey });
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
@@ -375,7 +375,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   } else {
     progress('0E_anim', 'running', 0, `Animating ${needsAnim.length} clips via fal.ai Kling v1.6...`);
     const { animateClips } = require(path.join(PIPELINE_DIR, 'surface-animator.cjs'));
-    const result = await animateClips({ shotDefs, episodeDir });
+    const result = await animateClips({ shotDefs, episodeDir, channel: channelKey });
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `${result.completed} clips`, finished_at: new Date().toISOString() });
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
   }

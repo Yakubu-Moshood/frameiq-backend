@@ -1,11 +1,29 @@
 /**
  * seed-006-channel-dna-v2.js
  * Populates all Channel DNA v2 fields for all 5 channels.
- * Matches on existing label column — safe to re-run (UPDATE only, no INSERT).
+ *
+ * Matches on the stable `id` primary key, NOT on the free-text `label`
+ * column. This was previously a label match (`WHERE label = ?`) and it
+ * silently matched zero rows for every channel, because these seed
+ * entries used no-space PascalCase label values ('EmpireOmitted',
+ * 'MoneyExplained', ...) while the real channel_dna.label values have
+ * spaces ('Empire Omitted', 'Money Explained', ...) — set once at
+ * row-creation time in data/seed-sprint1a.js. `id` has no such
+ * typo/formatting risk, so every entry below now carries an explicit
+ * `id` and the query matches on that instead.
+ *
+ * NOTE: as of migration 007, the Money Explained row's `label` has been
+ * renamed to "Macro Decode" and its DNA fields are owned by
+ * migrations/007_macro_decode_rename.js, not this file. The entry below
+ * is kept in sync for documentation/re-seed purposes but migration 007
+ * is the actual enforcement point for that channel.
+ *
+ * Safe to re-run (UPDATE only, no INSERT).
  */
 
 const channelSeeds = [
   {
+    id:                     'EmpireOmitted',
     label:                  'EmpireOmitted',
     channel_id:             'empire-omitted',
     slug:                   'empire-omitted',
@@ -27,27 +45,33 @@ const channelSeeds = [
     ]),
   },
   {
-    label:                  'MoneyExplained',
-    channel_id:             'money-explained',
-    slug:                   'money-explained',
+    // Renamed from "Money Explained" to "Macro Decode" (SEO decision).
+    // DNA below matches migrations/007_macro_decode_rename.js, which is
+    // the actual enforcement point — kept in sync here for re-seed use.
+    id:                     'MoneyExplained',
+    label:                  'MoneyExplained', // historical/documentation only — see renameLabelTo below
+    renameLabelTo:          'Macro Decode',
+    channel_id:             'macro-decode',
+    slug:                   'macro-decode',
     active:                 1,
     blueprint_label:        'Educational',
-    ui_theme_color:         '#1B3A6B',
-    target_length_minutes:  5,
+    ui_theme_color:         '#0F2A4A',
+    target_length_minutes:  12,
     research_depth:         'standard',
-    narration_style:        'calm-explainer',
-    script_pacing:          'steady',
+    narration_style:        'crisp-analytical-direct',
+    script_pacing:          'fast-dense',
     image_style:            'clean-infographic',
-    image_motion:           'still',
-    animation_style:        'none',
-    music_style:            'finance-clean',
-    music_tempo:            'medium',
+    image_motion:           'animated-data-viz',
+    animation_style:        'motion-graphics-only',
+    music_style:            'electronic-rhythmic',
+    music_tempo:            'fast',
     title_category_hints:   JSON.stringify([
-      'money-systems', 'personal-finance', 'economic-concepts',
-      'financial-history', 'how-money-works'
+      'financial-systems-explained', 'money-investigations',
+      'economic-deep-dives', 'personal-finance-mechanics'
     ]),
   },
   {
+    id:                     'TrueCrimeWeekly',
     label:                  'TrueCrimeWeekly',
     channel_id:             'true-crime-weekly',
     slug:                   'true-crime-weekly',
@@ -69,6 +93,7 @@ const channelSeeds = [
     ]),
   },
   {
+    id:                     'HistoryHidden',
     label:                  'HistoryHidden',
     channel_id:             'history-hidden',
     slug:                   'history-hidden',
@@ -90,6 +115,7 @@ const channelSeeds = [
     ]),
   },
   {
+    id:                     'ServedCold',
     label:                  'ServedCold',
     channel_id:             'served-cold',
     slug:                   'served-cold',
@@ -117,11 +143,11 @@ async function seedChannelDnaV2(dbRun, dbAll) {
 
   for (const ch of channelSeeds) {
     const existing = await dbAll(
-      `SELECT id FROM channel_dna WHERE label = ?`, [ch.label]
+      `SELECT id FROM channel_dna WHERE id = ?`, [ch.id]
     );
 
     if (existing.length === 0) {
-      console.log(`[seed-006] No row found for label "${ch.label}" — skipping`);
+      console.log(`[seed-006] No row found for id "${ch.id}" — skipping`);
       continue;
     }
 
@@ -143,7 +169,7 @@ async function seedChannelDnaV2(dbRun, dbAll) {
         music_tempo           = ?,
         title_category_hints  = ?,
         updated_at            = datetime('now')
-      WHERE label = ?
+      WHERE id = ?
     `, [
       ch.channel_id,
       ch.slug,
@@ -160,10 +186,21 @@ async function seedChannelDnaV2(dbRun, dbAll) {
       ch.music_style,
       ch.music_tempo,
       ch.title_category_hints,
-      ch.label,
+      ch.id,
     ]);
 
-    console.log(`[seed-006] Updated: ${ch.label} (active: ${ch.active})`);
+    // Only rename the label when this seed entry explicitly asks for it
+    // (Macro Decode). Other channels' `label` field here is a leftover
+    // no-space identifier used only for historical/documentation
+    // purposes and must NOT overwrite their real (space-containing)
+    // channel_dna.label values — that would be an unrequested rename of
+    // channels outside this task's scope, Empire Omitted included.
+    if (ch.renameLabelTo) {
+      await dbRun(`UPDATE channel_dna SET label = ?, updated_at = datetime('now') WHERE id = ?`, [ch.renameLabelTo, ch.id]);
+      console.log(`[seed-006] Renamed label for id "${ch.id}" -> "${ch.renameLabelTo}"`);
+    }
+
+    console.log(`[seed-006] Updated DNA fields for id: ${ch.id} (active: ${ch.active})`);
   }
 
   console.log('[seed-006] Done.');

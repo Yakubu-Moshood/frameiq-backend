@@ -5,17 +5,37 @@
  * Takes a script and returns shot-definitions.json with:
  *   - triggerWord (single word, verbatim from script)
  *   - visualType, imagePrompt, animationPrompt, colorGrade, sfx
- *   - cinematic overlay (auto-generated, EP4-approved style)
+ *   - overlay data (auto-generated, per-channel visual language)
  *
- * OVERLAY STYLE RULES (locked from EP4 approval):
- *   Names/titles     → slide_in  gold  #C9A84C  size 58  bottom left
- *   Dollar amounts   → stamp     red   #8B0000  size 88  centre
- *   Impact words     → stamp     red   #8B0000  size 100 centre
- *   Dates            → stamp     red   #8B0000  size 88  centre
- *   Factual lines    → slide_in  white #FFFFFF  size 48  bottom left
- *   Institutions     → slide_in  red   #8B0000  size 52  bottom left
- *   Outro/subscribe  → slide_in  gold  #C9A84C  size 42  bottom left
- *   No overlay       → null
+ * Macro Decode onboarding (build report, see commit message for full detail):
+ *   This module is now channel-aware, following the same pattern already
+ *   used by surface-script-writer.cjs (getChannelConfigByLabel + a style
+ *   profile selected by channel_dna.narration_style). Previously this file
+ *   hardcoded Empire Omitted's identity/visual-language directly with no
+ *   channel parameter at all.
+ *
+ *   Empire Omitted's original hardcoded content has been moved verbatim
+ *   into VISUAL_PROFILES['dramatic-investigative'] — its prompt output,
+ *   overlay shape ("cinematic" field), and behaviour are UNCHANGED. Any
+ *   channel with an unrecognised/missing narration_style also falls back
+ *   to this profile, matching prior behaviour when no channel was passed.
+ *
+ *   Macro Decode gets a new profile under 'crisp-analytical-direct'
+ *   (channel_dna.narration_style for Macro Decode as of migration 007),
+ *   built from macro-decode-channel-dna-v2.md. It introduces a new
+ *   overlay shape — "stat" (data-callout stat card) and "lower" (source
+ *   citation lower-third) — instead of Empire Omitted's dollar-stamp
+ *   "cinematic" field, and a new "DATA_VIZ" visual type for animated
+ *   charts/counting numbers.
+ *
+ *   IMPORTANT CAVEAT: "DATA_VIZ" is a new label in the shot schema, but
+ *   no module downstream (surface-image-generator.cjs, surface-animator.cjs,
+ *   surface-renderer.cjs) has a rendering path that actually produces
+ *   animated/building charts or counting numbers today. Until that is
+ *   built, DATA_VIZ shots are handled exactly like STILL shots by the
+ *   rest of the pipeline (a static image is generated and held for the
+ *   shot's duration) — the label is forward-looking, not a working
+ *   feature yet. See the build report for what real support would need.
  */
 
 require('dotenv').config();
@@ -24,6 +44,7 @@ require('dotenv').config();
 const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
+const { getChannelConfigByLabel } = require('./config-reader.cjs');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -31,25 +52,31 @@ const MODEL      = 'claude-opus-4-5';
 function log(msg) { console.log(msg); }
 const MAX_TOKENS = 16000;
 
-const VISUAL_TYPES = `
+// Each profile is a self-contained visual language for one channel "voice".
+// Selected by channel_dna.narration_style — see generateShotDefinitions().
+const VISUAL_PROFILES = {
+
+  // ── Empire Omitted — UNCHANGED from the original hardcoded version ────────
+  'dramatic-investigative': {
+    overlayFieldName: 'cinematic',
+    channelIdentityLine:
+      'You are a visual director for Empire Omitted, a faceless YouTube documentary channel.',
+    visualTypes: `
 CLIP          — animated MP4 clip, best for establishing shots, movement, atmosphere
 STILL         — static PNG, best for impact moments, reveals, text overlays
 STILL_ZOOM    — slow Ken Burns zoom on PNG, best for portrait holds (max 10 seconds)
-`.trim();
-
-const COLOR_GRADES = `
+`.trim(),
+    colorGrades: `
 cold_blue     — opening, corporate offices, neutral exposition
 gold_warm     — rise, success, money, early optimism
 deep_shadow   — deception, secrets, boardroom betrayal, courtroom
 red_alert     — collapse, fraud revealed, panic, arrest
 neutral       — general purpose, transitions
 desaturated   — human cost, grief, victims (act3b only)
-`.trim();
-
-const IMAGE_STYLE_SUFFIX = `Cinematic 16:9 ultra-realistic dark documentary. Deep blacks, charcoal, gold accents (#C9A84C). No text or logos. No real people. Moody dramatic lighting. RED camera aesthetic. High contrast.`;
-
-// EP4-approved overlay style rules — locked permanently
-const OVERLAY_STYLE_RULES = `
+`.trim(),
+    imageStyleSuffix:
+      `Cinematic 16:9 ultra-realistic dark documentary. Deep blacks, charcoal, gold accents (#C9A84C). No text or logos. No real people. Moody dramatic lighting. RED camera aesthetic. High contrast.`,
+    overlayRules: `
 CINEMATIC OVERLAY RULES (these are permanent defaults — never deviate):
 
 Each shot may have a "cinematic" field for text overlays. Use these rules exactly:
@@ -94,26 +121,117 @@ OVERLAY TEXT RULES:
   - No commas in text (they break FFmpeg filter chains)
   - Max 60 characters per line
   - Be punchy — shorter is better
-`.trim();
+`.trim(),
+    shotCountRule: 'Every act: 8–10 shots maximum (keep it tight — quality over quantity)',
+    personalStakesNote: 'Act3b (human cost): desaturated grade and STILL or STILL_ZOOM only',
+    pacingNote: 'estimatedDuration: seconds you estimate this shot will hold based on narration pacing',
+    sfxOptions: 'cash_register keyboard_typing gavel_bang phone_buzz alarm crowd_murmur paper_shred door_slam typing_fast news_alert',
+    overlaySchema: `"cinematic": {
+          "text": "OVERLAY TEXT IN UPPERCASE",
+          "style": "slide_in|stamp",
+          "colour": "#C9A84C|#8B0000|#FFFFFF",
+          "size": <number>,
+          "y": "h-text_h-80|(h-text_h)/2"
+        }`,
+  },
+
+  // ── Macro Decode — new profile, per macro-decode-channel-dna-v2.md ───────
+  'crisp-analytical-direct': {
+    overlayFieldName: 'stat / lower',
+    channelIdentityLine:
+      'You are a motion-graphics director for Macro Decode, a premium faceless finance/macro explainer channel. Macro Decode explains the RULES of the economic game, not people breaking rules — no boardroom villains, no rise-and-fall arc, no dark-documentary tone.',
+    visualTypes: `
+DATA_VIZ      — animated chart/graph or counting-number graphic. Charts build dynamically, numbers count up on screen — static graphs are never used. Use this for every stat, trend, or comparison shot.
+STILL         — clean static graphic or B-roll still, for context/transition moments only (not for a shot whose whole point is a number or trend — that must be DATA_VIZ)
+STILL_ZOOM    — slow, subtle zoom on a still, for establishing/context shots only (max 8 seconds)
+Do NOT use CLIP. Macro Decode does not use fal.ai-style cinematic camera-movement clips.
+`.trim(),
+    colorGrades: `
+navy_base      — default background/context grade, deep navy (#0F2A4A)
+gold_emphasis  — key stat reveal, the "turn" moment, contrarian claim
+white_clean    — neutral exposition, factual explanation
+amber_alert    — personal-stakes / "why this matters to you" moments
+neutral        — general purpose, transitions
+`.trim(),
+    imageStyleSuffix:
+      `Clean geometric motion-graphics style. Deep navy blue (#0F2A4A) background with gold/amber (#E8B34C) and white accent colors. Premium data-visualization aesthetic — modern finance-broadcast graphics, not photorealism. No dark documentary lighting, no cinematic RED-camera look, no scandal/courtroom imagery, no real people's faces. No text baked into the image — all text is added as a separate overlay.`,
+    overlayRules: `
+DATA-CALLOUT OVERLAY RULES (finance-explainer conventions — never deviate):
+
+Each shot may have a "stat" field (a clean centred stat card: big value +
+label + optional sub-caption) and/or a "lower" field (a name/title
+lower-third, used for source citations). Do NOT invent a dollar-stamp or
+impact-word "stamp" style — that is Empire Omitted's convention, not this
+channel's. Set a field to null when this shot doesn't need it.
+
+KEY STATISTIC (the number the shot is built around):
+  "stat": { "value": "63%", "label": "OF RENTERS", "sub": "cannot afford a median 1BR (2025)" }
+
+SOURCE / CITATION (data provenance — build trust, not drama):
+  "lower": { "name": "Bureau of Labor Statistics", "title": "2025 Consumer Price Index" }
+
+CONTRARIAN CLAIM / HOOK TEXT (the pattern-interrupt line — hook shots only):
+  "stat": { "value": "MOSTLY RIGHT.", "label": "THE INDEX-FUND ADVICE YOU'VE HEARD IS", "sub": null }
+
+TAKEAWAY (closing line, final shot only):
+  "lower": { "name": "MACRO DECODE", "title": "The data behind the headline." }
+
+NO OVERLAY: set both "stat" and "lower" to null for pure establishing/context shots.
+
+OVERLAY TEXT RULES:
+  - No double quotes in any text field (they break FFmpeg)
+  - No commas within a single text field (they break FFmpeg filter chains)
+  - Max 60 characters per line
+  - Numbers/stats should read like a broadcast chyron, not a movie stamp — no ALL CAPS requirement
+`.trim(),
+    shotCountRule: 'As many shots as needed to keep the visual stimulus changing every 4–8 seconds (Macro Decode\'s editing-rhythm spec) — do not pad or under-cut this by forcing a fixed count per act.',
+    personalStakesNote: '"Why it matters for you" segment (the personal-stakes beat in the Curiosity Loop): amber_alert grade, STILL or STILL_ZOOM only, direct-address framing',
+    pacingNote: 'estimatedDuration: should generally fall within 4-8 seconds per shot, matching the "visual stimulus change every 4-8 seconds" pacing rule. Longer holds are only acceptable for a genuinely complex chart reveal.',
+    sfxOptions: 'chart_tick number_blip whoosh_transition soft_alert page_turn keyboard_typing null',
+    overlaySchema: `"stat": { "value": "...", "label": "...", "sub": "... or null" } | null,
+        "lower": { "name": "...", "title": "..." } | null`,
+  },
+};
+
+const DEFAULT_PROFILE_KEY = 'dramatic-investigative';
+
+function pickProfile(narrationStyle) {
+  if (narrationStyle && VISUAL_PROFILES[narrationStyle]) return narrationStyle;
+  return DEFAULT_PROFILE_KEY;
+}
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-async function generateShotDefinitions({ script, outputDir = null }) {
+async function generateShotDefinitions({ script, outputDir = null, channel = null }) {
   if (!script?.acts) throw new Error('[shot-defs] script.acts is required');
 
-  const client = new Anthropic();
-  console.log(`[shot-defs] Generating shot definitions for: "${script.topic}"`);
+  let profileKey = DEFAULT_PROFILE_KEY;
 
-  const systemPrompt = `You are a visual director for Empire Omitted, a faceless YouTube documentary channel.
-Your job is to read a documentary script and create a complete shot map with cinematic overlays.
+  if (channel) {
+    try {
+      const dna = await getChannelConfigByLabel(channel);
+      profileKey = pickProfile(dna.narration_style);
+      log(`[shot-defs] Channel: ${channel} | narration_style: ${dna.narration_style || '(none)'} | profile: ${profileKey}`);
+    } catch (e) {
+      log(`[shot-defs] WARNING: could not load channel DNA: ${e.message} — using default profile (${DEFAULT_PROFILE_KEY})`);
+    }
+  }
+
+  const profile = VISUAL_PROFILES[profileKey];
+
+  const client = new Anthropic();
+  console.log(`[shot-defs] Generating shot definitions for: "${script.topic}" (profile: ${profileKey})`);
+
+  const systemPrompt = `${profile.channelIdentityLine}
+Your job is to read a script and create a complete shot map with overlays.
 
 VISUAL TYPES:
-${VISUAL_TYPES}
+${profile.visualTypes}
 
 COLOUR GRADES:
-${COLOR_GRADES}
+${profile.colorGrades}
 
-${OVERLAY_STYLE_RULES}
+${profile.overlayRules}
 
 TRIGGER WORD RULES (CRITICAL):
 - triggerWord must be a SINGLE word that appears VERBATIM in the voScript
@@ -124,12 +242,12 @@ TRIGGER WORD RULES (CRITICAL):
 - Multi-word phrases: pick just ONE word from them
 
 SHOT RULES:
-- Every act: 8–10 shots maximum (keep it tight — quality over quantity)
-- Act3b (human cost): desaturated grade and STILL or STILL_ZOOM only
+- ${profile.shotCountRule}
+- ${profile.personalStakesNote}
 - shotId format: ACT1_001 ACT2_001 ACT3_001 ACT3B_001 ACT4_001 ACT5_001
-- estimatedDuration: seconds you estimate this shot will hold based on narration pacing
-- animationPrompt: for CLIP shots only — describe camera movement for fal.ai Kling
-- sfx: null or one of: cash_register keyboard_typing gavel_bang phone_buzz alarm crowd_murmur paper_shred door_slam typing_fast news_alert
+- ${profile.pacingNote}
+- animationPrompt: only relevant if your VISUAL TYPES list above includes CLIP. Leave as an empty string for every other visual type.
+- sfx: null or one of: ${profile.sfxOptions}
 
 RESPONSE FORMAT — ONLY valid JSON no markdown no preamble:
 {
@@ -141,19 +259,13 @@ RESPONSE FORMAT — ONLY valid JSON no markdown no preamble:
         "shotId": "ACT1_001",
         "actKey": "act1",
         "triggerWord": "single word from script",
-        "visualType": "CLIP|STILL|STILL_ZOOM",
+        "visualType": "<one of the VISUAL TYPES listed above>",
         "estimatedDuration": <seconds>,
-        "imagePrompt": "Detailed cinematic prompt... ${IMAGE_STYLE_SUFFIX}",
-        "animationPrompt": "Camera movement description for CLIP shots. Empty string for STILL/STILL_ZOOM.",
-        "colorGrade": "cold_blue|gold_warm|deep_shadow|red_alert|neutral|desaturated",
+        "imagePrompt": "Detailed prompt... ${profile.imageStyleSuffix}",
+        "animationPrompt": "Camera movement description — only if this channel's VISUAL TYPES include CLIP. Empty string otherwise.",
+        "colorGrade": "<one of the COLOUR GRADES listed above>",
         "sfx": null,
-        "cinematic": {
-          "text": "OVERLAY TEXT IN UPPERCASE",
-          "style": "slide_in|stamp",
-          "colour": "#C9A84C|#8B0000|#FFFFFF",
-          "size": <number>,
-          "y": "h-text_h-80|(h-text_h)/2"
-        },
+        ${profile.overlaySchema},
         "notes": "Director note"
       }
     ],
@@ -165,7 +277,7 @@ RESPONSE FORMAT — ONLY valid JSON no markdown no preamble:
   }
 }
 
-For shots with NO overlay set "cinematic": null`;
+For shots with NO overlay, set the overlay field(s) shown above to null`;
 
   // ── Split generation: acts 1-3 first, then 3b-5 ──────────────────────────
   // Each call generates half the shots to avoid JSON truncation
@@ -183,7 +295,7 @@ For shots with NO overlay set "cinematic": null`;
     .map(([key, act]) => `## ${key.toUpperCase()} — ${act.label}\n${act.voScript}`)
     .join('\n\n');
 
-  const makePrompt = (actSummary, actsToGenerate) => `Create shot definitions with cinematic overlays for:
+  const makePrompt = (actSummary, actsToGenerate) => `Create shot definitions with overlays for:
 
 TOPIC: ${script.topic}
 TITLE: ${script.title}
@@ -194,7 +306,7 @@ SCRIPTS:
 ${actSummary}
 
 IMAGE STYLE SUFFIX to append to every imagePrompt:
-"${IMAGE_STYLE_SUFFIX}"
+"${profile.imageStyleSuffix}"
 
 Remember: triggerWord must be a SINGLE word in digit form for numbers.
 Return only JSON with just the acts listed above. No markdown. No preamble.
@@ -263,15 +375,29 @@ Format:
     }
   }
 
-  // Sanitise overlay text — strip chars that break FFmpeg
+  // Sanitise overlay text — strip chars that break FFmpeg. Handles both
+  // Empire Omitted's legacy "cinematic" field and the new "stat"/"lower"
+  // fields, since which one is present depends on the channel's profile.
+  const cleanText = (value, { forceUpper = false } = {}) => {
+    if (typeof value !== 'string') return value;
+    let out = value.replace(/"/g, '').replace(/,/g, '').trim();
+    if (forceUpper) out = out.toUpperCase();
+    return out;
+  };
+
   for (const act of requiredActs) {
     for (const shot of shotDefs.acts[act]) {
       if (shot.cinematic?.text) {
-        shot.cinematic.text = shot.cinematic.text
-          .replace(/"/g, '')
-          .replace(/,/g, '')
-          .toUpperCase()
-          .trim();
+        shot.cinematic.text = cleanText(shot.cinematic.text, { forceUpper: true });
+      }
+      if (shot.stat) {
+        if (shot.stat.value) shot.stat.value = cleanText(shot.stat.value);
+        if (shot.stat.label) shot.stat.label = cleanText(shot.stat.label);
+        if (shot.stat.sub)   shot.stat.sub   = cleanText(shot.stat.sub);
+      }
+      if (shot.lower) {
+        if (shot.lower.name)  shot.lower.name  = cleanText(shot.lower.name);
+        if (shot.lower.title) shot.lower.title = cleanText(shot.lower.title);
       }
     }
   }
@@ -286,7 +412,7 @@ Format:
   shotDefs.allShots    = allShots;
   shotDefs.totalShots  = allShots.length;
 
-  const withOverlays = allShots.filter(s => s.cinematic).length;
+  const withOverlays = allShots.filter(s => s.cinematic || s.stat || s.lower).length;
   console.log(`[shot-defs] Complete — ${shotDefs.totalShots} shots | ${withOverlays} with overlays`);
   for (const actKey of requiredActs) {
     console.log(`  ${actKey}: ${shotDefs.acts[actKey].length} shots`);
@@ -304,6 +430,13 @@ Format:
   return shotDefs;
 }
 
+function describeOverlay(s) {
+  if (s.cinematic) return `[${s.cinematic.style}]: ${s.cinematic.text}`;
+  if (s.stat)      return `[stat]: ${s.stat.value} — ${s.stat.label}`;
+  if (s.lower)     return `[lower]: ${s.lower.name} — ${s.lower.title}`;
+  return null;
+}
+
 function buildSummaryText(shotDefs) {
   const lines = [
     `SHOT DEFINITIONS — ${shotDefs.topic}`,
@@ -316,7 +449,8 @@ function buildSummaryText(shotDefs) {
     lines.push(`--- ${actKey.toUpperCase()} (${shots.length} shots) ---`);
     for (const s of shots) {
       lines.push(`  ${s.shotId}  [${s.visualType}]  TRIGGER:"${s.triggerWord}"  GRADE:${s.colorGrade}  ~${s.estimatedDuration}s`);
-      if (s.cinematic) lines.push(`    OVERLAY [${s.cinematic.style}]: ${s.cinematic.text}`);
+      const overlayDesc = describeOverlay(s);
+      if (overlayDesc) lines.push(`    OVERLAY ${overlayDesc}`);
     }
     lines.push('');
   }
@@ -326,12 +460,13 @@ function buildSummaryText(shotDefs) {
 if (require.main === module) {
   const scriptPath = process.argv[2];
   const outputDir  = process.argv[3] || null;
+  const channel    = process.argv[4] || null;
   if (!scriptPath) {
-    console.error('Usage: node surface-shot-definitions.cjs <script.json> [outputDir]');
+    console.error('Usage: node surface-shot-definitions.cjs <script.json> [outputDir] [channel]');
     process.exit(1);
   }
   const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'));
-  generateShotDefinitions({ script, outputDir })
+  generateShotDefinitions({ script, outputDir, channel })
     .catch(err => { console.error('[shot-defs] FATAL:', err.message); process.exit(1); });
 }
 

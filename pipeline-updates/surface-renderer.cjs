@@ -38,9 +38,13 @@ const H   = 1080;
 const FPS = 30;
 
 // ── Channel branding ──────────────────────────────────────────────
+// NOTE (Macro Decode onboarding): renamed from MoneyExplained. Accent
+// hex is a provisional navy/gold pick — NOT Empire Omitted's C9A84C,
+// per the Macro Decode DNA doc's explicit instruction not to reuse it.
+// Confirm against final brand work before treating this as locked.
 const BRANDS = {
   EmpireOmitted:   { display: 'EMPIRE OMITTED',    accent: 'C9A84C' },
-  MoneyExplained:  { display: 'MONEY EXPLAINED',   accent: '2E9BFF' },
+  MacroDecode:     { display: 'MACRO DECODE',      accent: 'E8B34C' },
   HistoryHidden:   { display: 'HISTORY HIDDEN',    accent: 'D8C49A' },
   TrueCrimeWeekly: { display: 'TRUE CRIME WEEKLY', accent: 'C41E1E' },
 };
@@ -230,22 +234,26 @@ function cinematicOverlay(cinematic, totalFrames) {
   return overlayFilter(cinematic.text, col, sz, totalFrames);
 }
 
-function lowerThirdFilter(name, title, durSec) {
+function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
   if (!TEXT_ENABLED) return null;
   const totalFrames = Math.round(durSec * FPS);
   const holdEnd     = totalFrames - 12;
   const alpha       = `if(lt(n\\,8)\\,n/8\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/12\\,1))`;
-  const nameF = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(name)}':fontcolor=0xC9A84C:fontsize=48:x=60:y=h-120:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
+  const nameF = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(name)}':fontcolor=0x${accent}:fontsize=48:x=60:y=h-120:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
   const titlF = `drawtext=fontfile='${FONT_BOLD}':text='${esc(title)}':fontcolor=0xFFFFFF:fontsize=28:x=60:y=h-70:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
   return `${nameF},${titlF}`;
 }
 
-function statCardFilter(label, value, sub, durSec) {
+// NOTE (Macro Decode onboarding): `accent` now defaults to Empire Omitted's
+// gold for backward compatibility, but callers should pass brand.accent so
+// each channel's stat-card / data-callout overlay uses its own identity
+// colour instead of silently inheriting Empire Omitted's.
+function statCardFilter(label, value, sub, durSec, accent = 'C9A84C') {
   if (!TEXT_ENABLED) return null;
   const totalFrames = Math.round(durSec * FPS);
   const holdEnd     = totalFrames - 12;
   const alpha       = `if(lt(n\\,8)\\,n/8\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/12\\,1))`;
-  const valF  = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(value)}':fontcolor=0xC9A84C:fontsize=88:x=(w-text_w)/2:y=(h-text_h)/2-30:shadowcolor=black:shadowx=4:shadowy=4:alpha='${alpha}'`;
+  const valF  = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(value)}':fontcolor=0x${accent}:fontsize=88:x=(w-text_w)/2:y=(h-text_h)/2-30:shadowcolor=black:shadowx=4:shadowy=4:alpha='${alpha}'`;
   const labF  = `drawtext=fontfile='${FONT_BOLD}':text='${esc(label)}':fontcolor=0xFFFFFF:fontsize=32:x=(w-text_w)/2:y=(h/2)+50:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
   const subF  = sub
     ? `,drawtext=fontfile='${FONT_BOLD}':text='${esc(sub)}':fontcolor=0xAAAAAA:fontsize=24:x=(w-text_w)/2:y=(h/2)+92:alpha='${alpha}'`
@@ -624,8 +632,8 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       if (shot.overlay?.text) filterParts.push(overlayFilter(shot.overlay.text, shot.overlay.colour, shot.overlay.size, totalFrames));
       const cinOverlay = cinematicOverlay(shot.cinematic, totalFrames);
       if (cinOverlay) filterParts.push(cinOverlay);
-      if (shot.stat)  filterParts.push(statCardFilter(shot.stat.label, shot.stat.value, shot.stat.sub, shot.durSec));
-      if (shot.lower) filterParts.push(lowerThirdFilter(shot.lower.name, shot.lower.title, shot.durSec));
+      if (shot.stat)  filterParts.push(statCardFilter(shot.stat.label, shot.stat.value, shot.stat.sub, shot.durSec, brand.accent));
+      if (shot.lower) filterParts.push(lowerThirdFilter(shot.lower.name, shot.lower.title, shot.durSec, brand.accent));
       if (WM)         filterParts.push(WM);
 
       const vf = filterParts.filter(Boolean).join(',');

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "empire-omitted",
+    "type": "owned",
+    "name": "EmpireOmitted",
+    "publicName": "EmpireOmitted",
+    "internalName": "EmpireOmitted",
+    "niche": "Big Corporate Scandals in History",
+    "status": "ready",
+    "pipelinePath": "C:/Users/dyaky/OneDrive/Desktop/EmpireOmitted-Pipeline",
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/EmpireOmitted-Pipeline/config/channel.config.json",
+    "template": null
+  },
+  {
+    "id": "macro-decode",
+    "type": "owned",
+    "name": "Macro Decode",
+    "publicName": "Macro Decode",
+    "internalName": "Money Explained",
+    "niche": "Money & Finance",
+    "status": "planned",
+    "pipelinePath": null,
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/frameiq-backend/src/data/channel-configs/macro-decode.config.json",
+    "template": "premium-faceless-documentary"
+  },
+  {
+    "id": "karma-archives",
+    "type": "owned",
+    "name": "Karma Archives",
+    "publicName": "Karma Archives",
+    "internalName": "Served Cold",
+    "niche": "Reddit Revenge Stories",
+    "status": "planned",
+    "pipelinePath": null,
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/frameiq-backend/src/data/channel-configs/karma-archives.config.json",
+    "template": "premium-faceless-documentary"
+  },
+  {
+    "id": "ashes-of-empire",
+    "type": "owned",
+    "name": "Ashes of Empire",
+    "publicName": "Ashes of Empire",
+    "internalName": "History Hidden",
+    "niche": "History",
+    "status": "planned",
+    "pipelinePath": null,
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/frameiq-backend/src/data/channel-configs/ashes-of-empire.config.json",
+    "template": "premium-faceless-documentary"
+  },
+  {
+    "id": "overthrown",
+    "type": "owned",
+    "name": "Overthrown",
+    "publicName": "Overthrown",
+    "internalName": null,
+    "niche": "Coups in History (Military and Civilian)",
+    "status": "planned",
+    "pipelinePath": null,
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/frameiq-backend/src/data/channel-configs/overthrown.config.json",
+    "template": "premium-faceless-documentary"
+  },
+  {
+    "id": "the-interrogation-room",
+    "type": "owned",
+    "name": "The Interrogation Room",
+    "publicName": "The Interrogation Room",
+    "internalName": "True Crime Weekly",
+    "niche": "True Crime",
+    "status": "planned",
+    "pipelinePath": null,
+    "configPath": "C:/Users/dyaky/OneDrive/Desktop/frameiq-backend/src/data/channel-configs/the-interrogation-room.config.json",
+    "template": "premium-faceless-documentary"
+  }
+]
