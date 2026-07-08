@@ -17,6 +17,23 @@
  *
  * Channel DNA v2 additions:
  *   - channelRoutes mounted at /api/channels
+ *
+ * Standalone Macro Decode adapter (disconnected, not deleted):
+ *   - /api/episodes and /api/channels must always point at the live,
+ *     jobs/runner.js-backed routes (./routes/episodes, ./routes/channels).
+ *     A prior in-progress swap pointed episodeRoutes at ./src/routes/episodes
+ *     (a JSON-file-backed draft CRUD with no startJob/SSE/approve/retry/
+ *     download/short support) which would have silently broken Empire
+ *     Omitted's live production flow if pushed. Reverted.
+ *   - handoffRoutes/jobRoutes/pipelineStatusRoutes/sourceReviewRoutes are
+ *     the standalone adapter's own non-colliding paths (/api/handoffs,
+ *     /api/jobs, /api/pipeline-status, /api/source-review). Left mounted
+ *     since they don't collide with anything live — but note the adapter
+ *     is retired as a production engine (jobs/runner.js is now the single
+ *     shared engine for all channels). See macro-decode-session-outline.md
+ *     Section 6. frameiq-frontend's ChannelPage.jsx still has a live "Run
+ *     Production" button wired to these paths — flagged separately, not
+ *     removed here (frontend was out of scope for this fix).
  */
 
 require('./startup-init');
@@ -31,6 +48,10 @@ const { initSchema, runMigrations } = require('./db');
 
 const authRoutes            = require('./routes/auth');
 const episodeRoutes         = require('./routes/episodes');
+const handoffRoutes         = require('./src/routes/handoffs');
+const jobRoutes             = require('./src/routes/jobs');
+const pipelineStatusRoutes  = require('./src/routes/pipelineStatus');
+const sourceReviewRoutes    = require('./src/routes/sourceReview');
 const suggestionRoutes      = require('./routes/suggestions');
 const blueprintRoutes       = require('./routes/blueprints');
 const recommendationRoutes  = require('./routes/recommendations');
@@ -65,6 +86,10 @@ app.use('/api/auth',                                    authRoutes);
 app.use('/api/channels',                                channelRoutes);
 app.use('/api/episodes/recommend',                      recommendationRoutes);
 app.use('/api/episodes',                                episodeRoutes);
+app.use('/api/handoffs',                                handoffRoutes);
+app.use('/api/jobs',                                    jobRoutes);
+app.use('/api/pipeline-status',                         pipelineStatusRoutes);
+app.use('/api/source-review',                           sourceReviewRoutes);
 app.use('/api/episodes/:episodeId/revisions',           revisionsRouter);
 app.use('/api/episodes/:episodeId/preview',             previewRouter);
 app.use('/api/suggestions',                             suggestionRoutes);
