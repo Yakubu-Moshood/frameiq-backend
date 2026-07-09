@@ -19,12 +19,44 @@
  * is the actual enforcement point for that channel.
  *
  * Safe to re-run (UPDATE only, no INSERT).
+ *
+ * Reconciled with remote commit 5b9b0e8 ("Insert missing local channel
+ * DNA seed rows", currently the live Railway deployment):
+ *   - Kept: the `id`-based matching above (5b9b0e8 still used
+ *     `WHERE label = ?`, which is the exact bug this file already fixes
+ *     — not reintroduced).
+ *   - Re-added: 5b9b0e8's cosmetic `display_label` / `description`
+ *     fields on every channel entry below — harmless, useful for future
+ *     catalog/UI use, no functional risk.
+ *   - Deliberately OMITTED: 5b9b0e8's "insert row if missing" branch.
+ *     Left out on purpose, not by oversight, for three concrete reasons:
+ *       1. Its existence-check used `WHERE label = ?` (the same bug
+ *          class fixed here) — kept as-is it would misfire against real
+ *          rows and could create a duplicate.
+ *       2. Its INSERT used `ch.channel_id` (e.g. 'macro-decode') as the
+ *          value for the `channel_dna.id` primary-key column — but `id`
+ *          and `channel_id` are two different columns everywhere else
+ *          in this file (see the UPDATE below). Reusing it there would
+ *          create a row under the wrong primary key rather than fixing
+ *          anything.
+ *       3. Its INSERT's column list (brand_voice, primary_colour,
+ *          secondary_colour, background_colour, font_display,
+ *          font_body, watermark_text, default_blueprint_id,
+ *          allowed_blueprints, monetisation_enabled, credits_per_episode)
+ *          doesn't obviously match the v2 schema columns the UPDATE
+ *          below actually sets, and this file has no way to confirm
+ *          against the live table schema which of those columns exist.
+ *     If the "create a missing row automatically" convenience is still
+ *     wanted, it needs its own deliberate pass — written against `id`,
+ *     with a verified column list — not a guess bolted on here.
  */
 
 const channelSeeds = [
   {
     id:                     'EmpireOmitted',
     label:                  'EmpireOmitted',
+    display_label:          'Empire Omitted',
+    description:            'Premium investigative documentaries about hidden scandals, corporate deception, and power.',
     channel_id:             'empire-omitted',
     slug:                   'empire-omitted',
     active:                 1,
@@ -48,8 +80,13 @@ const channelSeeds = [
     // Renamed from "Money Explained" to "Macro Decode" (SEO decision).
     // DNA below matches migrations/007_macro_decode_rename.js, which is
     // the actual enforcement point — kept in sync here for re-seed use.
+    // display_label/description below are re-added from 5b9b0e8 as
+    // historical/documentation values for the old "Money Explained"
+    // name — migration 007 owns the real post-rename identity.
     id:                     'MoneyExplained',
     label:                  'MoneyExplained', // historical/documentation only — see renameLabelTo below
+    display_label:          'Money Explained',
+    description:            'Clear finance and economic explainers for everyday viewers.',
     renameLabelTo:          'Macro Decode',
     channel_id:             'macro-decode',
     slug:                   'macro-decode',
@@ -73,6 +110,8 @@ const channelSeeds = [
   {
     id:                     'TrueCrimeWeekly',
     label:                  'TrueCrimeWeekly',
+    display_label:          'True Crime Weekly',
+    description:            'Suspenseful true crime documentary episodes with a cinematic weekly format.',
     channel_id:             'true-crime-weekly',
     slug:                   'true-crime-weekly',
     active:                 1,
@@ -95,6 +134,8 @@ const channelSeeds = [
   {
     id:                     'HistoryHidden',
     label:                  'HistoryHidden',
+    display_label:          'History Hidden',
+    description:            'Archival-style documentaries about suppressed history and forgotten events.',
     channel_id:             'history-hidden',
     slug:                   'history-hidden',
     active:                 1,
@@ -117,6 +158,8 @@ const channelSeeds = [
   {
     id:                     'ServedCold',
     label:                  'ServedCold',
+    display_label:          'Served Cold',
+    description:            'Revenge-comedy story videos with a sharp, sardonic voice.',
     channel_id:             'served-cold',
     slug:                   'served-cold',
     active:                 0,
