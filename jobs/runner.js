@@ -396,6 +396,16 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
       detail: `Review act: ${act}`, act,
       previewAvailable: actPreviews.has(`${episodeDbId}:${act}`),
     });
+    // Fix: persist the act identity to the job row itself, not just the
+    // one-time SSE event. Previously only the episode's overall status
+    // was updated here, so the frontend's initial page-load snapshot and
+    // its polling fallback (useProgress.js) had no durable way to learn
+    // which act was actually pending -- only a browser tab that was
+    // live-connected via SSE at this exact moment ever saw the real act.
+    // Any reload, reconnect, or later poll fell back to the hardcoded
+    // placeholder string 'act', which is what showed on both episodes
+    // stuck in review ("Act act has been rendered").
+    await queries.updateJob(job1.id, { status: 'awaiting_approval', detail: `Review act: ${act}` });
     await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
     return new Promise(resolve => { approvalGates.set(`${episodeDbId}:${act}`, resolve); });
   }
