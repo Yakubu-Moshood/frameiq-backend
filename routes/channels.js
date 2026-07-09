@@ -26,6 +26,12 @@ function toChannelResponse(ch) {
     tagline:        ch.description || ch.blueprint_label,
     target_length_minutes: ch.target_length_minutes,
     narration_style: ch.narration_style,
+    // Sprint: blueprint auto-select — lets NewEpisodePage.jsx default the
+    // blueprint picker to this channel's own preferred blueprint instead
+    // of always defaulting to 'documentary'. Present on both the
+    // config-reader-merged object and the raw channel_dna row (SELECT *),
+    // so this is safe regardless of which code path above populated `ch`.
+    default_blueprint_id: ch.default_blueprint_id || null,
   };
 }
 

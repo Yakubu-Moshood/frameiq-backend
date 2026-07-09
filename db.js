@@ -233,6 +233,21 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('007_macro_decode_rename')`);
     console.log('[migrations] 007_macro_decode_rename complete');
   }
+
+  // ── Migration 008_macro_decode_default_blueprint ──────────────────────────
+  // Corrects Macro Decode's default_blueprint_id from the generic
+  // 'documentary' to 'finance_explainer' (already an allowed blueprint
+  // for this channel, just never set as the default).
+  const m008 = await get(`SELECT id FROM schema_migrations WHERE id = '008_macro_decode_default_blueprint'`);
+  if (m008) {
+    console.log('[migrations] 008_macro_decode_default_blueprint already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 008_macro_decode_default_blueprint...');
+    const { up: up008 } = require('./migrations/008_macro_decode_default_blueprint');
+    await up008({ run, get });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('008_macro_decode_default_blueprint')`);
+    console.log('[migrations] 008_macro_decode_default_blueprint complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
