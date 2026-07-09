@@ -82,10 +82,24 @@ async function getChannelConfig(channelId) {
 }
 
 async function getChannelConfigByLabel(label) {
+  // NOTE: despite the name (kept for backward compatibility with existing
+  // callers — surface-shot-definitions.cjs, surface-animator.cjs — do not
+  // rename), every real caller actually passes the channel's stable \`id\`
+  // (e.g. 'MoneyExplained'), not its free-text \`label\` (e.g. 'Macro
+  // Decode'). This previously queried WHERE label = ?, which silently
+  // threw 'Channel not found by label' for any channel whose label
+  // differs from its id — including Macro Decode after migration 007
+  // renamed its label. Both callers caught that error and fell back to
+  // wrong defaults (Empire Omitted's dramatic-investigative shot profile,
+  // and animationStyle 'minimal' instead of 'motion-graphics-only'),
+  // which is why a live Macro Decode episode got real fal.ai Kling clips.
+  // Fixed to query by id, matching the sibling getChannelConfig() above —
+  // same lookup key callers actually use, just under this function's
+  // existing name/signature.
   if (!label) throw new Error('[config-reader] label is required');
   if (_labelCache[label]) return _labelCache[label];
-  const dbRecord = await get('SELECT * FROM channel_dna WHERE label = ?', [label]);
-  if (!dbRecord) throw new Error('[config-reader] Channel not found by label: ' + label);
+  const dbRecord = await get('SELECT * FROM channel_dna WHERE id = ?', [label]);
+  if (!dbRecord) throw new Error('[config-reader] Channel not found by id: ' + label);
   const configFile = loadConfigFile();
   const fileRecord = (configFile.channels && (configFile.channels[dbRecord.channel_id] || configFile.channels[dbRecord.id])) || null;
   if (!fileRecord) console.warn('[config-reader] WARNING: ' + label + ' not in pipeline.config.json');
