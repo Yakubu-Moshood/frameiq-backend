@@ -157,6 +157,48 @@ router.post('/:id/approve', requireAuth, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/episodes/:id/cancel ──────────────────────────────────────────
+// Marks an orphaned/dead episode as terminated so it stops showing as
+// running/queued on the dashboard. Sets the episode row to 'failed' and
+// force-fails any of its job rows that aren't already in a terminal state
+// (complete/failed/cancelled).
+//
+// Note: this only updates DB state. It does NOT interrupt an actively
+// running render — jobs/runner.js has no kill-switch for an in-flight
+// pipeline, and this endpoint doesn't add one. It's intended for episodes
+// that are already dead (e.g. orphaned by a server/deploy restart, or
+// permanently stuck on an unresumable failure) where nothing is actually
+// still writing to these rows.
+
+router.patch('/:id/cancel', requireAuth, async (req, res) => {
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== req.userId) return res.status(403).json({ error: 'Forbidden' });
+    if (episode.status === 'complete')
+      return res.status(400).json({ error: 'Cannot cancel a completed episode' });
+
+    await queries.updateEpisodeStatus('failed', episode.id);
+
+    const TERMINAL = new Set(['complete', 'failed', 'cancelled']);
+    const jobs = await queries.getJobsForEpisode(episode.id);
+    for (const job of jobs) {
+      if (!TERMINAL.has(job.status)) {
+        await queries.updateJob(job.id, {
+          status:      'failed',
+          progress:    job.progress,
+          detail:      'manually terminated - orphaned',
+          finished_at: new Date().toISOString(),
+        });
+      }
+    }
+
+    return res.json({ ok: true, id: episode.id, status: 'failed' });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/episodes/:id/retry ────────────────────────────────────────────
 
 router.post('/:id/retry', async (req, res) => {
