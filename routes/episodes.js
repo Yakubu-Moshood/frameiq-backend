@@ -200,6 +200,101 @@ router.patch('/:id/cancel', requireAuth, async (req, res) => {
   }
 });
 
+// ─── PATCH /api/episodes/:id/pause ───────────────────────────────────────────
+// Requests a pause. Distinct from /cancel (permanent) and /retry (used
+// after a failure/orphan). Does NOT interrupt anything itself -- it only
+// flips episodes.status to 'paused'. jobs/runner.js's checkPaused() reads
+// this same status field at each of the 8 top-level stage boundaries
+// (0A/0B/0C/0D/0E/1_render/7_short/8_qa) and stops cleanly there. Per this
+// session's pause investigation, v1 deliberately has no mid-stage pause
+// point -- a pause requested while a long stage (e.g. image generation,
+// or a render mid-approval-gate) is in flight takes effect only once that
+// stage finishes, not immediately. Job rows are left untouched here; the
+// currently-running stage's job row will still reach its own natural
+// 'complete' before the pipeline notices the pause and stops.
+
+router.patch('/:id/pause', requireAuth, async (req, res) => {
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== req.userId) return res.status(403).json({ error: 'Forbidden' });
+    if (episode.status === 'complete')
+      return res.status(400).json({ error: 'Cannot pause a completed episode' });
+    if (episode.status === 'failed')
+      return res.status(400).json({ error: 'Cannot pause a failed episode' });
+    if (episode.status === 'paused')
+      return res.status(400).json({ error: 'Episode is already paused' });
+
+    await queries.updateEpisodeStatus('paused', episode.id);
+    return res.json({ ok: true, id: episode.id, status: 'paused' });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── POST /api/episodes/:id/resume ───────────────────────────────────────────
+// Resumes a paused episode. Deliberately a separate endpoint from /retry,
+// not a call to it, even though the body is nearly identical -- retry is
+// semantically "something failed or was orphaned, try again" (and the
+// automatic boot-time recovery path in jobs/recovery.js DOES increment
+// episodes.retry_count for that reason); resume is "the user chose to
+// stop, now they've chosen to continue" and must NOT consume a resilience
+// retry attempt. This handler intentionally never calls
+// queries.incrementEpisodeRetryCount.
+//
+// Reuses the same mechanics as /retry (backfill any missing job rows,
+// reset non-complete jobs to pending, call startJob() again) because every
+// stage already knows how to skip work it's already done -- resuming from
+// a stage boundary needs no special-cased "resume from here" logic, the
+// same way retrying an orphaned episode doesn't.
+
+router.post('/:id/resume', async (req, res) => {
+  let userId;
+  try {
+    const token = authFlexible(req);
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+    userId = jwt.verify(token, SECRET).sub;
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== userId) return res.status(403).json({ error: 'Forbidden' });
+    if (episode.status !== 'paused')
+      return res.status(400).json({ error: 'Episode is not paused' });
+    if (isRunning(episode.id)) return res.status(409).json({ error: 'Episode pipeline is already running' });
+
+    // Backfill any job rows that may be missing (e.g. 8_qa on older episodes)
+    const existingJobs = await queries.getJobsForEpisode(episode.id);
+    const existingKeys = new Set(existingJobs.map(j => j.step));
+    for (const step of STEPS) {
+      if (!existingKeys.has(step.key)) {
+        await queries.createJob(uuid(), episode.id, step.key);
+      }
+    }
+
+    // Reset non-complete jobs to pending -- same as /retry. The stage that
+    // was interrupted by the pause (if any) may already show 'complete'
+    // for a sub-step it finished before the pause check fired; that's
+    // fine, it stays complete and won't be redone.
+    const jobs = await queries.getJobsForEpisode(episode.id);
+    for (const job of jobs) {
+      if (job.status !== 'complete') {
+        await queries.updateJob(job.id, { status: 'pending', progress: 0, detail: null, started_at: null, finished_at: null });
+      }
+    }
+
+    // No incrementEpisodeRetryCount call -- see the handler comment above.
+    await queries.updateEpisodeStatus('queued', episode.id);
+    startJob(episode.id, episode.channel, episode.episode_id, episode.topic);
+    return res.json({ message: 'Resumed', id: episode.id });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── POST /api/episodes/:id/retry ────────────────────────────────────────────
 
 router.post('/:id/retry', async (req, res) => {

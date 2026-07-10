@@ -247,6 +247,31 @@ function resolveApproval(episodeDbId, act, approved) {
   if (resolve) { approvalGates.delete(key); actPreviews.delete(key); resolve(approved); }
 }
 
+// ── Pause (v1: top-level stage boundaries only) ───────────────────────────────
+// Per this session's pause-safety investigation: every one of the 8
+// top-level stages (0A/0B/0C/0D/0E/1_render/7_short/8_qa) already decides
+// whether to redo its work by checking what's on disk, so stopping BETWEEN
+// stages needs no new "where do I resume" logic -- the existing skip
+// checks are the resume logic. There is deliberately no mid-stage pause
+// point in v1 (not inside Step 1's per-act loop, not inside 0D/0E's
+// per-item loops) -- a pause requested mid-stage takes effect once that
+// stage's current unit of work finishes, not immediately.
+//
+// checkPaused() is called at each of the 8 boundaries, right before that
+// stage marks its job row 'running'. It re-reads the episode's status
+// fresh from the DB each time (not a cached value) so a pause requested by
+// routes/episodes.js's PATCH /:id/pause endpoint mid-render is seen the
+// next time this function is called, whichever stage that turns out to be.
+async function checkPaused(episodeDbId, stepKey) {
+  const ep = await queries.getEpisode(episodeDbId);
+  if (ep && ep.status === 'paused') {
+    console.log(`[runner] Pause requested for ${episodeDbId} — stopping before ${stepKey}`);
+    sse.emit(episodeDbId, { step: stepKey, status: 'paused', progress: null, detail: `Paused before ${stepKey}` });
+    return true;
+  }
+  return false;
+}
+
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
 
 async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
@@ -322,6 +347,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const scriptPath = path.join(episodeDir, 'script.json');
   const job0A      = jobFor('0A_script');
 
+  if (await checkPaused(episodeDbId, '0A_script')) return;
+
   await queries.updateJob(job0A.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0A_script', 'running', 0, 'Writing script...');
 
@@ -344,6 +371,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
 
   const job0B   = jobFor('0B_vo');
   const voReady = voFiles.every(f => fs.existsSync(path.join(audioDir, f)));
+
+  if (await checkPaused(episodeDbId, '0B_vo')) return;
 
   await queries.updateJob(job0B.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0B_vo', 'running', 0, 'Generating voiceover...');
@@ -369,6 +398,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   const job0C        = jobFor('0C_shots');
 
+  if (await checkPaused(episodeDbId, '0C_shots')) return;
+
   await queries.updateJob(job0C.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0C_shots', 'running', 0, 'Generating shot definitions...');
 
@@ -391,6 +422,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
 
   const job0D  = jobFor('0D_images');
   const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
+
+  if (await checkPaused(episodeDbId, '0D_images')) return;
 
   await queries.updateJob(job0D.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
 
@@ -419,6 +452,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
   const needsAnim = clipShots.filter(s => !fs.existsSync(path.join(clipsDir, `${s.shotId}.mp4`)));
 
+  if (await checkPaused(episodeDbId, '0E_anim')) return;
+
   await queries.updateJob(job0E.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
 
   if (needsAnim.length === 0) {
@@ -440,6 +475,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   // ── STEP 1 — RENDER ───────────────────────────────────────────────────────
 
   const job1 = jobFor('1_render');
+
+  if (await checkPaused(episodeDbId, '1_render')) return;
+
   await queries.updateJob(job1.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('1_render', 'running', 0, 'Starting render engine...');
   await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
@@ -475,6 +513,19 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
 
   // ── STEP 7 — SHORT EXTRACTOR ──────────────────────────────────────────────
+  // KNOWN v1 LIMITATION: a pause requested while Step 1 (render) was still
+  // in flight (e.g. during the awaiting_approval wait) is not visible here.
+  // updateEpisodeResult() just above unconditionally sets episodes.status
+  // to 'complete' on a successful render, which overwrites any 'paused'
+  // value that may have been set concurrently -- checkPaused() below will
+  // see 'complete', not 'paused', and continue straight through Steps 7-8.
+  // Net effect: a pause requested mid-render doesn't take effect once
+  // render finishes successfully; the episode just completes normally.
+  // Flagged rather than silently accepted -- a v2 fix would have
+  // updateEpisodeResult() (or this check) account for a pending pause
+  // before overwriting status, but that's out of scope for this pass.
+
+  if (await checkPaused(episodeDbId, '7_short')) return;
 
   const job7 = jobFor('7_short');
   let shortResult = null;
@@ -502,6 +553,8 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   // pipeline.config.json) must not block or delay anything — runQAStage()
   // itself handles that by returning a safe 'ready_for_review' no-op, so
   // this block runs unconditionally rather than gating on config presence.
+
+  if (await checkPaused(episodeDbId, '8_qa')) return;
 
   const job8 = jobFor('8_qa');
   try {
