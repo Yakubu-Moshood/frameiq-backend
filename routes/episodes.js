@@ -99,7 +99,16 @@ router.get('/:id', requireAuth, async (req, res) => {
     if (!episode) return res.status(404).json({ error: 'Episode not found' });
     if (episode.user_id !== req.userId) return res.status(403).json({ error: 'Forbidden' });
     const jobs = await queries.getJobsForEpisode(episode.id);
-    return res.json({ ...episode, jobs });
+    // pipelineRunning distinguishes "pause requested" (episode.status ===
+    // 'paused', written instantly by PATCH /:id/pause) from "pipeline has
+    // actually stopped" (activeEpisodes no longer holds this episode --
+    // only true once the in-flight stage at pause time genuinely finishes
+    // and checkPaused() catches it at the next boundary). Without this,
+    // the frontend has no way to tell those two states apart and will
+    // offer a Resume button that fails with 409 "already running" if the
+    // in-flight stage hasn't actually finished yet. See the resume-race
+    // investigation this session.
+    return res.json({ ...episode, jobs, pipelineRunning: isRunning(episode.id) });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -130,7 +139,14 @@ router.get('/:id/progress', async (req, res) => {
     res.flushHeaders();
 
     const jobs = await queries.getJobsForEpisode(episode.id);
-    res.write(`data: ${JSON.stringify({ type: 'snapshot', episode, jobs })}\n\n`);
+    // Same pipelineRunning field as GET /:id, and for the same reason --
+    // see the comment there. The SSE snapshot is only sent once at
+    // connect time (subsequent messages are step-level deltas from
+    // sse.emit(), which don't carry episode-level fields), so this alone
+    // doesn't make pipelineRunning live-update over an open connection --
+    // the frontend polls GET /:id while in the interim "pausing" state to
+    // pick up the transition once it actually happens.
+    res.write(`data: ${JSON.stringify({ type: 'snapshot', episode: { ...episode, pipelineRunning: isRunning(episode.id) }, jobs })}\n\n`);
 
     sse.subscribe(episode.id, res);
     req.on('close', () => sse.unsubscribe(episode.id, res));
