@@ -223,11 +223,25 @@ router.patch('/:id/cancel', requireAuth, async (req, res) => {
 // this same status field at each of the 8 top-level stage boundaries
 // (0A/0B/0C/0D/0E/1_render/7_short/8_qa) and stops cleanly there. Per this
 // session's pause investigation, v1 deliberately has no mid-stage pause
-// point -- a pause requested while a long stage (e.g. image generation,
-// or a render mid-approval-gate) is in flight takes effect only once that
-// stage finishes, not immediately. Job rows are left untouched here; the
-// currently-running stage's job row will still reach its own natural
-// 'complete' before the pipeline notices the pause and stops.
+// point -- a pause requested while a long stage (e.g. image generation) is
+// in flight takes effect only once that stage finishes, not immediately.
+// Job rows are left untouched here; the currently-running stage's job row
+// will still reach its own natural 'complete' before the pipeline notices
+// the pause and stops.
+//
+// awaiting_approval is explicitly rejected, not just "delayed like any
+// other in-flight stage" -- confirmed via live testing + code trace that
+// it's a genuine deadlock, not a slow case. Step 1 (render)'s approval
+// gate is a single unbroken `await renderEpisode(...)` in jobs/runner.js
+// with no checkPaused() call anywhere inside it; the gate's Promise (in
+// approvalGates) only resolves via POST /:id/approve, which a user who
+// just paused specifically to avoid making a decision has no reason to
+// call. Without this guard, pipelineRunning would stay true forever --
+// not "for a while" -- until someone approves or rejects anyway, making
+// the pause request itself pointless. Since nothing is actively computing
+// while awaiting_approval (the pipeline is already stopped, just waiting
+// on the same human who'd click Resume), pause is also redundant here,
+// not just unsafe -- approve/reject is the correct action instead.
 
 router.patch('/:id/pause', requireAuth, async (req, res) => {
   try {
@@ -240,6 +254,8 @@ router.patch('/:id/pause', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Cannot pause a failed episode' });
     if (episode.status === 'paused')
       return res.status(400).json({ error: 'Episode is already paused' });
+    if (episode.status === 'awaiting_approval')
+      return res.status(400).json({ error: 'Cannot pause while waiting for your review — please approve or reject the pending act first.' });
 
     await queries.updateEpisodeStatus('paused', episode.id);
     return res.json({ ok: true, id: episode.id, status: 'paused' });
