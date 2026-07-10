@@ -132,6 +132,19 @@ function run(cmd, label) {
 // Quiet flags keep FFmpeg's stderr small (prevents giant exec buffers)
 const FF = 'ffmpeg -y -v error -hide_banner -nostats';
 
+// FFmpeg's -f concat demuxer parses `file '<path>'` lines using the same
+// single-quote escaping convention as POSIX shell: a literal `'` inside a
+// quoted string must be written as `'\''` (close-quote, escaped-quote,
+// reopen-quote). Without this, any path containing an apostrophe (e.g. an
+// episode folder like "MCKINSEY'S OPIOID SCANDAL") causes ffmpeg to see an
+// early closing quote, mis-parse the path, and fail with
+// "Impossible to open" on a truncated/garbled filename.
+function concatFileEntry(p) {
+  const normalized = path.resolve(p).replace(/\\/g, '/');
+  const escaped    = normalized.replace(/'/g, `'\\''`);
+  return `file '${escaped}'`;
+}
+
 function getAudioDuration(filePath) {
   const out = execSync(
     `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`,
@@ -730,7 +743,7 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
 
     fs.writeFileSync(
       concatFile,
-      segFiles.map(f => `file '${path.resolve(f).replace(/\\/g, '/')}'`).join('\n')
+      segFiles.map(concatFileEntry).join('\n')
     );
 
     run(
@@ -813,7 +826,7 @@ function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
   fs.mkdirSync(path.dirname(concatFile), { recursive: true });
   fs.writeFileSync(
     concatFile,
-    actVideos.map(a => `file '${path.resolve(a.path).replace(/\\/g, '/')}'`).join('\n')
+    actVideos.map(a => concatFileEntry(a.path)).join('\n')
   );
 
   run(
