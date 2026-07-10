@@ -12,6 +12,7 @@ const express   = require('express');
 const Anthropic  = require('@anthropic-ai/sdk');
 const { requireAuth } = require('../middleware/auth');
 const { getChannelConfigByLabel } = require('./config-reader-proxy');
+const { get } = require('../db');
 
 const router = express.Router();
 const client = new Anthropic.default({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -79,9 +80,34 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'channel is required' });
   }
 
+  // Resolve the incoming value to the channel's stable id before calling
+  // getChannelConfigByLabel. NewEpisodePage.jsx sends selectedChannel.name,
+  // which is routes/channels.js's `name: ch.label` -- the free-text label
+  // ("Empire Omitted", "Macro Decode"), not the id ("EmpireOmitted",
+  // "MoneyExplained"). getChannelConfigByLabel (config-reader.cjs, see
+  // write-config-reader.js's "Fix 1/3" commit) now queries WHERE id = ?,
+  // matching its other two callers (surface-shot-definitions.cjs,
+  // surface-animator.cjs), which already pass the id -- this route was the
+  // one caller still passing a label, which broke after that fix. Resolve
+  // label -> id here rather than touching the shared config-reader
+  // contract again.
+  let channelId = channel;
+  try {
+    const row = await get('SELECT id FROM channel_dna WHERE label = ?', [channel]);
+    if (row) channelId = row.id;
+    // No match: fall through with channelId unchanged. Covers callers that
+    // already pass a valid id directly (backward compatible), and truly
+    // unknown channels either way -- both hit the same 400 below via
+    // getChannelConfigByLabel's own not-found error.
+  } catch (err) {
+    console.error('[suggestions] Label resolution query failed:', channel, err.message);
+    // Non-fatal -- fall through and let the id-based lookup below fail
+    // with its existing 'Unknown channel' 400 instead of a 500 here.
+  }
+
   let dna;
   try {
-    dna = await getChannelConfigByLabel(channel);
+    dna = await getChannelConfigByLabel(channelId);
   } catch (err) {
     console.error('[suggestions] Channel not found:', channel, err.message);
     return res.status(400).json({ error: 'Unknown channel: ' + channel });
