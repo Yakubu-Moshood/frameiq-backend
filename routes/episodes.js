@@ -42,6 +42,7 @@ const STEPS = [
   { key: '0E_anim',   label: 'Animate Clips'      },
   { key: '1_render',  label: 'Render Episode'     },
   { key: '7_short',   label: 'Extract Short'      },
+  { key: '8_qa',       label: 'QA Check'          },
 ];
 
 // ─── POST /api/episodes ───────────────────────────────────────────────────────

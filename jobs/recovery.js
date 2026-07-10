@@ -41,7 +41,7 @@ const { startJob, isRunning } = require('./runner');
 const MAX_RETRIES = 2; // per spec Thread C
 
 const STEPS = [
-  '0A_script', '0B_vo', '0C_shots', '0D_images', '0E_anim', '1_render', '7_short',
+  '0A_script', '0B_vo', '0C_shots', '0D_images', '0E_anim', '1_render', '7_short', '8_qa',
 ];
 
 async function recoverOrphanedEpisodes() {

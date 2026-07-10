@@ -264,6 +264,22 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('009_job_queue_resilience')`);
     console.log('[migrations] 009_job_queue_resilience complete');
   }
+
+  // ── Migration 010_qa_stage ────────────────────────────────────────────────
+  // Adds episodes.qa_status / qa_results / qa_checked_at for the automated
+  // post-render QA stage. See migrations/010_qa_stage.js for why this uses
+  // a separate qa_status field rather than repurposing episodes.status.
+  const m010 = await get(`SELECT id FROM schema_migrations WHERE id = '010_qa_stage'`);
+  if (m010) {
+    console.log('[migrations] 010_qa_stage already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 010_qa_stage...');
+
+    const { up: up010 } = require('./migrations/010_qa_stage');
+    await up010({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('010_qa_stage')`);
+    console.log('[migrations] 010_qa_stage complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
@@ -345,6 +361,14 @@ const queries = {
   // doesn't need to threshold on it.
   getOrphanedEpisodes: () =>
     all(`SELECT * FROM episodes WHERE status IN ('running', 'awaiting_approval')`),
+
+  // ── QA stage (migration 010) ────────────────────────────────────────────────
+
+  updateEpisodeQAResult: (id, qaStatus, resultsObj) =>
+    run(
+      `UPDATE episodes SET qa_status = ?, qa_results = ?, qa_checked_at = datetime('now') WHERE id = ?`,
+      [qaStatus, JSON.stringify(resultsObj), id]
+    ),
 
   // ── Jobs ───────────────────────────────────────────────────────────────────
 

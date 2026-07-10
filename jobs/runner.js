@@ -496,6 +496,49 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('7_short', 'failed', null, `Short extraction failed: ${shortErr.message.slice(0, 200)}`);
   }
 
+  // ── STEP 8 — QA CHECK ──────────────────────────────────────────────────────
+  // qa-stage-implementation-spec.md. Additive, final stage. Per spec
+  // section 6, an unconfigured channel (no CHANNEL.qa block in
+  // pipeline.config.json) must not block or delay anything — runQAStage()
+  // itself handles that by returning a safe 'ready_for_review' no-op, so
+  // this block runs unconditionally rather than gating on config presence.
+
+  const job8 = jobFor('8_qa');
+  try {
+    if (job8) await queries.updateJob(job8.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
+    progress('8_qa', 'running', 0, 'Running post-render QA checks...');
+
+    const { runQAStage } = require('./qa');
+    const qaTmpDir = path.join(episodeDir, 'temp', 'qa');
+    const qa = await runQAStage({
+      renderedFilePath: renderResult.path,
+      expectedDurationSeconds: renderResult.durationSeconds,
+      channelConfig: CHANNEL,
+      tmpDir: qaTmpDir,
+    });
+
+    await queries.updateEpisodeQAResult(episodeDbId, qa.qaStatus, qa.results);
+
+    if (job8) {
+      await queries.updateJob(job8.id, {
+        status: 'complete',
+        progress: 100,
+        detail: qa.qaStatus === 'ready_for_review' ? 'ready_for_review' : `needs_qa_review: ${qa.failReasons.join(', ')}`,
+        finished_at: new Date().toISOString(),
+      });
+    }
+    progress('8_qa', 'complete', 100, qa.qaStatus === 'ready_for_review'
+      ? 'QA passed — ready for review'
+      : `QA flagged: ${qa.failReasons.join(', ')}`);
+  } catch (qaErr) {
+    // QA is additive — a bug/crash in the QA stage itself must not mark an
+    // otherwise-successful render as failed. Log and leave qa_status null
+    // (dashboard can treat null as "not yet QA'd" rather than a failure).
+    console.error(`[runner] Step 8 (QA) failed for ${episodeId}:`, qaErr.message);
+    if (job8) await queries.updateJob(job8.id, { status: 'failed', detail: qaErr.message.slice(0, 200), finished_at: new Date().toISOString() });
+    progress('8_qa', 'failed', null, `QA check failed to run: ${qaErr.message.slice(0, 200)}`);
+  }
+
   sse.close(episodeDbId, { step: 'done', status: 'complete', outputPath: renderResult.path, shortPath: shortResult ? shortResult.path : null });
 }
 
