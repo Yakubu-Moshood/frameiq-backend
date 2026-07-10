@@ -58,6 +58,22 @@ router.post('/', requireAuth, async (req, res) => {
   if (!episodeId || !topic)
     return res.status(400).json({ error: 'episodeId and topic are required' });
 
+  // episodeId flows directly, unmodified (aside from the frontend's
+  // .trim().toUpperCase()), into a filesystem folder name
+  // (jobs/runner.js: `${channel}_${episodeId}`) and from there into every
+  // ffmpeg command the render pipeline shells out to, including the
+  // -f concat demuxer's file-list quoting. Apostrophes, quotes, and shell
+  // metacharacters break that quoting (confirmed root cause of a repeatable
+  // "Impossible to open" render failure) and could similarly break other
+  // shell-constructed ffmpeg invocations. Restrict to characters that are
+  // safe everywhere in that chain: letters, numbers, spaces, hyphens,
+  // underscores.
+  if (!/^[A-Za-z0-9 _-]+$/.test(episodeId)) {
+    return res.status(400).json({
+      error: 'Episode ID can only contain letters, numbers, spaces, hyphens, and underscores (no apostrophes, quotes, or other special characters).',
+    });
+  }
+
   // Validate blueprint exists
   try {
     const blueprint = await queries.getBlueprint(blueprint_id);
