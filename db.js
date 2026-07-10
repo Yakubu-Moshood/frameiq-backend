@@ -280,6 +280,27 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('010_qa_stage')`);
     console.log('[migrations] 010_qa_stage complete');
   }
+
+  // ── Migration 011_served_cold_channel_row ─────────────────────────────────
+  // Inserts the missing base channel_dna row for Served Cold (id=
+  // 'ServedCold'). Previously no INSERT existed anywhere for this channel
+  // — only an UPDATE-only seed that skips if the row is absent — so a
+  // channel_dna lookup for it returned nothing. Part of the BRANDS
+  // consolidation fix: this is the concrete "missing channel" case that
+  // fix needs to handle correctly. See migrations/011_served_cold_channel_row.js
+  // for the known pipeline.config.json caveat (Railway-volume-only file,
+  // not fixed by this migration).
+  const m011 = await get(`SELECT id FROM schema_migrations WHERE id = '011_served_cold_channel_row'`);
+  if (m011) {
+    console.log('[migrations] 011_served_cold_channel_row already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 011_served_cold_channel_row...');
+
+    const { up: up011 } = require('./migrations/011_served_cold_channel_row');
+    await up011({ run, get });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('011_served_cold_channel_row')`);
+    console.log('[migrations] 011_served_cold_channel_row complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
@@ -326,7 +347,7 @@ const queries = {
         c.slug            AS channel_slug,
         c.active          AS channel_active
       FROM episodes e
-      LEFT JOIN channel_dna c ON e.channel = c.label
+      LEFT JOIN channel_dna c ON e.channel = c.id
       WHERE e.user_id = ?
       ORDER BY e.created_at DESC
     `, [userId]),
