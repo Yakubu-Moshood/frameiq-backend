@@ -87,6 +87,59 @@ function syncPipelineUpdates() {
   }
 }
 
+// ── Channel branding (single source of truth: channel_dna) ────────────────────
+// Replaces the separate hardcoded BRANDS maps that used to live independently
+// in pipeline-updates/surface-renderer.cjs and short-extractor.cjs. Those maps
+// were keyed by ad-hoc PascalCase strings (e.g. 'MacroDecode') that did not
+// actually match the real channel key used at runtime -- episodes.channel (and
+// therefore channelKey here) is always channel_dna.id, which for the Macro
+// Decode channel is 'MoneyExplained' (deliberately never renamed, see
+// migrations/007_macro_decode_rename.js). BRANDS['MoneyExplained'] was never a
+// key in either hardcoded map, so every Macro Decode episode silently fell
+// through to DEFAULT_BRAND (Empire Omitted's gold accent + "EMPIRE OMITTED"
+// watermark text) instead of its own branding. Resolving branding here, from
+// the DB, by the same channelKey used everywhere else in the pipeline,
+// eliminates that whole class of mismatch by construction.
+//
+// surface-renderer.cjs and short-extractor.cjs run from PIPELINE_DIR (synced
+// via syncPipelineUpdates(), a separate directory from this app's own root --
+// on Railway, PIPELINE_DIR is a persistent Volume path while this file lives
+// under the app's deploy directory), so they cannot safely `require('../db')`
+// by relative path the way this file can. Resolving the brand here (where
+// `queries` is already available) and passing it down as a plain data object
+// avoids that cross-directory require problem entirely.
+async function resolveBrand(channelKey) {
+  let dna = null;
+  try {
+    dna = await queries.getChannelDna(channelKey);
+  } catch (e) {
+    console.warn(`[runner] channel_dna lookup failed for "${channelKey}":`, e.message);
+  }
+
+  // Turns a PascalCase channel key into a readable display string as a last
+  // resort (e.g. "ServedCold" -> "SERVED COLD"), so a channel with no DB row
+  // at all still gets its OWN identity rather than silently borrowing another
+  // channel's watermark text or falling back to a literal "FRAMEIQ".
+  const prettify = (key) => key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toUpperCase();
+
+  const display = (dna && dna.watermark_text)
+    || (dna && dna.label && dna.label.toUpperCase())
+    || prettify(channelKey);
+
+  const accentRaw = (dna && (dna.ui_theme_color || dna.primary_colour)) || null;
+  const accent = accentRaw ? accentRaw.replace('#', '') : 'FFFFFF';
+
+  if (!dna) {
+    console.warn(
+      `[runner] No channel_dna row found for "${channelKey}" — using derived ` +
+      `fallback branding (display="${display}", accent=${accent}) instead of ` +
+      `another channel's identity or a generic FRAMEIQ default.`
+    );
+  }
+
+  return { display, accent };
+}
+
 // ── TEST_MODE helpers ─────────────────────────────────────────────────────────
 
 function isTestMode() {
@@ -505,8 +558,10 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     return new Promise(resolve => { approvalGates.set(`${episodeDbId}:${act}`, resolve); });
   }
 
+  const brand = await resolveBrand(channelKey);
+
   const { renderEpisode } = require(path.join(PIPELINE_DIR, 'surface-renderer.cjs'));
-  const renderResult = await renderEpisode({ episodeDir, episodeId, channel: channelKey, approvalCallback });
+  const renderResult = await renderEpisode({ episodeDir, episodeId, channel: channelKey, brand, approvalCallback });
 
   await queries.updateEpisodeResult('complete', renderResult.title || script.title, renderResult.path, renderResult.durationSeconds, episodeDbId);
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
@@ -535,7 +590,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('7_short', 'running', 0, 'Extracting 59s vertical short...');
     const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
     shortResult = await extractShort({
-      episodeDir, episodeId, channel: channelKey,
+      episodeDir, episodeId, channel: channelKey, brand,
       finalVideoPath: renderResult.path,
       onProgress: (pct, detail) => progress('7_short', 'running', pct, detail),
     });

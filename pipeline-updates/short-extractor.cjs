@@ -40,17 +40,26 @@ const LEAD_IN       = 1.0;  // start slightly before act4 for a natural breath
 // VO files in render order — act4's absolute start = sum of everything before it
 const ACTS_BEFORE_ACT4 = ['VO_Act1.mp3', 'VO_Act2.mp3', 'VO_Act3.mp3', 'VO_Act3B.mp3'];
 
-// Channel branding (self-contained so this module has zero config dependencies)
-// NOTE (Macro Decode onboarding): renamed from MoneyExplained. Accent hex
-// is provisional navy/gold — confirm against final brand work, and keep
-// this in sync with the BRANDS map in surface-renderer.cjs.
-const BRANDS = {
-  EmpireOmitted:   { display: 'EMPIRE OMITTED',    accent: 'C9A84C' }, // gold
-  MacroDecode:     { display: 'MACRO DECODE',      accent: 'E8B34C' }, // amber/gold
-  HistoryHidden:   { display: 'HISTORY HIDDEN',    accent: 'D8C49A' }, // sepia cream
-  TrueCrimeWeekly: { display: 'TRUE CRIME WEEKLY', accent: 'C41E1E' }, // red
-};
-const DEFAULT_BRAND = { display: 'FRAMEIQ', accent: 'C9A84C' };
+// Channel branding — BRANDS consolidation fix: this used to be a second,
+// independently-maintained hardcoded map (a duplicate of surface-renderer.cjs's
+// own copy, which had already drifted out of sync with it -- e.g. this map's
+// DEFAULT_BRAND used the literal fallback text "FRAMEIQ", the exact
+// FrameIQ->FraymIQ naming bug flagged separately). Branding is now always
+// passed in by the caller (jobs/runner.js's resolveBrand(), reading
+// channel_dna directly -- the single source of truth), via the `brand` param
+// on extractShort(). See surface-renderer.cjs for the full explanation of why
+// the old per-key maps were unreliable (they were keyed by strings that never
+// matched the real runtime channel key).
+//
+// deriveFallbackBrand() below is only used if a caller invokes extractShort()
+// without a `brand` -- it derives the channel's own name from its key rather
+// than silently borrowing another channel's identity or printing "FRAMEIQ".
+function deriveFallbackBrand(channelKey) {
+  const display = String(channelKey || 'CHANNEL')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toUpperCase();
+  return { display, accent: 'FFFFFF' };
+}
 
 // ── Small helpers ─────────────────────────────────────────────────────────
 
@@ -199,12 +208,17 @@ function buildAssFile({ words, brand, clipDuration, outPath }) {
  * @param {string} opts.episodeDir      Episode root, e.g. /data/episodes/EP7
  * @param {string} opts.episodeId       e.g. "EP7"
  * @param {string} opts.channel         Channel key, e.g. "EmpireOmitted"
+ * @param {object} [opts.brand]         { display, accent } resolved by the caller
+ *                                      from channel_dna (jobs/runner.js's
+ *                                      resolveBrand()) -- falls back to a
+ *                                      channel-key-derived brand if omitted.
  * @param {string} opts.finalVideoPath  Path to the rendered final MP4 (with outro)
  * @param {function} [opts.onProgress]  (pct, detail) => void
  * @returns {Promise<{ path: string, durationSeconds: number, startedAt: number, captions: number }>}
  */
-async function extractShort({ episodeDir, episodeId, channel, finalVideoPath, onProgress }) {
+async function extractShort({ episodeDir, episodeId, channel, brand = null, finalVideoPath, onProgress }) {
   const report = (pct, detail) => { if (onProgress) onProgress(pct, detail); };
+  brand = brand || deriveFallbackBrand(channel);
 
   if (!finalVideoPath || !fs.existsSync(finalVideoPath)) {
     throw new Error(`Final video not found at: ${finalVideoPath}`);
@@ -281,7 +295,6 @@ async function extractShort({ episodeDir, episodeId, channel, finalVideoPath, on
 
     report(65, `Building ${'captions'} (${words.length} words)...`);
 
-    const brand   = BRANDS[channel] || DEFAULT_BRAND;
     const assPath = path.join(tempDir, 'captions.ass');
     captionCount  = buildAssFile({ words, brand, clipDuration, outPath: assPath });
 

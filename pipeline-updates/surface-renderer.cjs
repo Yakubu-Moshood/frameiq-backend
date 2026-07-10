@@ -38,17 +38,27 @@ const H   = 1080;
 const FPS = 30;
 
 // ── Channel branding ──────────────────────────────────────────────
-// NOTE (Macro Decode onboarding): renamed from MoneyExplained. Accent
-// hex is a provisional navy/gold pick — NOT Empire Omitted's C9A84C,
-// per the Macro Decode DNA doc's explicit instruction not to reuse it.
-// Confirm against final brand work before treating this as locked.
-const BRANDS = {
-  EmpireOmitted:   { display: 'EMPIRE OMITTED',    accent: 'C9A84C' },
-  MacroDecode:     { display: 'MACRO DECODE',      accent: 'E8B34C' },
-  HistoryHidden:   { display: 'HISTORY HIDDEN',    accent: 'D8C49A' },
-  TrueCrimeWeekly: { display: 'TRUE CRIME WEEKLY', accent: 'C41E1E' },
-};
-const DEFAULT_BRAND = BRANDS.EmpireOmitted;
+// BRANDS consolidation fix: branding used to be a hardcoded map here, keyed
+// by ad-hoc strings (e.g. 'MacroDecode') that never actually matched the
+// real channel key used at runtime (channel_dna.id, e.g. 'MoneyExplained'
+// for Macro Decode -- deliberately never renamed, see
+// migrations/007_macro_decode_rename.js). That mismatch meant Macro Decode
+// episodes always fell through to DEFAULT_BRAND (Empire Omitted's gold
+// accent + watermark text). Branding now comes from the caller (jobs/
+// runner.js's resolveBrand(), reading channel_dna directly -- the single
+// source of truth) via the `brand` param on renderEpisode(). This module no
+// longer owns or guesses branding at all.
+//
+// FALLBACK_BRAND below is only used if a caller invokes renderEpisode()
+// without a `brand` (e.g. an old CLI script) -- it derives a channel's own
+// name from its key rather than silently borrowing another channel's
+// identity or printing a literal "FRAMEIQ".
+function deriveFallbackBrand(channelKey) {
+  const display = String(channelKey || 'CHANNEL')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toUpperCase();
+  return { display, accent: 'FFFFFF' };
+}
 
 // ── Font resolution — Linux first, Windows fallback ───────────────
 // If nothing is found, TEXT overlays are skipped (render never crashes).
@@ -844,13 +854,13 @@ function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted', approvalCallback = null }) {
+async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted', brand = null, approvalCallback = null }) {
   const audioDir     = path.join(episodeDir, 'assets', 'audio');
   const assetsDir    = path.join(episodeDir, 'assets');
   const publicDir    = path.join(episodeDir, '..', '..', 'public');
   const musicFile    = path.join(publicDir, 'background_music.mp3');
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
-  const brand        = BRANDS[channel] || DEFAULT_BRAND;
+  brand = brand || deriveFallbackBrand(channel);
 
   log('');
   log('╔══════════════════════════════════════════════════════╗');
