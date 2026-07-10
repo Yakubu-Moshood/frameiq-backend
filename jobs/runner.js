@@ -34,6 +34,39 @@ const approvalGates  = new Map();
 const activeEpisodes = new Set();
 const actPreviews    = new Map();
 
+// ── Job queue resilience (heartbeat) ──────────────────────────────────────────
+// Per job-queue-resilience-spec.md section 3.2. Keyed by episodeDbId so
+// startJob's .finally() can always find and clear its own interval, even
+// if multiple episodes are rendering concurrently across channels.
+const heartbeatIntervals = new Map();
+const HEARTBEAT_INTERVAL_MS = 20_000; // spec suggests 15-30s
+
+// ── Per-stage idempotency (spec section 3.5) — current state ─────────────────
+// The spec asks for a checkpoint_data JSON blob tracking exactly which
+// sub-items within a stage are already done, checked before every paid-API
+// call. That mechanism largely already exists here, just filesystem-based
+// instead of DB-based:
+//   - Steps 0A-0E below each skip regeneration via a batch-level
+//     fs.existsSync() check (script.json, all 6 VO files, per-shot images,
+//     per-clip animations) before calling out to a generator script.
+//   - Step 1 (render, surface-renderer.cjs) is MORE fine-grained than the
+//     batch checks above: it independently skips an already-run Whisper
+//     transcription (word-timestamps.json exists), skips already-rendered
+//     per-segment clips, and skips already-built per-act videos
+//     (act_<key>.mp4 exists) — see surface-renderer.cjs lines ~274, ~595,
+//     ~717. A retry therefore resumes from whatever's on disk, not from
+//     stage 1, even without any DB checkpoint column.
+// What's NOT covered, and can't be added from this repo: fine-grained
+// per-sub-item idempotency *inside* surface-vo-generator.cjs,
+// surface-image-generator.cjs, and surface-animator.cjs — those files are
+// Railway-volume-only (uploaded via Railway CLI, not git-tracked; see
+// startup-init.js's PIPELINE_DIR comment and pipeline-updates/ vs the
+// missing generator scripts). If any of those three ever loops over
+// multiple items and calls a paid API per item without its own
+// existsSync-style guard, a resume could re-bill that stage's remaining
+// items. This can only be verified/fixed by someone with direct access to
+// the Railway volume's copy of those files.
+
 // ── Pipeline auto-sync ────────────────────────────────────────────────────────
 const PIPELINE_UPDATES_DIR = path.join(__dirname, '..', 'pipeline-updates');
 
@@ -166,7 +199,28 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
     return false;
   }
   activeEpisodes.add(episodeDbId);
+
+  // Heartbeat: while this episode is actively processing, touch
+  // last_heartbeat_at on an interval. This is purely a liveness signal for
+  // observability/debugging today — boot-time recovery (jobs/recovery.js)
+  // doesn't need to threshold on staleness because activeEpisodes is
+  // guaranteed empty on a fresh process (see getOrphanedEpisodes in db.js),
+  // but recording it costs nothing and matches spec section 3.2.
+  const heartbeat = setInterval(() => {
+    queries.touchEpisodeHeartbeat(episodeDbId).catch(e =>
+      console.warn(`[runner] heartbeat write failed for ${episodeDbId}:`, e.message)
+    );
+  }, HEARTBEAT_INTERVAL_MS);
+  heartbeatIntervals.set(episodeDbId, heartbeat);
+  queries.touchEpisodeHeartbeat(episodeDbId).catch(() => {}); // immediate first beat
+
   runPipeline(episodeDbId, channelKey, episodeId, topic)
+    .then(async () => {
+      // Successful completion — clear retry_count so a later, unrelated
+      // failure on this same episode (e.g. a manual re-render) doesn't
+      // inherit an inflated count from a past orphan/recovery cycle.
+      await queries.resetEpisodeRetryCount(episodeDbId).catch(() => {});
+    })
     .catch(async err => {
       console.error(`[runner] Fatal error for ${episodeDbId}:`, err.message);
       await queries.updateEpisodeStatus('failed', episodeDbId);
@@ -174,6 +228,8 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
     })
     .finally(() => {
       activeEpisodes.delete(episodeDbId);
+      const hb = heartbeatIntervals.get(episodeDbId);
+      if (hb) { clearInterval(hb); heartbeatIntervals.delete(episodeDbId); }
       for (const key of actPreviews.keys()) {
         if (key.startsWith(`${episodeDbId}:`)) actPreviews.delete(key);
       }
@@ -183,6 +239,7 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
 
 function isRunning(episodeDbId)          { return activeEpisodes.has(episodeDbId); }
 function getActPreview(episodeDbId, act) { return actPreviews.get(`${episodeDbId}:${act}`) || null; }
+function getActiveEpisodeIds()           { return Array.from(activeEpisodes); }
 
 function resolveApproval(episodeDbId, act, approved) {
   const key     = `${episodeDbId}:${act}`;
@@ -442,4 +499,4 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   sse.close(episodeDbId, { step: 'done', status: 'complete', outputPath: renderResult.path, shortPath: shortResult ? shortResult.path : null });
 }
 
-module.exports = { startJob, resolveApproval, isRunning, getActPreview, syncPipelineUpdates };
+module.exports = { startJob, resolveApproval, isRunning, getActPreview, getActiveEpisodeIds, syncPipelineUpdates };

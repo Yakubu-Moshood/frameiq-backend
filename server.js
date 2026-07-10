@@ -44,7 +44,9 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 
-const { initSchema, runMigrations } = require('./db');
+const { initSchema, runMigrations, db } = require('./db');
+const { recoverOrphanedEpisodes }       = require('./jobs/recovery');
+const { getActiveEpisodeIds }           = require('./jobs/runner');
 
 const authRoutes            = require('./routes/auth');
 const episodeRoutes         = require('./routes/episodes');
@@ -107,10 +109,16 @@ app.use((err, req, res, next) => {
 });
 
 // ── Boot sequence ─────────────────────────────────────────────
+// job-queue-resilience-spec.md section 3.4: recovery scan runs after
+// migrations, before the port opens, so no new episode-creation request
+// can race a requeue for the same channel/episode.
+let httpServer;
+
 initSchema()
   .then(() => runMigrations())
+  .then(() => recoverOrphanedEpisodes())
   .then(() => {
-    app.listen(PORT, () => {
+    httpServer = app.listen(PORT, () => {
       console.log('');
       console.log('╔══════════════════════════════════════════════╗');
       console.log('║         FRAMEIQ BACKEND — RUNNING            ║');
@@ -126,5 +134,45 @@ initSchema()
     console.error('[server] Failed to initialise database:', err);
     process.exit(1);
   });
+
+// ── Graceful shutdown (job-queue-resilience-spec.md section 3.3) ──────────
+// Railway sends SIGTERM before killing a container for a deploy/restart.
+// This process has no separate worker — renders run in-process — so there
+// is no distinct "mark in-flight jobs as gracefully interrupted" state to
+// set: any episode still 'running'/'awaiting_approval' when this process
+// exits, whether via SIGTERM or a hard crash, is picked up uniformly by
+// the boot-time recoverOrphanedEpisodes() scan on next start (see
+// jobs/recovery.js — it doesn't distinguish graceful vs. crashed, since
+// activeEpisodes is empty either way at boot). What SIGTERM handling adds
+// here is avoiding a hard kill mid-write: closing the HTTP server and the
+// SQLite handle cleanly reduces the chance of a torn WAL write versus
+// Railway escalating to SIGKILL while a query is in flight.
+let shuttingDown = false;
+
+process.on('SIGTERM', () => {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
+  const active = getActiveEpisodeIds();
+  console.log(`[server] SIGTERM received — ${active.length} episode(s) in flight: ${active.join(', ') || 'none'}`);
+  console.log('[server] These will be recovered by the boot-time scan on next start.');
+
+  const finish = () => {
+    db.close(err => {
+      if (err) console.error('[server] Error closing DB:', err.message);
+      else console.log('[server] DB closed cleanly');
+      process.exit(0);
+    });
+  };
+
+  if (httpServer) {
+    httpServer.close(finish);
+    // Don't hang forever waiting for in-flight HTTP requests (e.g. an SSE
+    // connection) to drain — Railway gives a limited grace period.
+    setTimeout(finish, 5000).unref();
+  } else {
+    finish();
+  }
+});
 
 module.exports = app;

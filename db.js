@@ -248,6 +248,22 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('008_macro_decode_default_blueprint')`);
     console.log('[migrations] 008_macro_decode_default_blueprint complete');
   }
+
+  // ── Migration 009_job_queue_resilience ──────────────────────────────────
+  // Adds episodes.last_heartbeat_at + episodes.retry_count for orphaned-job
+  // detection/recovery. See migrations/009_job_queue_resilience.js for why
+  // this targets `episodes` rather than the spec's proposed new `jobs` table.
+  const m009 = await get(`SELECT id FROM schema_migrations WHERE id = '009_job_queue_resilience'`);
+  if (m009) {
+    console.log('[migrations] 009_job_queue_resilience already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 009_job_queue_resilience...');
+
+    const { up: up009 } = require('./migrations/009_job_queue_resilience');
+    await up009({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('009_job_queue_resilience')`);
+    console.log('[migrations] 009_job_queue_resilience complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
@@ -307,6 +323,28 @@ const queries = {
       `UPDATE episodes SET status=?, title=?, output_path=?, duration_s=?, updated_at=datetime('now') WHERE id=?`,
       [status, title, outputPath, durationS, id]
     ),
+
+  // ── Job queue resilience (migration 009) ────────────────────────────────────
+
+  touchEpisodeHeartbeat: (id) =>
+    run(`UPDATE episodes SET last_heartbeat_at = datetime('now') WHERE id = ?`, [id]),
+
+  incrementEpisodeRetryCount: (id) =>
+    run(`UPDATE episodes SET retry_count = retry_count + 1, updated_at = datetime('now') WHERE id = ?`, [id]),
+
+  resetEpisodeRetryCount: (id) =>
+    run(`UPDATE episodes SET retry_count = 0 WHERE id = ?`, [id]),
+
+  // Boot-time orphan scan. Every episode left in 'running' or
+  // 'awaiting_approval' at boot is, by definition, orphaned — activeEpisodes
+  // (in-memory) is guaranteed empty on a fresh process, so there is no
+  // "still working, just slow" case to distinguish here the way the spec's
+  // heartbeat-staleness-window design assumes for a multi-worker setup.
+  // last_heartbeat_at is still recorded (see jobs/runner.js) so it's
+  // available for observability/debugging even though boot-time recovery
+  // doesn't need to threshold on it.
+  getOrphanedEpisodes: () =>
+    all(`SELECT * FROM episodes WHERE status IN ('running', 'awaiting_approval')`),
 
   // ── Jobs ───────────────────────────────────────────────────────────────────
 
