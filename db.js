@@ -301,6 +301,23 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('011_served_cold_channel_row')`);
     console.log('[migrations] 011_served_cold_channel_row complete');
   }
+
+  // ── Migration 012_voice_tertiary ──────────────────────────────────────────
+  // Adds channel_dna.voice_tertiary (defaults to 'coqui_xtts' for every
+  // channel) and channel_dna.voice_id_coqui (nullable reference-audio
+  // path/URL, not a simple ID) — the third voice-provider tier for
+  // voice-router.cjs's failover chain. See migrations/012_voice_tertiary.js.
+  const m012 = await get(`SELECT id FROM schema_migrations WHERE id = '012_voice_tertiary'`);
+  if (m012) {
+    console.log('[migrations] 012_voice_tertiary already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 012_voice_tertiary...');
+
+    const { up: up012 } = require('./migrations/012_voice_tertiary');
+    await up012({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('012_voice_tertiary')`);
+    console.log('[migrations] 012_voice_tertiary complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
