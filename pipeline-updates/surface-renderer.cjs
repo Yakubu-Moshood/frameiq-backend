@@ -163,6 +163,21 @@ function getAudioDuration(filePath) {
   return parseFloat(out);
 }
 
+// Closing-CTA fix: detects the outro clip's actual resolution rather than
+// assuming it matches the main episode's W x H constants -- outro assets
+// live on the Railway volume (not in this git repo), so their real
+// dimensions can't be confirmed from here. Probing at runtime and sizing
+// the CTA overlay off the result keeps this correct regardless.
+function getVideoDimensions(filePath) {
+  const out = execSync(
+    `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x "${filePath}"`,
+    { maxBuffer: 8 * 1024 * 1024 }
+  ).toString().trim();
+  const [w, h] = out.split('x').map(Number);
+  if (!w || !h) throw new Error(`Could not read video dimensions from ffprobe output: "${out}"`);
+  return { width: w, height: h };
+}
+
 function logDiskSpace(dir) {
   try {
     const s = fs.statfsSync(dir);
@@ -182,6 +197,20 @@ function esc(text) {
     .replace(/'/g, "\\'")   // escape single quotes
     .replace(/:/g, '\\:')   // escape colons
     .replace(/,/g, '');       // remove commas
+}
+
+// Closing-CTA fix: separate escaper that ESCAPES commas (\,) instead of
+// stripping them, since the CTA's approved wording ("...subscribe, follow,
+// comment, and share.") reads noticeably worse with commas removed. esc()
+// above strips commas because it's only ever used for short channel/name
+// labels where that's a fine tradeoff -- left unchanged for those callers
+// to avoid touching unrelated watermark/lower-third rendering.
+function escCta(text) {
+  return (text || '')
+    .replace(/"/g, '')
+    .replace(/'/g, "\\'")
+    .replace(/:/g, '\\:')
+    .replace(/,/g, '\\,');
 }
 
 // ─── APPROVAL GATE (CLI fallback only) ───────────────────────────────────────
@@ -265,6 +294,77 @@ function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
   const nameF = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(name)}':fontcolor=0x${accent}:fontsize=48:x=60:y=h-120:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
   const titlF = `drawtext=fontfile='${FONT_BOLD}':text='${esc(title)}':fontcolor=0xFFFFFF:fontsize=28:x=60:y=h-70:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
   return `${nameF},${titlF}`;
+}
+
+// Closing-CTA fix (Step 4): burns the approved subscribe/follow/comment/share
+// ask onto the channel's outro segment, in that channel's own accent colour
+// -- reuses the exact same per-channel `brand` object the watermark already
+// uses (BRANDS consolidation, Step 1), so this needed zero new branding
+// plumbing. Two lines, matching the lowerThird/statCard convention elsewhere
+// in this file (plain white body text + accent-coloured emphasis line, both
+// shadowed for readability against whatever the outro's background is)
+// rather than a boxed banner. Sized as a proportion of the outro's own
+// detected height (see getVideoDimensions()) so this holds up correctly
+// regardless of the outro's actual resolution -- not assumed to match the
+// main episode's W/H constants, since outro assets live on the Railway
+// volume and can't be inspected from this repo.
+//
+// Fades in over the last ~1s and holds through the end of the clip; no
+// fade-out needed since the outro (and therefore this overlay) simply ends
+// with the video.
+function closingCtaFilter(brand, width, height, durSec) {
+  if (!TEXT_ENABLED) return null;
+  const totalFrames = Math.round(durSec * FPS);
+  const fadeInFrames = Math.min(30, Math.round(FPS * 1)); // ~1s fade-in
+  const alpha = `if(lt(n\\,${fadeInFrames})\\,n/${fadeInFrames}\\,1)`;
+
+  const line1Size = Math.round(height * 0.045);
+  const line2Size = Math.round(height * 0.058);
+  const line1Y    = Math.round(height * 0.80);
+  const line2Y    = Math.round(height * 0.87);
+
+  const line1 = `drawtext=fontfile='${FONT_BOLD}':text='${escCta('If you want more stories like this,')}':fontcolor=0xFFFFFF:fontsize=${line1Size}:x=(w-text_w)/2:y=${line1Y}:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
+  const line2 = `drawtext=fontfile='${FONT_IMPACT}':text='${escCta('subscribe, follow, comment, and share.')}':fontcolor=0x${brand.accent}:fontsize=${line2Size}:x=(w-text_w)/2:y=${line2Y}:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
+
+  return `${line1},${line2}`;
+}
+
+// Closing-CTA fix: burns closingCtaFilter() onto a copy of the channel's
+// outro clip, writing the result to a temp path and returning that path
+// instead of mutating the original outro asset (which lives on the Railway
+// volume, outside this repo, and is shared across every episode for that
+// channel -- must never be edited in place). Re-encodes only the video
+// stream (drawtext requires it); audio is stream-copied straight through
+// unchanged. On any failure (missing ffprobe data, TEXT_ENABLED false because
+// no font was found, ffmpeg error, etc.) this falls back to the original,
+// un-overlaid outro path and logs why -- matching the same "never fail the
+// whole render over the outro" defensiveness as the try/catch around
+// appendOutro() itself.
+function applyClosingCta(outroPath, brand, tempDir) {
+  if (!TEXT_ENABLED) {
+    log('[cta] TEXT_ENABLED is false (no font found) — shipping outro without the CTA overlay');
+    return outroPath;
+  }
+  try {
+    const { width, height } = getVideoDimensions(outroPath);
+    const durSec = getAudioDuration(outroPath);
+    const filter = closingCtaFilter(brand, width, height, durSec);
+    if (!filter) return outroPath;
+
+    fs.mkdirSync(tempDir, { recursive: true });
+    const outPath = path.join(tempDir, 'outro_with_cta.mp4');
+
+    run(
+      `${FF} -i "${outroPath}" -vf "${filter}" -c:v libx264 -preset fast -pix_fmt yuv420p -c:a copy "${outPath}"`,
+      'burning closing CTA onto outro'
+    );
+
+    return outPath;
+  } catch (ctaErr) {
+    log(`[cta] ⚠ Could not overlay closing CTA onto outro: ${ctaErr.message}`);
+    log(`[cta]   Using outro without the CTA overlay.`);
+    return outroPath;
+  }
 }
 
 // NOTE (Macro Decode onboarding): `accent` now defaults to Empire Omitted's
@@ -946,9 +1046,15 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
     const defaultOutro = path.join(publicDir, 'outro_EmpireOmitted.mp4');
     const outroPath    = fs.existsSync(channelOutro) ? channelOutro : defaultOutro;
 
+    // Closing-CTA fix (Step 4): burn the subscribe/follow/comment/share ask
+    // onto this channel's outro, in this channel's own accent colour, before
+    // appending it. Non-destructive -- writes to a temp file, never touches
+    // the shared outro asset itself.
+    const ctaOutroPath = applyClosingCta(outroPath, brand, path.join(episodeDir, 'temp'));
+
     const withOutro = await appendOutro({
       episodePath: result.path,
-      outroPath:   outroPath,
+      outroPath:   ctaOutroPath,
     });
     const finalDur = getAudioDuration(withOutro);
     finalResult = { path: withOutro, durationSeconds: finalDur, title: result.title };
