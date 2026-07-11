@@ -18,7 +18,7 @@ const { v4: uuid } = require('uuid');
 const { queries }      = require('../db');
 const { requireAuth }  = require('../middleware/auth');
 const sse              = require('../sse');
-const { startJob, resolveApproval, isRunning, getActPreview, syncPipelineUpdates } = require('../jobs/runner');
+const { startJob, resolveApproval, isRunning, getActPreview, syncPipelineUpdates, resolveBrand } = require('../jobs/runner');
 const { EPISODES_DIR } = require('../startup-init');
 
 const router = express.Router();
@@ -487,7 +487,19 @@ router.get('/:id/short', async (req, res) => {
 
     // Sprint 1A fix: use channel-namespaced episode dir
     const episodeDir = path.join(EPISODES_DIR, `${episode.channel}_${episode.episode_id}`);
-    const shortPath  = path.join(episodeDir, 'short.mp4');
+
+    // Multi-clip smart extraction fix: the old single-clip short-extractor.cjs
+    // always wrote exactly one file, short.mp4. multi-clip-extractor.cjs
+    // (which replaced it) writes short_1.mp4/short_2.mp4/short_3.mp4 and
+    // teaser_1.mp4/teaser_2.mp4 instead — short.mp4 will never exist for an
+    // episode processed by the new pipeline. Kept this endpoint working for
+    // any existing caller by falling back to the first short clip; new
+    // frontend work should move to GET /:id/clips + GET /:id/clips/:filename
+    // below, which can see every clip, not just one.
+    let shortPath = path.join(episodeDir, 'short.mp4');
+    if (!fs.existsSync(shortPath)) {
+      shortPath = path.join(episodeDir, 'short_1.mp4');
+    }
 
     if (!fs.existsSync(shortPath))
       return res.status(404).json({ error: 'Short not yet generated for this episode' });
@@ -495,6 +507,81 @@ router.get('/:id/short', async (req, res) => {
     res.setHeader('Content-Type',        'video/mp4');
     res.setHeader('Content-Disposition', `attachment; filename="${episode.channel}_${episode.episode_id}_short.mp4"`);
     fs.createReadStream(shortPath).pipe(res);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/episodes/:id/clips ──────────────────────────────────────────────
+// Multi-clip smart extraction fix: lists every clip multi-clip-extractor.cjs
+// produced for this episode (up to 3 short + 2 teaser), so the frontend can
+// offer all of them, not just a single "the short" download.
+
+router.get('/:id/clips', async (req, res) => {
+  let userId;
+  try {
+    const token = authFlexible(req);
+    if (!token) return res.status(401).json({ error: 'No token' });
+    userId = jwt.verify(token, SECRET).sub;
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== userId) return res.status(403).json({ error: 'Forbidden' });
+
+    const episodeDir = path.join(EPISODES_DIR, `${episode.channel}_${episode.episode_id}`);
+    if (!fs.existsSync(episodeDir)) return res.json({ clips: [] });
+
+    const files = fs.readdirSync(episodeDir).filter(f => /^(short|teaser)_\d+\.mp4$/.test(f));
+    const clips = files
+      .map(filename => ({
+        filename,
+        kind:     filename.startsWith('short_') ? 'short' : 'teaser',
+        platform: filename.startsWith('short_') ? 'reels' : 'feed',
+      }))
+      .sort((a, b) => a.filename.localeCompare(b.filename, undefined, { numeric: true }));
+
+    return res.json({ clips });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── GET /api/episodes/:id/clips/:filename ────────────────────────────────────
+// Downloads one specific clip by filename. Filename is strictly validated
+// against the short_N.mp4 / teaser_N.mp4 pattern before touching the
+// filesystem, so this can never be used to read an arbitrary path.
+
+router.get('/:id/clips/:filename', async (req, res) => {
+  let userId;
+  try {
+    const token = authFlexible(req);
+    if (!token) return res.status(401).json({ error: 'No token' });
+    userId = jwt.verify(token, SECRET).sub;
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  try {
+    const episode = await queries.getEpisode(req.params.id);
+    if (!episode) return res.status(404).json({ error: 'Episode not found' });
+    if (episode.user_id !== userId) return res.status(403).json({ error: 'Forbidden' });
+
+    if (!/^(short|teaser)_\d+\.mp4$/.test(req.params.filename)) {
+      return res.status(400).json({ error: 'Invalid clip filename' });
+    }
+
+    const episodeDir = path.join(EPISODES_DIR, `${episode.channel}_${episode.episode_id}`);
+    const clipPath    = path.join(episodeDir, req.params.filename);
+
+    if (!fs.existsSync(clipPath)) return res.status(404).json({ error: 'Clip not found' });
+
+    res.setHeader('Content-Type',        'video/mp4');
+    res.setHeader('Content-Disposition', `attachment; filename="${episode.channel}_${episode.episode_id}_${req.params.filename}"`);
+    fs.createReadStream(clipPath).pipe(res);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -530,7 +617,8 @@ router.post('/:id/short/generate', async (req, res) => {
     syncPipelineUpdates();
 
     const { PIPELINE_DIR } = require('../startup-init');
-    const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
+    const { extractClips } = require(path.join(PIPELINE_DIR, 'multi-clip-extractor.cjs'));
+    const brand = await resolveBrand(episode.channel);
 
     // Upsert the 7_short job row
     const jobs    = await queries.getJobsForEpisode(episode.id);
@@ -543,17 +631,20 @@ router.post('/:id/short/generate', async (req, res) => {
     await queries.updateJob(job7.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
 
     try {
-      const result = await extractShort({
+      const result = await extractClips({
         episodeDir,
         episodeId:      episode.episode_id,
         channel:        episode.channel,
+        brand,
         finalVideoPath: episode.output_path,
         onProgress:     () => {},
       });
+      const shortCount  = result.clips.filter(c => c.kind === 'short').length;
+      const teaserCount = result.clips.filter(c => c.kind === 'teaser').length;
       await queries.updateJob(job7.id, {
         status:      'complete',
         progress:    100,
-        detail:      `${result.durationSeconds.toFixed(0)}s`,
+        detail:      `${result.clips.length} clips (${shortCount} short, ${teaserCount} teaser)`.slice(0, 200),
         finished_at: new Date().toISOString(),
       });
     } catch (e) {

@@ -567,7 +567,14 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
 
-  // ── STEP 7 — SHORT EXTRACTOR ──────────────────────────────────────────────
+  // ── STEP 7 — MULTI-CLIP SMART EXTRACTION ──────────────────────────────────
+  // Replaces the old single 59s "act 4" short-extractor.cjs (kept on disk,
+  // unused, for reference/rollback -- see multi-clip-extractor.cjs's own
+  // header for the full design). Produces up to 5 content-aware clips: 3
+  // short/punchy (Reels-formatted) + 2 longer teasers (direct feed posts),
+  // reusing Step 1's already-persisted Whisper/shot-timing data -- zero new
+  // transcription calls.
+  //
   // KNOWN v1 LIMITATION: a pause requested while Step 1 (render) was still
   // in flight (e.g. during the awaiting_approval wait) is not visible here.
   // updateEpisodeResult() just above unconditionally sets episodes.status
@@ -583,23 +590,27 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   if (await checkPaused(episodeDbId, '7_short')) return;
 
   const job7 = jobFor('7_short');
-  let shortResult = null;
+  let clipsResult = null;
 
   try {
     if (job7) await queries.updateJob(job7.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-    progress('7_short', 'running', 0, 'Extracting 59s vertical short...');
-    const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
-    shortResult = await extractShort({
+    progress('7_short', 'running', 0, 'Selecting and extracting clips...');
+    const { extractClips } = require(path.join(PIPELINE_DIR, 'multi-clip-extractor.cjs'));
+    clipsResult = await extractClips({
       episodeDir, episodeId, channel: channelKey, brand,
       finalVideoPath: renderResult.path,
       onProgress: (pct, detail) => progress('7_short', 'running', pct, detail),
     });
-    if (job7) await queries.updateJob(job7.id, { status: 'complete', progress: 100, detail: `${shortResult.durationSeconds.toFixed(0)}s`, finished_at: new Date().toISOString() });
-    progress('7_short', 'complete', 100, `Short ready — ${shortResult.durationSeconds.toFixed(0)}s`);
+    const shortCount  = clipsResult.clips.filter(c => c.kind === 'short').length;
+    const teaserCount = clipsResult.clips.filter(c => c.kind === 'teaser').length;
+    const detail = `${clipsResult.clips.length} clips (${shortCount} short, ${teaserCount} teaser)` +
+      (clipsResult.warnings.length ? ` — ${clipsResult.warnings.join(' ')}` : '');
+    if (job7) await queries.updateJob(job7.id, { status: 'complete', progress: 100, detail: detail.slice(0, 200), finished_at: new Date().toISOString() });
+    progress('7_short', 'complete', 100, detail);
   } catch (shortErr) {
     console.error(`[runner] Step 7 failed for ${episodeId}:`, shortErr.message);
     if (job7) await queries.updateJob(job7.id, { status: 'failed', detail: shortErr.message.slice(0, 200), finished_at: new Date().toISOString() });
-    progress('7_short', 'failed', null, `Short extraction failed: ${shortErr.message.slice(0, 200)}`);
+    progress('7_short', 'failed', null, `Clip extraction failed: ${shortErr.message.slice(0, 200)}`);
   }
 
   // ── STEP 8 — QA CHECK ──────────────────────────────────────────────────────
@@ -647,7 +658,13 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('8_qa', 'failed', null, `QA check failed to run: ${qaErr.message.slice(0, 200)}`);
   }
 
-  sse.close(episodeDbId, { step: 'done', status: 'complete', outputPath: renderResult.path, shortPath: shortResult ? shortResult.path : null });
+  sse.close(episodeDbId, {
+    step: 'done', status: 'complete', outputPath: renderResult.path,
+    // Back-compat single-field for any consumer still reading shortPath —
+    // first short clip if one was produced, else null.
+    shortPath: clipsResult && clipsResult.clips.length ? clipsResult.clips.find(c => c.kind === 'short')?.path || clipsResult.clips[0].path : null,
+    clips: clipsResult ? clipsResult.clips.map(c => ({ path: c.path, kind: c.kind, platform: c.platform, durationSeconds: c.durationSeconds })) : [],
+  });
 }
 
-module.exports = { startJob, resolveApproval, isRunning, getActPreview, getActiveEpisodeIds, syncPipelineUpdates };
+module.exports = { startJob, resolveApproval, isRunning, getActPreview, getActiveEpisodeIds, syncPipelineUpdates, resolveBrand };

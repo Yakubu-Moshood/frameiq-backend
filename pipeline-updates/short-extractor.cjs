@@ -2,6 +2,23 @@
  * short-extractor.cjs
  * Frameiq — Step 7: Short Extractor
  *
+ * ══════════════════════════════════════════════════════════════════════════
+ * SUPERSEDED — no longer called anywhere in the pipeline.
+ *
+ * Replaced by multi-clip-extractor.cjs (Step 5 of the "5 pipeline fixes"
+ * build), which produces up to 5 content-aware clips per episode (3 short +
+ * 2 teaser) instead of this file's single fixed 59s "act 4" clip, and
+ * reuses Step 1's persisted Whisper data instead of re-transcribing each
+ * clip. jobs/runner.js's Step 7 and routes/episodes.js's
+ * POST /:id/short/generate both now call extractClips() from
+ * multi-clip-extractor.cjs.
+ *
+ * Kept on disk deliberately, not deleted, so the prior single-clip behaviour
+ * is easy to diff against or roll back to if needed — this is a judgment
+ * call to flag for review, not an oversight. Safe to delete once the new
+ * multi-clip system has been confirmed working in production.
+ * ══════════════════════════════════════════════════════════════════════════
+ *
  * After an episode renders, extract the most dramatic 59 seconds
  * (act 4 — the reveal/collapse) from the final MP4, crop it to
  * 9:16 vertical (1080x1920), burn in word-timed captions via
@@ -15,7 +32,7 @@
  *
  * Output: {episodeDir}/short.mp4
  *
- * Usage from runner.js:
+ * Usage (historical — no longer wired in):
  *   const { extractShort } = require(path.join(PIPELINE_DIR, 'short-extractor.cjs'));
  *   const result = await extractShort({
  *     episodeDir, episodeId, channel, finalVideoPath, onProgress
