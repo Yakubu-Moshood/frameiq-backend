@@ -37,6 +37,15 @@ const SHORT_SECONDS = 59;   // max length for Shorts / TikTok / Reels
 const OUTRO_SECONDS = 10;   // branded outro appended by Step 6 — never include it
 const LEAD_IN       = 1.0;  // start slightly before act4 for a natural breath
 
+// Output canvas for the extracted short. Single source of truth for both the
+// ffmpeg crop filter and the ASS subtitle header's PlayResX/PlayResY (see
+// buildAssFile() below) -- previously the .ass header hardcoded 1080x1920
+// independently of the crop filter, so the two could silently drift apart if
+// only one was ever changed. If a second aspect ratio/resolution is ever
+// added, this is the one place to change.
+const CLIP_WIDTH  = 1080;
+const CLIP_HEIGHT = 1920;
+
 // VO files in render order — act4's absolute start = sum of everything before it
 const ACTS_BEFORE_ACT4 = ['VO_Act1.mp3', 'VO_Act2.mp3', 'VO_Act3.mp3', 'VO_Act3B.mp3'];
 
@@ -130,7 +139,7 @@ async function transcribeAudio(audioPath) {
  * breaking early on pauses, and emit an .ass subtitle file with
  * channel-branded styling.
  */
-function buildAssFile({ words, brand, clipDuration, outPath }) {
+function buildAssFile({ words, brand, clipDuration, outPath, width = CLIP_WIDTH, height = CLIP_HEIGHT }) {
   const accent = hexToAss(brand.accent);
   const chunks = [];
   let current  = [];
@@ -164,20 +173,42 @@ function buildAssFile({ words, brand, clipDuration, outPath }) {
     c.end = Math.min(c.end, clipDuration);
   }
 
+  // Adaptive-subtitles fix: fontsize/margins are computed as proportions of
+  // the actual output height/width rather than hardcoded for 1080x1920, so
+  // this file doesn't need touching again if a second aspect ratio/
+  // resolution is ever added -- only CLIP_WIDTH/CLIP_HEIGHT above would need
+  // to change (or a width/height override passed in per-call). Ratios below
+  // are derived from the original hardcoded 1080x1920 values so today's
+  // output looks identical; they just now scale.
+  const captionFontsize = Math.round(height * 0.0427); // was fixed 82 @ 1920
+  const brandFontsize   = Math.round(height * 0.0240); // was fixed 46 @ 1920
+  const captionMarginV  = Math.round(height * 0.2188); // was fixed 420 @ 1920
+  const brandMarginV    = Math.round(height * 0.0573); // was fixed 110 @ 1920
+  const marginL         = Math.round(width  * 0.0556); // was fixed 60 @ 1080
+  const marginR         = marginL;
+
   const header = [
     '[Script Info]',
     'ScriptType: v4.00+',
-    'PlayResX: 1080',
-    'PlayResY: 1920',
-    'WrapStyle: 2',
+    `PlayResX: ${width}`,
+    `PlayResY: ${height}`,
+    // Adaptive-subtitles fix: WrapStyle 2 disables word-wrapping entirely
+    // (libass only breaks on explicit \N, otherwise runs the line past the
+    // margins) -- with 2-3 word caption chunks this rarely showed on typical
+    // clips, but any longer chunk (e.g. a fast run of short words that
+    // doesn't hit the pause/count break) would overflow off-screen instead
+    // of wrapping. WrapStyle 0 restores libass's normal smart auto-wrap
+    // within MarginL/MarginR, matching how the "Brand" style's longer
+    // channel-name text also needs to behave safely on narrower captions.
+    'WrapStyle: 0',
     'ScaledBorderAndShadow: yes',
     '',
     '[V4+ Styles]',
     'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
     // Big bold captions, bottom-center but lifted above platform UI
-    `Style: Caption,DejaVu Sans,82,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,1,0,0,0,100,100,1,0,1,5,2,2,60,60,420,1`,
+    `Style: Caption,DejaVu Sans,${captionFontsize},&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,1,0,0,0,100,100,1,0,1,5,2,2,${marginL},${marginR},${captionMarginV},1`,
     // Channel name strip, top-center, accent colour
-    `Style: Brand,DejaVu Sans,46,${accent},${accent},&H00000000,&H96000000,1,0,0,0,100,100,4,0,1,3,1,8,60,60,110,1`,
+    `Style: Brand,DejaVu Sans,${brandFontsize},${accent},${accent},&H00000000,&H96000000,1,0,0,0,100,100,4,0,1,3,1,8,${marginL},${marginR},${brandMarginV},1`,
     '',
     '[Events]',
     'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text',
@@ -268,7 +299,7 @@ async function extractShort({ episodeDir, episodeId, channel, brand = null, fina
     '-ss', start.toFixed(3),
     '-i', finalVideoPath,
     '-t', clipDuration.toFixed(3),
-    '-vf', `scale=-2:1920,crop=1080:1920,fade=t=in:st=0:d=0.4,fade=t=out:st=${fadeOutAt.toFixed(2)}:d=0.8`,
+    '-vf', `scale=-2:${CLIP_HEIGHT},crop=${CLIP_WIDTH}:${CLIP_HEIGHT},fade=t=in:st=0:d=0.4,fade=t=out:st=${fadeOutAt.toFixed(2)}:d=0.8`,
     '-af', `afade=t=in:st=0:d=0.4,afade=t=out:st=${fadeOutAt.toFixed(2)}:d=0.8`,
     '-c:v', 'libx264',
     '-preset', 'fast',
