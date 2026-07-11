@@ -494,7 +494,11 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     const promptsPath = path.join(stillsDir, 'pending-prompts.json');
     fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
     const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));
-    await generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey });
+    // Open-source-fallback investigation: episodeId is now threaded through
+    // (previously missing here, unlike generateVO's Phase B fix) so
+    // providers/provider-router.cjs can log provider_events and update
+    // episodes.image_provider_used/provider_substituted per episode.
+    await generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey, episodeId: episodeDbId });
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
@@ -520,7 +524,10 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   } else {
     progress('0E_anim', 'running', 0, `Animating ${needsAnim.length} clips via fal.ai Kling v1.6...`);
     const { animateClips } = require(path.join(PIPELINE_DIR, 'surface-animator.cjs'));
-    const result = await animateClips({ shotDefs, episodeDir, channel: channelKey });
+    // Same episodeId threading as generateImages() above -- required for
+    // providers/provider-router.cjs's video-provider_events logging and
+    // episodes.video_provider_used/provider_substituted updates.
+    const result = await animateClips({ shotDefs, episodeDir, channel: channelKey, episodeId: episodeDbId });
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `${result.completed} clips`, finished_at: new Date().toISOString() });
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
   }

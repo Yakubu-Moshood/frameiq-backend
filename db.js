@@ -318,6 +318,22 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('012_voice_tertiary')`);
     console.log('[migrations] 012_voice_tertiary complete');
   }
+
+  // ── Migration 013_video_secondary_svd ─────────────────────────────────────
+  // Repoints channel_dna.video_secondary from the unimplemented 'wan_2_1'
+  // placeholder to 'svd' (Stable Video Diffusion), the real animation
+  // fallback tier this change implements. See migrations/013_video_secondary_svd.js.
+  const m013 = await get(`SELECT id FROM schema_migrations WHERE id = '013_video_secondary_svd'`);
+  if (m013) {
+    console.log('[migrations] 013_video_secondary_svd already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 013_video_secondary_svd...');
+
+    const { up: up013 } = require('./migrations/013_video_secondary_svd');
+    await up013({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('013_video_secondary_svd')`);
+    console.log('[migrations] 013_video_secondary_svd complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
