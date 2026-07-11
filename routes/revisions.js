@@ -12,6 +12,8 @@ const express         = require('express');
 const { v4: uuid }    = require('uuid');
 const { queries, run, get, all } = require('../db');
 const { requireAuth } = require('../middleware/auth');
+// Sprint 2B: revision dispatcher -- the actual "Apply Revision" action.
+const dispatcher       = require('../jobs/revision-dispatcher');
 
 const router = express.Router({ mergeParams: true });
 
@@ -104,32 +106,52 @@ router.get('/:revId', requireAuth, async (req, res) => {
   }
 });
 
+// Sprint 2B: loosened from cancel-only to also accept 'running', which
+// triggers the revision dispatcher (jobs/revision-dispatcher.js) -- this
+// IS the "Apply Revision" action. 'complete'/'failed' are NEVER
+// client-settable -- only the dispatcher itself sets those once the
+// actual regeneration work finishes or fails, so a client can never fake a
+// successful revision by PATCHing status directly.
 router.patch('/:revId', requireAuth, async (req, res) => {
   const episodeId = req.params.episodeId || req.params.id;
   const { revId } = req.params;
   const { status } = req.body || {};
   const episode = await resolveEpisode(episodeId, req.userId, res);
   if (!episode) return;
-  if (status !== 'cancelled')
-    return res.status(400).json({ error: "status must be 'cancelled' in Sprint 2A" });
-  try {
-    const revision = await get(
-      `SELECT * FROM revisions WHERE id = ? AND episode_id = ?`,
-      [revId, episodeId]
-    );
-    if (!revision) return res.status(404).json({ error: 'Revision not found' });
-    if (revision.status !== 'queued')
-      return res.status(400).json({ error: `Cannot cancel revision with status '${revision.status}'` });
-    const now = new Date().toISOString();
-    await run(
-      `UPDATE revisions SET status = 'cancelled', updated_at = ? WHERE id = ?`,
-      [now, revId]
-    );
-    console.log(`[revisions] cancelled id=${revId}`);
-    return res.json({ id: revId, status: 'cancelled', updated_at: now });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+
+  if (status === 'cancelled') {
+    try {
+      const revision = await get(
+        `SELECT * FROM revisions WHERE id = ? AND episode_id = ?`,
+        [revId, episodeId]
+      );
+      if (!revision) return res.status(404).json({ error: 'Revision not found' });
+      if (revision.status !== 'queued')
+        return res.status(400).json({ error: `Cannot cancel revision with status '${revision.status}'` });
+      const now = new Date().toISOString();
+      await run(
+        `UPDATE revisions SET status = 'cancelled', updated_at = ? WHERE id = ?`,
+        [now, revId]
+      );
+      console.log(`[revisions] cancelled id=${revId}`);
+      return res.json({ id: revId, status: 'cancelled', updated_at: now });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
   }
+
+  if (status === 'running') {
+    try {
+      const revision = await dispatcher.applyRevision(episodeId, revId);
+      console.log(`[revisions] dispatch started id=${revId} act=${revision.act} type=${revision.revision_type}`);
+      return res.json({ id: revId, status: revision.status, updated_at: revision.updated_at });
+    } catch (err) {
+      const statusCode = err instanceof dispatcher.DispatchError ? err.statusCode : 500;
+      return res.status(statusCode).json({ error: err.message });
+    }
+  }
+
+  return res.status(400).json({ error: "status must be 'cancelled' or 'running'" });
 });
 
 module.exports = router;

@@ -334,6 +334,23 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('013_video_secondary_svd')`);
     console.log('[migrations] 013_video_secondary_svd complete');
   }
+
+  // ── Migration 014_revision_dispatch_result ────────────────────────────────
+  // Adds revisions.result_detail (nullable TEXT) so the frontend can show
+  // why a dispatched revision succeeded or failed, not just its status
+  // pill. See migrations/014_revision_dispatch_result.js and
+  // jobs/revision-dispatcher.js.
+  const m014 = await get(`SELECT id FROM schema_migrations WHERE id = '014_revision_dispatch_result'`);
+  if (m014) {
+    console.log('[migrations] 014_revision_dispatch_result already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 014_revision_dispatch_result...');
+
+    const { up: up014 } = require('./migrations/014_revision_dispatch_result');
+    await up014({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('014_revision_dispatch_result')`);
+    console.log('[migrations] 014_revision_dispatch_result complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
