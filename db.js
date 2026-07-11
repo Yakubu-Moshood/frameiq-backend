@@ -352,6 +352,24 @@ const queries = {
       ORDER BY e.created_at DESC
     `, [userId]),
 
+  // Suggestions topic-awareness: existing topics for this channel (scoped to
+  // the requesting user, same as listEpisodes) so routes/suggestions.js can
+  // tell the AI what's already covered and avoid repeats/near-duplicates.
+  // Statuses deliberately excluded: 'failed' and 'cancelled' -- neither one
+  // actually produced or is producing content, so a good topic that failed
+  // for an unrelated technical reason (or was cancelled as a dead episode,
+  // see PATCH /:id/cancel) should still be suggestible again. Every other
+  // status (complete, queued, running, awaiting_approval, paused) represents
+  // a topic that either exists or is actively on its way to existing.
+  getChannelTopics: (channel, userId) =>
+    all(
+      `SELECT topic, status FROM episodes
+       WHERE channel = ? AND user_id = ?
+         AND status IN ('complete', 'queued', 'running', 'awaiting_approval', 'paused')
+       ORDER BY created_at DESC`,
+      [channel, userId]
+    ),
+
   updateEpisodeStatus: (status, id) =>
     run(`UPDATE episodes SET status = ?, updated_at = datetime('now') WHERE id = ?`, [status, id]),
 

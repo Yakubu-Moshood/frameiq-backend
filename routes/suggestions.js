@@ -3,6 +3,13 @@
  * FraymIQ — AI topic suggestions via Claude
  * Updated: Channel DNA v2 — prompts built dynamically from DB
  *
+ * Topic-awareness update:
+ *   - Fetches this channel's existing topics (queries.getChannelTopics,
+ *     scoped to channel + requesting user, excluding failed/cancelled
+ *     episodes) and adds them to the prompt as negative context, so Claude
+ *     avoids repeating or closely duplicating already-covered topics.
+ *     Single existing API call, no new AI call, no embeddings.
+ *
  * POST /api/suggestions
  * Body: { channel: 'Empire Omitted' }
  * Returns: { suggestions: [{ title, hook, why }] }
@@ -12,12 +19,22 @@ const express   = require('express');
 const Anthropic  = require('@anthropic-ai/sdk');
 const { requireAuth } = require('../middleware/auth');
 const { getChannelConfigByLabel } = require('./config-reader-proxy');
-const { get } = require('../db');
+const { get, queries } = require('../db');
 
 const router = express.Router();
 const client = new Anthropic.default({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-function buildPrompt(dna) {
+// Topic-awareness: builds the "already covered" negative-context block from
+// this channel's existing topics (queries.getChannelTopics already excludes
+// failed/cancelled episodes -- see db.js). Empty list -> empty string, so a
+// brand-new channel's prompt is unaffected.
+function buildExistingTopicsNote(existingTopics) {
+  if (!existingTopics || existingTopics.length === 0) return '';
+  const list = existingTopics.map(t => `- ${t.topic}`).join('\n');
+  return `\nAlready covered on this channel — do not repeat or closely duplicate any of these topics (different wording of the same story/subject still counts as a duplicate):\n${list}\n`;
+}
+
+function buildPrompt(dna, existingTopics = []) {
   const mins    = dna.target_length_minutes || 10;
   const hints   = dna.title_category_hints || [];
   const label   = dna.label;
@@ -45,6 +62,8 @@ function buildPrompt(dna) {
     ? '\nIMPORTANT: Research real stories from r/ProRevenge, r/NuclearRevenge, r/MaliciousCompliance, and r/pettyrevenge. Base suggestions on real story archetypes found on these platforms. Titles should feel like anthology episode names, not Reddit post titles.\n'
     : '';
 
+  const existingTopicsNote = buildExistingTopicsNote(existingTopics);
+
   return `You are a YouTube content strategist specialising in the ${blueprint} channel "${label}".
 
 Channel: ${label}
@@ -53,7 +72,7 @@ Tone: ${toneNote}
 ${hintText}
 ${redditNote}
 ${lengthNote}
-
+${existingTopicsNote}
 Generate 6 episode topic suggestions for this channel that would perform extremely well on YouTube.
 
 Each suggestion must:
@@ -113,7 +132,22 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'Unknown channel: ' + channel });
   }
 
-  const prompt = buildPrompt(dna);
+  // Topic-awareness: fetch this channel's existing topics (scoped to the
+  // requesting user, same as listEpisodes) so the prompt can tell the AI
+  // what's already covered. episodes.channel stores the resolved id (see
+  // the label->id resolution above and today's earlier BRANDS-consolidation
+  // finding that episodes.channel is always the id, never the label), so
+  // this must query on channelId, not the raw incoming channel value.
+  // Failure here is non-fatal -- suggestions should still generate even if
+  // this lookup fails, just without topic-awareness for that one request.
+  let existingTopics = [];
+  try {
+    existingTopics = await queries.getChannelTopics(channelId, req.userId);
+  } catch (err) {
+    console.error('[suggestions] getChannelTopics failed:', channelId, err.message);
+  }
+
+  const prompt = buildPrompt(dna, existingTopics);
 
   try {
     const message = await client.messages.create({
