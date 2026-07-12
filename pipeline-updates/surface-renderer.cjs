@@ -851,6 +851,15 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
         continue;
       }
 
+      // Render-stage hardening (minor finding): silently falls back to
+      // GRADE.neutral on a typo'd/unknown colorGrade, same "mismatched key
+      // -> silently wrong output" shape as the (already-fixed, and now
+      // correctly logged) BRANDS bug -- just cosmetic here (a slightly off
+      // color treatment, not wrong branding or wrong money), so a log line
+      // rather than a hard failure is the right severity.
+      if (shot.colorGrade && !GRADE[shot.colorGrade]) {
+        log(`  ⚠️  ${shot.shotId}: unknown colorGrade "${shot.colorGrade}" — using neutral grade instead`);
+      }
       const grade       = GRADE[shot.colorGrade] || GRADE.neutral;
       const isImg       = assetPath.endsWith('.png') || assetPath.endsWith('.jpg');
       const isZoom      = shot.visualType === 'STILL_ZOOM';
@@ -897,16 +906,50 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
   return actSegFiles;
 }
 
+// Render-stage hardening (audit finding #5, defense-in-depth): shot.asset
+// and shot.shotId come from shot-definitions.json, which is LLM-generated
+// (surface-shot-definitions.cjs) rather than typed by a human, and nothing
+// downstream validated their format before using them in path.join() (path
+// traversal) or as arguments to ffmpeg embedded in a double-quoted shell
+// string (the same class of bug the apostrophe/episodeId-regex fixes
+// closed elsewhere -- see concatFileEntry() and routes/episodes.js's
+// episodeId validation). No live exploit path exists today -- confirmed
+// this session that the revision dispatcher's comment-merging only ever
+// touches imagePrompt/animationPrompt, never asset/shotId -- but nothing
+// stopped a future change, or an unexpected LLM output, from doing so.
+// Rejecting anything that isn't a plain, filename-safe token closes that
+// off regardless of what calls this in the future, without changing
+// behavior for any real shot-definitions file seen so far (shotIds are
+// always ACT-prefixed alphanumeric tokens like "ACT1_001").
+const SAFE_SHOT_ID_RE       = /^[A-Za-z0-9_-]+$/;
+const SAFE_ASSET_FILENAME_RE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$/;
+
 function resolveAssetPath(shot, assetsDir) {
   const stillsDir = path.join(assetsDir, 'stills');
   const clipsDir  = path.join(assetsDir, 'clips');
+  const shotLabel = shot.shotId || '(unknown shot)';
 
   if (shot.asset) {
-    for (const dir of [stillsDir, clipsDir, assetsDir]) {
-      const candidate = path.join(dir, shot.asset);
-      if (fs.existsSync(candidate)) return candidate;
+    if (typeof shot.asset !== 'string' || !SAFE_ASSET_FILENAME_RE.test(shot.asset)) {
+      log(`  ⚠️  ${shotLabel}: shot.asset "${shot.asset}" rejected — not a plain safe filename (no path separators, traversal, or absolute paths allowed)`);
+    } else {
+      for (const dir of [stillsDir, clipsDir, assetsDir]) {
+        const candidate = path.join(dir, shot.asset);
+        if (fs.existsSync(candidate)) return candidate;
+      }
     }
-    if (path.isAbsolute(shot.asset) && fs.existsSync(shot.asset)) return shot.asset;
+    // The previous absolute-path fallback (path.isAbsolute(shot.asset) &&
+    // fs.existsSync(shot.asset)) has been removed entirely: it let
+    // shot.asset point ffmpeg at ANY absolute filesystem path that happened
+    // to exist, with no confinement to this episode's own assets. Real
+    // usage never relies on this (assets are always generated into
+    // stillsDir/clipsDir), so this closes a real, if previously unused,
+    // capability rather than changing observed behavior.
+  }
+
+  if (!SAFE_SHOT_ID_RE.test(shot.shotId || '')) {
+    log(`  ⚠️  shot.shotId "${shot.shotId}" rejected — not a plain safe token, cannot look up its asset file`);
+    return null;
   }
 
   if (shot.visualType === 'CLIP') {
@@ -996,6 +1039,11 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
     }
 
     // Mix audio
+    // Same minor hardening as the colorGrade fallback above -- log rather
+    // than silently using the default 0.08 volume for an unrecognized actKey.
+    if (actKey && !(actKey in MUSIC_VOL)) {
+      log(`  ⚠️  ${actKey}: no MUSIC_VOL entry — using default volume (0.08)`);
+    }
     const musicVol   = MUSIC_VOL[actKey] || 0.08;
     const mixedAudio = path.join(tempDir, 'audio_mixed.aac');
     fs.mkdirSync(path.dirname(actOutput), { recursive: true });

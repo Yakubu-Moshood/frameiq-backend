@@ -425,6 +425,57 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const CHANNEL = CONFIG.channels[channelKey];
   if (!CHANNEL) throw new Error(`Channel "${channelKey}" not found in pipeline.config.json`);
 
+  // Render-stage hardening (audit finding #8): previously nothing checked
+  // that the API keys the stages below are about to need were actually
+  // present -- a misconfigured deploy discovered a missing key
+  // stage-by-stage (e.g. Whisper failing in Step 1, after 0A-0E had already
+  // run and spent money) instead of failing fast at the start.
+  //
+  // ANTHROPIC_API_KEY is hard-checked and blocks: both 0A (script) and 0C
+  // (shot-defs) call Claude directly with no fallback tier for either
+  // (confirmed this session -- see revision-dispatcher.js's own direct
+  // Anthropic call and the investigation into surface-script-writer.cjs's
+  // real source), so its absence is guaranteed to fail regardless of any
+  // other config.
+  //
+  // Voice/image/animation (0B/0D/0E) are deliberately only WARNED on, not
+  // blocked: each already has a multi-tier provider-fallback chain built
+  // this session (voice: ElevenLabs -> OpenAI TTS -> Coqui XTTS/Replicate;
+  // images: OpenAI -> fal.ai -> SDXL/Replicate; animation: fal.ai Kling ->
+  // SVD/Replicate -- see providers/voice-router.cjs and
+  // pipeline-updates/surface-image-generator.cjs's own env var reads), and
+  // two of those provider implementations (elevenlabs.cjs, openai-tts.cjs)
+  // are Railway-volume-only with no reconstructable source in this repo
+  // (unlike coqui-xtts/sdxl/svd, which do have a write-*.js origin script)
+  // -- so their exact expected env var name can't be confirmed with full
+  // certainty from here. Hard-blocking on a guessed name risks a worse
+  // outcome than the original gap: a correctly-configured episode (e.g.
+  // one intentionally running on only its fallback tier) getting refused
+  // outright. A loud warning still catches a genuinely unconfigured deploy
+  // early, without that false-positive risk.
+  if (!isTestMode()) {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      throw new Error(
+        'ANTHROPIC_API_KEY is not set. Script writing (0A) and shot-definition ' +
+        'generation (0C) both call Claude directly with no fallback provider -- ' +
+        'failing now, before any paid work starts, instead of partway through the pipeline.'
+      );
+    }
+
+    const warnIfAllMissing = (stepLabel, keys) => {
+      if (keys.every(k => !process.env[k])) {
+        console.warn(
+          `[runner] WARNING: none of ${keys.join('/')} are set -- ${stepLabel} will ` +
+          `fail once reached, unless a config value or a provider tier this check ` +
+          `doesn't know about covers it.`
+        );
+      }
+    };
+    warnIfAllMissing('voice generation (0B)', ['ELEVENLABS_API_KEY', 'OPENAI_API_KEY', 'REPLICATE_API_TOKEN']);
+    warnIfAllMissing('image generation (0D)', ['OPENAI_API_KEY', 'FAL_KEY', 'REPLICATE_API_TOKEN']);
+    warnIfAllMissing('animation (0E, only if this episode has any CLIP-type shots)', ['FAL_KEY', 'REPLICATE_API_TOKEN']);
+  }
+
   syncPipelineUpdates();
 
   const episodeDir = path.join(EPISODES_DIR, `${channelKey}_${episodeId}`);
