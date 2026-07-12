@@ -277,7 +277,14 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
     .catch(async err => {
       console.error(`[runner] Fatal error for ${episodeDbId}:`, err.message);
       await queries.updateEpisodeStatus('failed', episodeDbId);
-      sse.close(episodeDbId, { step: 'fatal', status: 'failed', error: err.message });
+      // Render-stage hardening fix (finding #2/#3): err.stepKey is set by
+      // runStageOrFail() whenever the failure came from one of the six
+      // wrapped stages (0A-1_render) -- it lets the frontend attribute this
+      // failure to the actual step that broke instead of the old meaningless
+      // 'fatal' placeholder, which never matched any real STEPS[].key. Falls
+      // back to 'fatal' for any error that somehow originates outside those
+      // wrapped stages (e.g. a thrown error before job rows even exist).
+      sse.close(episodeDbId, { step: err.stepKey || 'fatal', status: 'failed', error: err.message });
     })
     .finally(() => {
       activeEpisodes.delete(episodeDbId);
@@ -293,6 +300,60 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
 function isRunning(episodeDbId)          { return activeEpisodes.has(episodeDbId); }
 function getActPreview(episodeDbId, act) { return actPreviews.get(`${episodeDbId}:${act}`) || null; }
 function getActiveEpisodeIds()           { return Array.from(activeEpisodes); }
+
+// ── Render-stage hardening pass (this session's audit, finding #1-#3) ────────
+// Previously, steps 0A-0E and 1_render each set their job row to 'running',
+// called the real generator, then set it to 'complete' -- with no try/catch
+// around any of them. If the generator threw, the exception skipped the
+// 'complete' update and propagated straight up to startJob()'s outer .catch(),
+// which correctly marks episodes.status = 'failed' but never touched the
+// individual job row for whichever step actually broke -- it stayed 'running'
+// forever (until the next server restart's boot-time recovery scan). Steps
+// 7_short and 8_qa already avoided this with their own local try/catch; this
+// helper brings 0A-1_render up to the same standard without restructuring the
+// surrounding existsSync/TEST_MODE branch logic (which already works and is
+// unchanged) -- it only wraps the actual "call the real generator" branch of
+// each step, which is the only branch that can throw for a reason worth
+// recording.
+//
+// Also fixes the *frontend's* two downstream symptoms of the same root
+// cause: (a) sse.close()'s payload used to hardcode `step: 'fatal'`, which
+// never matched any real STEPS[].key, so the live SSE client had no way to
+// attribute the failure to a specific stage even if it wanted to; (b) the
+// error thrown by run() for an ffmpeg failure carries up to 800 raw chars of
+// ffmpeg stderr as err.message, which used to flow completely unbounded and
+// unlabeled straight into the top-level error banner. Truncating and
+// labeling the message here, once, at the source, fixes both call sites
+// (the SSE payload AND whatever episodes.updateEpisodeStatus/job.detail
+// consumers exist) without needing matching truncation logic in two places.
+const STEP_LABELS = {
+  '0A_script': 'Write Script',
+  '0B_vo':     'Generate Voiceover',
+  '0C_shots':  'Define Shots',
+  '0D_images': 'Generate Images',
+  '0E_anim':   'Animate Clips',
+  '1_render':  'Render Episode',
+};
+
+async function runStageOrFail(episodeDbId, jobId, stepKey, fn) {
+  try {
+    return await fn();
+  } catch (err) {
+    const rawMessage = err?.message || String(err);
+    const detail      = rawMessage.slice(0, 300);
+    console.error(`[runner] Stage ${stepKey} failed for ${episodeDbId}:`, rawMessage);
+    await queries.updateJob(jobId, {
+      status:      'failed',
+      detail,
+      finished_at: new Date().toISOString(),
+    }).catch(e => console.warn(`[runner] Failed to mark job ${jobId} (${stepKey}) as failed:`, e.message));
+
+    const label   = STEP_LABELS[stepKey] || stepKey;
+    const wrapped = new Error(`${label} failed: ${detail}`);
+    wrapped.stepKey = stepKey;
+    throw wrapped;
+  }
+}
 
 function resolveApproval(episodeDbId, act, approved) {
   const key     = `${episodeDbId}:${act}`;
@@ -415,7 +476,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0A_script', 'complete', 100, `[TEST] Stub script: "${script.title}"`);
   } else {
     const { writeScript } = require(path.join(PIPELINE_DIR, 'surface-script-writer.cjs'));
-    script = await writeScript({ topic, channel: channelKey, outputDir: episodeDir });
+    script = await runStageOrFail(episodeDbId, job0A.id, '0A_script', () =>
+      writeScript({ topic, channel: channelKey, outputDir: episodeDir })
+    );
     await queries.updateJob(job0A.id, { status: 'complete', progress: 100, detail: script.title, finished_at: new Date().toISOString() });
     progress('0A_script', 'complete', 100, `Script written: "${script.title}"`);
   }
@@ -440,7 +503,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   } else {
     const { generateVO } = require(path.join(PIPELINE_DIR, 'surface-vo-generator.cjs'));
     // Sprint 1.5 Phase B: pass channel and episodeId for provider tracking
-    await generateVO({ script, outputDir: audioDir, channel: channelKey, episodeId: episodeDbId });
+    await runStageOrFail(episodeDbId, job0B.id, '0B_vo', () =>
+      generateVO({ script, outputDir: audioDir, channel: channelKey, episodeId: episodeDbId })
+    );
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, 'All 6 VO files generated');
   }
@@ -466,7 +531,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0C_shots', 'complete', 100, `[TEST] ${shotDefs.totalShots} stub shot definitions`);
   } else {
     const { generateShotDefinitions } = require(path.join(PIPELINE_DIR, 'surface-shot-definitions.cjs'));
-    shotDefs = await generateShotDefinitions({ script, outputDir: episodeDir, channel: channelKey });
+    shotDefs = await runStageOrFail(episodeDbId, job0C.id, '0C_shots', () =>
+      generateShotDefinitions({ script, outputDir: episodeDir, channel: channelKey })
+    );
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `${shotDefs.totalShots} shots defined`);
   }
@@ -498,7 +565,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     // (previously missing here, unlike generateVO's Phase B fix) so
     // providers/provider-router.cjs can log provider_events and update
     // episodes.image_provider_used/provider_substituted per episode.
-    await generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey, episodeId: episodeDbId });
+    await runStageOrFail(episodeDbId, job0D.id, '0D_images', () =>
+      generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey, episodeId: episodeDbId })
+    );
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
@@ -527,7 +596,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     // Same episodeId threading as generateImages() above -- required for
     // providers/provider-router.cjs's video-provider_events logging and
     // episodes.video_provider_used/provider_substituted updates.
-    const result = await animateClips({ shotDefs, episodeDir, channel: channelKey, episodeId: episodeDbId });
+    const result = await runStageOrFail(episodeDbId, job0E.id, '0E_anim', () =>
+      animateClips({ shotDefs, episodeDir, channel: channelKey, episodeId: episodeDbId })
+    );
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `${result.completed} clips`, finished_at: new Date().toISOString() });
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
   }
@@ -568,7 +639,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const brand = await resolveBrand(channelKey);
 
   const { renderEpisode } = require(path.join(PIPELINE_DIR, 'surface-renderer.cjs'));
-  const renderResult = await renderEpisode({ episodeDir, episodeId, channel: channelKey, brand, approvalCallback });
+  const renderResult = await runStageOrFail(episodeDbId, job1.id, '1_render', () =>
+    renderEpisode({ episodeDir, episodeId, channel: channelKey, brand, approvalCallback })
+  );
 
   await queries.updateEpisodeResult('complete', renderResult.title || script.title, renderResult.path, renderResult.durationSeconds, episodeDbId);
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
