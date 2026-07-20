@@ -20,23 +20,18 @@
  *   Every visual cut is hardcoded to the EXACT SECOND the trigger word
  *   is spoken in the VO audio. Cursor step is 0.1s (NOT 0.5s).
  */
-
 require('dotenv').config();
 'use strict';
-
 const fs            = require('fs');
 const path          = require('path');
 const readline      = require('readline');
 const { execSync }  = require('child_process');
 const https         = require('https');
 const FormData      = require('form-data');
-
 // ─── Constants ────────────────────────────────────────────────────────────────
-
 const W   = 1920;
 const H   = 1080;
 const FPS = 30;
-
 // ── Channel branding ──────────────────────────────────────────────
 // BRANDS consolidation fix: branding used to be a hardcoded map here, keyed
 // by ad-hoc strings (e.g. 'MacroDecode') that never actually matched the
@@ -59,7 +54,6 @@ function deriveFallbackBrand(channelKey) {
     .toUpperCase();
   return { display, accent: 'FFFFFF' };
 }
-
 // ── Font resolution — Linux first, Windows fallback ───────────────
 // If nothing is found, TEXT overlays are skipped (render never crashes).
 function findFont(candidates) {
@@ -68,30 +62,24 @@ function findFont(candidates) {
   }
   return null;
 }
-
 const FONT_BOLD_PATH = findFont([
   '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
   '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf',
   '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
   'C:/Windows/Fonts/arialbd.ttf',
 ]);
-
 const FONT_IMPACT_PATH = findFont([
   'C:/Windows/Fonts/impact.ttf',
   '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
   '/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf',
   '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
 ]);
-
 const TEXT_ENABLED = !!(FONT_BOLD_PATH && FONT_IMPACT_PATH);
-
 // drawtext needs ':' escaped inside fontfile paths (Windows drives)
 function fontParam(p) { return p.replace(/:/g, '\\:'); }
 const FONT_BOLD   = TEXT_ENABLED ? fontParam(FONT_BOLD_PATH)   : null;
 const FONT_IMPACT = TEXT_ENABLED ? fontParam(FONT_IMPACT_PATH) : null;
-
 const SCALE = `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}`;
-
 const GRADE = {
   cold_blue:   'eq=contrast=1.05:saturation=0.85:brightness=0.18',
   gold_warm:   'eq=contrast=1.05:saturation=1.05:brightness=0.22',
@@ -100,7 +88,6 @@ const GRADE = {
   neutral:     'eq=contrast=1.02:saturation=0.95:brightness=0.18',
   desaturated: 'eq=contrast=1.05:saturation=0.40:brightness=0.14',
 };
-
 const MUSIC_VOL = {
   act1:  0.05,
   act2:  0.10,
@@ -109,10 +96,8 @@ const MUSIC_VOL = {
   act4:  0.12,
   act5:  0.05,
 };
-
 const ACT_VO_FILES = ['VO_Act1.mp3', 'VO_Act2.mp3', 'VO_Act3.mp3', 'VO_Act3B.mp3', 'VO_Act4.mp3', 'VO_Act5.mp3'];
 const ACT_KEYS     = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
-
 const ACT_LABELS = {
   act1:  'ACT 1 — THE HOOK & PROMISE',
   act2:  'ACT 2 — THE RISE',
@@ -121,11 +106,8 @@ const ACT_LABELS = {
   act4:  'ACT 4 — THE COLLAPSE',
   act5:  'ACT 5 — THE VERDICT',
 };
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function log(msg) { console.log(msg); }
-
 // Render-stage hardening (audit finding #7): none of these execSync calls
 // used to set a `timeout`, so a hung or corrupted input could block a
 // render indefinitely with no automatic recovery -- the process would just
@@ -136,7 +118,6 @@ function log(msg) { console.log(msg); }
 // diagnosable failure instead of an invisible one.
 const FFMPEG_TIMEOUT_MS  = 10 * 60 * 1000;
 const FFPROBE_TIMEOUT_MS = 30 * 1000; // ffprobe metadata reads are near-instant normally
-
 function run(cmd, label) {
   log(`  → ${label}`);
   try {
@@ -156,10 +137,8 @@ function run(cmd, label) {
     throw new Error(`FFmpeg failed [${label}]:\n${stderr.slice(-800)}`);
   }
 }
-
 // Quiet flags keep FFmpeg's stderr small (prevents giant exec buffers)
 const FF = 'ffmpeg -y -v error -hide_banner -nostats';
-
 // FFmpeg's -f concat demuxer parses `file '<path>'` lines using the same
 // single-quote escaping convention as POSIX shell: a literal `'` inside a
 // quoted string must be written as `'\''` (close-quote, escaped-quote,
@@ -172,7 +151,6 @@ function concatFileEntry(p) {
   const escaped    = normalized.replace(/'/g, `'\\''`);
   return `file '${escaped}'`;
 }
-
 function getAudioDuration(filePath) {
   let out;
   try {
@@ -188,7 +166,6 @@ function getAudioDuration(filePath) {
   }
   return parseFloat(out);
 }
-
 // Closing-CTA fix: detects the outro clip's actual resolution rather than
 // assuming it matches the main episode's W x H constants -- outro assets
 // live on the Railway volume (not in this git repo), so their real
@@ -211,7 +188,6 @@ function getVideoDimensions(filePath) {
   if (!w || !h) throw new Error(`Could not read video dimensions from ffprobe output: "${out}"`);
   return { width: w, height: h };
 }
-
 function logDiskSpace(dir) {
   try {
     const s = fs.statfsSync(dir);
@@ -223,7 +199,6 @@ function logDiskSpace(dir) {
     }
   } catch (_) { /* statfs unavailable on this platform — skip */ }
 }
-
 function esc(text) {
   // Strip characters that break FFmpeg drawtext filter
   return (text || '')
@@ -232,7 +207,6 @@ function esc(text) {
     .replace(/:/g, '\\:')   // escape colons
     .replace(/,/g, '');       // remove commas
 }
-
 // Closing-CTA fix: separate escaper that ESCAPES commas (\,) instead of
 // stripping them, since the CTA's approved wording ("...subscribe, follow,
 // comment, and share.") reads noticeably worse with commas removed. esc()
@@ -246,9 +220,22 @@ function escCta(text) {
     .replace(/:/g, '\\:')
     .replace(/,/g, '\\,');
 }
-
+// ─── Text-fit helper (font-overflow fix) ─────────────────────────────────────
+// drawtext has no native "fit to width" mode. Bold, all-caps DejaVu Sans
+// Bold glyphs run wide (~0.80x fontsize per character on average) — the
+// old code used a fixed fontsize regardless of text length, which let long
+// stamp/lower-third text run off both edges of the 1080p frame. This
+// shrinks the fontsize just enough so the text fits within maxWidthPx,
+// never going below 28px so short labels still stay legible.
+function fitFontSize(text, requestedSize, maxWidthPx) {
+  const AVG_CHAR_WIDTH_RATIO = 0.80;
+  const safeText = text || '';
+  const estimatedWidth = safeText.length * requestedSize * AVG_CHAR_WIDTH_RATIO;
+  if (estimatedWidth <= maxWidthPx) return requestedSize;
+  const fitted = Math.floor(maxWidthPx / (safeText.length * AVG_CHAR_WIDTH_RATIO));
+  return Math.max(fitted, 28);
+}
 // ─── APPROVAL GATE (CLI fallback only) ───────────────────────────────────────
-
 function askApprovalCLI(actKey, actOutput) {
   return new Promise((resolve) => {
     const label = ACT_LABELS[actKey] || actKey.toUpperCase();
@@ -268,25 +255,22 @@ function askApprovalCLI(actKey, actOutput) {
     ask();
   });
 }
-
 // ─── Overlay builders ─────────────────────────────────────────────────────────
 // Every builder returns null when fonts are unavailable — callers skip nulls.
-
 function overlayFilter(text, colour, size, totalFrames) {
   if (!TEXT_ENABLED) return null;
   const fi    = 12;
   const fo    = 10;
   const col   = (colour || '#C9A84C').replace('#', '');
-  const sz    = size || 52;
+  const sz    = fitFontSize(text, size || 52, 1920 * 0.90);
   const alpha = `if(lt(n\\,${fi})\\,n/${fi}\\,if(gt(n\\,${totalFrames - fo})\\,(${totalFrames}-n)/${fo}\\,1))`;
   return `drawtext=fontfile='${FONT_BOLD}':text='${esc(text)}':fontcolor=0x${col}:fontsize=${sz}:x=60:y=h-text_h-80:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
 }
-
 // CINEMATIC OVERLAY — slide in from left
 function slideInFilter(text, colour, size, totalFrames, yPos) {
   if (!TEXT_ENABLED) return null;
   const col      = (colour || '#C9A84C').replace('#', '');
-  const sz       = size || 58;
+  const sz       = fitFontSize(text, size || 58, 1920 * 0.90);
   const slideIn  = 18;
   const holdEnd  = totalFrames - 14;
   const fadeOut  = 14;
@@ -295,31 +279,27 @@ function slideInFilter(text, colour, size, totalFrames, yPos) {
   const y        = yPos || `h-text_h-80`;
   return `drawtext=fontfile='${FONT_IMPACT}':text='${esc(text)}':fontcolor=0x${col}:fontsize=${sz}:x='${xExpr}':y=${y}:shadowcolor=black:shadowx=4:shadowy=4:alpha='${alphaExp}'`;
 }
-
 // CINEMATIC OVERLAY — stamp burn onto screen
 function stampFilter(text, colour, size, totalFrames, yPos) {
   if (!TEXT_ENABLED) return null;
   const col     = (colour || '#8B0000').replace('#', '');
-  const sz      = size || 88;
+  const sz      = fitFontSize(text, size || 88, 1920 * 0.90);
   const holdEnd = totalFrames - 16;
   const fadeOut = 16;
   const alphaExp = `if(lt(n\\,2)\\,0\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/${fadeOut}\\,1))`;
   const y        = yPos || `(h-text_h)/2`;
   return `drawtext=fontfile='${FONT_IMPACT}':text='${esc(text)}':fontcolor=0x${col}:fontsize=${sz}:x=(w-text_w)/2:y=${y}:shadowcolor=black:shadowx=6:shadowy=6:alpha='${alphaExp}'`;
 }
-
 function cinematicOverlay(cinematic, totalFrames) {
   if (!cinematic?.text) return null;
   const style = cinematic.style || 'slide_in';
   const col   = cinematic.colour || '#C9A84C';
   const sz    = cinematic.size   || 58;
   const y     = cinematic.y      || null;
-
   if (style === 'stamp')    return stampFilter(cinematic.text, col, sz, totalFrames, y);
   if (style === 'slide_in') return slideInFilter(cinematic.text, col, sz, totalFrames, y);
   return overlayFilter(cinematic.text, col, sz, totalFrames);
 }
-
 function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
   if (!TEXT_ENABLED) return null;
   const totalFrames = Math.round(durSec * FPS);
@@ -329,7 +309,6 @@ function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
   const titlF = `drawtext=fontfile='${FONT_BOLD}':text='${esc(title)}':fontcolor=0xFFFFFF:fontsize=28:x=60:y=h-70:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
   return `${nameF},${titlF}`;
 }
-
 // Closing-CTA fix (Step 4): burns the approved subscribe/follow/comment/share
 // ask onto the channel's outro segment, in that channel's own accent colour
 // -- reuses the exact same per-channel `brand` object the watermark already
@@ -351,18 +330,14 @@ function closingCtaFilter(brand, width, height, durSec) {
   const totalFrames = Math.round(durSec * FPS);
   const fadeInFrames = Math.min(30, Math.round(FPS * 1)); // ~1s fade-in
   const alpha = `if(lt(n\\,${fadeInFrames})\\,n/${fadeInFrames}\\,1)`;
-
   const line1Size = Math.round(height * 0.045);
   const line2Size = Math.round(height * 0.058);
   const line1Y    = Math.round(height * 0.80);
   const line2Y    = Math.round(height * 0.87);
-
   const line1 = `drawtext=fontfile='${FONT_BOLD}':text='${escCta('If you want more stories like this,')}':fontcolor=0xFFFFFF:fontsize=${line1Size}:x=(w-text_w)/2:y=${line1Y}:shadowcolor=black:shadowx=2:shadowy=2:alpha='${alpha}'`;
   const line2 = `drawtext=fontfile='${FONT_IMPACT}':text='${escCta('subscribe, follow, comment, and share.')}':fontcolor=0x${brand.accent}:fontsize=${line2Size}:x=(w-text_w)/2:y=${line2Y}:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
-
   return `${line1},${line2}`;
 }
-
 // Closing-CTA fix: burns closingCtaFilter() onto a copy of the channel's
 // outro clip, writing the result to a temp path and returning that path
 // instead of mutating the original outro asset (which lives on the Railway
@@ -384,15 +359,12 @@ function applyClosingCta(outroPath, brand, tempDir) {
     const durSec = getAudioDuration(outroPath);
     const filter = closingCtaFilter(brand, width, height, durSec);
     if (!filter) return outroPath;
-
     fs.mkdirSync(tempDir, { recursive: true });
     const outPath = path.join(tempDir, 'outro_with_cta.mp4');
-
     run(
       `${FF} -i "${outroPath}" -vf "${filter}" -c:v libx264 -preset fast -pix_fmt yuv420p -c:a copy "${outPath}"`,
       'burning closing CTA onto outro'
     );
-
     return outPath;
   } catch (ctaErr) {
     log(`[cta] ⚠ Could not overlay closing CTA onto outro: ${ctaErr.message}`);
@@ -400,7 +372,6 @@ function applyClosingCta(outroPath, brand, tempDir) {
     return outroPath;
   }
 }
-
 // NOTE (Macro Decode onboarding): `accent` now defaults to Empire Omitted's
 // gold for backward compatibility, but callers should pass brand.accent so
 // each channel's stat-card / data-callout overlay uses its own identity
@@ -417,14 +388,11 @@ function statCardFilter(label, value, sub, durSec, accent = 'C9A84C') {
     : '';
   return `${valF},${labF}${subF}`;
 }
-
 function watermarkFilter(brand) {
   if (!TEXT_ENABLED) return null;
   return `drawtext=fontfile='${FONT_BOLD}':text='${esc(brand.display)}':fontcolor=0x${brand.accent}@0.7:fontsize=20:x=w-text_w-30:y=h-text_h-30:shadowcolor=black:shadowx=2:shadowy=2`;
 }
-
 // ─── Step 1: Whisper ──────────────────────────────────────────────────────────
-
 // Render-stage hardening (audit finding #6): this used to have no request
 // timeout (a stalled connection could hang the whole render indefinitely)
 // and no retry on a transient failure. It also only wrote word-timestamps.json
@@ -435,19 +403,15 @@ function watermarkFilter(brand) {
 // third, keyed by voKey so a retry can skip whatever already succeeded.
 const WHISPER_TIMEOUT_MS   = 2 * 60 * 1000; // 2 min per file -- generous for one VO segment
 const WHISPER_MAX_RETRIES  = 2;
-
 async function runWhisper({ audioDir, episodeDir }) {
   const tsFile      = path.join(episodeDir, 'word-timestamps.json');
   const partialFile = path.join(episodeDir, 'word-timestamps.partial.json');
-
   if (fs.existsSync(tsFile)) {
     log('[whisper] word-timestamps.json already exists — skipping transcription');
     return JSON.parse(fs.readFileSync(tsFile, 'utf8'));
   }
-
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('[whisper] OPENAI_API_KEY not set');
-
   let partial = {}; // voKey -> words[], persisted to partialFile after each file
   if (fs.existsSync(partialFile)) {
     try {
@@ -458,46 +422,36 @@ async function runWhisper({ audioDir, episodeDir }) {
       partial = {};
     }
   }
-
   log('[whisper] Transcribing VO files...');
-
   for (const filename of ACT_VO_FILES) {
     const voKey = filename.replace('.mp3', '');
-
     if (partial[voKey]) {
       log(`[whisper] SKIP ${filename} — already transcribed (checkpoint)`);
       continue;
     }
-
     const voPath = path.join(audioDir, filename);
     if (!fs.existsSync(voPath)) {
       log(`[whisper] SKIP ${filename} — not found`);
       continue;
     }
-
     log(`[whisper] Transcribing ${filename}...`);
     const words = await whisperTranscribeFileWithRetry(voPath, apiKey, voKey);
     partial[voKey] = words;
     fs.writeFileSync(partialFile, JSON.stringify(partial, null, 2), 'utf8');
     log(`[whisper] ${filename} → ${words.length} words (checkpoint saved)`);
   }
-
   const allWords = ACT_VO_FILES
     .map(f => f.replace('.mp3', ''))
     .filter(voKey => partial[voKey])
     .flatMap(voKey => partial[voKey]);
-
   fs.writeFileSync(tsFile, JSON.stringify(allWords, null, 2), 'utf8');
   log(`[whisper] Saved ${allWords.length} total words → ${tsFile}`);
-
   // Cleanup only -- tsFile's existence (checked at the top of this function)
   // is what actually gates a future skip; leaving the partial file around
   // would be harmless but pointless clutter once the real output exists.
   try { fs.rmSync(partialFile, { force: true }); } catch (_) {}
-
   return allWords;
 }
-
 async function whisperTranscribeFileWithRetry(filePath, apiKey, voKey) {
   let lastErr;
   for (let attempt = 1; attempt <= WHISPER_MAX_RETRIES + 1; attempt++) {
@@ -514,7 +468,6 @@ async function whisperTranscribeFileWithRetry(filePath, apiKey, voKey) {
   }
   throw new Error(`[whisper] ${voKey}: failed after ${WHISPER_MAX_RETRIES + 1} attempt(s): ${lastErr.message}`);
 }
-
 function whisperTranscribeFile(filePath, apiKey, voKey) {
   return new Promise((resolve, reject) => {
     const form = new FormData();
@@ -522,19 +475,16 @@ function whisperTranscribeFile(filePath, apiKey, voKey) {
     form.append('model', 'whisper-1');
     form.append('response_format', 'verbose_json');
     form.append('timestamp_granularities[]', 'word');
-
     const headers = {
       ...form.getHeaders(),
       'Authorization': `Bearer ${apiKey}`,
     };
-
     const options = {
       hostname: 'api.openai.com',
       path:     '/v1/audio/transcriptions',
       method:   'POST',
       headers,
     };
-
     let settled = false;
     let body = '';
     const req = https.request(options, (res) => {
@@ -559,7 +509,6 @@ function whisperTranscribeFile(filePath, apiKey, voKey) {
         }
       });
     });
-
     // Render-stage hardening (finding #6): previously no timeout at all --
     // a stalled connection to OpenAI would hang this promise, and therefore
     // the whole render, forever.
@@ -582,29 +531,23 @@ function whisperTranscribeFile(filePath, apiKey, voKey) {
       req.destroy(timeoutErr);
       reject(timeoutErr);
     });
-
     req.on('error', (err) => {
       if (settled) return;
       settled = true;
       reject(err);
     });
-
     form.pipe(req);
   });
 }
-
 // ─── Step 1B: Auto-fix trigger words against Whisper data ───────────────────
-
 function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
   log('');
   log('[auto-fix] Checking trigger words against Whisper transcript...');
-
   const wordsByAct = {};
   for (const w of wordTimestamps) {
     if (!wordsByAct[w.vo_file]) wordsByAct[w.vo_file] = [];
     wordsByAct[w.vo_file].push(w);
   }
-
   const ACT_VOICE_MAP = {
     act1:  'VO_Act1',
     act2:  'VO_Act2',
@@ -613,30 +556,22 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
     act4:  'VO_Act4',
     act5:  'VO_Act5',
   };
-
   let fixed = 0;
   let alreadyGood = 0;
-
   for (const [actKey, voKey] of Object.entries(ACT_VOICE_MAP)) {
     const shots    = shotDefs.acts[actKey] || [];
     const actWords = wordsByAct[voKey]     || [];
-
     if (actWords.length === 0) continue;
-
     let cursor = 0;
-
     for (let i = 0; i < shots.length; i++) {
       const shot   = shots[i];
       const target = shot.triggerWord.toLowerCase().trim();
-
       if (typeof shot.hardcodedSec === 'number') {
         alreadyGood++;
         cursor = shot.hardcodedSec + 0.1;
         continue;
       }
-
       const exactMatch = actWords.find(w => w.start_seconds > cursor && w.word === target);
-
       if (exactMatch) {
         shot.hardcodedSec = exactMatch.start_seconds;
         const flatShot = shotDefs.allShots.find(s => s.shotId === shot.shotId);
@@ -645,17 +580,13 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
         cursor = exactMatch.start_seconds + 0.1;
         continue;
       }
-
       const windowEnd   = cursor + 30;
       const windowWords = actWords.filter(w => w.start_seconds > cursor && w.start_seconds < windowEnd);
-
       let bestWord  = null;
       let bestScore = 0;
-
       for (const w of windowWords) {
         let score = 0;
         const ww = w.word;
-
         const digitMap = {
           'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,
           'eight':8,'nine':9,'ten':10,'eleven':11,'twelve':12,'thirteen':13,
@@ -666,28 +597,22 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
         };
         const targetDigit = digitMap[target];
         if (targetDigit && ww === String(targetDigit)) { score = 90; }
-
         if (score === 0 && target.startsWith(ww)) score = 85;
         if (score === 0 && ww.startsWith(target.slice(0, 5))) score = 75;
         if (score === 0 && ww.startsWith(target.slice(0, 4))) score = 60;
         if (score === 0 && target.startsWith('$') && ww === target.slice(1)) score = 95;
-
         if (score === 0 && target.includes(' ')) {
           const firstWord = target.split(' ')[0];
           if (ww === firstWord) score = 80;
         }
-
         if (score > bestScore) { bestScore = score; bestWord = w; }
       }
-
       if (bestWord && bestScore >= 60) {
         const oldTrigger = shot.triggerWord;
         shot.triggerWord  = bestWord.word;
         shot.hardcodedSec = bestWord.start_seconds;
-
         const flatShot = shotDefs.allShots.find(s => s.shotId === shot.shotId);
         if (flatShot) { flatShot.triggerWord = bestWord.word; flatShot.hardcodedSec = bestWord.start_seconds; }
-
         log(`  🔧 ${shot.shotId}: "${oldTrigger}" → "${bestWord.word}" @ ${bestWord.start_seconds.toFixed(2)}s (score ${bestScore})`);
         fixed++;
         cursor = bestWord.start_seconds + 0.1;
@@ -697,10 +622,8 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
           const oldTrigger = shot.triggerWord;
           shot.triggerWord  = fallback.word;
           shot.hardcodedSec = fallback.start_seconds;
-
           const flatShot = shotDefs.allShots.find(s => s.shotId === shot.shotId);
           if (flatShot) { flatShot.triggerWord = fallback.word; flatShot.hardcodedSec = fallback.start_seconds; }
-
           log(`  ⚡ ${shot.shotId}: "${oldTrigger}" → "${fallback.word}" @ ${fallback.start_seconds.toFixed(2)}s (fallback)`);
           fixed++;
           cursor = fallback.start_seconds + 0.1;
@@ -708,32 +631,25 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
       }
     }
   }
-
   log('');
   log(`[auto-fix] ${alreadyGood} already matched | ${fixed} auto-fixed`);
-
   if (shotDefsPath && fs.existsSync(shotDefsPath)) {
     fs.writeFileSync(shotDefsPath, JSON.stringify(shotDefs, null, 2), 'utf8');
     log(`[auto-fix] Saved updated trigger words → ${shotDefsPath}`);
   }
-
   return shotDefs;
 }
-
 // ─── Step 2: Resolve trigger words ────────────────────────────────────────────
-
 function resolveTimestamps({ shotDefs, wordTimestamps }) {
   log('');
   log('[resolve] Matching trigger words to Whisper timestamps...');
   log('[resolve] Cursor step: 0.1s (never 0.5s)');
   log('');
-
   const wordsByAct = {};
   for (const w of wordTimestamps) {
     if (!wordsByAct[w.vo_file]) wordsByAct[w.vo_file] = [];
     wordsByAct[w.vo_file].push(w);
   }
-
   const shotsByAct = {};
   for (const shot of shotDefs.allShots) {
     const voKey = `VO_${shot.actKey.charAt(0).toUpperCase() + shot.actKey.slice(1)}`
@@ -741,22 +657,17 @@ function resolveTimestamps({ shotDefs, wordTimestamps }) {
     if (!shotsByAct[voKey]) shotsByAct[voKey] = [];
     shotsByAct[voKey].push(shot);
   }
-
   const resolved = [];
-
   for (const [voKey, actShots] of Object.entries(shotsByAct)) {
     const actWords = wordsByAct[voKey] || [];
     const voDur    = actWords.length > 0 ? actWords[actWords.length - 1].end_seconds : 0;
     let cursor     = 0;
-
     for (let i = 0; i < actShots.length; i++) {
       const shot     = actShots[i];
       const nextShot = actShots[i + 1];
       const target   = shot.triggerWord.toLowerCase().trim();
-
       let startSec;
       let matchType;
-
       if (typeof shot.hardcodedSec === 'number') {
         startSec  = shot.hardcodedSec;
         matchType = 'HARDCODED';
@@ -768,80 +679,61 @@ function resolveTimestamps({ shotDefs, wordTimestamps }) {
         startSec  = match ? match.start_seconds : fuzzyMatch ? fuzzyMatch.start_seconds : cursor;
         matchType = match ? 'exact' : fuzzyMatch ? 'fuzzy' : 'fallback';
       }
-
       const nextMatch = nextShot
         ? actWords.find(w =>
             w.start_seconds > (startSec + 0.1) &&
             w.word === nextShot.triggerWord.toLowerCase().trim()
           )
         : null;
-
       const endSec = nextMatch
         ? nextMatch.start_seconds
         : voDur || (startSec + (shot.estimatedDuration || 5));
-
       const durSec = Math.max(endSec - startSec, 0.5);
-
       const effectiveType = (shot.visualType === 'STILL_ZOOM' && durSec > 10) ? 'STILL' : shot.visualType;
-
       if (effectiveType !== shot.visualType) {
         log(`[resolve] DOWNGRADE ${shot.shotId}: STILL_ZOOM → STILL (${durSec.toFixed(1)}s > 10s limit)`);
       }
-
       const status = matchType === 'HARDCODED' ? '📌' : matchType === 'exact' ? '✅' : matchType === 'fuzzy' ? '⚠️' : '❌';
       log(`  ${status} [${shot.shotId}] "${target}" @ ${startSec.toFixed(2)}s → ${endSec.toFixed(2)}s (${durSec.toFixed(2)}s) [${effectiveType}]`);
-
       resolved.push({ ...shot, voKey, startSec, endSec, durSec, visualType: effectiveType, matched: matchType !== 'fallback' });
       cursor = startSec + 0.1;
     }
   }
-
   const unmatched = resolved.filter(r => !r.matched).length;
   log('');
   log(`[resolve] ${resolved.length} shots resolved — ${unmatched} unmatched (used fallback timing)`);
   if (unmatched > 0) {
     log(`[resolve] WARNING: ${unmatched} shots fell back — check trigger words`);
   }
-
   return resolved;
 }
-
 // ─── Step 3: Render segments ──────────────────────────────────────────────────
-
 function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
   log('');
   log('[render] Rendering FFmpeg segments...');
   log(`[render] Text overlays: ${TEXT_ENABLED ? `ENABLED (${FONT_BOLD_PATH})` : 'DISABLED — no usable font found on this system'}`);
   log('');
-
   const byAct = {};
   for (const shot of resolved) {
     if (!byAct[shot.voKey]) byAct[shot.voKey] = [];
     byAct[shot.voKey].push(shot);
   }
-
   const actSegFiles = {};
   const WM = watermarkFilter(brand);
-
   for (const [voKey, shots] of Object.entries(byAct)) {
     const tempDir  = path.join(episodeDir, 'temp', voKey);
     fs.mkdirSync(tempDir, { recursive: true });
     const segFiles = [];
-
     log(`[render] Act: ${voKey} — ${shots.length} segments`);
-
     for (let i = 0; i < shots.length; i++) {
       const shot    = shots[i];
       const segFile = path.join(tempDir, `seg_${String(i).padStart(3, '0')}.mp4`);
       segFiles.push(segFile);
-
       if (fs.existsSync(segFile)) {
         log(`  SKIP ${shot.shotId} [${shot.triggerWord}]`);
         continue;
       }
-
       const assetPath = resolveAssetPath(shot, assetsDir);
-
       if (!assetPath) {
         log(`  ⚠️  MISSING ${shot.shotId} — black frame placeholder`);
         run(
@@ -850,7 +742,6 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
         );
         continue;
       }
-
       // Render-stage hardening (minor finding): silently falls back to
       // GRADE.neutral on a typo'd/unknown colorGrade, same "mismatched key
       // -> silently wrong output" shape as the (already-fixed, and now
@@ -865,21 +756,22 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       const isZoom      = shot.visualType === 'STILL_ZOOM';
       const totalFrames = Math.round(shot.durSec * FPS);
       const filterParts = [];
-
-      if (isImg && isZoom) {
+      if (isImg) {
         // MEMORY SAFETY: pre-scale the source image down BEFORE zoompan.
         // zoompan on huge AI-generated PNGs is the classic FFmpeg RAM bomb;
         // feeding it a modest 1.1x-of-output frame keeps memory flat.
+        // Motion applies to every still image (not just STILL_ZOOM-tagged
+        // shots); STILL_ZOOM keeps a stronger push-in for emphasis.
+        const maxZoom = isZoom ? 1.22 : 1.12;
+        const zoomInc = ((maxZoom - 1) / totalFrames).toFixed(6);
         filterParts.push(
           `scale=2112:-2`,
-          `zoompan=z='min(zoom+0.0005,1.03)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${totalFrames}:s=${W}x${H}:fps=${FPS}`
+          `zoompan=z='min(zoom+${zoomInc},${maxZoom})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${totalFrames}:s=${W}x${H}:fps=${FPS}`
         );
       } else {
         filterParts.push(SCALE);
       }
-
       filterParts.push(grade);
-
       // Overlay builders return null when fonts are unavailable — filter them out
       if (shot.overlay?.text) filterParts.push(overlayFilter(shot.overlay.text, shot.overlay.colour, shot.overlay.size, totalFrames));
       const cinOverlay = cinematicOverlay(shot.cinematic, totalFrames);
@@ -887,25 +779,19 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       if (shot.stat)  filterParts.push(statCardFilter(shot.stat.label, shot.stat.value, shot.stat.sub, shot.durSec, brand.accent));
       if (shot.lower) filterParts.push(lowerThirdFilter(shot.lower.name, shot.lower.title, shot.durSec, brand.accent));
       if (WM)         filterParts.push(WM);
-
       const vf = filterParts.filter(Boolean).join(',');
       let cmd;
-
       if (isImg) {
         cmd = `${FF} -loop 1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       } else {
         cmd = `${FF} -stream_loop -1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       }
-
       run(cmd, `${shot.shotId} [${shot.triggerWord}] ${shot.visualType} ${shot.durSec.toFixed(1)}s`);
     }
-
     actSegFiles[voKey] = segFiles;
   }
-
   return actSegFiles;
 }
-
 // Render-stage hardening (audit finding #5, defense-in-depth): shot.asset
 // and shot.shotId come from shot-definitions.json, which is LLM-generated
 // (surface-shot-definitions.cjs) rather than typed by a human, and nothing
@@ -923,12 +809,10 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
 // always ACT-prefixed alphanumeric tokens like "ACT1_001").
 const SAFE_SHOT_ID_RE       = /^[A-Za-z0-9_-]+$/;
 const SAFE_ASSET_FILENAME_RE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$/;
-
 function resolveAssetPath(shot, assetsDir) {
   const stillsDir = path.join(assetsDir, 'stills');
   const clipsDir  = path.join(assetsDir, 'clips');
   const shotLabel = shot.shotId || '(unknown shot)';
-
   if (shot.asset) {
     if (typeof shot.asset !== 'string' || !SAFE_ASSET_FILENAME_RE.test(shot.asset)) {
       log(`  ⚠️  ${shotLabel}: shot.asset "${shot.asset}" rejected — not a plain safe filename (no path separators, traversal, or absolute paths allowed)`);
@@ -946,12 +830,10 @@ function resolveAssetPath(shot, assetsDir) {
     // stillsDir/clipsDir), so this closes a real, if previously unused,
     // capability rather than changing observed behavior.
   }
-
   if (!SAFE_SHOT_ID_RE.test(shot.shotId || '')) {
     log(`  ⚠️  shot.shotId "${shot.shotId}" rejected — not a plain safe token, cannot look up its asset file`);
     return null;
   }
-
   if (shot.visualType === 'CLIP') {
     const clipMp4 = path.join(clipsDir, `${shot.shotId}.mp4`);
     if (fs.existsSync(clipMp4)) return clipMp4;
@@ -962,24 +844,18 @@ function resolveAssetPath(shot, assetsDir) {
     }
     return null;
   }
-
   for (const ext of ['.png', '.jpg']) {
     const byId = path.join(stillsDir, `${shot.shotId}${ext}`);
     if (fs.existsSync(byId)) return byId;
   }
-
   return null;
 }
-
 // ─── Step 4: Build acts with APPROVAL GATE ────────────────────────────────────
-
 async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, approvalCallback }) {
   log('');
   log('[build-acts] Building acts with per-act approval gates...');
   log('');
-
   const actVideos = [];
-
   for (const actKey of ACT_KEYS) {
     const voFilename = `VO_${actKey.charAt(0).toUpperCase() + actKey.slice(1)}.mp3`
                         .replace('Act3b', 'Act3B');
@@ -988,56 +864,45 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
     const voPath     = path.join(audioDir, voFilename);
     const actOutput  = path.join(episodeDir, 'output', `act_${actKey}.mp4`);
     const tempDir    = path.join(episodeDir, 'temp', voKey);
-
     if (!segFiles || segFiles.length === 0) {
       log(`[build-acts] SKIP ${actKey} — no segments`);
       continue;
     }
-
     if (!fs.existsSync(voPath)) {
       log(`[build-acts] SKIP ${actKey} — VO file not found`);
       continue;
     }
-
     // If act already approved and output exists — skip
     if (fs.existsSync(actOutput)) {
       log(`[build-acts] SKIP ${actKey} — already approved and built`);
       actVideos.push({ actKey, path: actOutput });
       continue;
     }
-
     log(`[build-acts] ══════════════════════════════════════`);
     log(`[build-acts] Building ${ACT_LABELS[actKey] || actKey}...`);
     log(`[build-acts] ══════════════════════════════════════`);
-
     // Concat segments → silent video
     const concatFile  = path.join(tempDir, 'concat.txt');
     const silentVideo = path.join(tempDir, 'silent.mp4');
-
     fs.writeFileSync(
       concatFile,
       segFiles.map(concatFileEntry).join('\n')
     );
-
     run(
       `${FF} -f concat -safe 0 -i "${concatFile}" -c:v copy "${silentVideo}"`,
       `${actKey} — concatenating ${segFiles.length} segments`
     );
-
     // Duration check
     const silentDur = getAudioDuration(silentVideo);
     const voDur     = getAudioDuration(voPath);
     const drift     = Math.abs(silentDur - voDur);
-
     log('');
     log(`[check] ${actKey}: visual=${silentDur.toFixed(2)}s  VO=${voDur.toFixed(2)}s  drift=${drift.toFixed(2)}s`);
-
     if (drift > 1.0) {
       log(`[check] ⚠️  DRIFT WARNING: ${drift.toFixed(2)}s — some shots may be on wrong words`);
     } else {
       log(`[check] ✅ Sync OK`);
     }
-
     // Mix audio
     // Same minor hardening as the colorGrade fallback above -- log rather
     // than silently using the default 0.08 volume for an unrecognized actKey.
@@ -1047,7 +912,6 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
     const musicVol   = MUSIC_VOL[actKey] || 0.08;
     const mixedAudio = path.join(tempDir, 'audio_mixed.aac');
     fs.mkdirSync(path.dirname(actOutput), { recursive: true });
-
     if (musicFile && fs.existsSync(musicFile)) {
       run(
         `${FF} -stream_loop -1 -i "${musicFile}" -i "${voPath}" -filter_complex "[0:a]volume=${musicVol}[music];[1:a]volume=1.0[vo];[music][vo]amix=inputs=2:duration=shortest:normalize=0[aout]" -map "[aout]" -c:a aac -b:a 192k "${mixedAudio}"`,
@@ -1063,16 +927,13 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
         `${actKey} — locking VO to video`
       );
     }
-
     log(`[build-acts] ✅ ${actKey} rendered → ${actOutput}`);
-
     // ── APPROVAL GATE ──────────────────────────────────────────────────────
     // Cloud mode: ask the Frameiq backend (which asks the user via the web UI).
     // CLI mode:   fall back to keyboard YES/NO.
     const approved = approvalCallback
       ? await approvalCallback(actKey, actOutput)
       : await askApprovalCLI(actKey, actOutput);
-
     if (!approved) {
       // Clear this act's output and segments so a retry rebuilds it fresh
       log(`[build-acts] 🛑 ${actKey} rejected — clearing its output and segments for re-render`);
@@ -1083,45 +944,33 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
         `edit shot-definitions.json if needed, then hit Retry to re-render from this act.`
       );
     }
-
     actVideos.push({ actKey, path: actOutput });
   }
-
   return actVideos;
 }
-
 // ─── Step 5: Join final ───────────────────────────────────────────────────────
-
 function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
   log('');
   log('[join] All acts approved. Joining into final documentary...');
-
   const finalOutput = path.join(episodeDir, 'output', `${channel}_${episodeId}_FINAL.mp4`);
-
   if (actVideos.length === 0) throw new Error('[join] No act videos to join');
-
   const concatFile = path.join(episodeDir, 'temp', 'final_concat.txt');
   fs.mkdirSync(path.dirname(concatFile), { recursive: true });
   fs.writeFileSync(
     concatFile,
     actVideos.map(a => concatFileEntry(a.path)).join('\n')
   );
-
   run(
     `${FF} -f concat -safe 0 -i "${concatFile}" -c:v copy -c:a copy "${finalOutput}"`,
     `Joining ${actVideos.length} acts`
   );
-
   const totalDur = getAudioDuration(finalOutput);
   log('');
   log(`[join] ✅ FINAL DOCUMENTARY: ${finalOutput}`);
   log(`[join]    Runtime: ${(totalDur / 60).toFixed(2)} minutes (${totalDur.toFixed(0)}s)`);
-
   return { path: finalOutput, durationSeconds: totalDur };
 }
-
 // ─── Main export ──────────────────────────────────────────────────────────────
-
 async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted', brand = null, approvalCallback = null }) {
   const audioDir     = path.join(episodeDir, 'assets', 'audio');
   const assetsDir    = path.join(episodeDir, 'assets');
@@ -1129,7 +978,6 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
   const musicFile    = path.join(publicDir, 'background_music.mp3');
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   brand = brand || deriveFallbackBrand(channel);
-
   log('');
   log('╔══════════════════════════════════════════════════════╗');
   log('║   SURFACE RENDERER — AUDIO-AS-MASTER-CLOCK (CLOUD)    ║');
@@ -1137,48 +985,39 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
   log(`║   Channel: ${channel.padEnd(43)}║`);
   log('╚══════════════════════════════════════════════════════╝');
   log('');
-
   logDiskSpace(episodeDir);
-
   if (!fs.existsSync(shotDefsPath)) {
     throw new Error(`[renderer] shot-definitions.json not found at ${shotDefsPath}`);
   }
-
   const shotDefs = JSON.parse(fs.readFileSync(shotDefsPath, 'utf8'));
   if (!shotDefs.allShots?.length) {
     throw new Error('[renderer] shot-definitions.json has no shots in allShots array');
   }
-
   log(`[renderer] Loaded ${shotDefs.allShots.length} shots`);
-
   // Step 1 — Whisper
   log('');
   log('══════════════════════════════════════════');
   log('STEP 1 — WHISPER TRANSCRIPTION');
   log('══════════════════════════════════════════');
   const wordTimestamps = await runWhisper({ audioDir, episodeDir });
-
   // Step 1B — Auto-fix trigger words
   log('');
   log('══════════════════════════════════════════');
   log('STEP 1B — AUTO-FIX TRIGGER WORDS');
   log('══════════════════════════════════════════');
   autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath });
-
   // Step 2 — Resolve
   log('');
   log('══════════════════════════════════════════');
   log('STEP 2 — TIMESTAMP RESOLUTION');
   log('══════════════════════════════════════════');
   const resolved = resolveTimestamps({ shotDefs, wordTimestamps });
-
   // Step 3 — Render segments
   log('');
   log('══════════════════════════════════════════');
   log('STEP 3 — RENDERING SEGMENTS');
   log('══════════════════════════════════════════');
   const actSegFiles = renderSegments({ resolved, episodeDir, assetsDir, brand });
-
   // Step 4 — Build acts + approval gates
   log('');
   log('══════════════════════════════════════════');
@@ -1189,37 +1028,31 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
     musicFile: fs.existsSync(musicFile) ? musicFile : null,
     approvalCallback,
   });
-
   // Step 5 — Join
   log('');
   log('══════════════════════════════════════════');
   log('STEP 5 — JOINING FINAL DOCUMENTARY');
   log('══════════════════════════════════════════');
   const result = joinAllActs({ actVideos, episodeDir, episodeId, channel });
-
   // Step 6 — Append branded outro
   log('');
   log('══════════════════════════════════════════');
   log('STEP 6 — APPENDING BRANDED OUTRO');
   log('══════════════════════════════════════════');
-
   let finalResult = result;
   try {
     // FIX: appendOutro was previously referenced without ever being
     // imported — Step 6 silently failed on every cloud render.
     const { appendOutro } = require(path.join(__dirname, 'append-outro.cjs'));
-
     // Channel-specific outro if it exists, else the EmpireOmitted default
     const channelOutro = path.join(publicDir, `outro_${channel}.mp4`);
     const defaultOutro = path.join(publicDir, 'outro_EmpireOmitted.mp4');
     const outroPath    = fs.existsSync(channelOutro) ? channelOutro : defaultOutro;
-
     // Closing-CTA fix (Step 4): burn the subscribe/follow/comment/share ask
     // onto this channel's outro, in this channel's own accent colour, before
     // appending it. Non-destructive -- writes to a temp file, never touches
     // the shared outro asset itself.
     const ctaOutroPath = applyClosingCta(outroPath, brand, path.join(episodeDir, 'temp'));
-
     const withOutro = await appendOutro({
       episodePath: result.path,
       outroPath:   ctaOutroPath,
@@ -1232,32 +1065,25 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
     log(`[outro] ⚠ Could not append outro: ${outroErr.message}`);
     log(`[outro]   Returning episode without outro.`);
   }
-
   log('');
   log('╔══════════════════════════════════════════════════════╗');
   log('║  RENDER COMPLETE                                      ║');
   log(`║  Runtime: ${(finalResult.durationSeconds / 60).toFixed(2)} minutes`.padEnd(55) + '║');
   log('╚══════════════════════════════════════════════════════╝');
-
   return finalResult;
 }
-
 // ─── CLI runner ───────────────────────────────────────────────────────────────
-
 if (require.main === module) {
   const args = process.argv.slice(2);
   const opts = { episode: null, channel: 'EmpireOmitted' };
-
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--episode') opts.episode = args[++i];
     if (args[i] === '--channel') opts.channel = args[++i];
   }
-
   if (!opts.episode) {
     console.error('Usage: node surface-renderer.cjs --episode EP4');
     process.exit(1);
   }
-
   const episodeDir = path.join(__dirname, 'episodes', opts.episode);
   renderEpisode({ episodeDir, episodeId: opts.episode, channel: opts.channel })
     .catch(err => {
@@ -1265,5 +1091,4 @@ if (require.main === module) {
       process.exit(1);
     });
 }
-
 module.exports = { renderEpisode };
