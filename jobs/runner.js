@@ -19,28 +19,22 @@
  * Sprint 1.5 Phase B changes:
  *   - generateVO() call now passes channel and episodeId for provider tracking
  */
-
 require('dotenv').config();
-
 const fs            = require('fs');
 const path          = require('path');
 const { execSync }  = require('child_process');
-
 const { queries }                    = require('../db');
 const sse                            = require('../sse');
 const { PIPELINE_DIR, EPISODES_DIR } = require('../startup-init');
-
 const approvalGates  = new Map();
 const activeEpisodes = new Set();
 const actPreviews    = new Map();
-
 // ── Job queue resilience (heartbeat) ──────────────────────────────────────────
 // Per job-queue-resilience-spec.md section 3.2. Keyed by episodeDbId so
 // startJob's .finally() can always find and clear its own interval, even
 // if multiple episodes are rendering concurrently across channels.
 const heartbeatIntervals = new Map();
 const HEARTBEAT_INTERVAL_MS = 20_000; // spec suggests 15-30s
-
 // ── Per-stage idempotency (spec section 3.5) — current state ─────────────────
 // The spec asks for a checkpoint_data JSON blob tracking exactly which
 // sub-items within a stage are already done, checked before every paid-API
@@ -66,10 +60,8 @@ const HEARTBEAT_INTERVAL_MS = 20_000; // spec suggests 15-30s
 // existsSync-style guard, a resume could re-bill that stage's remaining
 // items. This can only be verified/fixed by someone with direct access to
 // the Railway volume's copy of those files.
-
 // ── Pipeline auto-sync ────────────────────────────────────────────────────────
 const PIPELINE_UPDATES_DIR = path.join(__dirname, '..', 'pipeline-updates');
-
 function syncPipelineUpdates() {
   try {
     if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_UPDATES_DIR)) return [];
@@ -86,7 +78,6 @@ function syncPipelineUpdates() {
     return [];
   }
 }
-
 // ── Channel branding (single source of truth: channel_dna) ────────────────────
 // Replaces the separate hardcoded BRANDS maps that used to live independently
 // in pipeline-updates/surface-renderer.cjs and short-extractor.cjs. Those maps
@@ -115,20 +106,16 @@ async function resolveBrand(channelKey) {
   } catch (e) {
     console.warn(`[runner] channel_dna lookup failed for "${channelKey}":`, e.message);
   }
-
   // Turns a PascalCase channel key into a readable display string as a last
   // resort (e.g. "ServedCold" -> "SERVED COLD"), so a channel with no DB row
   // at all still gets its OWN identity rather than silently borrowing another
   // channel's watermark text or falling back to a literal "FRAMEIQ".
   const prettify = (key) => key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toUpperCase();
-
   const display = (dna && dna.watermark_text)
     || (dna && dna.label && dna.label.toUpperCase())
     || prettify(channelKey);
-
   const accentRaw = (dna && (dna.ui_theme_color || dna.primary_colour)) || null;
   const accent = accentRaw ? accentRaw.replace('#', '') : 'FFFFFF';
-
   if (!dna) {
     console.warn(
       `[runner] No channel_dna row found for "${channelKey}" — using derived ` +
@@ -136,16 +123,12 @@ async function resolveBrand(channelKey) {
       `another channel's identity or a generic FRAMEIQ default.`
     );
   }
-
   return { display, accent };
 }
-
 // ── TEST_MODE helpers ─────────────────────────────────────────────────────────
-
 function isTestMode() {
   return process.env.TEST_MODE === 'true';
 }
-
 function testStubScript(episodeDir, topic) {
   const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const labels  = ['The Setup', 'The Rise', 'The Fracture', 'The Human Cost', 'The Collapse', 'The Verdict'];
@@ -166,7 +149,6 @@ function testStubScript(episodeDir, topic) {
   console.log('[TEST_MODE] Wrote stub script.json');
   return script;
 }
-
 function testStubVO(audioDir, voFiles) {
   let written = 0;
   for (const f of voFiles) {
@@ -181,7 +163,6 @@ function testStubVO(audioDir, voFiles) {
   }
   return written;
 }
-
 function testStubShotDefs(episodeDir) {
   const actKeys  = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const acts     = {};
@@ -211,7 +192,6 @@ function testStubShotDefs(episodeDir) {
   console.log(`[TEST_MODE] Wrote stub shot-definitions.json (${allShots.length} shots)`);
   return shotDefs;
 }
-
 function testStubImages(stillsDir, shots) {
   let written = 0;
   for (const shot of shots) {
@@ -226,7 +206,6 @@ function testStubImages(stillsDir, shots) {
   if (written) console.log(`[TEST_MODE] Wrote ${written} stub images`);
   return written;
 }
-
 function testStubClips(stillsDir, clipsDir, shots) {
   let written = 0;
   for (const shot of shots) {
@@ -243,16 +222,13 @@ function testStubClips(stillsDir, clipsDir, shots) {
   if (written) console.log(`[TEST_MODE] Wrote ${written} stub clips`);
   return written;
 }
-
 // ─── Public API ───────────────────────────────────────────────────────────────
-
 function startJob(episodeDbId, channelKey, episodeId, topic) {
   if (activeEpisodes.has(episodeDbId)) {
     console.warn(`[runner] Refusing to double-start ${episodeDbId} — already running`);
     return false;
   }
   activeEpisodes.add(episodeDbId);
-
   // Heartbeat: while this episode is actively processing, touch
   // last_heartbeat_at on an interval. This is purely a liveness signal for
   // observability/debugging today — boot-time recovery (jobs/recovery.js)
@@ -266,7 +242,6 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
   }, HEARTBEAT_INTERVAL_MS);
   heartbeatIntervals.set(episodeDbId, heartbeat);
   queries.touchEpisodeHeartbeat(episodeDbId).catch(() => {}); // immediate first beat
-
   runPipeline(episodeDbId, channelKey, episodeId, topic)
     .then(async () => {
       // Successful completion — clear retry_count so a later, unrelated
@@ -296,11 +271,9 @@ function startJob(episodeDbId, channelKey, episodeId, topic) {
     });
   return true;
 }
-
 function isRunning(episodeDbId)          { return activeEpisodes.has(episodeDbId); }
 function getActPreview(episodeDbId, act) { return actPreviews.get(`${episodeDbId}:${act}`) || null; }
 function getActiveEpisodeIds()           { return Array.from(activeEpisodes); }
-
 // ── Render-stage hardening pass (this session's audit, finding #1-#3) ────────
 // Previously, steps 0A-0E and 1_render each set their job row to 'running',
 // called the real generator, then set it to 'complete' -- with no try/catch
@@ -334,7 +307,6 @@ const STEP_LABELS = {
   '0E_anim':   'Animate Clips',
   '1_render':  'Render Episode',
 };
-
 async function runStageOrFail(episodeDbId, jobId, stepKey, fn) {
   try {
     return await fn();
@@ -347,20 +319,17 @@ async function runStageOrFail(episodeDbId, jobId, stepKey, fn) {
       detail,
       finished_at: new Date().toISOString(),
     }).catch(e => console.warn(`[runner] Failed to mark job ${jobId} (${stepKey}) as failed:`, e.message));
-
     const label   = STEP_LABELS[stepKey] || stepKey;
     const wrapped = new Error(`${label} failed: ${detail}`);
     wrapped.stepKey = stepKey;
     throw wrapped;
   }
 }
-
 function resolveApproval(episodeDbId, act, approved) {
   const key     = `${episodeDbId}:${act}`;
   const resolve = approvalGates.get(key);
   if (resolve) { approvalGates.delete(key); actPreviews.delete(key); resolve(approved); }
 }
-
 // ── Pause (v1: top-level stage boundaries only) ───────────────────────────────
 // Per this session's pause-safety investigation: every one of the 8
 // top-level stages (0A/0B/0C/0D/0E/1_render/7_short/8_qa) already decides
@@ -385,9 +354,7 @@ async function checkPaused(episodeDbId, stepKey) {
   }
   return false;
 }
-
 // ─── Dispatcher ───────────────────────────────────────────────────────────────
-
 async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   let workflowType = 'full_render';
   try {
@@ -399,9 +366,7 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
   } catch (e) {
     console.warn('[runner] Could not load blueprint, defaulting to full_render:', e.message);
   }
-
   if (isTestMode()) console.log(`[TEST_MODE] Active — workflow: ${workflowType}`);
-
   switch (workflowType) {
     case 'full_render': return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
     default:
@@ -409,22 +374,16 @@ async function runPipeline(episodeDbId, channelKey, episodeId, topic) {
       return runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic);
   }
 }
-
 // ─── Full render workflow ─────────────────────────────────────────────────────
-
 async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) {
-
   if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_DIR))
     throw new Error(`Pipeline directory not found at: ${PIPELINE_DIR}`);
-
   const configPath = path.join(PIPELINE_DIR, 'pipeline.config.json');
   if (!fs.existsSync(configPath))
     throw new Error(`pipeline.config.json not found at: ${configPath}`);
-
   const CONFIG  = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const CHANNEL = CONFIG.channels[channelKey];
   if (!CHANNEL) throw new Error(`Channel "${channelKey}" not found in pipeline.config.json`);
-
   // Render-stage hardening (audit finding #8): previously nothing checked
   // that the API keys the stages below are about to need were actually
   // present -- a misconfigured deploy discovered a missing key
@@ -461,7 +420,6 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
         'failing now, before any paid work starts, instead of partway through the pipeline.'
       );
     }
-
     const warnIfAllMissing = (stepLabel, keys) => {
       if (keys.every(k => !process.env[k])) {
         console.warn(
@@ -475,26 +433,19 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     warnIfAllMissing('image generation (0D)', ['OPENAI_API_KEY', 'FAL_KEY', 'REPLICATE_API_TOKEN']);
     warnIfAllMissing('animation (0E, only if this episode has any CLIP-type shots)', ['FAL_KEY', 'REPLICATE_API_TOKEN']);
   }
-
   syncPipelineUpdates();
-
   const episodeDir = path.join(EPISODES_DIR, `${channelKey}_${episodeId}`);
   const audioDir   = path.join(episodeDir, 'assets', 'audio');
   const stillsDir  = path.join(episodeDir, 'assets', 'stills');
   const clipsDir   = path.join(episodeDir, 'assets', 'clips');
-
   fs.mkdirSync(audioDir,  { recursive: true });
   fs.mkdirSync(stillsDir, { recursive: true });
   fs.mkdirSync(clipsDir,  { recursive: true });
   fs.mkdirSync(path.join(episodeDir, 'output'), { recursive: true });
-
   const progress = (step, status, pct, detail) => sse.emit(episodeDbId, { step, status, progress: pct, detail });
-
   await queries.updateEpisodeStatus('running', episodeDbId);
-
   const jobs   = await queries.getJobsForEpisode(episodeDbId);
   const jobFor = (step) => jobs.find(j => j.step === step);
-
   const voFiles = ['VO_Act1.mp3','VO_Act2.mp3','VO_Act3.mp3','VO_Act3B.mp3','VO_Act4.mp3','VO_Act5.mp3'];
   if (isTestMode()) {
     const written = testStubVO(audioDir, voFiles);
@@ -505,18 +456,13 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
       console.log('[TEST_MODE] Pre-flight: wrote dummy word-timestamps.json — Whisper will be skipped');
     }
   }
-
   // ── STEP 0A — SCRIPT ──────────────────────────────────────────────────────
-
   let script;
   const scriptPath = path.join(episodeDir, 'script.json');
   const job0A      = jobFor('0A_script');
-
   if (await checkPaused(episodeDbId, '0A_script')) return;
-
   await queries.updateJob(job0A.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0A_script', 'running', 0, 'Writing script...');
-
   if (fs.existsSync(scriptPath)) {
     script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'));
     await queries.updateJob(job0A.id, { status: 'complete', progress: 100, detail: 'loaded existing', finished_at: new Date().toISOString() });
@@ -533,17 +479,12 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateJob(job0A.id, { status: 'complete', progress: 100, detail: script.title, finished_at: new Date().toISOString() });
     progress('0A_script', 'complete', 100, `Script written: "${script.title}"`);
   }
-
   // ── STEP 0B — VOICEOVER ───────────────────────────────────────────────────
-
   const job0B   = jobFor('0B_vo');
   const voReady = voFiles.every(f => fs.existsSync(path.join(audioDir, f)));
-
   if (await checkPaused(episodeDbId, '0B_vo')) return;
-
   await queries.updateJob(job0B.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0B_vo', 'running', 0, 'Generating voiceover...');
-
   if (voReady) {
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, detail: isTestMode() ? '[TEST] silent VO files' : 'existing VO files used', finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, isTestMode() ? '[TEST] Silent VO files ready' : 'All VO files already exist');
@@ -560,18 +501,13 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateJob(job0B.id, { status: 'complete', progress: 100, finished_at: new Date().toISOString() });
     progress('0B_vo', 'complete', 100, 'All 6 VO files generated');
   }
-
   // ── STEP 0C — SHOT DEFINITIONS ────────────────────────────────────────────
-
   let shotDefs;
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   const job0C        = jobFor('0C_shots');
-
   if (await checkPaused(episodeDbId, '0C_shots')) return;
-
   await queries.updateJob(job0C.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0C_shots', 'running', 0, 'Generating shot definitions...');
-
   if (fs.existsSync(shotDefsPath)) {
     shotDefs = JSON.parse(fs.readFileSync(shotDefsPath, 'utf8'));
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots loaded`, finished_at: new Date().toISOString() });
@@ -588,16 +524,11 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `${shotDefs.totalShots} shots defined`);
   }
-
   // ── STEP 0D — IMAGE GENERATION ────────────────────────────────────────────
-
   const job0D  = jobFor('0D_images');
   const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
-
   if (await checkPaused(episodeDbId, '0D_images')) return;
-
   await queries.updateJob(job0D.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-
   if (needed.length === 0) {
     progress('0D_images', 'complete', 100, 'All images already exist');
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: 'all exist', finished_at: new Date().toISOString() });
@@ -622,17 +553,12 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
-
   // ── STEP 0E — ANIMATION ───────────────────────────────────────────────────
-
   const job0E     = jobFor('0E_anim');
   const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
   const needsAnim = clipShots.filter(s => !fs.existsSync(path.join(clipsDir, `${s.shotId}.mp4`)));
-
   if (await checkPaused(episodeDbId, '0E_anim')) return;
-
   await queries.updateJob(job0E.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
-
   if (needsAnim.length === 0) {
     progress('0E_anim', 'complete', 100, 'All animations already exist');
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: 'all exist', finished_at: new Date().toISOString() });
@@ -653,26 +579,32 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `${result.completed} clips`, finished_at: new Date().toISOString() });
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
   }
-
   // ── STEP 1 — RENDER ───────────────────────────────────────────────────────
-
   const job1 = jobFor('1_render');
-
   if (await checkPaused(episodeDbId, '1_render')) return;
-
   await queries.updateJob(job1.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('1_render', 'running', 0, 'Starting render engine...');
   await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
-
   async function approvalCallback(act, actVideoPath) {
     if (actVideoPath && fs.existsSync(actVideoPath)) {
       actPreviews.set(`${episodeDbId}:${act}`, actVideoPath);
     }
+    // Batch-production switch: when AUTO_APPROVE_ACTS=true is set on the
+    // Railway service, every act clears this gate immediately instead of
+    // waiting on a human — lets a week's worth of episodes render
+    // unattended. Leave it unset (or false) to keep the normal manual
+    // per-act review. Still emits the same SSE event / job detail either
+    // way, so the dashboard history shows what happened either mode.
+    const autoApprove = process.env.AUTO_APPROVE_ACTS === 'true';
     sse.emit(episodeDbId, {
-      step: '1_render', status: 'awaiting_approval', progress: null,
-      detail: `Review act: ${act}`, act,
+      step: '1_render', status: autoApprove ? 'running' : 'awaiting_approval', progress: null,
+      detail: autoApprove ? `Auto-approved: ${act}` : `Review act: ${act}`, act,
       previewAvailable: actPreviews.has(`${episodeDbId}:${act}`),
     });
+    if (autoApprove) {
+      await queries.updateJob(job1.id, { status: 'running', detail: `Auto-approved: ${act}` });
+      return true;
+    }
     // Fix: persist the act identity to the job row itself, not just the
     // one-time SSE event. Previously only the episode's overall status
     // was updated here, so the frontend's initial page-load snapshot and
@@ -686,18 +618,14 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     await queries.updateEpisodeStatus('awaiting_approval', episodeDbId);
     return new Promise(resolve => { approvalGates.set(`${episodeDbId}:${act}`, resolve); });
   }
-
   const brand = await resolveBrand(channelKey);
-
   const { renderEpisode } = require(path.join(PIPELINE_DIR, 'surface-renderer.cjs'));
   const renderResult = await runStageOrFail(episodeDbId, job1.id, '1_render', () =>
     renderEpisode({ episodeDir, episodeId, channel: channelKey, brand, approvalCallback })
   );
-
   await queries.updateEpisodeResult('complete', renderResult.title || script.title, renderResult.path, renderResult.durationSeconds, episodeDbId);
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
   progress('1_render', 'complete', 100, `Render complete — ${(renderResult.durationSeconds / 60).toFixed(2)} min`);
-
   // ── STEP 7 — MULTI-CLIP SMART EXTRACTION ──────────────────────────────────
   // Replaces the old single 59s "act 4" short-extractor.cjs (kept on disk,
   // unused, for reference/rollback -- see multi-clip-extractor.cjs's own
@@ -717,12 +645,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   // Flagged rather than silently accepted -- a v2 fix would have
   // updateEpisodeResult() (or this check) account for a pending pause
   // before overwriting status, but that's out of scope for this pass.
-
   if (await checkPaused(episodeDbId, '7_short')) return;
-
   const job7 = jobFor('7_short');
   let clipsResult = null;
-
   try {
     if (job7) await queries.updateJob(job7.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
     progress('7_short', 'running', 0, 'Selecting and extracting clips...');
@@ -743,21 +668,17 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     if (job7) await queries.updateJob(job7.id, { status: 'failed', detail: shortErr.message.slice(0, 200), finished_at: new Date().toISOString() });
     progress('7_short', 'failed', null, `Clip extraction failed: ${shortErr.message.slice(0, 200)}`);
   }
-
   // ── STEP 8 — QA CHECK ──────────────────────────────────────────────────────
   // qa-stage-implementation-spec.md. Additive, final stage. Per spec
   // section 6, an unconfigured channel (no CHANNEL.qa block in
   // pipeline.config.json) must not block or delay anything — runQAStage()
   // itself handles that by returning a safe 'ready_for_review' no-op, so
   // this block runs unconditionally rather than gating on config presence.
-
   if (await checkPaused(episodeDbId, '8_qa')) return;
-
   const job8 = jobFor('8_qa');
   try {
     if (job8) await queries.updateJob(job8.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
     progress('8_qa', 'running', 0, 'Running post-render QA checks...');
-
     const { runQAStage } = require('./qa');
     const qaTmpDir = path.join(episodeDir, 'temp', 'qa');
     const qa = await runQAStage({
@@ -766,9 +687,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
       channelConfig: CHANNEL,
       tmpDir: qaTmpDir,
     });
-
     await queries.updateEpisodeQAResult(episodeDbId, qa.qaStatus, qa.results);
-
     if (job8) {
       await queries.updateJob(job8.id, {
         status: 'complete',
@@ -788,7 +707,6 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     if (job8) await queries.updateJob(job8.id, { status: 'failed', detail: qaErr.message.slice(0, 200), finished_at: new Date().toISOString() });
     progress('8_qa', 'failed', null, `QA check failed to run: ${qaErr.message.slice(0, 200)}`);
   }
-
   sse.close(episodeDbId, {
     step: 'done', status: 'complete', outputPath: renderResult.path,
     // Back-compat single-field for any consumer still reading shortPath —
@@ -797,5 +715,4 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     clips: clipsResult ? clipsResult.clips.map(c => ({ path: c.path, kind: c.kind, platform: c.platform, durationSeconds: c.durationSeconds })) : [],
   });
 }
-
 module.exports = { startJob, resolveApproval, isRunning, getActPreview, getActiveEpisodeIds, syncPipelineUpdates, resolveBrand };
