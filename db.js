@@ -351,6 +351,21 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('014_revision_dispatch_result')`);
     console.log('[migrations] 014_revision_dispatch_result complete');
   }
+
+  // ── Migration 015_max_shot_duration ───────────────────────────────────────
+  // Adds an optional channel_dna motion cap. Empire Omitted opts in at 7s;
+  // NULL preserves existing behaviour for every other channel.
+  const m015 = await get(`SELECT id FROM schema_migrations WHERE id = '015_max_shot_duration'`);
+  if (m015) {
+    console.log('[migrations] 015_max_shot_duration already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 015_max_shot_duration...');
+
+    const { up: up015 } = require('./migrations/015_max_shot_duration');
+    await up015({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('015_max_shot_duration')`);
+    console.log('[migrations] 015_max_shot_duration complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
