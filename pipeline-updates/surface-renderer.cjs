@@ -797,13 +797,14 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         // shots); STILL_ZOOM keeps a stronger push-in for emphasis.
         const maxZoom = isZoom ? 1.22 : 1.12;
         const zoomInc = ((maxZoom - 1) / motionFrames).toFixed(6);
+        const zoomExpr = freezeDurSec > 0
+          ? `if(lt(on,${motionFrames}),min(zoom+${zoomInc},${maxZoom}),zoom)`
+          : `min(zoom+${zoomInc},${maxZoom})`;
+        const zoomFrames = freezeDurSec > 0 ? totalFrames : motionFrames;
         filterParts.push(
           `scale=2112:-2`,
-          `zoompan=z='min(zoom+${zoomInc},${maxZoom})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${motionFrames}:s=${W}x${H}:fps=${FPS}`
+          `zoompan=z='${zoomExpr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${zoomFrames}:s=${W}x${H}:fps=${FPS}`
         );
-        if (freezeDurSec > 0) {
-          filterParts.push(`tpad=stop_mode=clone:stop_duration=${freezeDurSec.toFixed(3)}`);
-        }
       } else {
         filterParts.push(SCALE);
         if (freezeDurSec > 0) {
@@ -823,7 +824,8 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
       const vf = filterParts.filter(Boolean).join(',');
       let cmd;
       if (isImg) {
-        cmd = `${FF} -loop 1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+        const input = freezeDurSec > 0 ? `-i "${assetPath}"` : `-loop 1 -i "${assetPath}"`;
+        cmd = `${FF} ${input} -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       } else if (freezeDurSec > 0) {
         cmd = `${FF} -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       } else {
