@@ -640,7 +640,7 @@ function autoFixTriggerWords({ shotDefs, wordTimestamps, shotDefsPath }) {
   return shotDefs;
 }
 // ─── Step 2: Resolve trigger words ────────────────────────────────────────────
-function resolveTimestamps({ shotDefs, wordTimestamps }) {
+function resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec = null }) {
   log('');
   log('[resolve] Matching trigger words to Whisper timestamps...');
   log('[resolve] Cursor step: 0.1s (never 0.5s)');
@@ -689,13 +689,32 @@ function resolveTimestamps({ shotDefs, wordTimestamps }) {
         ? nextMatch.start_seconds
         : voDur || (startSec + (shot.estimatedDuration || 5));
       const durSec = Math.max(endSec - startSec, 0.5);
-      const effectiveType = (shot.visualType === 'STILL_ZOOM' && durSec > 10) ? 'STILL' : shot.visualType;
+      const capEnabled = Number.isFinite(maxShotDurationSec) && maxShotDurationSec > 0;
+      const motionDurSec = capEnabled ? Math.min(durSec, maxShotDurationSec) : durSec;
+      const freezeDurSec = Math.max(durSec - motionDurSec, 0);
+      if (freezeDurSec > 0) {
+        log(
+          `[resolve] DURATION CAP ${shot.shotId}: motion limited to ${motionDurSec.toFixed(2)}s; ` +
+          `${freezeDurSec.toFixed(2)}s overflow will hold the final frame`
+        );
+      }
+      const effectiveType = (shot.visualType === 'STILL_ZOOM' && motionDurSec > 10) ? 'STILL' : shot.visualType;
       if (effectiveType !== shot.visualType) {
         log(`[resolve] DOWNGRADE ${shot.shotId}: STILL_ZOOM → STILL (${durSec.toFixed(1)}s > 10s limit)`);
       }
       const status = matchType === 'HARDCODED' ? '📌' : matchType === 'exact' ? '✅' : matchType === 'fuzzy' ? '⚠️' : '❌';
       log(`  ${status} [${shot.shotId}] "${target}" @ ${startSec.toFixed(2)}s → ${endSec.toFixed(2)}s (${durSec.toFixed(2)}s) [${effectiveType}]`);
-      resolved.push({ ...shot, voKey, startSec, endSec, durSec, visualType: effectiveType, matched: matchType !== 'fallback' });
+      resolved.push({
+        ...shot,
+        voKey,
+        startSec,
+        endSec,
+        durSec,
+        motionDurSec,
+        freezeDurSec,
+        visualType: effectiveType,
+        matched: matchType !== 'fallback',
+      });
       cursor = startSec + 0.1;
     }
   }
@@ -708,7 +727,7 @@ function resolveTimestamps({ shotDefs, wordTimestamps }) {
   return resolved;
 }
 // ─── Step 3: Render segments ──────────────────────────────────────────────────
-function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
+function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureGates = false }) {
   log('');
   log('[render] Rendering FFmpeg segments...');
   log(`[render] Text overlays: ${TEXT_ENABLED ? `ENABLED (${FONT_BOLD_PATH})` : 'DISABLED — no usable font found on this system'}`);
@@ -735,7 +754,19 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       }
       const assetPath = resolveAssetPath(shot, assetsDir);
       if (!assetPath) {
-        log(`  ⚠️  MISSING ${shot.shotId} — black frame placeholder`);
+        const expected = shot.visualType === 'CLIP'
+          ? [
+              path.join(assetsDir, 'clips', `${shot.shotId}.mp4`),
+              path.join(assetsDir, 'stills', `${shot.shotId}.png`),
+            ]
+          : [
+              path.join(assetsDir, 'stills', `${shot.shotId}.png`),
+              path.join(assetsDir, 'stills', `${shot.shotId}.jpg`),
+            ];
+        const message =
+          `[render] Missing visual asset for shot ${shot.shotId}. Expected one of: ${expected.join(', ')}`;
+        if (strictFailureGates) throw new Error(message);
+        log(`  ⚠️  ${message} — using black frame placeholder for this non-strict channel`);
         run(
           `${FF} -f lavfi -i "color=black:size=${W}x${H}:rate=${FPS}" -t ${shot.durSec.toFixed(3)} -c:v libx264 -pix_fmt yuv420p "${segFile}"`,
           `black placeholder ${shot.shotId}`
@@ -754,7 +785,9 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       const grade       = GRADE[shot.colorGrade] || GRADE.neutral;
       const isImg       = assetPath.endsWith('.png') || assetPath.endsWith('.jpg');
       const isZoom      = shot.visualType === 'STILL_ZOOM';
-      const totalFrames = Math.round(shot.durSec * FPS);
+      const totalFrames  = Math.round(shot.durSec * FPS);
+      const motionFrames = Math.max(1, Math.round((shot.motionDurSec || shot.durSec) * FPS));
+      const freezeDurSec = shot.freezeDurSec || 0;
       const filterParts = [];
       if (isImg) {
         // MEMORY SAFETY: pre-scale the source image down BEFORE zoompan.
@@ -763,13 +796,21 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
         // Motion applies to every still image (not just STILL_ZOOM-tagged
         // shots); STILL_ZOOM keeps a stronger push-in for emphasis.
         const maxZoom = isZoom ? 1.22 : 1.12;
-        const zoomInc = ((maxZoom - 1) / totalFrames).toFixed(6);
+        const zoomInc = ((maxZoom - 1) / motionFrames).toFixed(6);
         filterParts.push(
           `scale=2112:-2`,
-          `zoompan=z='min(zoom+${zoomInc},${maxZoom})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${totalFrames}:s=${W}x${H}:fps=${FPS}`
+          `zoompan=z='min(zoom+${zoomInc},${maxZoom})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${motionFrames}:s=${W}x${H}:fps=${FPS}`
         );
+        if (freezeDurSec > 0) {
+          filterParts.push(`tpad=stop_mode=clone:stop_duration=${freezeDurSec.toFixed(3)}`);
+        }
       } else {
         filterParts.push(SCALE);
+        if (freezeDurSec > 0) {
+          // Kling clips are five seconds natively. Do not loop them to fill
+          // a narration gap; extend the source by cloning its final frame.
+          filterParts.push(`tpad=stop_mode=clone:stop_duration=${shot.durSec.toFixed(3)}`);
+        }
       }
       filterParts.push(grade);
       // Overlay builders return null when fonts are unavailable — filter them out
@@ -783,6 +824,8 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand }) {
       let cmd;
       if (isImg) {
         cmd = `${FF} -loop 1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+      } else if (freezeDurSec > 0) {
+        cmd = `${FF} -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       } else {
         cmd = `${FF} -stream_loop -1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       }
@@ -971,13 +1014,21 @@ function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
   return { path: finalOutput, durationSeconds: totalDur };
 }
 // ─── Main export ──────────────────────────────────────────────────────────────
-async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted', brand = null, approvalCallback = null }) {
+async function renderEpisode({
+  episodeDir,
+  episodeId,
+  channel = 'EmpireOmitted',
+  brand = null,
+  maxShotDurationSec = null,
+  approvalCallback = null,
+}) {
   const audioDir     = path.join(episodeDir, 'assets', 'audio');
   const assetsDir    = path.join(episodeDir, 'assets');
   const publicDir    = path.join(episodeDir, '..', '..', 'public');
   const musicFile    = path.join(publicDir, 'background_music.mp3');
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   brand = brand || deriveFallbackBrand(channel);
+  const strictFailureGates = channel === 'EmpireOmitted';
   log('');
   log('╔══════════════════════════════════════════════════════╗');
   log('║   SURFACE RENDERER — AUDIO-AS-MASTER-CLOCK (CLOUD)    ║');
@@ -1011,13 +1062,19 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
   log('══════════════════════════════════════════');
   log('STEP 2 — TIMESTAMP RESOLUTION');
   log('══════════════════════════════════════════');
-  const resolved = resolveTimestamps({ shotDefs, wordTimestamps });
+  const resolved = resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec });
   // Step 3 — Render segments
   log('');
   log('══════════════════════════════════════════');
   log('STEP 3 — RENDERING SEGMENTS');
   log('══════════════════════════════════════════');
-  const actSegFiles = renderSegments({ resolved, episodeDir, assetsDir, brand });
+  const actSegFiles = renderSegments({
+    resolved,
+    episodeDir,
+    assetsDir,
+    brand,
+    strictFailureGates,
+  });
   // Step 4 — Build acts + approval gates
   log('');
   log('══════════════════════════════════════════');
@@ -1047,6 +1104,9 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
     // Channel-specific outro if it exists, else the EmpireOmitted default
     const channelOutro = path.join(publicDir, `outro_${channel}.mp4`);
     const defaultOutro = path.join(publicDir, 'outro_EmpireOmitted.mp4');
+    if (strictFailureGates && !fs.existsSync(channelOutro)) {
+      throw new Error(`Required outro asset missing: ${channelOutro}`);
+    }
     const outroPath    = fs.existsSync(channelOutro) ? channelOutro : defaultOutro;
     // Closing-CTA fix (Step 4): burn the subscribe/follow/comment/share ask
     // onto this channel's outro, in this channel's own accent colour, before
@@ -1062,8 +1122,11 @@ async function renderEpisode({ episodeDir, episodeId, channel = 'EmpireOmitted',
     log(`[outro] ✅ Outro appended → ${path.basename(withOutro)}`);
     log(`[outro]    Final runtime: ${(finalDur / 60).toFixed(2)} minutes`);
   } catch (outroErr) {
+    if (strictFailureGates) {
+      throw new Error(`[outro] Required Empire Omitted outro failed: ${outroErr.message}`);
+    }
     log(`[outro] ⚠ Could not append outro: ${outroErr.message}`);
-    log(`[outro]   Returning episode without outro.`);
+    log(`[outro]   Returning episode without outro for this non-strict channel.`);
   }
   log('');
   log('╔══════════════════════════════════════════════════════╗');
