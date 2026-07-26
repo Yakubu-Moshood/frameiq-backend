@@ -1,0 +1,30 @@
+# Destination paths required on the isolated staging Volume.
+# This is an inventory, not file content. Never place real secrets here.
+
+/data/pipeline/pipeline.config.json
+/data/pipeline/config-reader.cjs
+/data/pipeline/surface-script-writer.cjs
+/data/pipeline/surface-vo-generator.cjs
+/data/pipeline/surface-image-generator.cjs
+/data/pipeline/surface-animator.cjs
+/data/pipeline/append-outro.cjs
+
+# Synced automatically from the image's pipeline-updates/ directory at job start:
+/data/pipeline/surface-renderer.cjs
+/data/pipeline/surface-shot-definitions.cjs
+/data/pipeline/short-extractor.cjs
+/data/pipeline/multi-clip-extractor.cjs
+
+# Provider modules selected by the unversioned pipeline config/generators.
+# Copy the complete providers/ tree used by the chosen staging config.
+/data/pipeline/providers/
+
+/data/public/outro_EmpireOmitted.mp4
+/data/public/background_music.mp3
+
+# Copy every logo/watermark/music file referenced by pipeline.config.json.
+/data/pipeline/assets/
+
+# Only needed by standalone tooling that consumes channelRegistry.json.
+# The registry's Windows path must be fixed before this copy becomes usable.
+/data/pipeline/config/channel.config.json

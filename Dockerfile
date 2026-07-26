@@ -47,7 +47,7 @@ COPY . .
 #   /data/pipeline/   — .cjs pipeline scripts (uploaded once)
 #   /data/episodes/   — rendered episode output files
 #   /data/public/     — outro MP4, logos
-#   /data/frameiq.db  — SQLite database
+#   /data/db/frameiq.db — SQLite database
 
 # ── Port ──────────────────────────────────────────────────────
 # Railway injects $PORT; Express reads it via process.env.PORT

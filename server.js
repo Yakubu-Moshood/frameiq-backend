@@ -94,7 +94,10 @@ app.get('/health', (_, res) => {
   res.json({
     ok:      true,
     service: 'frameiq-backend',
-    env:     process.env.RAILWAY_ENVIRONMENT || 'local',
+    env:     process.env.RAILWAY_ENVIRONMENT_NAME
+      || process.env.RAILWAY_ENVIRONMENT
+      || process.env.RAILWAY_ENVIRONMENT_ID
+      || 'local',
     ts:      new Date().toISOString(),
   });
 });
@@ -124,7 +127,11 @@ initSchema()
       console.log('║         FRAMEIQ BACKEND — RUNNING            ║');
       console.log('╠══════════════════════════════════════════════╣');
       console.log(`║  Port:     ${String(PORT).padEnd(33)}║`);
-      console.log(`║  Env:      ${(process.env.RAILWAY_ENVIRONMENT || 'local').padEnd(33)}║`);
+      const environment = process.env.RAILWAY_ENVIRONMENT_NAME
+        || process.env.RAILWAY_ENVIRONMENT
+        || process.env.RAILWAY_ENVIRONMENT_ID
+        || 'local';
+      console.log(`║  Env:      ${environment.padEnd(33)}║`);
       console.log(`║  Frontend: ${(process.env.FRONTEND_URL || 'http://localhost:5173').padEnd(33)}║`);
       console.log('╚══════════════════════════════════════════════╝');
       console.log('');

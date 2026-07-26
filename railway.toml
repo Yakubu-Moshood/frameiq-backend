@@ -23,7 +23,15 @@ healthcheckTimeout = 120   # seconds — canvas compile can be slow on first boo
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
-[[deploy.volumeMounts]]
-# Mount the persistent Volume at /data
-# Create the Volume in the Railway dashboard first, then link it here.
-mountPath = "/data"
+# Railway config-as-code cannot create or attach a Volume. This makes an
+# existing /data mount a deployment requirement; the environment checklist
+# covers creating a different Volume for staging.
+requiredMountPath = "/data"
+
+# A second Railway environment can share the same Dockerfile and base config.
+# Only staging changes its start command so volume/config validation runs before
+# Express opens the port. Railway applies this block only to an environment
+# whose name is exactly "staging".
+[environments.staging.deploy]
+startCommand = "npm run start:staging"
+requiredMountPath = "/data"

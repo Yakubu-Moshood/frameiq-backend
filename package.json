@@ -5,6 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "start:staging": "node scripts/staging-preflight.cjs && node server.js",
+    "staging:check": "node scripts/staging-preflight.cjs",
+    "test:staging-preflight": "node scripts/test-staging-preflight.cjs",
     "dev": "nodemon server.js"
   },
   "dependencies": {

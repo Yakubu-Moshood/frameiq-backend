@@ -17,7 +17,18 @@ const path = require('path');
 // ── Where is the data root? ───────────────────────────────────
 // On Railway: the Volume is mounted at /data
 // Locally:    falls back to ./local-data (created automatically)
-const DATA_ROOT = process.env.RAILWAY_ENVIRONMENT
+// RAILWAY_ENVIRONMENT_NAME/ID are Railway's documented built-ins. Keep the
+// older RAILWAY_ENVIRONMENT check for compatibility with an existing manually
+// configured deployment.
+const IS_RAILWAY = Boolean(
+  process.env.RAILWAY_ENVIRONMENT_NAME
+  || process.env.RAILWAY_ENVIRONMENT_ID
+  || process.env.RAILWAY_ENVIRONMENT
+);
+const RAILWAY_ENVIRONMENT = process.env.RAILWAY_ENVIRONMENT_NAME
+  || process.env.RAILWAY_ENVIRONMENT
+  || process.env.RAILWAY_ENVIRONMENT_ID;
+const DATA_ROOT = IS_RAILWAY
   ? '/data'
   : path.join(__dirname, 'local-data');
 
@@ -32,22 +43,32 @@ const DATA_DIRS = [
 // ── Required environment variables ───────────────────────────
 // The app will not start if any of these are missing on Railway.
 // Locally they can come from .env (dotenv is loaded in server.js).
-const REQUIRED_VARS = [
+const BASE_REQUIRED_VARS = [
   'JWT_SECRET',
+  'FRONTEND_URL',
+];
+
+const PAID_PIPELINE_VARS = [
   'ANTHROPIC_API_KEY',
   'OPENAI_API_KEY',
   'FAL_KEY',
   'ELEVENLABS_API_KEY',
   'ELEVENLABS_VOICE_ID',
-  'FRONTEND_URL',
 ];
+
+// jobs/runner.js explicitly documents TEST_MODE as the no-paid-API validation
+// path. Keep the boot check consistent with that contract: a real pipeline run
+// still requires the paid provider settings, while a staging smoke run does not.
+const REQUIRED_VARS = process.env.TEST_MODE === 'true'
+  ? BASE_REQUIRED_VARS
+  : [...BASE_REQUIRED_VARS, ...PAID_PIPELINE_VARS];
 
 // ── Run checks ────────────────────────────────────────────────
 
 console.log('');
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 console.log('  FRAMEIQ — startup checks');
-console.log(`  Environment : ${process.env.RAILWAY_ENVIRONMENT || 'local'}`);
+console.log(`  Environment : ${RAILWAY_ENVIRONMENT || 'local'}`);
 console.log(`  Data root   : ${DATA_ROOT}`);
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -74,7 +95,7 @@ if (dirFailed) {
 }
 
 // 2. Validate env vars (only enforce on Railway — locally .env handles it)
-if (process.env.RAILWAY_ENVIRONMENT) {
+if (IS_RAILWAY) {
   const missing = REQUIRED_VARS.filter(k => !process.env[k]);
   if (missing.length > 0) {
     console.error('');
