@@ -56,6 +56,7 @@ function buildMerged(dbRecord, fileRecord, channelKey) {
         ? null
         : Number(dbRecord.max_shot_duration_sec),
     episode_opening_enabled: Number(dbRecord.episode_opening_enabled) === 1,
+    sign_off_enabled: Number(dbRecord.sign_off_enabled) === 1,
     music_style: dbRecord.music_style || 'corporate-tension',
     music_tempo: dbRecord.music_tempo || 'slow',
     voice_primary: dbRecord.voice_primary || 'elevenlabs',

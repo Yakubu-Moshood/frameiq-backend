@@ -11,6 +11,8 @@ const MODEL = 'claude-opus-4-5';
 const MAX_TOKENS = 16000;
 const FIXED_EPISODE_OPENING_LINE =
   "This is Empire Omitted, bringing you the story they didn't want told.";
+const FIXED_SIGN_OFF_LINE =
+  'This is Empire Omitted — where the empires you once admired are laid to rest, and the stories they buried get dug back up. If you found this worth watching, subscribing and sharing help keep these episodes coming. Which corporate scandal should we examine next? Let us know in the comments.';
 
 const EPISODE_OPENING_INSTRUCTIONS = `EPISODE OPEN — REQUIRED:
 Return an "episode_open" object containing exactly two fields:
@@ -108,6 +110,7 @@ function buildScriptConfig(dna) {
         ? 'PACING: Steady and measured. Each section flows naturally into the next.'
         : 'PACING: Slow build. Each act increases tension toward a climax.',
     episodeOpeningEnabled: dna.episode_opening_enabled === true,
+    signOffEnabled: dna.sign_off_enabled === true,
     outroLine: 'Subscribe to ' + channelLabel + ' — new episodes every week.',
   };
 }
@@ -123,6 +126,9 @@ function buildSystemPrompt(dna) {
   const openingInstructions = cfg.episodeOpeningEnabled
     ? EPISODE_OPENING_INSTRUCTIONS + '\n\n'
     : '';
+  const act5EndingInstruction = cfg.signOffEnabled
+    ? 'End act5 with the substantive closing beat of the story. Do not add a channel sign-off, subscription or sharing request, comments question, or other call to action; the application appends a separate fixed closing segment.'
+    : 'End act5 with: "' + cfg.outroLine + '"';
 
   return 'You are an expert scriptwriter for ' + cfg.channelLabel + ', a ' + dna.blueprint_label + ' YouTube channel.\n\n' +
     'CHANNEL STYLE:\n' + cfg.styleText + '\n\n' +
@@ -157,7 +163,7 @@ function buildSystemPrompt(dna) {
     'act4: minimum ' + cfg.act4Min + ' words\n' +
     'act5: minimum ' + cfg.act5Min + ' words\n' +
     'TOTAL minimum: ' + cfg.totalWords + ' words. Target runtime: ' + cfg.mins + ' minutes.\n' +
-    'End act5 with: "' + cfg.outroLine + '"';
+    act5EndingInstruction;
 }
 
 function applyEpisodeOpening(script) {
@@ -181,6 +187,15 @@ function applyEpisodeOpening(script) {
     FIXED_EPISODE_OPENING_LINE,
     '',
     script.acts.act1.voScript.trimStart(),
+  ].join('\n');
+}
+
+function applySignOff(script) {
+  script.sign_off = { text: FIXED_SIGN_OFF_LINE };
+  script.acts.act5.voScript = [
+    script.acts.act5.voScript.trimEnd(),
+    '',
+    FIXED_SIGN_OFF_LINE,
   ].join('\n');
 }
 
@@ -222,6 +237,7 @@ async function writeScript({ topic, channel = 'Empire Omitted', outputDir = null
     }
   }
   if (cfg.episodeOpeningEnabled) applyEpisodeOpening(script);
+  if (cfg.signOffEnabled) applySignOff(script);
 
   console.log('[script-writer] Script complete — ' + script.totalEstimatedSeconds + 's estimated');
   console.log('[script-writer] Title: ' + script.title);
@@ -264,6 +280,8 @@ module.exports = {
   buildPlainText,
   buildSystemPrompt,
   applyEpisodeOpening,
+  applySignOff,
   FIXED_EPISODE_OPENING_LINE,
+  FIXED_SIGN_OFF_LINE,
   EPISODE_OPENING_INSTRUCTIONS,
 };
