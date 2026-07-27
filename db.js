@@ -366,6 +366,20 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('015_max_shot_duration')`);
     console.log('[migrations] 015_max_shot_duration complete');
   }
+
+  // Adds an opt-in for the structured peak-to-fall opening. Empire Omitted
+  // is enabled; every other channel keeps the existing script shape.
+  const m016 = await get(`SELECT id FROM schema_migrations WHERE id = '016_episode_opening'`);
+  if (m016) {
+    console.log('[migrations] 016_episode_opening already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 016_episode_opening...');
+
+    const { up: up016 } = require('./migrations/016_episode_opening');
+    await up016({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('016_episode_opening')`);
+    console.log('[migrations] 016_episode_opening complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────

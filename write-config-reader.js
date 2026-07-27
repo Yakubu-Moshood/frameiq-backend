@@ -48,6 +48,7 @@ function buildMerged(dbRecord, fileRecord, channelKey) {
     image_tertiary:  dbRecord.image_tertiary  || 'sdxl',
     animation_style: dbRecord.animation_style || 'minimal',
     max_shot_duration_sec: dbRecord.max_shot_duration_sec == null ? null : Number(dbRecord.max_shot_duration_sec),
+    episode_opening_enabled: Number(dbRecord.episode_opening_enabled) === 1,
     music_style:     dbRecord.music_style     || 'corporate-tension',
     music_tempo:     dbRecord.music_tempo     || 'slow',
     voice_primary:       dbRecord.voice_primary       || 'elevenlabs',
