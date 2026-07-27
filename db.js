@@ -380,6 +380,20 @@ async function runMigrations() {
     await run(`INSERT INTO schema_migrations (id) VALUES ('016_episode_opening')`);
     console.log('[migrations] 016_episode_opening complete');
   }
+
+  // Adds an opt-in for the fixed final narration sign-off. Empire Omitted
+  // is enabled; every other channel keeps its existing final-act narration.
+  const m017 = await get(`SELECT id FROM schema_migrations WHERE id = '017_sign_off'`);
+  if (m017) {
+    console.log('[migrations] 017_sign_off already applied — skipping');
+  } else {
+    console.log('[migrations] Applying 017_sign_off...');
+
+    const { up: up017 } = require('./migrations/017_sign_off');
+    await up017({ run, all });
+    await run(`INSERT INTO schema_migrations (id) VALUES ('017_sign_off')`);
+    console.log('[migrations] 017_sign_off complete');
+  }
 }
 
 // ─── Query helpers ────────────────────────────────────────────────────────────
