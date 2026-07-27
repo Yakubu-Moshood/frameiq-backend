@@ -619,9 +619,21 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     return new Promise(resolve => { approvalGates.set(`${episodeDbId}:${act}`, resolve); });
   }
   const brand = await resolveBrand(channelKey);
+  const channelDna = await queries.getChannelDna(channelKey);
+  const configuredMaxShotDuration = Number(channelDna && channelDna.max_shot_duration_sec);
+  const maxShotDurationSec = Number.isFinite(configuredMaxShotDuration) && configuredMaxShotDuration > 0
+    ? configuredMaxShotDuration
+    : null;
   const { renderEpisode } = require(path.join(PIPELINE_DIR, 'surface-renderer.cjs'));
   const renderResult = await runStageOrFail(episodeDbId, job1.id, '1_render', () =>
-    renderEpisode({ episodeDir, episodeId, channel: channelKey, brand, approvalCallback })
+    renderEpisode({
+      episodeDir,
+      episodeId,
+      channel: channelKey,
+      brand,
+      maxShotDurationSec,
+      approvalCallback,
+    })
   );
   await queries.updateEpisodeResult('complete', renderResult.title || script.title, renderResult.path, renderResult.durationSeconds, episodeDbId);
   await queries.updateJob(job1.id, { status: 'complete', progress: 100, detail: `${(renderResult.durationSeconds / 60).toFixed(2)} min`, finished_at: new Date().toISOString() });
