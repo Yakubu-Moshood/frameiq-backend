@@ -79,13 +79,9 @@ const VISUAL_PROFILES = {
     channelIdentityLine:
       'You are a visual director for Empire Omitted, a faceless YouTube documentary channel.',
     visualTypes: `
-CLIP          — animated MP4 clip via Kling motion. REQUIRED for any shot depicting a
-                person performing an action, a moving object (hands signing documents,
-                money changing hands, cars, crowds, walking, gesturing), or anything that
-                would look dead/static as a photo. Do not default to STILL for these.
-STILL         — static PNG, best for symbolic imagery, text-heavy reveals, and impact
-                moments where the shot's own held tension sells the beat.
-STILL_ZOOM    — slow Ken Burns zoom on PNG, best for portrait holds (max 10 seconds)
+CLIP          - animated MP4 clip, best for establishing shots, movement, atmosphere
+STILL         - static PNG, best for impact moments, reveals, text overlays
+STILL_ZOOM    - slow Ken Burns zoom on PNG, best for portrait holds (max 10 seconds)
 `.trim(),
     colorGrades: `
 cold_blue     — opening, corporate offices, neutral exposition
@@ -133,9 +129,9 @@ OVERLAY TEXT RULES:
   - Max 60 characters per line
   - Be punchy — shorter is better
 `.trim(),
-    shotCountRule: 'Every act: 12-20 shots — favour MORE shots over fewer. Each visual should hold on screen roughly 4-8 seconds, matching a cut every 4-8 seconds; a shot running past 10 seconds should be a rare, deliberate exception (e.g. a STILL_ZOOM carrying a slow reveal), not the norm.',
+    shotCountRule: 'Every act: 8-10 shots maximum (keep it tight - quality over quantity)',
     personalStakesNote: 'Act3b (human cost): desaturated grade and STILL or STILL_ZOOM only',
-    pacingNote: 'estimatedDuration: MUST generally fall within 4-8 seconds per shot, matching the "visual stimulus change every 4-8 seconds" pacing rule used elsewhere in this pipeline. Only exceed 8s for a genuinely deliberate slow reveal, and never exceed 10s.',
+    pacingNote: 'estimatedDuration: seconds you estimate this shot will hold based on narration pacing.',
     sfxOptions: 'cash_register keyboard_typing gavel_bang phone_buzz alarm crowd_murmur paper_shred door_slam typing_fast news_alert',
     overlaySchema: `"cinematic": {
           "text": "OVERLAY TEXT IN UPPERCASE",
