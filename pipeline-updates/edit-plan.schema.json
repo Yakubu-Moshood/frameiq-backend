@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Empire Omitted Director's Edit Plan 3.0.0",
+  "description": "Renderer-neutral creative intent. Word indices are zero-based, act-local and inclusive. Sequences and beats are in playback order. Semantic constraints are checked by edit-plan-validator.cjs.",
+  "$comment": "Timing tolerance is 0.001 seconds. A beat starts at act.startSec for word 0, otherwise at act.startSec + its first word's start_seconds. It ends at the next word's start_seconds plus act.startSec, or act.endSec for the final word. Thus leading silence belongs to the first beat, inter-word silence to the preceding beat, and trailing silence to the last. Act durations must come from finished audio, not the final word end or script estimates. This version requires at least one timed word per act; wholly silent acts require a future contract decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "pipelineVersion", "channel", "episodeId", "title", "timing", "sequences"],
+  "properties": {
+    "schemaVersion": { "const": "3.0.0" },
+    "pipelineVersion": { "const": 3 },
+    "channel": { "const": "EmpireOmitted" },
+    "episodeId": { "$ref": "#/$defs/text" },
+    "title": { "$ref": "#/$defs/text" },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "totalDurationSec", "acts"],
+      "properties": {
+        "basis": { "const": "finished_vo_word_timestamps" },
+        "totalDurationSec": { "$ref": "#/$defs/duration" },
+        "acts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/actTiming" } }
+      }
+    },
+    "sequences": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sequence" } }
+  },
+  "$defs": {
+    "text": { "type": "string", "pattern": "\\S" },
+    "optionalText": { "type": ["string", "null"] },
+    "nullableText": { "type": ["string", "null"], "pattern": "\\S" },
+    "refs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+    "seconds": { "type": "number", "minimum": 0 },
+    "duration": { "type": "number", "exclusiveMinimum": 0 },
+    "actKey": { "enum": ["act1", "act2", "act3", "act3b", "act4", "act5"] },
+    "actTiming": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actKey", "voKey", "startSec", "endSec", "durationSec", "wordCount"],
+      "properties": {
+        "actKey": { "$ref": "#/$defs/actKey" },
+        "voKey": { "enum": ["VO_Act1", "VO_Act2", "VO_Act3", "VO_Act3B", "VO_Act4", "VO_Act5"] },
+        "startSec": { "$ref": "#/$defs/seconds" },
+        "endSec": { "$ref": "#/$defs/seconds" },
+        "durationSec": { "$ref": "#/$defs/duration" },
+        "wordCount": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sequence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequenceId", "actKey", "sequencePurpose", "directorIntent", "emotionalStateStart", "emotionalStateEnd", "knowledgeQuestion", "knowledgeAnswer", "createsQuestion", "motifRefs", "continuityRefs", "beats"],
+      "properties": {
+        "sequenceId": { "$ref": "#/$defs/text" },
+        "actKey": { "$ref": "#/$defs/actKey" },
+        "sequencePurpose": { "$ref": "#/$defs/text" },
+        "directorIntent": { "$ref": "#/$defs/text" },
+        "emotionalStateStart": { "$ref": "#/$defs/text" },
+        "emotionalStateEnd": { "$ref": "#/$defs/text" },
+        "knowledgeQuestion": { "$ref": "#/$defs/optionalText" },
+        "knowledgeAnswer": { "$ref": "#/$defs/optionalText" },
+        "createsQuestion": { "$ref": "#/$defs/optionalText" },
+        "motifRefs": { "$ref": "#/$defs/refs" },
+        "continuityRefs": { "$ref": "#/$defs/refs" },
+        "beats": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/beat" } }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beatId", "sequenceId", "actKey", "startWordIndex", "endWordIndex", "startSec", "endSec", "durationSec", "narrationExcerpt", "storyFunction", "visualIntent", "visualClass", "visual", "rhythmIntent", "intentionalStillness", "timingExceptionReason", "motionIntent", "graphics", "evidenceRequirement", "continuityRefs"],
+      "properties": {
+        "beatId": { "$ref": "#/$defs/text" },
+        "sequenceId": { "$ref": "#/$defs/text" },
+        "actKey": { "$ref": "#/$defs/actKey" },
+        "startWordIndex": { "type": "integer", "minimum": 0 },
+        "endWordIndex": { "type": "integer", "minimum": 0 },
+        "startSec": { "$ref": "#/$defs/seconds" },
+        "endSec": { "$ref": "#/$defs/seconds" },
+        "durationSec": { "$ref": "#/$defs/duration" },
+        "narrationExcerpt": { "$ref": "#/$defs/text" },
+        "storyFunction": { "enum": ["establish", "reveal", "evidence", "human_cost", "cause", "consequence", "contrast", "escalation", "orientation", "emotional_hold", "transition", "payoff", "context"] },
+        "visualIntent": { "$ref": "#/$defs/text" },
+        "visualClass": { "enum": ["EVIDENCE", "RECONSTRUCTION", "EDITORIAL_ILLUSTRATION"] },
+        "visual": {
+          "description": "Creative visual treatment for compatibility compilation; contains no source filename, track placement or renderer instructions.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "description", "motionType", "secondaryAction"],
+          "properties": {
+            "type": { "enum": ["CLIP", "STILL", "STILL_ZOOM"] },
+            "description": { "$ref": "#/$defs/text" },
+            "motionType": { "$ref": "#/$defs/motionType" },
+            "secondaryAction": { "$ref": "#/$defs/nullableText" }
+          }
+        },
+        "rhythmIntent": { "enum": ["measured", "building", "accelerating", "fractured", "suspended", "reflective", "impact"] },
+        "intentionalStillness": { "type": "boolean" },
+        "timingExceptionReason": { "$ref": "#/$defs/optionalText" },
+        "motionIntent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "$ref": "#/$defs/motionType" },
+            "secondaryAction": { "$ref": "#/$defs/text" }
+          }
+        },
+        "graphics": {
+          "description": "Creative treatments only; null or an empty array means no graphics. No track placement, keyframes or renderer instructions.",
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "intent"],
+            "properties": {
+              "type": { "enum": ["identity_lower_third", "source_citation", "impact_card", "date_marker", "data_graphic", "direct_quote", "document_callout", "chapter_marker", "takeaway"] },
+              "intent": { "$ref": "#/$defs/text" },
+              "text": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        "audioDirection": {
+          "description": "Optional music, SFX and silence creative intent only; contains no automation or timeline position.",
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["musicCue", "musicEvent", "musicLevelDb", "duckUnderVO", "sfx", "silenceIntent"],
+          "properties": {
+            "musicCue": { "$ref": "#/$defs/nullableText" },
+            "musicEvent": { "enum": [null, "rise", "drop", "cut", "resume", "resolve", "duck_under_line"] },
+            "musicLevelDb": { "type": ["number", "null"] },
+            "duckUnderVO": { "type": ["boolean", "null"] },
+            "sfx": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+            "silenceIntent": { "$ref": "#/$defs/nullableText" }
+          }
+        },
+        "evidenceRequirement": { "$ref": "#/$defs/evidenceRequirement" },
+        "continuityRefs": { "$ref": "#/$defs/refs" }
+      }
+    },
+    "motionType": { "enum": ["dolly_forward", "dolly_back", "lateral_track", "crane_rise", "crane_descend", "tilt_reveal", "rack_focus", "foreground_parallax", "controlled_handheld", "static_locked", "subject_micro_action", "environmental_motion", "document_reveal", "object_action", "silhouette_movement"] },
+    "evidenceRequirement": {
+      "description": "EVIDENCE beats require required=true and nonblank evidenceType/description. Statuses may remain pending or unknown; this is planning, not source clearance. citationLabel may be null until retrieval. No URL is required.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "evidenceType", "description", "sourceStatus", "rightsStatus", "authenticityStatus", "citationLabel", "humanReviewRequired"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "evidenceType": { "$ref": "#/$defs/optionalText" },
+        "description": { "$ref": "#/$defs/optionalText" },
+        "sourceStatus": { "enum": ["not_applicable", "pending", "identified", "retrieved", "unavailable"] },
+        "rightsStatus": { "enum": ["not_applicable", "unknown", "pending_review", "cleared", "restricted"] },
+        "authenticityStatus": { "enum": ["not_applicable", "unknown", "pending_review", "verified", "disputed"] },
+        "citationLabel": { "$ref": "#/$defs/optionalText" },
+        "humanReviewRequired": { "type": "boolean" }
+      }
+    }
+  }
+}
