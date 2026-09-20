@@ -1,0 +1,369 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { generateEditPlan, MODEL } = require('../pipeline-updates/edit-plan-generator.cjs');
+const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
+
+const ACTS = [
+  ['act1', 'VO_Act1'], ['act2', 'VO_Act2'], ['act3', 'VO_Act3'],
+  ['act3b', 'VO_Act3B'], ['act4', 'VO_Act4'], ['act5', 'VO_Act5'],
+];
+
+function inputs() {
+  const script = { title: 'Test Empire', topic: 'Test', acts: {} };
+  const wordTimestamps = [];
+  const actDurationsSec = {};
+  for (const [actKey, voKey] of ACTS) {
+    script.acts[actKey] = { label: actKey, voScript: `${actKey} alpha beta` };
+    actDurationsSec[actKey] = 4;
+    wordTimestamps.push(
+      { vo_file: voKey, word: actKey, start_seconds: 0.5, end_seconds: 0.9 },
+      { vo_file: voKey, word: 'alpha', start_seconds: 1.5, end_seconds: 2 },
+      { vo_file: voKey, word: 'beta', start_seconds: 3, end_seconds: 3.4 },
+    );
+  }
+  return {
+    script,
+    wordTimestamps,
+    actDurationsSec,
+    channelDna: {
+      id: 'EmpireOmitted', label: 'Empire Omitted', description: 'Investigative documentary',
+      blueprint_label: 'Documentary', narration_style: 'dramatic-investigative',
+      voice_id_elevenlabs: 'must-not-leak', image_primary: 'must-not-leak', api_key: 'must-not-leak',
+    },
+    episodeId: 'episode-123',
+  };
+}
+
+function evidence(required = false) {
+  return required ? {
+    required: true, evidenceType: 'regulatory filing', description: 'The relevant authenticated filing',
+    sourceStatus: 'pending', rightsStatus: 'unknown', authenticityStatus: 'pending_review',
+    citationLabel: null, humanReviewRequired: true,
+  } : {
+    required: false, evidenceType: null, description: null, sourceStatus: 'not_applicable',
+    rightsStatus: 'not_applicable', authenticityStatus: 'not_applicable', citationLabel: null,
+    humanReviewRequired: false,
+  };
+}
+
+function beat(first = 0, last = 2, overrides = {}) {
+  return {
+    startWordIndex: first,
+    endWordIndex: last,
+    storyFunction: 'establish',
+    visualIntent: 'Show a connected human action that establishes the mechanism.',
+    visualClass: 'RECONSTRUCTION',
+    visual: { type: 'CLIP', description: 'An employee studies a target board.', motionType: 'lateral_track', secondaryAction: 'The employee marks a target.' },
+    rhythmIntent: 'measured',
+    intentionalStillness: false,
+    timingExceptionReason: null,
+    motionIntent: { type: 'lateral_track', secondaryAction: 'The employee marks a target.' },
+    graphics: null,
+    audioDirection: { musicCue: 'restrained pulse', musicEvent: null, musicLevelDb: -24, duckUnderVO: true, sfx: ['office room tone'], silenceIntent: null },
+    evidenceRequirement: evidence(false),
+    continuityRefs: [],
+    ...overrides,
+  };
+}
+
+function draft(overrides = {}) {
+  return {
+    sequences: [{
+      sequencePurpose: 'Establish the mechanism.',
+      directorIntent: 'The audience understands how pressure reaches an employee.',
+      emotionalStateStart: 'curious', emotionalStateEnd: 'uneasy',
+      knowledgeQuestion: 'How does pressure travel?', knowledgeAnswer: 'Through targets.',
+      createsQuestion: 'What happens next?', motifRefs: [], continuityRefs: [],
+      beats: [beat()],
+      ...overrides,
+    }],
+  };
+}
+
+function fakeClient(makeDraft = () => draft(), { fenced = false, malformed = false } = {}) {
+  const calls = [];
+  return {
+    calls,
+    messages: {
+      async create(request) {
+        calls.push(request);
+        if (malformed) return { content: [{ type: 'text', text: '{bad json' }] };
+        const body = JSON.stringify(makeDraft(calls.length - 1, request));
+        return { content: [{ type: 'text', text: fenced ? `\n\n\`\`\`json\n${body}\n\`\`\`\n` : body }] };
+      },
+    },
+  };
+}
+
+async function generate(overrides = {}, client = fakeClient()) {
+  return generateEditPlan({ ...inputs(), ...overrides, client });
+}
+
+test('makes exactly one independent model call per act in playback order', async () => {
+  const client = fakeClient();
+  await generate({}, client);
+  assert.equal(client.calls.length, 6);
+  ACTS.forEach(([actKey], index) => assert.match(client.calls[index].messages[0].content, new RegExp(`Plan only ${actKey}`)));
+  assert.ok(client.calls.every(call => call.model === MODEL));
+});
+
+test('rejects non-Empire channels before any model call', async () => {
+  const client = fakeClient();
+  await assert.rejects(generate({ channelDna: { id: 'MacroDecode', label: 'Macro Decode' } }, client), /another channel/);
+  await assert.rejects(generate({ channel: 'Empire Omitted', channelDna: { id: 'MacroDecode', label: 'Macro Decode' } }, client), /another channel/);
+  assert.equal(client.calls.length, 0);
+});
+
+test('model cannot control beat or sequence IDs', async () => {
+  const client = fakeClient(() => draft({ sequenceId: 'EVIL_SEQ', beats: [beat(0, 2, { beatId: 'EVIL_BEAT', sequenceId: 'EVIL_SEQ' })] }));
+  const plan = await generate({}, client);
+  assert.equal(plan.sequences[0].sequenceId, 'SEQ_ACT1_01');
+  assert.equal(plan.sequences[0].beats[0].beatId, 'ACT1_B001');
+});
+
+test('model cannot control derived seconds or narration excerpt', async () => {
+  const client = fakeClient(() => draft({ beats: [beat(0, 2, { startSec: 99, endSec: 100, durationSec: 1, narrationExcerpt: 'invented' })] }));
+  const plan = await generate({}, client);
+  assert.deepEqual(Object.fromEntries(['startSec', 'endSec', 'durationSec', 'narrationExcerpt'].map(k => [k, plan.sequences[0].beats[0][k]])), {
+    startSec: 0, endSec: 4, durationSec: 4, narrationExcerpt: 'act1 alpha beta',
+  });
+});
+
+test('constructs cumulative episode-absolute act timing', async () => {
+  const data = inputs();
+  Object.assign(data.actDurationsSec, { act1: 4, act2: 4.1, act3: 4.2, act3b: 4.3, act4: 4.4, act5: 4.5 });
+  const plan = await generate(data);
+  assert.deepEqual(plan.timing.acts.map(a => [a.startSec, a.endSec]), [[0,4],[4,8.1],[8.1,12.3],[12.3,16.6],[16.6,21],[21,25.5]]);
+  assert.equal(plan.timing.totalDurationSec, 25.5);
+});
+
+test('first beat absorbs leading silence', async () => {
+  const plan = await generate();
+  assert.equal(plan.sequences[0].beats[0].startSec, 0);
+  assert.equal(inputs().wordTimestamps[0].start_seconds, 0.5);
+});
+
+test('inter-word silence belongs to the preceding beat', async () => {
+  const plan = await generate({}, fakeClient(() => draft({ beats: [beat(0, 0), beat(1, 2)] })));
+  const [first, second] = plan.sequences[0].beats;
+  assert.equal(first.endSec, 1.5);
+  assert.equal(second.startSec, 1.5);
+});
+
+test('final beat absorbs trailing silence', async () => {
+  const plan = await generate();
+  assert.equal(plan.sequences[0].beats[0].endSec, 4);
+  assert.equal(inputs().wordTimestamps[2].end_seconds, 3.4);
+});
+
+test('narration excerpt is assembled from selected legacy words', async () => {
+  const plan = await generate();
+  assert.equal(plan.sequences[1].beats[0].narrationExcerpt, 'act2 alpha beta');
+});
+
+test('missing, zero, negative, and nonfinite durations fail before model calls', async () => {
+  for (const value of [undefined, 0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    const data = inputs(); const client = fakeClient(); data.actDurationsSec.act3 = value;
+    await assert.rejects(generate(data, client), /positive finite/);
+    assert.equal(client.calls.length, 0);
+  }
+});
+
+test('act duration shorter than its final timed word fails before model calls', async () => {
+  const data = inputs(); const client = fakeClient(); data.actDurationsSec.act4 = 3;
+  await assert.rejects(generate(data, client), /final timed word/);
+  assert.equal(client.calls.length, 0);
+});
+
+test('optional markdown JSON fences parse', async () => {
+  const plan = await generate({}, fakeClient(() => draft(), { fenced: true }));
+  assert.equal(plan.schemaVersion, '3.0.0');
+});
+
+test('malformed model JSON fails clearly', async () => {
+  await assert.rejects(generate({}, fakeClient(() => draft(), { malformed: true })), /act1 model JSON parse failed/);
+});
+
+test('gapped model word selection fails through the existing validator', async () => {
+  const client = fakeClient((_i) => draft({ beats: [beat(0, 0), beat(2, 2)] }));
+  await assert.rejects(generate({}, client), /Generated plan failed validation.*NARRATION_GAP/);
+});
+
+test('overlapping model word selection fails through the existing validator', async () => {
+  const client = fakeClient(() => draft({ beats: [beat(0, 1), beat(1, 2)] }));
+  await assert.rejects(generate({}, client), /Generated plan failed validation.*NARRATION_OVERLAP/);
+});
+
+test('an unjustified beat over six seconds fails through the validator', async () => {
+  const data = inputs(); data.actDurationsSec.act1 = 7;
+  await assert.rejects(generate(data), /Generated plan failed validation.*BEAT_TOO_LONG/);
+});
+
+test('EVIDENCE planning passes with pending statuses and no invented URL', async () => {
+  const client = fakeClient(() => draft({ beats: [beat(0, 2, {
+    storyFunction: 'evidence', visualClass: 'EVIDENCE', evidenceRequirement: evidence(true),
+  })] }));
+  const plan = await generate({}, client);
+  const requirement = plan.sequences[0].beats[0].evidenceRequirement;
+  assert.equal(requirement.sourceStatus, 'pending');
+  assert.equal(Object.hasOwn(requirement, 'url'), false);
+});
+
+test('valid final plan passes the existing deterministic validator', async () => {
+  const data = inputs(); const plan = await generate(data);
+  assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+});
+
+test('existing valid edit-plan.json is reused with zero model calls', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-reuse-'));
+  try {
+    const data = inputs(); const first = fakeClient();
+    const plan = await generateEditPlan({ ...data, outputDir: dir, client: first });
+    assert.equal(first.calls.length, 6);
+    const second = fakeClient();
+    assert.deepEqual(await generateEditPlan({ ...data, outputDir: dir, client: second }), plan);
+    assert.equal(second.calls.length, 0);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed current trailing silence makes an existing plan stale without model calls or overwrite', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-stale-duration-'));
+  try {
+    const data = inputs();
+    await generateEditPlan({ ...data, outputDir: dir, client: fakeClient() });
+    const file = path.join(dir, 'edit-plan.json'); const original = fs.readFileSync(file);
+    data.actDurationsSec.act3b = 4.5;
+    const client = fakeClient();
+    await assert.rejects(generateEditPlan({ ...data, outputDir: dir, client }), /is stale.*current finished VO timing or episode identity/);
+    assert.equal(client.calls.length, 0);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('different requested episode ID makes an existing plan stale without model calls or overwrite', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-stale-episode-'));
+  try {
+    const data = inputs();
+    await generateEditPlan({ ...data, outputDir: dir, client: fakeClient() });
+    const file = path.join(dir, 'edit-plan.json'); const original = fs.readFileSync(file);
+    const client = fakeClient();
+    await assert.rejects(generateEditPlan({ ...data, episodeId: 'another-episode', outputDir: dir, client }), /is stale/);
+    assert.equal(client.calls.length, 0);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed current word timing rejects an existing plan without model calls or overwrite', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-stale-words-'));
+  try {
+    const data = inputs();
+    const splitBeats = fakeClient(() => draft({ beats: [beat(0, 0), beat(1, 2)] }));
+    await generateEditPlan({ ...data, outputDir: dir, client: splitBeats });
+    const file = path.join(dir, 'edit-plan.json'); const original = fs.readFileSync(file);
+    data.wordTimestamps.find(word => word.vo_file === 'VO_Act2' && word.word === 'alpha').start_seconds = 1.75;
+    const client = fakeClient();
+    await assert.rejects(generateEditPlan({ ...data, outputDir: dir, client }), /is stale/);
+    assert.equal(client.calls.length, 0);
+    assert.deepEqual(fs.readFileSync(file), original);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('existing invalid edit-plan.json is rejected and never overwritten', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-invalid-'));
+  try {
+    const file = path.join(dir, 'edit-plan.json'); const original = '{"invalid":true}\n';
+    fs.writeFileSync(file, original); const client = fakeClient();
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /is stale.*refusing to overwrite/);
+    assert.equal(client.calls.length, 0); assert.equal(fs.readFileSync(file, 'utf8'), original);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('approved malformed model fields reach the existing validator and are never defaulted', async () => {
+  const cases = [
+    ['unsupported visual type', { visual: { ...beat().visual, type: 'HOLOGRAM' } }, /SCHEMA_ENUM/],
+    ['missing visual description', { visual: { type: 'CLIP', motionType: 'lateral_track', secondaryAction: null } }, /SCHEMA_REQUIRED/],
+    ['blank visual description', { visual: { ...beat().visual, description: '   ' } }, /SCHEMA_TEXT/],
+    ['invalid story function', { storyFunction: 'decorate' }, /SCHEMA_ENUM/],
+    ['malformed evidence requirement', { visualClass: 'EVIDENCE', evidenceRequirement: evidence(false) }, /EVIDENCE_REQUIREMENT/],
+  ];
+  for (const [label, malformed, expected] of cases) {
+    const client = fakeClient(() => draft({ beats: [beat(0, 2, malformed)] }));
+    await assert.rejects(generate({}, client), expected, label);
+  }
+});
+
+test('generator does not mutate script, timestamps, durations, or Channel DNA', async () => {
+  const data = inputs();
+  const before = JSON.parse(JSON.stringify({
+    script: data.script,
+    wordTimestamps: data.wordTimestamps,
+    actDurationsSec: data.actDurationsSec,
+    channelDna: data.channelDna,
+  }));
+  await generate(data);
+  assert.deepEqual(data.script, before.script);
+  assert.deepEqual(data.wordTimestamps, before.wordTimestamps);
+  assert.deepEqual(data.actDurationsSec, before.actDurationsSec);
+  assert.deepEqual(data.channelDna, before.channelDna);
+});
+
+test('Act 4 model failure leaves no canonical or validation output', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-act4-failure-'));
+  try {
+    const failure = new Error('Act 4 provider failure');
+    const client = fakeClient(callIndex => {
+      if (callIndex === 3) throw failure;
+      return draft();
+    });
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), error => error === failure);
+    assert.equal(client.calls.length, 4);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.candidate.json')), false);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), false);
+    assert.deepEqual(fs.readdirSync(dir), []);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('unknown model fields do not leak into the canonical plan at any projected level', async () => {
+  const client = fakeClient(() => ({
+    maliciousTop: true,
+    sequences: [{ ...draft().sequences[0], rendererTrack: 4, beats: [beat(0, 2, {
+      filename: 'evil.mp4', visual: { ...beat().visual, ffmpeg: '-i evil' },
+      motionIntent: { ...beat().motionIntent, keyframes: [] },
+      audioDirection: { ...beat().audioDirection, timelinePosition: 3 },
+      evidenceRequirement: { ...evidence(false), url: 'invented' },
+    })] }],
+  }));
+  const plan = await generate({}, client); const sequence = plan.sequences[0]; const outputBeat = sequence.beats[0];
+  assert.equal(Object.hasOwn(sequence, 'rendererTrack'), false);
+  assert.equal(Object.hasOwn(outputBeat, 'filename'), false);
+  assert.equal(Object.hasOwn(outputBeat.visual, 'ffmpeg'), false);
+  assert.equal(Object.hasOwn(outputBeat.motionIntent, 'keyframes'), false);
+  assert.equal(Object.hasOwn(outputBeat.audioDirection, 'timelinePosition'), false);
+  assert.equal(Object.hasOwn(outputBeat.evidenceRequirement, 'url'), false);
+});
+
+test('creative prompt excludes secrets, provider routing, and voice IDs', async () => {
+  const client = fakeClient(); await generate({}, client);
+  const prompt = client.calls[0].messages[0].content;
+  assert.doesNotMatch(prompt, /must-not-leak|voice_id|api_key|image_primary/);
+  assert.match(prompt, /dramatic-investigative/);
+});
+
+test('draft prompt forbids deterministic and renderer-specific output fields', async () => {
+  const client = fakeClient(); await generate({}, client);
+  const prompt = client.calls[0].messages[0].content;
+  assert.match(prompt, /Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey/);
+  assert.match(prompt, /Cover every word index exactly once/);
+});
+
+test('all generator tests inject a fake client and make no network calls', () => {
+  const client = fakeClient();
+  assert.equal(typeof client.messages.create, 'function');
+  assert.deepEqual(client.calls, []);
+});
