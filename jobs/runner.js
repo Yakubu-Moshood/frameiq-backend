@@ -506,6 +506,25 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   const job0C        = jobFor('0C_shots');
   if (await checkPaused(episodeDbId, '0C_shots')) return;
+  const shadowRequested = String(process.env.EMPIRE_OMITTED_V3_SHADOW || '')
+    .trim().toLowerCase() === 'true'
+    && !isTestMode()
+    && channelKey === 'EmpireOmitted';
+  if (shadowRequested) {
+    const { runEoV3ShadowHook } = require('./eo-v3-shadow-hook.js');
+    await runEoV3ShadowHook({
+      env: process.env,
+      testMode: isTestMode(),
+      channelKey,
+      episodeDbId,
+      script,
+      audioDir,
+      episodeDir,
+      pipelineDir: PIPELINE_DIR,
+      getChannelDna: key => queries.getChannelDna(key),
+    });
+    if (await checkPaused(episodeDbId, '0C_shots')) return;
+  }
   await queries.updateJob(job0C.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0C_shots', 'running', 0, 'Generating shot definitions...');
   if (fs.existsSync(shotDefsPath)) {
