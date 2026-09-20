@@ -2,11 +2,14 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
 
 const MODEL = 'claude-opus-4-5';
 const MAX_TOKENS = 16000;
 const TIMING_EPSILON = 0.001;
+const CHECKPOINT_VERSION = 1;
+const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -111,6 +114,48 @@ function timingMatchesCurrent(existingTiming, currentTiming) {
 
 function stripJsonFences(raw) {
   return raw.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+}
+
+function requestFingerprint(prompt) {
+  return crypto.createHash('sha256').update(JSON.stringify({
+    model: MODEL,
+    maxTokens: MAX_TOKENS,
+    system: DIRECTOR_STANDARD,
+    prompt,
+  })).digest('hex');
+}
+
+function draftFingerprint(draft) {
+  return crypto.createHash('sha256').update(JSON.stringify(draft)).digest('hex');
+}
+
+function freshCheckpoint(episodeId) {
+  return { checkpointVersion: CHECKPOINT_VERSION, episodeId, channel: 'EmpireOmitted', acts: {} };
+}
+
+function loadCheckpoint(checkpointPath, episodeId) {
+  if (!checkpointPath || !fs.existsSync(checkpointPath)) return freshCheckpoint(episodeId);
+  try {
+    const parsed = JSON.parse(fs.readFileSync(checkpointPath, 'utf8'));
+    if (parsed?.checkpointVersion === CHECKPOINT_VERSION
+      && parsed.episodeId === episodeId
+      && parsed.channel === 'EmpireOmitted'
+      && parsed.acts && typeof parsed.acts === 'object' && !Array.isArray(parsed.acts)) return parsed;
+  } catch (error) {
+    console.warn(`[edit-plan] Ignoring unreadable draft checkpoint: ${error.message}`);
+  }
+  return freshCheckpoint(episodeId);
+}
+
+function writeCheckpointAtomic(checkpointPath, checkpoint) {
+  fs.mkdirSync(path.dirname(checkpointPath), { recursive: true });
+  const temporaryPath = `${checkpointPath}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.writeFileSync(temporaryPath, JSON.stringify(checkpoint, null, 2) + '\n', 'utf8');
+    fs.renameSync(temporaryPath, checkpointPath);
+  } finally {
+    try { fs.rmSync(temporaryPath, { force: true }); } catch (_) {}
+  }
 }
 
 function parseModelJson(message, actKey) {
@@ -274,10 +319,16 @@ async function generateEditPlan({
     throw new Error('[edit-plan] Existing edit-plan.json is stale: it does not match the current finished VO timing or episode identity; refusing to overwrite it.');
   }
 
-  const anthropic = client || new (require('@anthropic-ai/sdk'))();
-  if (!anthropic?.messages || typeof anthropic.messages.create !== 'function') {
-    throw new Error('[edit-plan] Anthropic client must provide messages.create().');
-  }
+  const checkpointPath = outputDir ? path.join(outputDir, CHECKPOINT_FILE) : null;
+  const checkpoint = loadCheckpoint(checkpointPath, episodeId.trim());
+  let anthropic = client;
+  const getClient = () => {
+    if (!anthropic) anthropic = new (require('@anthropic-ai/sdk'))();
+    if (!anthropic?.messages || typeof anthropic.messages.create !== 'function') {
+      throw new Error('[edit-plan] Anthropic client must provide messages.create().');
+    }
+    return anthropic;
+  };
   const finalSequences = [];
   const priorContext = [];
   for (const [actKey, voKey] of ACTS) {
@@ -291,13 +342,31 @@ async function generateEditPlan({
       channelDna,
       previousContext: priorContext.slice(-2).join('\n'),
     });
-    const message = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      system: DIRECTOR_STANDARD,
-      messages: [{ role: 'user', content: prompt }],
-    });
-    const draft = parseModelJson(message, actKey);
+    const fingerprint = requestFingerprint(prompt);
+    const saved = checkpoint.acts[actKey];
+    let draft;
+    const reusableDraft = saved?.fingerprint === fingerprint
+      && saved.draft
+      && typeof saved.draft === 'object'
+      && !Array.isArray(saved.draft)
+      && typeof saved.draftHash === 'string'
+      && /^[a-f0-9]{64}$/.test(saved.draftHash)
+      && draftFingerprint(saved.draft) === saved.draftHash;
+    if (reusableDraft) {
+      draft = saved.draft;
+    } else {
+      const message = await getClient().messages.create({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        system: DIRECTOR_STANDARD,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      draft = parseModelJson(message, actKey);
+      if (checkpointPath) {
+        checkpoint.acts[actKey] = { fingerprint, draftHash: draftFingerprint(draft), draft };
+        writeCheckpointAtomic(checkpointPath, checkpoint);
+      }
+    }
     finalSequences.push(...finaliseActDraft({ draft, act, words }));
     priorContext.push(continuitySummary(actKey, draft));
   }
@@ -318,6 +387,7 @@ async function generateEditPlan({
   if (outputDir) {
     fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(path.join(outputDir, 'edit-plan.json'), JSON.stringify(plan, null, 2) + '\n', 'utf8');
+    fs.rmSync(checkpointPath, { force: true });
   }
   return plan;
 }

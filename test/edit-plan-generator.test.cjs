@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { generateEditPlan, MODEL } = require('../pipeline-updates/edit-plan-generator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
@@ -102,6 +103,30 @@ function fakeClient(makeDraft = () => draft(), { fenced = false, malformed = fal
 
 async function generate(overrides = {}, client = fakeClient()) {
   return generateEditPlan({ ...inputs(), ...overrides, client });
+}
+
+function checkpointPath(dir) {
+  return path.join(dir, 'edit-plan-drafts.partial.json');
+}
+
+function readCheckpoint(dir) {
+  return JSON.parse(fs.readFileSync(checkpointPath(dir), 'utf8'));
+}
+
+function hashDraft(value) {
+  return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+async function createSixReusableCheckpoints(dir, data = inputs()) {
+  const invalid = fakeClient(callIndex => callIndex === 0
+    ? draft({ beats: [beat(0, 2, { storyFunction: 'invalid_story_function' })] })
+    : draft());
+  await assert.rejects(generateEditPlan({ ...data, outputDir: dir, client: invalid }), /Generated plan failed validation/);
+  const checkpoint = readCheckpoint(dir);
+  checkpoint.acts.act1.draft = draft();
+  checkpoint.acts.act1.draftHash = hashDraft(checkpoint.acts.act1.draft);
+  fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
+  return checkpoint;
 }
 
 test('makes exactly one independent model call per act in playback order', async () => {
@@ -312,7 +337,7 @@ test('generator does not mutate script, timestamps, durations, or Channel DNA', 
   assert.deepEqual(data.channelDna, before.channelDna);
 });
 
-test('Act 4 model failure leaves no canonical or validation output', async () => {
+test('Act 4 model failure checkpoints Acts 1-3 and leaves no canonical or validation output', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-act4-failure-'));
   try {
     const failure = new Error('Act 4 provider failure');
@@ -322,11 +347,251 @@ test('Act 4 model failure leaves no canonical or validation output', async () =>
     });
     await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), error => error === failure);
     assert.equal(client.calls.length, 4);
+    const checkpoint = readCheckpoint(dir);
+    assert.deepEqual(Object.keys(checkpoint.acts), ['act1', 'act2', 'act3']);
+    assert.equal(Object.hasOwn(checkpoint.acts, 'act4'), false);
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan.candidate.json')), false);
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), false);
-    assert.deepEqual(fs.readdirSync(dir), []);
+    assert.deepEqual(fs.readdirSync(dir), ['edit-plan-drafts.partial.json']);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('retry after Act 4 failure reuses Acts 1-3 and calls only Acts 4-6', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-resume-'));
+  try {
+    const data = inputs();
+    const first = fakeClient(callIndex => {
+      if (callIndex === 3) throw new Error('temporary Act 4 failure');
+      return draft();
+    });
+    await assert.rejects(generateEditPlan({ ...data, outputDir: dir, client: first }), /temporary Act 4 failure/);
+    const retry = fakeClient();
+    const plan = await generateEditPlan({ ...data, outputDir: dir, client: retry });
+    assert.equal(retry.calls.length, 3);
+    assert.match(retry.calls[0].messages[0].content, /Plan only act3b/);
+    assert.match(retry.calls[1].messages[0].content, /Plan only act4/);
+    assert.match(retry.calls[2].messages[0].content, /Plan only act5/);
+    assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), true);
+    assert.equal(fs.existsSync(checkpointPath(dir)), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('Act 4 malformed JSON preserves earlier checkpoints and is not checkpointed', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-malformed-act4-'));
+  try {
+    const client = fakeClient(callIndex => {
+      if (callIndex === 3) return JSON.parse('{');
+      return draft();
+    });
+    client.messages.create = async request => {
+      client.calls.push(request);
+      if (client.calls.length === 4) return { content: [{ type: 'text', text: '{bad json' }] };
+      return { content: [{ type: 'text', text: JSON.stringify(draft()) }] };
+    };
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /act3b model JSON parse failed/);
+    assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ['act1', 'act2', 'act3']);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('six reusable checkpoints need no client creation and still produce a valid canonical plan', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-six-checkpoints-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const plan = await generateEditPlan({ ...data, outputDir: dir });
+    assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), true);
+    assert.equal(fs.existsSync(checkpointPath(dir)), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('fresh generation atomically checkpoints every successful act then removes the checkpoint', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-progress-'));
+  try {
+    const client = fakeClient((callIndex) => {
+      if (callIndex === 0) assert.equal(fs.existsSync(checkpointPath(dir)), false);
+      else assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ACTS.slice(0, callIndex).map(([actKey]) => actKey));
+      return draft();
+    });
+    await generateEditPlan({ ...inputs(), outputDir: dir, client });
+    assert.equal(client.calls.length, 6);
+    assert.equal(fs.existsSync(checkpointPath(dir)), false);
+    assert.equal(fs.readdirSync(dir).some(name => name.endsWith('.tmp')), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('final validation failure preserves all six paid draft checkpoints', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-validation-failure-'));
+  try {
+    const client = fakeClient(callIndex => callIndex === 5
+      ? draft({ beats: [beat(0, 0), beat(2, 2)] })
+      : draft());
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /NARRATION_GAP/);
+    assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ACTS.map(([actKey]) => actKey));
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), true);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed timed words invalidate only the affected reusable act request', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-words-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    data.wordTimestamps.find(word => word.vo_file === 'VO_Act3' && word.word === 'alpha').start_seconds = 1.6;
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 1);
+    assert.match(client.calls[0].messages[0].content, /Plan only act3/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed finished duration invalidates only the affected reusable act request', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-duration-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    data.actDurationsSec.act4 = 4.25;
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 1);
+    assert.match(client.calls[0].messages[0].content, /Plan only act4/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed allowlisted creative DNA invalidates creative request checkpoints', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-dna-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    data.channelDna.description = 'A newly approved creative description';
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 6);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('changed secret DNA does not invalidate any creative request checkpoint', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-secret-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    data.channelDna.api_key = 'rotated-secret';
+    data.channelDna.voice_id_elevenlabs = 'rotated-voice';
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 0);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('schema-valid checkpoint tampering is rejected by draft integrity without contaminating downstream prompts', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-tamper-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const checkpoint = readCheckpoint(dir);
+    checkpoint.acts.act1.draft.sequences[0].sequencePurpose = 'Tampered but schema-valid purpose.';
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
+    const client = fakeClient();
+    const plan = await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 1);
+    assert.match(client.calls[0].messages[0].content, /Plan only act1/);
+    assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+    assert.equal(plan.sequences.some(sequence => sequence.sequencePurpose.includes('Tampered')), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('legitimate upstream request change regenerates acts whose continuity prompts change', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-context-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    data.script.acts.act1.voScript += ' Legitimate creative revision.';
+    const client = fakeClient(callIndex => callIndex === 0
+      ? draft({ sequencePurpose: 'Legitimately revised Act 1 purpose.' })
+      : draft());
+    const plan = await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 3);
+    assert.match(client.calls[0].messages[0].content, /Plan only act1/);
+    assert.match(client.calls[1].messages[0].content, /Plan only act2/);
+    assert.match(client.calls[1].messages[0].content, /Legitimately revised Act 1 purpose/);
+    assert.match(client.calls[2].messages[0].content, /Plan only act3/);
+    assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('missing draftHash rejects only the affected act checkpoint', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-missing-hash-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const checkpoint = readCheckpoint(dir); delete checkpoint.acts.act2.draftHash;
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 1);
+    assert.match(client.calls[0].messages[0].content, /Plan only act2/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('incorrect draftHash rejects only the affected act checkpoint', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-wrong-hash-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const checkpoint = readCheckpoint(dir); checkpoint.acts.act3.draftHash = '0'.repeat(64);
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 1);
+    assert.match(client.calls[0].messages[0].content, /Plan only act3/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('matching request fingerprint and draftHash reuse an unchanged act without a paid call', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-intact-hash-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const checkpoint = readCheckpoint(dir);
+    assert.equal(checkpoint.acts.act1.draftHash, hashDraft(checkpoint.acts.act1.draft));
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 0);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('corrupt checkpoint is never reused', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-corrupt-'));
+  try {
+    fs.writeFileSync(checkpointPath(dir), '{not json');
+    const client = fakeClient();
+    await generateEditPlan({ ...inputs(), outputDir: dir, client });
+    assert.equal(client.calls.length, 6);
+    assert.equal(fs.existsSync(checkpointPath(dir)), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('checkpoint for a different episode ID is never reused', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-episode-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const client = fakeClient();
+    await generateEditPlan({ ...data, episodeId: 'different-episode', outputDir: dir, client });
+    assert.equal(client.calls.length, 6);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('checkpoint claiming a different channel is never reused', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-checkpoint-channel-'));
+  try {
+    const data = inputs(); await createSixReusableCheckpoints(dir, data);
+    const checkpoint = readCheckpoint(dir); checkpoint.channel = 'MacroDecode';
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
+    const client = fakeClient();
+    await generateEditPlan({ ...data, outputDir: dir, client });
+    assert.equal(client.calls.length, 6);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('without outputDir generation creates no checkpoint artifact', async () => {
+  const localCheckpoint = path.resolve('edit-plan-drafts.partial.json');
+  const existedBefore = fs.existsSync(localCheckpoint);
+  await generate();
+  assert.equal(fs.existsSync(localCheckpoint), existedBefore);
 });
 
 test('unknown model fields do not leak into the canonical plan at any projected level', async () => {
