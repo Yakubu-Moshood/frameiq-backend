@@ -424,7 +424,7 @@ test('fresh generation atomically checkpoints every successful act then removes 
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('final validation failure preserves all six paid draft checkpoints', async () => {
+test('final validation failure preserves only act-level-passing draft checkpoints', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-validation-failure-'));
   try {
     const client = fakeClient(callIndex => {
@@ -433,7 +433,7 @@ test('final validation failure preserves all six paid draft checkpoints', async 
       return draft();
     });
     await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /repair provider unavailable/);
-    assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ACTS.map(([actKey]) => actKey));
+    assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ACTS.slice(0, 5).map(([actKey]) => actKey));
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), true);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
@@ -743,10 +743,9 @@ test('range-root classification suppresses only deterministic derivative errors 
   assert.deepEqual(classified.byAct.get('act1').map(error => error.code), ['SCHEMA_MINIMUM', 'INVALID_WORD_RANGE']);
 });
 
-test('repair handles overlap, motion mismatch, evidence metadata and invalid vocabulary', async () => {
+test('repair handles overlap, evidence metadata and invalid vocabulary while compact motion is derived', async () => {
   const broken = [
     draft({ beats: [beat(0, 1), beat(1, 2)] }),
-    draft({ beats: [beat(0, 2, { motionIntent: { type: 'dolly_back', secondaryAction: 'Action' } })] }),
     draft({ beats: [beat(0, 2, { visualClass: 'EVIDENCE', evidenceRequirement: evidence(false) })] }),
     draft({ beats: [beat(0, 2, { storyFunction: 'invalid' })] }),
   ];
@@ -810,7 +809,7 @@ test('first changed repair may remain invalid and second repair can succeed', as
   assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
 });
 
-test('failed, malformed and identical repair responses consume one attempt and preserve draft', async () => {
+test('provider and transport failures do not consume semantic attempts, but identical valid repair does', async () => {
   for (const mode of ['provider', 'malformed', 'identical']) {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), `edit-plan-repair-${mode}-`));
     try {
@@ -826,7 +825,7 @@ test('failed, malformed and identical repair responses consume one attempt and p
       };
       await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }));
       const entry = readCheckpoint(dir).acts.act1;
-      assert.equal(entry.repairAttempts, 1);
+      assert.equal(entry.repairAttempts, 0);
       assert.deepEqual(entry.draft, draft({ beats: [beat(0, 0), beat(2, 2)] }));
       assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
@@ -919,4 +918,55 @@ test('repeated malformed JSON fails after one bounded regeneration with safe dia
     return true;
   });
   assert.equal(client.calls.length, 2);
+});
+
+test('compact model drafts expand deterministically with safe defaults and schema vocab', async () => {
+  const compact = {
+    sequences: [{
+      sequencePurpose: 'Establish the mechanism.',
+      directorIntent: 'Show how pressure reaches an employee.',
+      emotionalStateStart: 'curious',
+      emotionalStateEnd: 'uneasy',
+      motifRefs: [],
+      continuityRefs: [],
+      beats: [{
+        startWordIndex: 0,
+        endWordIndex: 2,
+        storyFunction: 'establish',
+        visualIntent: 'An employee studies a target board.',
+        visualClass: 'RECONSTRUCTION',
+        visual: { type: 'CLIP', description: 'An employee studies a target board.', motionType: 'static_locked' },
+        rhythmIntent: 'measured',
+        audioDirection: {},
+      }],
+    }],
+  };
+  const plan = await generate({}, fakeClient(() => compact));
+  assert.equal(plan.sequences[0].knowledgeQuestion, null);
+  const output = plan.sequences[0].beats[0];
+  assert.equal(output.intentionalStillness, false);
+  assert.equal(output.timingExceptionReason, null);
+  assert.equal(output.motionIntent.type, 'static_locked');
+  assert.equal(Object.hasOwn(output.motionIntent, 'secondaryAction'), false);
+  assert.equal(output.graphics, null);
+  assert.deepEqual(output.audioDirection, {
+    musicCue: null, musicEvent: null, musicLevelDb: null, duckUnderVO: null,
+    sfx: [], silenceIntent: null,
+  });
+  assert.deepEqual(output.evidenceRequirement, evidence(false));
+  assert.deepEqual(output.continuityRefs, []);
+  assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
+});
+
+test('compact EVIDENCE drafts retain explicit metadata while defaulting pending safety states', async () => {
+  const compact = draft({ beats: [beat(0, 2, {
+    visualClass: 'EVIDENCE',
+    evidenceRequirement: { evidenceType: 'regulatory filing', description: 'Authenticated filing' },
+  })] });
+  const plan = await generate({}, fakeClient(() => compact));
+  assert.deepEqual(plan.sequences[0].beats[0].evidenceRequirement, {
+    required: true, evidenceType: 'regulatory filing', description: 'Authenticated filing',
+    sourceStatus: 'pending', rightsStatus: 'unknown', authenticityStatus: 'pending_review',
+    citationLabel: null, humanReviewRequired: true,
+  });
 });
