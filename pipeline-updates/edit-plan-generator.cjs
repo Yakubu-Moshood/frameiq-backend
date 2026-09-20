@@ -10,6 +10,7 @@ const MAX_TOKENS = 16000;
 const TIMING_EPSILON = 0.001;
 const CHECKPOINT_VERSION = 1;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
+const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -40,6 +41,38 @@ Keep people central: who benefits, knows, obeys, resists, and pays the price. Gu
 Preserve geometry: no morphing, warping, uncontrolled orbit, or unnecessary autonomous movement. Use one approved primary motion and, where useful, one meaningful secondary story action. Approved motion types: dolly_forward, dolly_back, lateral_track, crane_rise, crane_descend, tilt_reveal, rack_focus, foreground_parallax, controlled_handheld, static_locked, subject_micro_action, environmental_motion, document_reveal, object_action, silhouette_movement.
 
 Use graphics selectively and only as: identity_lower_third, source_citation, impact_card, date_marker, data_graphic, direct_quote, document_callout, chapter_marker, takeaway. Reserve impact typography for major facts. Audio direction is creative intent only; it may express music, SFX, room tone, or meaningful silence, but never timeline automation.`;
+
+const REPAIR_STANDARD = `${DIRECTOR_STANDARD}
+
+Repair only the reported editorial planning errors. Return the complete replacement MODEL DRAFT for the specified act as JSON only, never a patch. Preserve strong valid choices. Do not output final timestamps, durations, narrationExcerpt, sequenceId, beatId, actKey, renderer tracks, filenames, FFmpeg, or DaVinci instructions. For long beats, split adjacent narration coverage unless a hold is genuinely justified. Never invent evidence URLs, sources, quotations, or provenance.`;
+
+const REPAIRABLE_CODES = new Set([
+  'MISSING_VISUAL_INTENT', 'MISSING_STORY_FUNCTION',
+  'VISUAL_MOTION_MISMATCH', 'STILLNESS_REASON_REQUIRED', 'BEAT_TOO_LONG',
+  'EVIDENCE_REQUIREMENT', 'INVALID_WORD_RANGE', 'WORD_RANGE_ORDER',
+  'NARRATION_GAP', 'NARRATION_OVERLAP', 'BEAT_TIME_ORDER',
+  'TIMELINE_GAP', 'TIMELINE_OVERLAP',
+]);
+const REPAIRABLE_SCHEMA_CODES = new Set([
+  'SCHEMA_REQUIRED', 'SCHEMA_TYPE', 'SCHEMA_ENUM', 'SCHEMA_TEXT',
+  'SCHEMA_MINIMUM', 'SCHEMA_MIN_ITEMS', 'SCHEMA_UNIQUE',
+]);
+const MODEL_SEQUENCE_FIELDS = new Set([
+  'sequencePurpose', 'directorIntent', 'emotionalStateStart', 'emotionalStateEnd',
+  'knowledgeQuestion', 'knowledgeAnswer', 'createsQuestion', 'motifRefs',
+  'continuityRefs', 'beats',
+]);
+const MODEL_BEAT_FIELDS = new Set([
+  'startWordIndex', 'endWordIndex', 'storyFunction', 'visualIntent', 'visualClass',
+  'visual', 'rhythmIntent', 'intentionalStillness', 'timingExceptionReason',
+  'motionIntent', 'graphics', 'audioDirection', 'evidenceRequirement', 'continuityRefs',
+]);
+const DETERMINISTIC_BEAT_FIELDS = new Set([
+  'beatId', 'sequenceId', 'actKey', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt',
+]);
+const RANGE_SECONDARY_CODES = new Set([
+  'MISSING_NARRATION_EXCERPT', 'INVALID_TIME_RANGE', 'DURATION_MISMATCH',
+]);
 
 function canonicalChannel(value) {
   return typeof value === 'string' ? value.toLowerCase().replace(/[\s_-]/g, '') : '';
@@ -291,6 +324,66 @@ function continuitySummary(actKey, draft) {
   return `${actKey}: ${purposes.join(' | ')}`;
 }
 
+function attributeErrorToAct(error, plan) {
+  let match = /^\/sequences\/(\d+)(?:\/|$)/.exec(error.path || '');
+  if (match) return plan.sequences[Number(match[1])]?.actKey || null;
+  match = /^\/timing\/acts\/(\d+)(?:\/|$)/.exec(error.path || '');
+  if (match) return plan.timing.acts[Number(match[1])]?.actKey || null;
+  return null;
+}
+
+function schemaFieldOwnership(error) {
+  if (!REPAIRABLE_SCHEMA_CODES.has(error.code)) return null;
+  const parts = (error.path || '').split('/').slice(1);
+  if (parts[0] !== 'sequences' || !/^\d+$/.test(parts[1] || '')) return null;
+  if (parts.length < 3) return null;
+  const sequenceField = parts[2];
+  if (sequenceField !== 'beats') {
+    return MODEL_SEQUENCE_FIELDS.has(sequenceField) ? 'model' : 'deterministic';
+  }
+  if (parts.length === 3) return 'model';
+  if (!/^\d+$/.test(parts[3] || '')) return null;
+  if (parts.length < 5) return null;
+  const beatField = parts[4];
+  if (MODEL_BEAT_FIELDS.has(beatField)) return 'model';
+  if (DETERMINISTIC_BEAT_FIELDS.has(beatField)) return 'deterministic';
+  return null;
+}
+
+function classifyRepairErrors(report, plan) {
+  const attributed = new Map();
+  const preliminary = report.errors.map(error => ({ error, actKey: attributeErrorToAct(error, plan) }));
+  const rangeFaultActs = new Set(preliminary.filter(item => item.actKey && ['INVALID_WORD_RANGE', 'WORD_RANGE_ORDER'].includes(item.error.code)).map(item => item.actKey));
+  for (const item of preliminary) {
+    const { error, actKey } = item;
+    const ownership = schemaFieldOwnership(error);
+    const deterministicSchemaSymptom = ownership === 'deterministic'
+      && actKey && rangeFaultActs.has(actKey)
+      && /^\/sequences\/\d+\/beats\/\d+\/(?:startSec|endSec|durationSec|narrationExcerpt)(?:\/|$)/.test(error.path || '');
+    const deterministicCodeSymptom = RANGE_SECONDARY_CODES.has(error.code)
+      && actKey && rangeFaultActs.has(actKey) && /^\/sequences\//.test(error.path || '');
+    if (deterministicSchemaSymptom || deterministicCodeSymptom) continue;
+    const repairable = REPAIRABLE_CODES.has(error.code) || ownership === 'model';
+    if (!actKey || !repairable) {
+      return { nonrepairable: error, byAct: attributed };
+    }
+    if (!attributed.has(actKey)) attributed.set(actKey, []);
+    attributed.get(actKey).push(error);
+  }
+  return { nonrepairable: null, byAct: attributed };
+}
+
+function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt }) {
+  return [
+    `Repair the complete model draft for ${actKey}.`,
+    `Repair attempt: ${attempt}`,
+    `ORIGINAL GENERATION PROMPT:\n${originalPrompt}`,
+    `CURRENT MODEL DRAFT:\n${JSON.stringify(draft)}`,
+    `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
+    'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
+  ].join('\n\n');
+}
+
 async function generateEditPlan({
   script,
   wordTimestamps,
@@ -329,61 +422,66 @@ async function generateEditPlan({
     }
     return anthropic;
   };
-  const finalSequences = [];
-  const priorContext = [];
-  for (const [actKey, voKey] of ACTS) {
-    const act = timing.acts.find(item => item.actKey === actKey);
-    const words = wordsByVo.get(voKey);
-    const prompt = buildActPrompt({
-      script,
-      actKey,
-      words,
-      durationSec: act.durationSec,
-      channelDna,
-      previousContext: priorContext.slice(-2).join('\n'),
-    });
-    const fingerprint = requestFingerprint(prompt);
-    const saved = checkpoint.acts[actKey];
-    let draft;
-    const reusableDraft = saved?.fingerprint === fingerprint
-      && saved.draft
-      && typeof saved.draft === 'object'
-      && !Array.isArray(saved.draft)
-      && typeof saved.draftHash === 'string'
-      && /^[a-f0-9]{64}$/.test(saved.draftHash)
-      && draftFingerprint(saved.draft) === saved.draftHash;
-    if (reusableDraft) {
-      draft = saved.draft;
-    } else {
-      const message = await getClient().messages.create({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: DIRECTOR_STANDARD,
-        messages: [{ role: 'user', content: prompt }],
-      });
-      draft = parseModelJson(message, actKey);
-      if (checkpointPath) {
-        checkpoint.acts[actKey] = { fingerprint, draftHash: draftFingerprint(draft), draft };
-        writeCheckpointAtomic(checkpointPath, checkpoint);
+  const assembleCandidate = async () => {
+    const finalSequences = [], priorContext = [], prompts = new Map();
+    for (const [actKey, voKey] of ACTS) {
+      const act = timing.acts.find(item => item.actKey === actKey);
+      const words = wordsByVo.get(voKey);
+      const prompt = buildActPrompt({ script, actKey, words, durationSec: act.durationSec, channelDna, previousContext: priorContext.slice(-2).join('\n') });
+      const fingerprint = requestFingerprint(prompt);
+      const saved = checkpoint.acts[actKey];
+      const reusableDraft = saved?.fingerprint === fingerprint && saved.draft && typeof saved.draft === 'object'
+        && !Array.isArray(saved.draft) && typeof saved.draftHash === 'string' && /^[a-f0-9]{64}$/.test(saved.draftHash)
+        && draftFingerprint(saved.draft) === saved.draftHash;
+      let draft;
+      if (reusableDraft) draft = saved.draft;
+      else {
+        const message = await getClient().messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system: DIRECTOR_STANDARD, messages: [{ role: 'user', content: prompt }] });
+        draft = parseModelJson(message, actKey);
+        checkpoint.acts[actKey] = { fingerprint, draftHash: draftFingerprint(draft), draft, repairAttempts: 0 };
+        if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
       }
+      prompts.set(actKey, prompt);
+      finalSequences.push(...finaliseActDraft({ draft, act, words }));
+      priorContext.push(continuitySummary(actKey, draft));
     }
-    finalSequences.push(...finaliseActDraft({ draft, act, words }));
-    priorContext.push(continuitySummary(actKey, draft));
-  }
-
-  const plan = {
-    schemaVersion: '3.0.0',
-    pipelineVersion: 3,
-    channel: 'EmpireOmitted',
-    episodeId: episodeId.trim(),
-    title: String(script.title || script.topic || '').trim(),
-    timing,
-    sequences: finalSequences,
+    return {
+      plan: { schemaVersion: '3.0.0', pipelineVersion: 3, channel: 'EmpireOmitted', episodeId: episodeId.trim(), title: String(script.title || script.topic || '').trim(), timing, sequences: finalSequences },
+      prompts,
+    };
   };
-  const validation = validateEditPlan({ plan, wordTimestamps, outputDir });
-  if (validation.status !== 'PASS') {
-    throw new Error(`[edit-plan] Generated plan failed validation (${validation.errors.length} error(s)): ${validation.errors.map(item => item.code).join(', ')}`);
+
+  let candidate;
+  while (true) {
+    candidate = await assembleCandidate();
+    const validation = validateEditPlan({ plan: candidate.plan, wordTimestamps, outputDir });
+    if (validation.status === 'PASS') break;
+    const classification = classifyRepairErrors(validation, candidate.plan);
+    if (classification.nonrepairable) {
+      throw new Error(`[edit-plan] Nonrepairable validation error ${classification.nonrepairable.code} at ${classification.nonrepairable.path}: ${classification.nonrepairable.message}`);
+    }
+    const actKey = ACTS.map(([key]) => key).find(key => classification.byAct.has(key));
+    if (!actKey) throw new Error('[edit-plan] Validation failed without a safely attributable repair target.');
+    const entry = checkpoint.acts[actKey];
+    const attempts = Number.isSafeInteger(entry?.repairAttempts) && entry.repairAttempts >= 0 ? entry.repairAttempts : 0;
+    const errors = classification.byAct.get(actKey);
+    if (attempts >= MAX_REPAIR_ATTEMPTS_PER_ACT) {
+      throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
+    }
+    entry.repairAttempts = attempts + 1;
+    if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
+    const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: candidate.prompts.get(actKey), draft: entry.draft, errors, attempt: entry.repairAttempts });
+    const message = await getClient().messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system: REPAIR_STANDARD, messages: [{ role: 'user', content: repairPrompt }] });
+    const repaired = parseModelJson(message, `${actKey} repair`);
+    const repairedHash = draftFingerprint(repaired);
+    if (repairedHash === entry.draftHash) {
+      throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${entry.repairAttempts}.`);
+    }
+    entry.draft = repaired;
+    entry.draftHash = repairedHash;
+    if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
   }
+  const plan = candidate.plan;
   if (outputDir) {
     fs.mkdirSync(outputDir, { recursive: true });
     fs.writeFileSync(path.join(outputDir, 'edit-plan.json'), JSON.stringify(plan, null, 2) + '\n', 'utf8');
@@ -395,4 +493,5 @@ async function generateEditPlan({
 module.exports = {
   generateEditPlan,
   MODEL,
+  _classifyRepairErrors: classifyRepairErrors,
 };
