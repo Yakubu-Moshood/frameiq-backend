@@ -48,6 +48,7 @@ function fixture() {
         visualClass: 'RECONSTRUCTION', rhythmIntent: 'building',
         visual: { type: 'CLIP', description: 'A bank employee studies the target board.', motionType: 'lateral_track', secondaryAction: 'Employee turns toward the customer.' },
         intentionalStillness: false, timingExceptionReason: null,
+        postNarrationHoldSec: 0, reconstructionMode: 'representative',
         motionIntent: { type: 'lateral_track', secondaryAction: 'Employee turns toward the waiting customer.' },
         graphics: [], continuityRefs: [],
         evidenceRequirement: {
@@ -58,7 +59,7 @@ function fixture() {
       })),
     };
   });
-  return { plan: { schemaVersion: '3.0.0', pipelineVersion: 3, channel: 'EmpireOmitted', episodeId: 'TEST', title: 'The target', timing: { basis: 'finished_vo_word_timestamps', totalDurationSec: 16, acts }, sequences }, wordTimestamps };
+  return { plan: { schemaVersion: '3.1.0', pipelineVersion: 3, channel: 'EmpireOmitted', episodeId: 'TEST', title: 'The target', timing: { basis: 'finished_vo_word_timestamps', totalDurationSec: 16, acts }, sequences }, wordTimestamps };
 }
 const beats = f => f.plan.sequences[0].beats;
 function fail(f, code) {
@@ -82,6 +83,8 @@ test('valid multi-act plan passes with exact metrics and no input mutation', () 
     totalDurationSec: 16, totalSequences: 2, totalBeats: 4,
     averageBeatDurationSec: 4, longestBeatDurationSec: 4, longestNormalBeatDurationSec: 4,
     timingExceptionCount: 0, intentionalStillnessCount: 0,
+    plannedEditorialHoldSec: 0, projectedCompiledDurationSec: 16,
+    averageSequenceDurationSec: 8, shortSequenceCount: 0, evidenceFunctionWithoutSourceCount: 0, missingStoryActionCount: 0,
     narrationCoveragePercent: 100, timelineCoveragePercent: 100,
     narrationGapCount: 0, narrationOverlapCount: 0, timelineGapCount: 0, timelineOverlapCount: 0,
     missingStoryFunctionCount: 0, missingNarrationExcerptCount: 0, unresolvedVisualIntentCount: 0,
@@ -132,16 +135,59 @@ test('intentional stillness requires a nonblank reason even for a normal beat', 
   const f = fixture(); Object.assign(beats(f)[0], { intentionalStillness: true, timingExceptionReason: '   ' });
   fail(f, 'STILLNESS_REASON_REQUIRED');
   beats(f)[0].timingExceptionReason = 'Hold on the human consequence.';
+  beats(f)[0].visual.motionType = 'static_locked'; beats(f)[0].motionIntent.type = 'static_locked';
   const r = validate(f);
   assert.equal(r.status, 'PASS');
   assert.equal(r.metrics.intentionalStillnessCount, 1);
 });
 test('EVIDENCE fails without meaningful requirements; pending source needs no URL', () => {
-  const f = fixture(); beats(f)[0].visualClass = 'EVIDENCE';
+  const f = fixture(); beats(f)[0].visualClass = 'EVIDENCE'; beats(f)[0].reconstructionMode = null;
   fail(f, 'EVIDENCE_REQUIREMENT');
   beats(f)[0].evidenceRequirement = { required: true, evidenceType: 'regulatory_filing', description: 'The finding that documents the sales targets.', sourceStatus: 'pending', rightsStatus: 'unknown', authenticityStatus: 'pending_review', citationLabel: null, humanReviewRequired: true };
   assert.equal(validate(f).status, 'PASS');
 });
+test('editorial holds extend projected compilation only and require a reason', () => {
+  const f = fixture(); const b = beats(f)[0]; b.postNarrationHoldSec = 1.5;
+  assert.equal(validate(f).status, 'FAIL');
+  b.timingExceptionReason = 'Hold on the zero frame.';
+  const r = validate(f); assert.equal(r.status, 'PASS');
+  assert.equal(r.metrics.plannedEditorialHoldSec, 1.5);
+  assert.equal(r.metrics.projectedCompiledDurationSec, 17.5);
+  assert.equal(b.startSec, 0); assert.equal(b.endSec, 4);
+});
+test('static camera is distinct from intentional stillness and reconstruction mode is explicit', () => {
+  const f = fixture(); const b = beats(f)[0]; b.visual.motionType = 'static_locked'; b.motionIntent.type = 'static_locked';
+  assert.equal(validate(f).status, 'PASS');
+  b.intentionalStillness = true; assert.equal(validate(f).status, 'FAIL');
+  b.timingExceptionReason = 'Held silence is the editorial turn.'; assert.equal(validate(f).status, 'PASS');
+});
+test('evidence story function without evidence class is warned', () => {
+  const f = fixture(); beats(f)[0].storyFunction = 'evidence';
+  const r = validate(f); assert.equal(r.status, 'PASS');
+  assert.equal(r.metrics.evidenceFunctionWithoutSourceCount, 1);
+  assert.ok(r.warnings.some(w => w.code === 'EVIDENCE_FUNCTION_WITHOUT_SOURCE'));
+});
+test('canonical hold field is required', () => { const f=fixture(); delete beats(f)[0].postNarrationHoldSec; assert.equal(validate(f).status,'FAIL'); });
+test('canonical reconstruction field is required', () => { const f=fixture(); delete beats(f)[0].reconstructionMode; assert.equal(validate(f).status,'FAIL'); });
+test('justified short beat counts once', () => { const f=fixture(); const b=beats(f)[0]; b.endWordIndex=0;b.endSec=1.5;b.durationSec=1.5;b.timingExceptionReason='impact'; const r=validate(f); assert.equal(r.metrics.timingExceptionCount,1); });
+test('unjustified short beat is hard error', () => { const f=fixture(); const b=beats(f)[0]; b.endWordIndex=0;b.endSec=1.5;b.durationSec=1.5; assert.equal(validate(f).errors.some(e=>e.code==='BEAT_TOO_SHORT'),true); });
+test('justified 2 second beat has no target warning', () => { const f=fixture(); const b=beats(f)[0]; b.endWordIndex=1;b.endSec=2;b.durationSec=2;b.timingExceptionReason='impact'; const r=validate(f);assert.equal(r.metrics.timingExceptionCount,1);assert.equal(r.warnings.some(w=>w.code==='TARGET_DURATION'),false); });
+test('unjustified 2 second beat warns without exception count', () => { const f=fixture(); const b=beats(f)[0]; b.endWordIndex=1;b.endSec=2;b.durationSec=2; const r=validate(f);assert.equal(r.metrics.timingExceptionCount,0);assert.equal(r.warnings.some(w=>w.code==='TARGET_DURATION'),true); });
+test('justified 5.5 to 6 second beat counts once', () => { const f=fixture(); const b=beats(f)[0]; b.endWordIndex=7;b.endSec=6;b.durationSec=6;b.timingExceptionReason='hold'; const r=validate(f);assert.equal(r.metrics.timingExceptionCount,1); });
+test('normal beat with hold counts once and projects duration', () => { const f=fixture(); beats(f)[0].postNarrationHoldSec=2;beats(f)[0].timingExceptionReason='silence'; const r=validate(f);assert.equal(r.metrics.timingExceptionCount,1);assert.equal(r.metrics.projectedCompiledDurationSec,18); });
+test('normal intentional stillness counts once', () => { const f=fixture(); const b=beats(f)[0];b.visual.motionType='static_locked';b.motionIntent.type='static_locked';b.intentionalStillness=true;b.timingExceptionReason='aftermath'; const r=validate(f);assert.equal(r.metrics.timingExceptionCount,1); });
+test('multiple exception conditions count once', () => { const f=fixture(); const b=beats(f)[0];b.endWordIndex=0;b.endSec=1.5;b.durationSec=1.5;b.postNarrationHoldSec=1;b.visual.motionType='static_locked';b.motionIntent.type='static_locked';b.intentionalStillness=true;b.timingExceptionReason='impact'; assert.equal(validate(f).metrics.timingExceptionCount,1); });
+test('unnecessary timing reason warns and does not count', () => { const f=fixture();beats(f)[0].timingExceptionReason='ordinary';const r=validate(f);assert.equal(r.metrics.timingExceptionCount,0);assert.equal(r.warnings.some(w=>w.code==='UNNECESSARY_TIMING_EXCEPTION'),true); });
+test('representative reconstruction clip without action warns', () => { const f=fixture();const b=beats(f)[0];b.visual.secondaryAction=null;b.motionIntent.secondaryAction=undefined;const r=validate(f);assert.equal(r.warnings.some(w=>w.code==='MISSING_STORY_ACTION'),true); });
+test('atmospheric reconstruction clip is exempt', () => { const f=fixture();const b=beats(f)[0];b.reconstructionMode='atmospheric';b.visual.secondaryAction=null;b.motionIntent.secondaryAction=undefined;assert.equal(validate(f).warnings.some(w=>w.code==='MISSING_STORY_ACTION'),false); });
+test('reconstruction still is exempt from story action warning', () => { const f=fixture();const b=beats(f)[0];b.visual.type='STILL';b.visual.secondaryAction=null;b.motionIntent.secondaryAction=undefined;assert.equal(validate(f).warnings.some(w=>w.code==='MISSING_STORY_ACTION'),false); });
+test('reconstruction still zoom is exempt from story action warning', () => { const f=fixture();const b=beats(f)[0];b.visual.type='STILL_ZOOM';b.visual.secondaryAction=null;b.motionIntent.secondaryAction=undefined;assert.equal(validate(f).warnings.some(w=>w.code==='MISSING_STORY_ACTION'),false); });
+test('intentional stillness clip is exempt from story action warning', () => { const f=fixture();const b=beats(f)[0];b.visual.secondaryAction=null;b.motionIntent.secondaryAction=undefined;b.visual.motionType='static_locked';b.motionIntent.type='static_locked';b.intentionalStillness=true;b.timingExceptionReason='hold';assert.equal(validate(f).warnings.some(w=>w.code==='MISSING_STORY_ACTION'),false); });
+test('ordinary one beat sequence warns thinness', () => { const f=fixture();f.plan.sequences[0].beats=f.plan.sequences[0].beats.slice(0,1); const r=validate(f);assert.equal(r.metrics.shortSequenceCount>0,true); });
+test('orientation sequence is thinness exempt', () => { const f=fixture();f.plan.sequences[0].beats=f.plan.sequences[0].beats.slice(0,1);f.plan.sequences[0].beats[0].storyFunction='orientation';assert.equal(validate(f).warnings.some(w=>w.code==='SEQUENCE_TOO_THIN'),false); });
+test('payoff sequence is thinness exempt', () => { const f=fixture();f.plan.sequences[0].beats=f.plan.sequences[0].beats.slice(0,1);f.plan.sequences[0].beats[0].storyFunction='payoff';assert.equal(validate(f).warnings.some(w=>w.code==='SEQUENCE_TOO_THIN'),false); });
+test('emotional hold sequence is thinness exempt', () => { const f=fixture();f.plan.sequences[0].beats=f.plan.sequences[0].beats.slice(0,1);f.plan.sequences[0].beats[0].storyFunction='emotional_hold';assert.equal(validate(f).warnings.some(w=>w.code==='SEQUENCE_TOO_THIN'),false); });
+test('impact sequence is thinness exempt', () => { const f=fixture();f.plan.sequences[0].beats=f.plan.sequences[0].beats.slice(0,1);f.plan.sequences[0].beats[0].rhythmIntent='impact';assert.equal(validate(f).warnings.some(w=>w.code==='SEQUENCE_TOO_THIN'),false); });
 test('duplicate beat IDs across acts fail', () => {
   const f = fixture(); f.plan.sequences[1].beats[0].beatId = beats(f)[0].beatId;
   fail(f, 'DUPLICATE_BEAT_ID');

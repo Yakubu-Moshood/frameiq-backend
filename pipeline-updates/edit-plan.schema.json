@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Empire Omitted Director's Edit Plan 3.0.0",
-  "description": "Renderer-neutral creative intent. Word indices are zero-based, act-local and inclusive. Sequences and beats are in playback order. Semantic constraints are checked by edit-plan-validator.cjs.",
+  "title": "Empire Omitted Director's Edit Plan 3.1.0",
+  "description": "Renderer-neutral creative intent. Word indices are zero-based, act-local and inclusive. startSec/endSec/durationSec describe the finished narration clock; postNarrationHoldSec is future timeline-compilation intent and final compiled positions are not part of this plan.",
   "$comment": "Timing tolerance is 0.001 seconds. A beat starts at act.startSec for word 0, otherwise at act.startSec + its first word's start_seconds. It ends at the next word's start_seconds plus act.startSec, or act.endSec for the final word. Thus leading silence belongs to the first beat, inter-word silence to the preceding beat, and trailing silence to the last. Act durations must come from finished audio, not the final word end or script estimates. This version requires at least one timed word per act; wholly silent acts require a future contract decision.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "pipelineVersion", "channel", "episodeId", "title", "timing", "sequences"],
   "properties": {
-    "schemaVersion": { "const": "3.0.0" },
+    "schemaVersion": { "const": "3.1.0" },
     "pipelineVersion": { "const": 3 },
     "channel": { "const": "EmpireOmitted" },
     "episodeId": { "$ref": "#/$defs/text" },
@@ -67,7 +67,7 @@
     "beat": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["beatId", "sequenceId", "actKey", "startWordIndex", "endWordIndex", "startSec", "endSec", "durationSec", "narrationExcerpt", "storyFunction", "visualIntent", "visualClass", "visual", "rhythmIntent", "intentionalStillness", "timingExceptionReason", "motionIntent", "graphics", "evidenceRequirement", "continuityRefs"],
+      "required": ["beatId", "sequenceId", "actKey", "startWordIndex", "endWordIndex", "startSec", "endSec", "durationSec", "narrationExcerpt", "storyFunction", "visualIntent", "visualClass", "visual", "rhythmIntent", "intentionalStillness", "timingExceptionReason", "postNarrationHoldSec", "reconstructionMode", "motionIntent", "graphics", "evidenceRequirement", "continuityRefs"],
       "properties": {
         "beatId": { "$ref": "#/$defs/text" },
         "sequenceId": { "$ref": "#/$defs/text" },
@@ -96,6 +96,8 @@
         "rhythmIntent": { "enum": ["measured", "building", "accelerating", "fractured", "suspended", "reflective", "impact"] },
         "intentionalStillness": { "type": "boolean" },
         "timingExceptionReason": { "$ref": "#/$defs/optionalText" },
+        "postNarrationHoldSec": { "$ref": "#/$defs/seconds" },
+        "reconstructionMode": { "$ref": "#/$defs/reconstructionMode" },
         "motionIntent": {
           "type": "object",
           "additionalProperties": false,
@@ -138,6 +140,7 @@
       }
     },
     "motionType": { "enum": ["dolly_forward", "dolly_back", "lateral_track", "crane_rise", "crane_descend", "tilt_reveal", "rack_focus", "foreground_parallax", "controlled_handheld", "static_locked", "subject_micro_action", "environmental_motion", "document_reveal", "object_action", "silhouette_movement"] },
+    "reconstructionMode": { "enum": [null, "literal_supported", "representative", "atmospheric"] },
     "evidenceRequirement": {
       "description": "EVIDENCE beats require required=true and nonblank evidenceType/description. Statuses may remain pending or unknown; this is planning, not source clearance. citationLabel may be null until retrieval. No URL is required.",
       "type": "object",

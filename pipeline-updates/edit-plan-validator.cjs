@@ -119,6 +119,8 @@ function validateEditPlan({ plan, wordTimestamps, outputDir } = {}) {
     totalSequences: sequences.length, totalBeats: 0,
     averageBeatDurationSec: 0, longestBeatDurationSec: 0, longestNormalBeatDurationSec: 0,
     timingExceptionCount: 0, intentionalStillnessCount: 0,
+    plannedEditorialHoldSec: 0, projectedCompiledDurationSec: finite(timing.totalDurationSec) ? timing.totalDurationSec : 0,
+    averageSequenceDurationSec: 0, shortSequenceCount: 0, evidenceFunctionWithoutSourceCount: 0, missingStoryActionCount: 0,
     narrationCoveragePercent: 0, timelineCoveragePercent: 0,
     narrationGapCount: 0, narrationOverlapCount: 0, timelineGapCount: 0, timelineOverlapCount: 0,
     missingStoryFunctionCount: 0, missingNarrationExcerptCount: 0, unresolvedVisualIntentCount: 0,
@@ -204,28 +206,48 @@ function validateEditPlan({ plan, wordTimestamps, outputDir } = {}) {
       if (Object.hasOwn(metrics.visualClassCounts, beat.visualClass)) metrics.visualClassCounts[beat.visualClass]++;
       if (Object.hasOwn(metrics.storyFunctionCounts, beat.storyFunction)) metrics.storyFunctionCounts[beat.storyFunction]++;
       const justified = text(beat.timingExceptionReason);
+      const hold = finite(beat.postNarrationHoldSec) ? beat.postNarrationHoldSec : 0;
+      metrics.plannedEditorialHoldSec += hold;
+      if (hold > EPSILON && !justified) error('HOLD_REASON_REQUIRED', bp, 'postNarrationHoldSec above zero needs timingExceptionReason.');
+      if (hold > 3) warn('LONG_EDITORIAL_HOLD', bp, 'Editorial hold is unusually long.');
       if (beat.intentionalStillness === true) {
         metrics.intentionalStillnessCount++;
         if (!justified) error('STILLNESS_REASON_REQUIRED', bp, 'Intentional stillness needs an explicit reason.');
+        if (beat.visual?.motionType !== 'static_locked') error('STILLNESS_MOTION_REQUIRED', bp, 'Intentional stillness requires static_locked motion.');
       }
       if (span(beat)) {
         const duration = beat.endSec - beat.startSec;
         durationSum += duration; durationCount++;
         metrics.longestBeatDurationSec = Math.max(metrics.longestBeatDurationSec, duration);
+        const actualException = duration < 3.5 - EPSILON || duration > 5.5 + EPSILON || hold > EPSILON || beat.intentionalStillness === true;
+        if (actualException && justified) metrics.timingExceptionCount++;
         if (duration > 6 + EPSILON) {
           if (!justified) error('BEAT_TOO_LONG', bp, 'A beat above 6 seconds needs an explicit timingExceptionReason.');
-          else { metrics.timingExceptionCount++; warn('TIMING_EXCEPTION', bp, 'Justified beat exceeds the normal 6-second maximum.'); }
+          else warn('TIMING_EXCEPTION', bp, 'Justified beat exceeds the normal 6-second maximum.');
         } else {
           metrics.longestNormalBeatDurationSec = Math.max(metrics.longestNormalBeatDurationSec, duration);
-          if (duration < 3.5 - EPSILON || duration > 5.5 + EPSILON) warn('TARGET_DURATION', bp, 'Beat is outside the normal 3.5–5.5 second target.');
+          if (duration < 2 - EPSILON) {
+            if (!justified && hold <= EPSILON) error('BEAT_TOO_SHORT', bp, 'A beat below 2 seconds needs an explicit timingExceptionReason.');
+          } else if ((duration < 3.5 - EPSILON || duration > 5.5 + EPSILON) && !justified) warn('TARGET_DURATION', bp, 'Beat is outside the normal 3.5–5.5 second target.');
         }
       }
+      if (beat.storyFunction === 'evidence' && beat.visualClass !== 'EVIDENCE') metrics.evidenceFunctionWithoutSourceCount++, warn('EVIDENCE_FUNCTION_WITHOUT_SOURCE', bp, 'Evidence story function is not using an EVIDENCE visual class.');
+      if (beat.visualClass === 'RECONSTRUCTION' && !['literal_supported', 'representative', 'atmospheric'].includes(beat.reconstructionMode)) error('RECONSTRUCTION_MODE_REQUIRED', bp, 'RECONSTRUCTION requires a supported reconstructionMode.');
+      if (beat.visualClass !== 'RECONSTRUCTION' && beat.reconstructionMode !== null && beat.reconstructionMode !== undefined) error('RECONSTRUCTION_MODE_FORBIDDEN', bp, 'Only RECONSTRUCTION beats may set reconstructionMode.');
+      const hasStoryAction = text(beat.visual?.secondaryAction) || text(beat.motionIntent?.secondaryAction) || (Array.isArray(beat.graphics) && beat.graphics.length > 0);
+      if (beat.visualClass === 'RECONSTRUCTION' && beat.visual?.type === 'CLIP' && beat.reconstructionMode !== 'atmospheric' && beat.intentionalStillness !== true && !hasStoryAction) metrics.missingStoryActionCount++, warn('MISSING_STORY_ACTION', bp, 'Reconstruction should describe meaningful story action.');
+      if (justified && !((span(beat) && ((beat.endSec - beat.startSec) < 3.5 - EPSILON || (beat.endSec - beat.startSec) > 5.5 + EPSILON)) || hold > EPSILON || beat.intentionalStillness === true)) warn('UNNECESSARY_TIMING_EXCEPTION', bp, 'Timing exception reason is not attached to an actual exception.');
       const evidence = beat.evidenceRequirement;
       if (beat.visualClass === 'EVIDENCE' && (!object(evidence) || evidence.required !== true || !text(evidence.evidenceType) || !text(evidence.description) || ['sourceStatus', 'rightsStatus', 'authenticityStatus'].some(k => !text(evidence[k]) || evidence[k] === 'not_applicable'))) {
         error('EVIDENCE_REQUIREMENT', bp, 'EVIDENCE needs a required source, meaningful subtype/description and applicable source, rights and authenticity statuses.');
       }
       if (entry && beat.actKey === sequence.actKey && beat.sequenceId === sequence.sequenceId) entry.beats.push({ beat, path: bp });
     });
+    const sequenceDuration = array(sequence.beats).reduce((sum, beat) => sum + (finite(beat?.durationSec) ? beat.durationSec : 0), 0);
+    const exemptThin = ['orientation', 'payoff', 'emotional_hold'].includes(sequence.beats?.[0]?.storyFunction)
+      || sequence.beats?.some(beat => beat?.intentionalStillness === true || beat?.rhythmIntent === 'impact');
+    if (!exemptThin && (sequence.beats?.length === 1 || sequenceDuration < 3.5 - EPSILON)) metrics.shortSequenceCount++, warn('SEQUENCE_TOO_THIN', location, 'Sequence is unusually short or structurally thin.');
+    metrics._sequenceDurationSum = (metrics._sequenceDurationSum || 0) + sequenceDuration;
   });
 
   let coveredWords = 0;
@@ -282,6 +304,9 @@ function validateEditPlan({ plan, wordTimestamps, outputDir } = {}) {
   const episodeCoverage = coverage(episodeIntervals, 0, timing.totalDurationSec, EPSILON);
   metrics.timelineCoveragePercent = timing.totalDurationSec > 0 && finite(timing.totalDurationSec) ? Math.min(100, episodeCoverage.covered / timing.totalDurationSec * 100) : 0;
   metrics.averageBeatDurationSec = durationCount ? durationSum / durationCount : 0;
+  metrics.averageSequenceDurationSec = sequences.length ? (metrics._sequenceDurationSum || 0) / sequences.length : 0;
+  delete metrics._sequenceDurationSum;
+  metrics.projectedCompiledDurationSec = metrics.totalDurationSec + metrics.plannedEditorialHoldSec;
   const report = { status: errors.length ? 'FAIL' : 'PASS', errors, warnings, metrics };
   if (outputDir !== undefined) {
     fs.mkdirSync(outputDir, { recursive: true });

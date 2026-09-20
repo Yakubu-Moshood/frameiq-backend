@@ -9,7 +9,7 @@ const schema = require('./edit-plan.schema.json');
 const MODEL = 'claude-opus-4-5';
 const MAX_TOKENS = 16000;
 const TIMING_EPSILON = 0.001;
-const CHECKPOINT_VERSION = 2;
+const CHECKPOINT_VERSION = 3;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
 const ACTS = [
@@ -42,14 +42,17 @@ Keep people central: who benefits, knows, obeys, resists, and pays the price. Gu
 Preserve geometry: no morphing, warping, uncontrolled orbit, or unnecessary autonomous movement. Use one approved primary motion and, where useful, one meaningful secondary story action. Approved motion types: dolly_forward, dolly_back, lateral_track, crane_rise, crane_descend, tilt_reveal, rack_focus, foreground_parallax, controlled_handheld, static_locked, subject_micro_action, environmental_motion, document_reveal, object_action, silhouette_movement.
 
 Use graphics selectively and only as: identity_lower_third, source_citation, impact_card, date_marker, data_graphic, direct_quote, document_callout, chapter_marker, takeaway. Reserve impact typography for major facts. Audio direction is creative intent only; it may express music, SFX, room tone, or meaningful silence, but never timeline automation.`;
+// The Director chooses semantic editorial units, not mechanical word slices.
+const DIRECTOR_CALIBRATION = `A beat is one coherent editorial idea, reveal, action, contrast, or emotional turn. Keep adjacent list items and short clauses that belong to one idea in one beat; do not create a new beat for every comma or noun fragment. A sequence is a sustained editorial idea with related beats and an audience transformation. Decide what changes inside the frame before choosing camera motion; story action, human behaviour, object interaction, document behaviour, environmental change, and graphic transformation outrank decorative camera movement. When narration presents a quantitative, legal, regulatory, official, documentary, quoted, historically recorded, or otherwise externally provable claim, FIRST ask: “Should authentic material prove this claim?” If yes, use visualClass EVIDENCE and provide evidenceRequirement. Never use EDITORIAL_ILLUSTRATION to fabricate an official memo, filing, termination document, report, newspaper front page, financial terminal, testimony record, quote card, regulatory document, or court document when the purpose is to prove the claim. Editorial graphics may explain or contextualise evidence but must not impersonate authentic source material. Never invent URLs, quotations, source names, publication names, filing numbers, provenance, or document wording unless supplied in source context. literal_supported means the specific physical action, object, interaction, location or procedure is explicitly supported by narration or supplied source context; do not use it merely because the reconstruction looks plausible. representative means the underlying situation is supported but exact staging is unknown, so communicate it generically without implying the precise action, person, location, procedure, object or interface is verified. atmospheric means human or location atmosphere only and does not assert a specific factual action. Never default mentally to representative; choose reconstructionMode from what the available source context actually supports, and do not upgrade unsupported action to literal_supported. intentionalStillness=true means absence of visual movement is itself the editorial decision, suitable for emotional aftermath, evidence reading, major reveal, final impact, or breathing room; it requires static_locked and a meaningful timingExceptionReason. static_locked alone does not mean intentionalStillness: locked framing may contain human, object, environmental, or graphic/document action. postNarrationHoldSec may coexist with intentionalStillness and represents future silence after narration; it never changes the narration clock.`;
 
 const REPAIR_STANDARD = `${DIRECTOR_STANDARD}
+${DIRECTOR_CALIBRATION}
 
 Repair only the reported editorial planning errors. Return the complete replacement compact MODEL DRAFT for the specified act as JSON only, never a patch. Preserve strong valid choices. Supply only creative planning fields and narration word indices; omit mechanical defaults when unused. Do not output motionIntent, final timestamps, durations, narrationExcerpt, sequenceId, beatId, actKey, renderer tracks, filenames, FFmpeg, or DaVinci instructions. For long beats, split adjacent narration coverage unless a hold is genuinely justified. Never invent evidence URLs, sources, quotations, or provenance.`;
 
 const REPAIRABLE_CODES = new Set([
   'MISSING_VISUAL_INTENT', 'MISSING_STORY_FUNCTION',
-  'VISUAL_MOTION_MISMATCH', 'STILLNESS_REASON_REQUIRED', 'BEAT_TOO_LONG',
+  'VISUAL_MOTION_MISMATCH', 'STILLNESS_REASON_REQUIRED', 'STILLNESS_MOTION_REQUIRED', 'BEAT_TOO_LONG', 'BEAT_TOO_SHORT', 'HOLD_REASON_REQUIRED', 'RECONSTRUCTION_MODE_REQUIRED', 'RECONSTRUCTION_MODE_FORBIDDEN',
   'EVIDENCE_REQUIREMENT', 'INVALID_WORD_RANGE', 'WORD_RANGE_ORDER',
   'NARRATION_GAP', 'NARRATION_OVERLAP', 'BEAT_TIME_ORDER',
   'TIMELINE_GAP', 'TIMELINE_OVERLAP',
@@ -65,7 +68,7 @@ const MODEL_SEQUENCE_FIELDS = new Set([
 ]);
 const MODEL_BEAT_FIELDS = new Set([
   'startWordIndex', 'endWordIndex', 'storyFunction', 'visualIntent', 'visualClass',
-  'visual', 'rhythmIntent', 'intentionalStillness', 'timingExceptionReason',
+  'visual', 'rhythmIntent', 'intentionalStillness', 'timingExceptionReason', 'postNarrationHoldSec', 'reconstructionMode',
   'motionIntent', 'graphics', 'audioDirection', 'evidenceRequirement', 'continuityRefs',
 ]);
 const DETERMINISTIC_BEAT_FIELDS = new Set([
@@ -82,6 +85,7 @@ const APPROVED_VOCABULARIES = {
   motionType: schema.$defs.motionType.enum,
   graphicsType: schema.$defs.beat.properties.graphics.items.properties.type.enum,
   musicEvent: schema.$defs.beat.properties.audioDirection.properties.musicEvent.enum,
+  reconstructionMode: ['literal_supported', 'representative', 'atmospheric'],
 };
 
 function canonicalChannel(value) {
@@ -262,11 +266,12 @@ function buildActPrompt({ script, actKey, words, durationSec, channelDna, previo
     `Indexed act-local timed words:\n${JSON.stringify(indexedWords)}`,
     `Safe creative Channel DNA:\n${JSON.stringify(creativeDna(channelDna))}`,
     `Approved vocabularies (do not invent synonyms): ${JSON.stringify(APPROVED_VOCABULARIES)}`,
+    DIRECTOR_CALIBRATION,
     previousContext ? `Previous-act continuity context:\n${previousContext}` : '',
     `Return JSON only as a compact model draft. Example:
-{"sequences":[{"sequencePurpose":"Establish the mechanism.","directorIntent":"Show how pressure reaches an employee.","beats":[{"startWordIndex":0,"endWordIndex":12,"storyFunction":"establish","visualIntent":"An employee studies a target board.","visualClass":"RECONSTRUCTION","visual":{"type":"CLIP","description":"An employee studies a target board.","motionType":"dolly_forward"},"rhythmIntent":"measured"}]}]}
+{"sequences":[{"sequencePurpose":"Establish the mechanism.","directorIntent":"Show how pressure reaches an employee.","beats":[{"startWordIndex":0,"endWordIndex":12,"storyFunction":"establish","visualIntent":"An employee studies a target board.","visualClass":"RECONSTRUCTION","reconstructionMode":"representative","visual":{"type":"CLIP","description":"An employee studies a target board.","motionType":"dolly_forward","secondaryAction":"The employee marks the target."},"rhythmIntent":"measured"}]}]}
 For an EVIDENCE beat, optionally add only creative source-request fields such as evidenceRequirement:{"evidenceType":"regulatory filing","description":"The authenticated filing to retrieve","citationLabel":"Filing"}. Include optional creative fields only when meaningful. Do not output defaults, workflow states, motionIntent, IDs, timestamps, durations, narrationExcerpt, renderer fields, or empty graphics/audio objects unless creatively needed.`,
-    'ARCHIVAL, BROLL, STOCK, GRAPHIC, DOCUMENT and similar invented synonyms are invalid. Use EVIDENCE for evidence planning and EDITORIAL_ILLUSTRATION for editorial graphics while keeping visual.type within the approved list. Omit optional values instead of inventing them. Do not output motionIntent. Keep visualIntent and visual.description to one concise sentence; keep sequencePurpose, directorIntent, and emotional fields concise; keep secondaryAction a short phrase or null; do not repeat information across fields. Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
+    'ARCHIVAL, BROLL, STOCK, GRAPHIC, DOCUMENT and similar invented synonyms are invalid. Use EVIDENCE for evidence planning and EDITORIAL_ILLUSTRATION for editorial graphics while keeping visual.type within the approved list. Omit optional values instead of inventing them. Do not output motionIntent. Only emit postNarrationHoldSec or reconstructionMode when relevant. Keep visualIntent and visual.description to one concise sentence; keep sequencePurpose, directorIntent, and emotional fields concise; keep secondaryAction a short phrase or null; do not repeat information across fields. Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
   ].filter(Boolean).join('\n\n');
 }
 
@@ -287,7 +292,7 @@ function validateActDraft({ draft, act, words, episodeId }) {
     endSec: act.durationSec, durationSec: act.durationSec, wordCount: words.length,
   };
   const plan = {
-    schemaVersion: '3.0.0', pipelineVersion: 3, channel: 'EmpireOmitted',
+    schemaVersion: '3.1.0', pipelineVersion: 3, channel: 'EmpireOmitted',
     episodeId, title: 'Act validation',
     timing: { basis: 'finished_vo_word_timestamps', totalDurationSec: act.durationSec, acts: [localAct] },
     sequences: finaliseActDraft({ draft, act: { ...act, startSec: 0, endSec: act.durationSec }, words }),
@@ -304,7 +309,7 @@ function pick(source, keys) {
 function projectBeatIntent(draft) {
   const intent = pick(draft, [
     'storyFunction', 'visualIntent', 'visualClass', 'rhythmIntent',
-    'intentionalStillness', 'timingExceptionReason', 'continuityRefs',
+    'intentionalStillness', 'timingExceptionReason', 'postNarrationHoldSec', 'reconstructionMode', 'continuityRefs',
   ]);
   if (Object.hasOwn(draft || {}, 'visual')) {
     intent.visual = pick(draft.visual, ['type', 'description', 'motionType', 'secondaryAction']);
@@ -370,6 +375,8 @@ function finaliseBeat({ draft, act, words, sequenceId, beatNumber }) {
     ...projectBeatIntent(draft),
     intentionalStillness: draft.intentionalStillness ?? false,
     timingExceptionReason: draft.timingExceptionReason ?? null,
+    postNarrationHoldSec: Object.hasOwn(draft || {}, 'postNarrationHoldSec') ? draft.postNarrationHoldSec : 0,
+    reconstructionMode: Object.hasOwn(draft || {}, 'reconstructionMode') ? draft.reconstructionMode : null,
     continuityRefs: Array.isArray(draft.continuityRefs) ? draft.continuityRefs : [],
   };
   return beat;
@@ -574,7 +581,7 @@ async function generateEditPlan({
       priorContext.push(continuitySummary(actKey, draft));
     }
     return {
-      plan: { schemaVersion: '3.0.0', pipelineVersion: 3, channel: 'EmpireOmitted', episodeId: episodeId.trim(), title: String(script.title || script.topic || '').trim(), timing, sequences: finalSequences },
+      plan: { schemaVersion: '3.1.0', pipelineVersion: 3, channel: 'EmpireOmitted', episodeId: episodeId.trim(), title: String(script.title || script.topic || '').trim(), timing, sequences: finalSequences },
       prompts,
     };
   };

@@ -59,10 +59,12 @@ function beat(first = 0, last = 2, overrides = {}) {
     storyFunction: 'establish',
     visualIntent: 'Show a connected human action that establishes the mechanism.',
     visualClass: 'RECONSTRUCTION',
+    reconstructionMode: 'representative',
     visual: { type: 'CLIP', description: 'An employee studies a target board.', motionType: 'lateral_track', secondaryAction: 'The employee marks a target.' },
     rhythmIntent: 'measured',
     intentionalStillness: false,
     timingExceptionReason: null,
+    postNarrationHoldSec: 0,
     motionIntent: { type: 'lateral_track', secondaryAction: 'The employee marks a target.' },
     graphics: null,
     audioDirection: { musicCue: 'restrained pulse', musicEvent: null, musicLevelDb: -24, duckUnderVO: true, sfx: ['office room tone'], silenceIntent: null },
@@ -172,7 +174,7 @@ test('first beat absorbs leading silence', async () => {
 });
 
 test('inter-word silence belongs to the preceding beat', async () => {
-  const plan = await generate({}, fakeClient(() => draft({ beats: [beat(0, 0), beat(1, 2)] })));
+  const plan = await generate({}, fakeClient(() => draft({ beats: [beat(0, 0, { timingExceptionReason: 'short impact beat' }), beat(1, 2)] })));
   const [first, second] = plan.sequences[0].beats;
   assert.equal(first.endSec, 1.5);
   assert.equal(second.startSec, 1.5);
@@ -205,7 +207,7 @@ test('act duration shorter than its final timed word fails before model calls', 
 
 test('optional markdown JSON fences parse', async () => {
   const plan = await generate({}, fakeClient(() => draft(), { fenced: true }));
-  assert.equal(plan.schemaVersion, '3.0.0');
+  assert.equal(plan.schemaVersion, '3.1.0');
 });
 
 test('malformed model JSON fails clearly', async () => {
@@ -229,7 +231,7 @@ test('an unjustified beat over six seconds fails through the validator', async (
 
 test('EVIDENCE planning passes with pending statuses and no invented URL', async () => {
   const client = fakeClient(() => draft({ beats: [beat(0, 2, {
-    storyFunction: 'evidence', visualClass: 'EVIDENCE', evidenceRequirement: evidence(true),
+    storyFunction: 'evidence', visualClass: 'EVIDENCE', reconstructionMode: null, evidenceRequirement: evidence(true),
   })] }));
   const plan = await generate({}, client);
   const requirement = plan.sequences[0].beats[0].evidenceRequirement;
@@ -285,7 +287,7 @@ test('changed current word timing rejects an existing plan without model calls o
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-stale-words-'));
   try {
     const data = inputs();
-    const splitBeats = fakeClient(() => draft({ beats: [beat(0, 0), beat(1, 2)] }));
+    const splitBeats = fakeClient(() => draft({ beats: [beat(0, 0, { timingExceptionReason: 'short impact beat' }), beat(1, 2)] }));
     await generateEditPlan({ ...data, outputDir: dir, client: splitBeats });
     const file = path.join(dir, 'edit-plan.json'); const original = fs.readFileSync(file);
     data.wordTimestamps.find(word => word.vo_file === 'VO_Act2' && word.word === 'alpha').start_seconds = 1.75;
@@ -312,7 +314,7 @@ test('approved malformed model fields reach the existing validator and are never
     ['missing visual description', { visual: { type: 'CLIP', motionType: 'lateral_track', secondaryAction: null } }, /SCHEMA_REQUIRED/],
     ['blank visual description', { visual: { ...beat().visual, description: '   ' } }, /SCHEMA_TEXT/],
     ['invalid story function', { storyFunction: 'decorate' }, /SCHEMA_ENUM/],
-    ['malformed evidence requirement', { visualClass: 'EVIDENCE', evidenceRequirement: evidence(false) }, /EVIDENCE_REQUIREMENT/],
+    ['malformed evidence requirement', { visualClass: 'EVIDENCE', reconstructionMode: null, evidenceRequirement: evidence(false) }, /EVIDENCE_REQUIREMENT/],
   ];
   for (const [label, malformed, expected] of cases) {
     const client = fakeClient(() => draft({ beats: [beat(0, 2, malformed)] }));
@@ -742,7 +744,7 @@ test('range-root classification suppresses only deterministic derivative errors 
 test('repair handles overlap, evidence metadata and invalid vocabulary while compact motion is derived', async () => {
   const broken = [
     draft({ beats: [beat(0, 1), beat(1, 2)] }),
-    draft({ beats: [beat(0, 2, { visualClass: 'EVIDENCE', evidenceRequirement: evidence(false) })] }),
+    draft({ beats: [beat(0, 2, { visualClass: 'EVIDENCE', reconstructionMode: null, evidenceRequirement: evidence(false) })] }),
     draft({ beats: [beat(0, 2, { storyFunction: 'invalid' })] }),
   ];
   for (const initial of broken) {
@@ -758,7 +760,7 @@ test('overlong beat is repaired by splitting coverage rather than changing deter
   const client = fakeClient(callIndex => callIndex === 0
     ? draft()
     : callIndex === 1
-      ? draft({ beats: [beat(0, 0), beat(1, 2)] })
+      ? draft({ beats: [beat(0, 0, { timingExceptionReason: 'short impact beat' }), beat(1, 2)] })
       : draft());
   const plan = await generate(data, client);
   assert.equal(client.calls.length, 7);
@@ -931,6 +933,7 @@ test('compact model drafts expand deterministically with safe defaults and schem
         storyFunction: 'establish',
         visualIntent: 'An employee studies a target board.',
         visualClass: 'RECONSTRUCTION',
+        reconstructionMode: 'representative',
         visual: { type: 'CLIP', description: 'An employee studies a target board.', motionType: 'static_locked' },
         rhythmIntent: 'measured',
         audioDirection: {},
@@ -956,7 +959,7 @@ test('compact model drafts expand deterministically with safe defaults and schem
 
 test('compact EVIDENCE drafts retain explicit metadata while defaulting pending safety states', async () => {
   const compact = draft({ beats: [beat(0, 2, {
-    visualClass: 'EVIDENCE',
+    visualClass: 'EVIDENCE', reconstructionMode: null,
     evidenceRequirement: { evidenceType: 'regulatory filing', description: 'Authenticated filing' },
   })] });
   const plan = await generate({}, fakeClient(() => compact));
@@ -966,3 +969,14 @@ test('compact EVIDENCE drafts retain explicit metadata while defaulting pending 
     citationLabel: null, humanReviewRequired: true,
   });
 });
+
+test('checkpoint version 3 is written', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'cp3-')); try { const c=fakeClient(); await assert.rejects(generateEditPlan({...inputs(),outputDir:d,client:{calls:c.calls,messages:{create:async r=>{c.calls.push(r);throw new Error('stop')}}}})); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
+test('version 2 checkpoint is ignored', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'cp2-')); try { fs.writeFileSync(checkpointPath(d),JSON.stringify({checkpointVersion:2,episodeId:'episode-123',channel:'EmpireOmitted',acts:{}})); const c=fakeClient(); await generateEditPlan({...inputs(),outputDir:d,client:c}); assert.equal(c.calls.length,6); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
+test('normal compact path remains six calls', async () => { const c=fakeClient(); await generate({},c); assert.equal(c.calls.length,6); });
+test('compact prompt defines reconstruction modes', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/literal_supported/); assert.match(p,/representative/); assert.match(p,/atmospheric/); });
+test('compact prompt defines stillness distinction', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/static_locked/); assert.match(p,/static_locked alone does not mean intentionalStillness/); });
+test('compact prompt gives operational evidence-first rule', async () => { const c=fakeClient(); await generate({},c); assert.match(c.calls[0].messages[0].content,/Should authentic material prove this claim/); });
+test('compact prompt forbids synthetic source impersonation', async () => { const c=fakeClient(); await generate({},c); assert.match(c.calls[0].messages[0].content,/must not impersonate authentic source material/); });
+test('compact reconstruction example includes mode and action', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/"reconstructionMode":"representative"/); assert.match(p,/"secondaryAction":"The employee marks the target\."/); });
+test('missing reconstruction mode is repaired rather than defaulted', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{reconstructionMode:undefined})]}):draft()); const plan=await generate({},c); assert.equal(c.calls.length,7); assert.equal(plan.sequences[0].beats[0].reconstructionMode,'representative'); });
+test('invalid hold type is repaired', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{postNarrationHoldSec:'bad'})]}):draft()); await generate({},c); assert.equal(c.calls.length,7); });
