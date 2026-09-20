@@ -173,7 +173,7 @@ function draftFingerprint(draft) {
 }
 
 function freshCheckpoint(episodeId) {
-  return { checkpointVersion: CHECKPOINT_VERSION, episodeId, channel: 'EmpireOmitted', acts: {} };
+  return { checkpointVersion: CHECKPOINT_VERSION, episodeId, channel: 'EmpireOmitted', acts: {}, repairAttempts: {} };
 }
 
 function loadCheckpoint(checkpointPath, episodeId) {
@@ -183,7 +183,10 @@ function loadCheckpoint(checkpointPath, episodeId) {
     if (parsed?.checkpointVersion === CHECKPOINT_VERSION
       && parsed.episodeId === episodeId
       && parsed.channel === 'EmpireOmitted'
-      && parsed.acts && typeof parsed.acts === 'object' && !Array.isArray(parsed.acts)) return parsed;
+      && parsed.acts && typeof parsed.acts === 'object' && !Array.isArray(parsed.acts)) {
+      if (!parsed.repairAttempts || typeof parsed.repairAttempts !== 'object' || Array.isArray(parsed.repairAttempts)) parsed.repairAttempts = {};
+      return parsed;
+    }
   } catch (error) {
     console.warn(`[edit-plan] Ignoring unreadable draft checkpoint: ${error.message}`);
   }
@@ -260,8 +263,9 @@ function buildActPrompt({ script, actKey, words, durationSec, channelDna, previo
     `Safe creative Channel DNA:\n${JSON.stringify(creativeDna(channelDna))}`,
     `Approved vocabularies (do not invent synonyms): ${JSON.stringify(APPROVED_VOCABULARIES)}`,
     previousContext ? `Previous-act continuity context:\n${previousContext}` : '',
-    `Return JSON only in this exact draft shape:
-{"sequences":[{"sequencePurpose":"...","directorIntent":"...","emotionalStateStart":"...","emotionalStateEnd":"...","knowledgeQuestion":null,"knowledgeAnswer":null,"createsQuestion":null,"motifRefs":[],"continuityRefs":[],"beats":[{"startWordIndex":0,"endWordIndex":1,"storyFunction":"establish","visualIntent":"...","visualClass":"RECONSTRUCTION","visual":{"type":"CLIP","description":"...","motionType":"lateral_track","secondaryAction":null},"rhythmIntent":"measured","intentionalStillness":false,"timingExceptionReason":null,"motionIntent":{"type":"lateral_track","secondaryAction":"..."},"graphics":null,"audioDirection":{"musicCue":null,"musicEvent":null,"musicLevelDb":null,"duckUnderVO":null,"sfx":[],"silenceIntent":null},"evidenceRequirement":{"required":false,"evidenceType":null,"description":null,"sourceStatus":"not_applicable","rightsStatus":"not_applicable","authenticityStatus":"not_applicable","citationLabel":null,"humanReviewRequired":false},"continuityRefs":[]}]}]}`,
+    `Return JSON only as a compact model draft. Example:
+{"sequences":[{"sequencePurpose":"Establish the mechanism.","directorIntent":"Show how pressure reaches an employee.","beats":[{"startWordIndex":0,"endWordIndex":12,"storyFunction":"establish","visualIntent":"An employee studies a target board.","visualClass":"RECONSTRUCTION","visual":{"type":"CLIP","description":"An employee studies a target board.","motionType":"dolly_forward"},"rhythmIntent":"measured"}]}]}
+For an EVIDENCE beat, optionally add only creative source-request fields such as evidenceRequirement:{"evidenceType":"regulatory filing","description":"The authenticated filing to retrieve","citationLabel":"Filing"}. Include optional creative fields only when meaningful. Do not output defaults, workflow states, motionIntent, IDs, timestamps, durations, narrationExcerpt, renderer fields, or empty graphics/audio objects unless creatively needed.`,
     'ARCHIVAL, BROLL, STOCK, GRAPHIC, DOCUMENT and similar invented synonyms are invalid. Use EVIDENCE for evidence planning and EDITORIAL_ILLUSTRATION for editorial graphics while keeping visual.type within the approved list. Omit optional values instead of inventing them. Do not output motionIntent. Keep visualIntent and visual.description to one concise sentence; keep sequencePurpose, directorIntent, and emotional fields concise; keep secondaryAction a short phrase or null; do not repeat information across fields. Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
   ].filter(Boolean).join('\n\n');
 }
@@ -270,9 +274,9 @@ function buildDraftRetryPrompt({ actKey, originalPrompt, durationSec }) {
   const budget = draftBeatBudget(durationSec);
   return [
     `Regenerate the complete ${actKey} model draft JSON. The previous answer was incomplete or malformed.`,
-    `Return JSON only, with no markdown fences. Preserve every required field in the same model-draft schema. Do not omit fields to shorten the answer.`,
+    `Return JSON only, with no markdown fences. Return the compact model-draft contract: creative fields and word indices only. Do not expand omitted optional fields into null/default/workflow values.`,
     `Use concise one-sentence visualIntent and visual.description, concise sequencePurpose/directorIntent/emotional fields, short secondaryAction or null, and do not repeat information. Cover every word index exactly once; do not duplicate narration. Target about ${budget.target} beats, with an approximate range of ${budget.minimum}–${budget.maximum}.`,
-    `Approved vocabularies: ${JSON.stringify(APPROVED_VOCABULARIES)}. Do not invent synonyms; omit optional values when unused; do not output motionIntent or deterministic timing fields.`,
+    `Approved vocabularies: ${JSON.stringify(APPROVED_VOCABULARIES)}. Do not invent synonyms; omit optional values when unused; never output motionIntent, evidence workflow states, or deterministic timing fields.`,
     `Original act instructions and indexed words:\n${originalPrompt}`,
   ].join('\n\n');
 }
@@ -334,7 +338,6 @@ function projectBeatIntent(draft) {
       rightsStatus: 'unknown', authenticityStatus: 'pending_review',
       citationLabel: evidence.citationLabel ?? null, humanReviewRequired: true,
     };
-    if (Object.hasOwn(draft, 'evidenceRequirement')) Object.assign(intent.evidenceRequirement, pick(evidence, ['required', 'sourceStatus', 'rightsStatus', 'authenticityStatus', 'humanReviewRequired']));
   } else intent.evidenceRequirement = {
     required: false, evidenceType: null, description: null, sourceStatus: 'not_applicable',
     rightsStatus: 'not_applicable', authenticityStatus: 'not_applicable', citationLabel: null,
@@ -537,21 +540,35 @@ async function generateEditPlan({
       const reusableDraft = saved?.fingerprint === fingerprint && saved.draft && typeof saved.draft === 'object'
         && !Array.isArray(saved.draft) && typeof saved.draftHash === 'string' && /^[a-f0-9]{64}$/.test(saved.draftHash)
         && draftFingerprint(saved.draft) === saved.draftHash;
-      let draft;
-      if (reusableDraft) draft = saved.draft;
-      else {
-        draft = await generateDraftWithRetry({ actKey, prompt, durationSec: act.durationSec });
+      let draft = reusableDraft ? saved.draft : await generateDraftWithRetry({ actKey, prompt, durationSec: act.durationSec });
+      let actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
+      while (actValidation.report.status !== 'PASS') {
+        const classification = classifyRepairErrors(actValidation.report, actValidation.plan);
+        if (classification.nonrepairable) {
+          throw new Error(`[edit-plan] Nonrepairable validation error ${classification.nonrepairable.code} at ${classification.nonrepairable.path}: ${classification.nonrepairable.message}`);
+        }
+        const errors = classification.byAct.get(actKey) || [...actValidation.report.errors];
+        const attempts = Number.isSafeInteger(checkpoint.repairAttempts[actKey]) && checkpoint.repairAttempts[actKey] >= 0
+          ? checkpoint.repairAttempts[actKey] : (Number.isSafeInteger(saved?.repairAttempts) ? saved.repairAttempts : 0);
+        if (attempts >= MAX_REPAIR_ATTEMPTS_PER_ACT) {
+          throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
+        }
+        const nextAttempt = attempts + 1;
+        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt });
+        const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: act.durationSec, system: REPAIR_STANDARD });
+        checkpoint.repairAttempts[actKey] = nextAttempt;
+        if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
+        if (draftFingerprint(repaired) === draftFingerprint(draft)) {
+          throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${nextAttempt}.`);
+        }
+        draft = repaired;
+        actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
       }
-      const entry = checkpoint.acts[actKey] || { fingerprint, draftHash: draftFingerprint(draft), draft, repairAttempts: 0 };
-      entry.fingerprint = fingerprint;
-      entry.draftHash = draftFingerprint(draft);
-      entry.draft = draft;
-      if (!Number.isSafeInteger(entry.repairAttempts) || entry.repairAttempts < 0) entry.repairAttempts = 0;
-      checkpoint.acts[actKey] = entry;
-      const actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
-      if (actValidation.report.status === 'PASS' && checkpointPath) {
-        writeCheckpointAtomic(checkpointPath, checkpoint);
-      }
+      checkpoint.acts[actKey] = {
+        fingerprint, draftHash: draftFingerprint(draft), draft,
+        repairAttempts: checkpoint.repairAttempts[actKey] || 0,
+      };
+      if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
       prompts.set(actKey, prompt);
       finalSequences.push(...finaliseActDraft({ draft, act, words }));
       priorContext.push(continuitySummary(actKey, draft));
@@ -562,33 +579,11 @@ async function generateEditPlan({
     };
   };
 
-  let candidate;
-  while (true) {
-    candidate = await assembleCandidate();
-    const validation = validateEditPlan({ plan: candidate.plan, wordTimestamps, outputDir });
-    if (validation.status === 'PASS') break;
-    const classification = classifyRepairErrors(validation, candidate.plan);
-    if (classification.nonrepairable) {
-      throw new Error(`[edit-plan] Nonrepairable validation error ${classification.nonrepairable.code} at ${classification.nonrepairable.path}: ${classification.nonrepairable.message}`);
-    }
-    const actKey = ACTS.map(([key]) => key).find(key => classification.byAct.has(key));
-    if (!actKey) throw new Error('[edit-plan] Validation failed without a safely attributable repair target.');
-    const entry = checkpoint.acts[actKey];
-    const attempts = Number.isSafeInteger(entry?.repairAttempts) && entry.repairAttempts >= 0 ? entry.repairAttempts : 0;
-    const errors = classification.byAct.get(actKey);
-    if (attempts >= MAX_REPAIR_ATTEMPTS_PER_ACT) {
-      throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
-    }
-    const nextAttempt = attempts + 1;
-    const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: candidate.prompts.get(actKey), draft: entry.draft, errors, attempt: nextAttempt });
-    const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: timing.acts.find(item => item.actKey === actKey).durationSec, system: REPAIR_STANDARD });
-    const repairedHash = draftFingerprint(repaired);
-    entry.repairAttempts = nextAttempt;
-    if (repairedHash === entry.draftHash) {
-      throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${entry.repairAttempts}.`);
-    }
-    entry.draft = repaired;
-    entry.draftHash = repairedHash;
+  const candidate = await assembleCandidate();
+  const validation = validateEditPlan({ plan: candidate.plan, wordTimestamps, outputDir });
+  if (validation.status !== 'PASS') {
+    const error = validation.errors[0];
+    throw new Error(`[edit-plan] Final validation failed ${error?.code || 'UNKNOWN'} at ${error?.path || '/'}: ${error?.message || 'unknown error'}`);
   }
   const plan = candidate.plan;
   if (outputDir) {

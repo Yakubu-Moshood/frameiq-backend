@@ -118,16 +118,12 @@ function hashDraft(value) {
 }
 
 async function createSixReusableCheckpoints(dir, data = inputs()) {
-  const invalid = fakeClient(callIndex => {
-    if (callIndex === 0) return draft({ beats: [beat(0, 2, { storyFunction: 'invalid_story_function' })] });
-    if (callIndex === 6) throw new Error('checkpoint fixture repair stop');
-    return draft();
-  });
-  await assert.rejects(generateEditPlan({ ...data, outputDir: dir, client: invalid }), /checkpoint fixture repair stop/);
+  const originalRmSync = fs.rmSync;
+  fs.rmSync = (target, options) => target === checkpointPath(dir) ? undefined : originalRmSync(target, options);
+  try { await generateEditPlan({ ...data, outputDir: dir, client: fakeClient() }); }
+  finally { fs.rmSync = originalRmSync; }
+  fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
   const checkpoint = readCheckpoint(dir);
-  checkpoint.acts.act1.draft = draft();
-  checkpoint.acts.act1.draftHash = hashDraft(checkpoint.acts.act1.draft);
-  fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint, null, 2) + '\n');
   return checkpoint;
 }
 
@@ -435,7 +431,7 @@ test('final validation failure preserves only act-level-passing draft checkpoint
     await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /repair provider unavailable/);
     assert.deepEqual(Object.keys(readCheckpoint(dir).acts), ACTS.slice(0, 5).map(([actKey]) => actKey));
     assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
-    assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), true);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan-validation.json')), false);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -644,8 +640,8 @@ test('repairable narration gap is repaired only for the affected act', async () 
   });
   const plan = await generate({}, client);
   assert.equal(client.calls.length, 7);
-  assert.match(client.calls[6].messages[0].content, /Repair the complete model draft for act1/);
-  assert.match(client.calls[6].messages[0].content, /NARRATION_GAP/);
+  assert.match(client.calls[1].messages[0].content, /Repair the complete model draft for act1/);
+  assert.match(client.calls[1].messages[0].content, /NARRATION_GAP/);
   assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
 });
 
@@ -654,7 +650,7 @@ test('negative startWordIndex is repaired despite its deterministic timing and e
     ? draft({ beats: [beat(-1, 2)] })
     : draft());
   const plan = await generate({}, client);
-  const repairCall = client.calls[6];
+  const repairCall = client.calls[1];
   const repairErrors = repairCall.messages[0].content.split('VALIDATOR HARD ERRORS:\n')[1];
   assert.equal(client.calls.length, 7);
   assert.match(repairErrors, /SCHEMA_MINIMUM/);
@@ -672,7 +668,7 @@ test('endWordIndex outside the act is repaired and deterministic values are rebu
     : draft());
   const plan = await generate({}, client);
   assert.equal(client.calls.length, 7);
-  assert.match(client.calls[6].messages[0].content, /INVALID_WORD_RANGE/);
+  assert.match(client.calls[1].messages[0].content, /INVALID_WORD_RANGE/);
   assert.equal(plan.sequences[0].beats[0].endWordIndex, 2);
   assert.equal(plan.sequences[0].beats[0].endSec, 4);
   assert.equal(plan.sequences[0].beats[0].narrationExcerpt, 'act1 alpha beta');
@@ -688,7 +684,7 @@ test('model-owned schema failures for storyFunction and visual.type are repairab
       : draft());
     const plan = await generate({}, client);
     assert.equal(client.calls.length, 7);
-    assert.match(client.calls[6].messages[0].content, /SCHEMA_ENUM/);
+    assert.match(client.calls[1].messages[0].content, /SCHEMA_ENUM/);
     assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
   }
 });
@@ -701,7 +697,7 @@ test('empty beats and duplicate model-controlled refs are repairable schema fail
     const client = fakeClient(callIndex => callIndex === 0 ? initial : draft());
     const plan = await generate({}, client);
     assert.equal(client.calls.length, 7);
-    assert.match(client.calls[6].messages[0].content, /SCHEMA_(?:MIN_ITEMS|UNIQUE)/);
+    assert.match(client.calls[1].messages[0].content, /SCHEMA_(?:MIN_ITEMS|UNIQUE)/);
     assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
   }
 });
@@ -761,7 +757,7 @@ test('overlong beat is repaired by splitting coverage rather than changing deter
   const data = inputs(); data.actDurationsSec.act1 = 7;
   const client = fakeClient(callIndex => callIndex === 0
     ? draft()
-    : callIndex === 6
+    : callIndex === 1
       ? draft({ beats: [beat(0, 0), beat(1, 2)] })
       : draft());
   const plan = await generate(data, client);
@@ -775,7 +771,7 @@ test('nonrepairable word timestamp corruption makes no repair call', async () =>
   const data = inputs(); data.wordTimestamps[1].start_seconds = 0.7;
   const client = fakeClient();
   await assert.rejects(generate(data, client), /Nonrepairable validation error WORD_TIMESTAMP_ORDER/);
-  assert.equal(client.calls.length, 6);
+  assert.equal(client.calls.length, 1);
   assert.equal(client.calls.some(call => /Repair the complete model draft/.test(call.messages[0].content)), false);
 });
 
@@ -784,24 +780,24 @@ test('two changed invalid repairs consume the cap and a restart makes no further
   try {
     const client = fakeClient(callIndex => {
       if (callIndex === 0) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_one' })] });
-      if (callIndex === 6) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_two' })] });
-      if (callIndex === 7) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_three' })] });
+      if (callIndex === 1) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_two' })] });
+      if (callIndex === 2) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_three' })] });
       return draft();
     });
     await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /Repair limit reached for act1: 2/);
-    assert.equal(client.calls.length, 8);
-    assert.equal(readCheckpoint(dir).acts.act1.repairAttempts, 2);
+    assert.equal(client.calls.length, 3);
+    assert.equal(readCheckpoint(dir).repairAttempts.act1, 2);
     const retry = fakeClient();
-    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client: retry }), /Repair limit reached for act1: 2/);
-    assert.equal(retry.calls.length, 0);
-    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
+    await generateEditPlan({ ...inputs(), outputDir: dir, client: retry });
+    assert.equal(retry.calls.length, 6);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), true);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
 test('first changed repair may remain invalid and second repair can succeed', async () => {
   const client = fakeClient(callIndex => {
     if (callIndex === 0) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_one' })] });
-    if (callIndex === 6) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_two' })] });
+    if (callIndex === 1) return draft({ beats: [beat(0, 2, { storyFunction: 'bad_two' })] });
     return draft();
   });
   const plan = await generate({}, client);
@@ -818,15 +814,15 @@ test('provider and transport failures do not consume semantic attempts, but iden
         : draft());
       client.messages.create = async request => {
         client.calls.push(request);
-        if (client.calls.length <= 6) return { content: [{ type: 'text', text: JSON.stringify(client.calls.length === 1 ? draft({ beats: [beat(0, 0), beat(2, 2)] }) : draft()) }] };
+        if (!request.messages[0].content.includes('Repair the complete')) return { content: [{ type: 'text', text: JSON.stringify(client.calls.length === 1 ? draft({ beats: [beat(0, 0), beat(2, 2)] }) : draft()) }] };
         if (mode === 'provider') throw new Error('repair provider failed');
         if (mode === 'malformed') return { content: [{ type: 'text', text: '{bad' }] };
         return { content: [{ type: 'text', text: JSON.stringify(draft({ beats: [beat(0, 0), beat(2, 2)] })) }] };
       };
       await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }));
-      const entry = readCheckpoint(dir).acts.act1;
-      assert.equal(entry.repairAttempts, 0);
-      assert.deepEqual(entry.draft, draft({ beats: [beat(0, 0), beat(2, 2)] }));
+      const checkpoint = fs.existsSync(checkpointPath(dir)) ? readCheckpoint(dir) : { repairAttempts: {}, acts: {} };
+      assert.equal(checkpoint.repairAttempts.act1 || 0, mode === 'identical' ? 1 : 0);
+      assert.equal(checkpoint.acts.act1, undefined);
       assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
     } finally { fs.rmSync(dir, { recursive: true, force: true }); }
   }
