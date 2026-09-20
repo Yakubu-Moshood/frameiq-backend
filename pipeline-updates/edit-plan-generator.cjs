@@ -195,11 +195,31 @@ function parseModelJson(message, actKey) {
   const raw = Array.isArray(message?.content)
     ? message.content.filter(block => block?.type === 'text').map(block => block.text || '').join('')
     : '';
+  const diagnostics = {
+    stopReason: typeof message?.stop_reason === 'string' ? message.stop_reason : null,
+    outputTokens: Number.isFinite(message?.usage?.output_tokens) ? message.usage.output_tokens : null,
+    textChars: raw.length,
+  };
+  const fail = (failureType, detail) => {
+    const error = new Error(`[edit-plan] ${actKey} model ${failureType}; stop_reason=${diagnostics.stopReason || 'unknown'}; output_tokens=${diagnostics.outputTokens ?? 'unknown'}; text_chars=${diagnostics.textChars}.`);
+    error.failureType = failureType;
+    error.diagnostics = diagnostics;
+    error.safeDetail = detail;
+    throw error;
+  };
+  if (diagnostics.stopReason === 'max_tokens') fail('output truncated');
   try {
     return JSON.parse(stripJsonFences(raw));
   } catch (error) {
-    throw new Error(`[edit-plan] ${actKey} model JSON parse failed: ${error.message}`);
+    fail('JSON parse failed', error.message);
   }
+}
+
+function draftBeatBudget(durationSec) {
+  const target = Math.max(1, Math.round(durationSec / 4.5));
+  const minimum = Math.max(1, Math.ceil(durationSec / 5.5));
+  const maximum = Math.max(minimum, Math.ceil(durationSec / 3.5));
+  return { target, minimum, maximum };
 }
 
 function actScript(script, actKey) {
@@ -212,6 +232,7 @@ function actScript(script, actKey) {
 
 function buildActPrompt({ script, actKey, words, durationSec, channelDna, previousContext }) {
   const act = actScript(script, actKey);
+  const budget = draftBeatBudget(durationSec);
   const indexedWords = words.map((word, index) => ({
     index,
     word: word.word,
@@ -223,14 +244,25 @@ function buildActPrompt({ script, actKey, words, durationSec, channelDna, previo
     `Episode title: ${script.title || script.topic || 'Untitled'}`,
     `Act label: ${act.label || actKey}`,
     `Finished act duration: ${durationSec} seconds`,
+    `Editorial beat budget: target about ${budget.target} beats; acceptable approximate range ${budget.minimum}–${budget.maximum}. Normal beats are approximately 3.5–5.5 seconds and normally no more than 6 seconds.`,
     `Narration:\n${act.voScript}`,
     `Indexed act-local timed words:\n${JSON.stringify(indexedWords)}`,
     `Safe creative Channel DNA:\n${JSON.stringify(creativeDna(channelDna))}`,
     previousContext ? `Previous-act continuity context:\n${previousContext}` : '',
     `Return JSON only in this exact draft shape:
 {"sequences":[{"sequencePurpose":"...","directorIntent":"...","emotionalStateStart":"...","emotionalStateEnd":"...","knowledgeQuestion":null,"knowledgeAnswer":null,"createsQuestion":null,"motifRefs":[],"continuityRefs":[],"beats":[{"startWordIndex":0,"endWordIndex":1,"storyFunction":"establish","visualIntent":"...","visualClass":"RECONSTRUCTION","visual":{"type":"CLIP","description":"...","motionType":"lateral_track","secondaryAction":null},"rhythmIntent":"measured","intentionalStillness":false,"timingExceptionReason":null,"motionIntent":{"type":"lateral_track","secondaryAction":"..."},"graphics":null,"audioDirection":{"musicCue":null,"musicEvent":null,"musicLevelDb":null,"duckUnderVO":null,"sfx":[],"silenceIntent":null},"evidenceRequirement":{"required":false,"evidenceType":null,"description":null,"sourceStatus":"not_applicable","rightsStatus":"not_applicable","authenticityStatus":"not_applicable","citationLabel":null,"humanReviewRequired":false},"continuityRefs":[]}]}]}`,
-    'Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
+    'Keep visualIntent and visual.description to one concise sentence; keep sequencePurpose, directorIntent, and emotional fields concise; keep secondaryAction a short phrase or null; do not repeat information across fields. Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
   ].filter(Boolean).join('\n\n');
+}
+
+function buildDraftRetryPrompt({ actKey, originalPrompt, durationSec }) {
+  const budget = draftBeatBudget(durationSec);
+  return [
+    `Regenerate the complete ${actKey} model draft JSON. The previous answer was incomplete or malformed.`,
+    `Return JSON only, with no markdown fences. Preserve every required field in the same model-draft schema. Do not omit fields to shorten the answer.`,
+    `Use concise one-sentence visualIntent and visual.description, concise sequencePurpose/directorIntent/emotional fields, short secondaryAction or null, and do not repeat information. Cover every word index exactly once; do not duplicate narration. Target about ${budget.target} beats, with an approximate range of ${budget.minimum}–${budget.maximum}.`,
+    `Original act instructions and indexed words:\n${originalPrompt}`,
+  ].join('\n\n');
 }
 
 function pick(source, keys) {
@@ -422,6 +454,28 @@ async function generateEditPlan({
     }
     return anthropic;
   };
+  const generateDraftWithRetry = async ({ actKey, prompt, durationSec }) => {
+    let lastFailure;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const requestPrompt = attempt === 0
+        ? prompt
+        : buildDraftRetryPrompt({ actKey, originalPrompt: prompt, durationSec });
+      const message = await getClient().messages.create({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        system: DIRECTOR_STANDARD,
+        messages: [{ role: 'user', content: requestPrompt }],
+      });
+      try {
+        return parseModelJson(message, actKey);
+      } catch (error) {
+        lastFailure = error;
+        if (attempt === 0 && error.failureType) continue;
+        throw error;
+      }
+    }
+    throw lastFailure;
+  };
   const assembleCandidate = async () => {
     const finalSequences = [], priorContext = [], prompts = new Map();
     for (const [actKey, voKey] of ACTS) {
@@ -436,8 +490,7 @@ async function generateEditPlan({
       let draft;
       if (reusableDraft) draft = saved.draft;
       else {
-        const message = await getClient().messages.create({ model: MODEL, max_tokens: MAX_TOKENS, system: DIRECTOR_STANDARD, messages: [{ role: 'user', content: prompt }] });
-        draft = parseModelJson(message, actKey);
+        draft = await generateDraftWithRetry({ actKey, prompt, durationSec: act.durationSec });
         checkpoint.acts[actKey] = { fingerprint, draftHash: draftFingerprint(draft), draft, repairAttempts: 0 };
         if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
       }

@@ -389,7 +389,7 @@ test('Act 4 malformed JSON preserves earlier checkpoints and is not checkpointed
     });
     client.messages.create = async request => {
       client.calls.push(request);
-      if (client.calls.length === 4) return { content: [{ type: 'text', text: '{bad json' }] };
+      if (client.calls.length === 4 || client.calls.length === 5) return { content: [{ type: 'text', text: '{bad json' }] };
       return { content: [{ type: 'text', text: JSON.stringify(draft()) }] };
     };
     await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /act3b model JSON parse failed/);
@@ -838,4 +838,85 @@ test('warnings alone trigger no repair request', async () => {
   const client = fakeClient();
   await generate(data, client);
   assert.equal(client.calls.length, 6);
+});
+
+function responseClient(responses) {
+  const calls = [];
+  return {
+    calls,
+    messages: {
+      async create(request) {
+        calls.push(request);
+        return responses[calls.length - 1];
+      },
+    },
+  };
+}
+
+test('normal generation still makes exactly six model calls', async () => {
+  const client = fakeClient();
+  await generate({}, client);
+  assert.equal(client.calls.length, 6);
+});
+
+test('max_tokens on Act 1 triggers one compact regeneration and checkpoints only the valid draft', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-truncated-retry-'));
+  try {
+    let checkpointObserved = false;
+    const client = responseClient([
+      { stop_reason: 'max_tokens', usage: { output_tokens: 16000 }, content: [{ type: 'text', text: '{"sequences":[' }] },
+      { stop_reason: 'end_turn', usage: { output_tokens: 100 }, content: [{ type: 'text', text: JSON.stringify(draft()) }] },
+      ...Array.from({ length: 5 }, () => ({ stop_reason: 'end_turn', usage: { output_tokens: 100 }, content: [{ type: 'text', text: JSON.stringify(draft()) }] })),
+    ]);
+    const originalCreate = client.messages.create;
+    client.messages.create = async request => {
+      if (client.calls.length === 2) checkpointObserved = fs.existsSync(checkpointPath(dir));
+      return originalCreate(request);
+    };
+    await generateEditPlan({ ...inputs(), outputDir: dir, client });
+    assert.equal(client.calls.length, 7);
+    assert.match(client.calls[1].messages[0].content, /previous answer was incomplete|JSON only|concise/);
+    assert.equal(checkpointObserved, true);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), true);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('malformed JSON with a normal stop reason gets one regeneration retry', async () => {
+  const client = responseClient([
+    { stop_reason: 'end_turn', usage: { output_tokens: 10 }, content: [{ type: 'text', text: '{bad' }] },
+    ...Array.from({ length: 6 }, () => ({ stop_reason: 'end_turn', usage: { output_tokens: 100 }, content: [{ type: 'text', text: JSON.stringify(draft()) }] })),
+  ]);
+  await generate({}, client);
+  assert.equal(client.calls.length, 7);
+});
+
+test('repeated truncation fails after one bounded regeneration and persists no invalid draft', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'edit-plan-truncated-fail-'));
+  try {
+    const client = responseClient([
+      { stop_reason: 'max_tokens', usage: { output_tokens: 16000 }, content: [{ type: 'text', text: '{' }] },
+      { stop_reason: 'max_tokens', usage: { output_tokens: 16000 }, content: [{ type: 'text', text: '{' }] },
+    ]);
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: dir, client }), /act1 model output truncated.*stop_reason=max_tokens.*output_tokens=16000.*text_chars=1/);
+    assert.equal(client.calls.length, 2);
+    assert.equal(fs.existsSync(path.join(dir, 'edit-plan.json')), false);
+    assert.equal(fs.existsSync(checkpointPath(dir)), false);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('repeated malformed JSON fails after one bounded regeneration with safe diagnostics', async () => {
+  const secret = 'sk-test-super-secret';
+  const client = responseClient([
+    { stop_reason: 'end_turn', usage: { output_tokens: 7 }, content: [{ type: 'text', text: `{ "secret": "${secret}"` }] },
+    { stop_reason: 'end_turn', usage: { output_tokens: 8 }, content: [{ type: 'text', text: `{ "secret": "${secret}"` }] },
+  ]);
+  await assert.rejects(generate({ }, client), error => {
+    assert.match(error.message, /act1 model JSON parse failed/);
+    assert.match(error.message, /stop_reason=end_turn/);
+    assert.match(error.message, /output_tokens=8/);
+    assert.match(error.message, /text_chars=/);
+    assert.doesNotMatch(error.message, new RegExp(secret));
+    return true;
+  });
+  assert.equal(client.calls.length, 2);
 });
