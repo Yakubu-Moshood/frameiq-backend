@@ -6,7 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
-const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint } = require('../pipeline-updates/edit-plan-generator.cjs');
+const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint, _repairPolicyVersion, _requestFingerprint, _buildTimingDiagnostics } = require('../pipeline-updates/edit-plan-generator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
 const ACTS = [
@@ -1032,3 +1032,89 @@ test('repair scope is stable for identical generation and policy', () => { const
 test('repair scope changes with generation fingerprint', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),_repairAttemptScopeFingerprint({generationFingerprint:'b'})); });
 test('repair scope changes with repair policy identity', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}),_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:2})); });
 test('scope includes repair attempt cap', () => { assert.match(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),/^[a-f0-9]{64}$/); });
+
+test('mixed short and long timing errors receive cluster rebalance guidance and diagnostics', async () => {
+  const data = inputs();
+  data.actDurationsSec.act1 = 12;
+  data.script.acts.act1.voScript = 'act1 alpha beta gamma delta';
+  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== 'VO_Act1');
+  data.wordTimestamps.unshift(
+    { vo_file: 'VO_Act1', word: 'act1', start_seconds: 0.5, end_seconds: 0.9 },
+    { vo_file: 'VO_Act1', word: 'alpha', start_seconds: 1.5, end_seconds: 1.9 },
+    { vo_file: 'VO_Act1', word: 'beta', start_seconds: 4.5, end_seconds: 4.9 },
+    { vo_file: 'VO_Act1', word: 'gamma', start_seconds: 6.5, end_seconds: 6.9 },
+    { vo_file: 'VO_Act1', word: 'delta', start_seconds: 7.5, end_seconds: 7.9 },
+  );
+  const invalid = draft({ beats: [beat(0, 2), beat(3, 3), beat(4, 4)] });
+  const valid = draft({ beats: [beat(0, 1), beat(2, 3), beat(4, 4)] });
+  const client = fakeClient((index, request) => {
+    const prompt = request.messages[0].content;
+    if (prompt.includes('Repair the complete model draft for act1')) return valid;
+    if (prompt.includes('Plan only act1')) return invalid;
+    return draft();
+  });
+  const plan = await generateEditPlan({ ...data, client });
+  const repair = client.calls.find(call => call.messages[0].content.includes('MIXED TIMING REBALANCE'));
+  assert.ok(repair);
+  const text = repair.messages[0].content;
+  assert.match(text, /one local editorial cluster/);
+  assert.match(text, /Do not merge a short beat blindly into an already overlong neighbour/);
+  assert.match(text, /Do not split a long beat mechanically if that simply creates another short fragment/);
+  assert.match(text, /timingExceptionReason simply to silence the validator/);
+  assert.match(text, /TIMING REPAIR DIAGNOSTICS/);
+  assert.match(text, /"code":"BEAT_TOO_LONG"/);
+  assert.match(text, /"durationSec":6\.5/);
+  assert.match(text, /"startWordIndex":0/);
+  assert.match(text, /"endWordIndex":2/);
+  assert.match(text, /"narrationExcerpt":"act1 alpha beta"/);
+  assert.match(text, /"previous":|"next":/);
+  assert.doesNotMatch(text, /SHORT-BEAT REPAIR/);
+  const report = validateEditPlan({ plan, wordTimestamps: data.wordTimestamps });
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.errors.some(error => error.code === 'BEAT_TOO_LONG' || error.code === 'BEAT_TOO_SHORT'), false);
+});
+
+test('mixed timing diagnostics use immediate neighbours across sequence boundaries', () => {
+  const plan = { sequences: [
+    { beats: [{ durationSec: 6.5, startWordIndex: 0, endWordIndex: 2, narrationExcerpt: 'act1 alpha beta' }] },
+    { beats: [{ durationSec: 1.5, startWordIndex: 3, endWordIndex: 3, narrationExcerpt: 'gamma' }, { durationSec: 4, startWordIndex: 4, endWordIndex: 4, narrationExcerpt: 'delta' }] },
+  ] };
+  const diagnostics = _buildTimingDiagnostics([
+    { code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/0' },
+    { code: 'BEAT_TOO_SHORT', path: '/sequences/1/beats/0' },
+  ], plan);
+  assert.equal(diagnostics[0].next.narrationExcerpt, 'gamma');
+  assert.equal(diagnostics[1].previous.narrationExcerpt, 'act1 alpha beta');
+});
+
+test('repair policy version 2 changes scope while generation fingerprint stays stable', () => {
+  assert.equal(_repairPolicyVersion, 2);
+  assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 1 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 2 }));
+});
+
+test('policy v2 preserves valid saved acts and refreshes an exhausted act3 repair budget', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-policy-v2-'));
+  try {
+    const originalRmSync = fs.rmSync;
+    fs.rmSync = (target, options) => target === path.join(dir, 'edit-plan.json') || target === checkpointPath(dir) ? undefined : originalRmSync(target, options);
+    try { await generateEditPlan({ ...inputs(), outputDir: dir, client: fakeClient() }); }
+    finally { fs.rmSync = originalRmSync; }
+    const checkpoint = readCheckpoint(dir);
+    const act3GenerationFingerprint = checkpoint.acts.act3.fingerprint;
+    delete checkpoint.acts.act3;
+    checkpoint.repairAttempts.act3 = 2;
+    checkpoint.repairAttemptFingerprints.act3 = _repairAttemptScopeFingerprint({ generationFingerprint: act3GenerationFingerprint, repairPolicyVersion: 1 });
+    fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint));
+    const client = fakeClient((index, request) => {
+      const prompt = request.messages[0].content;
+      if (prompt.includes('Plan only act3') && !prompt.includes('Repair the complete model draft')) return draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+      return draft();
+    });
+    await generateEditPlan({ ...inputs(), outputDir: dir, client });
+    assert.equal(client.calls.filter(call => /Plan only act1|Plan only act2/.test(call.messages[0].content)).length, 0);
+    const act3GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act3'));
+    assert.equal(_requestFingerprint(act3GenerationCall.messages[0].content), act3GenerationFingerprint);
+    assert.ok(client.calls.some(call => call.messages[0].content.includes('Repair the complete model draft for act3')));
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});

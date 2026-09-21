@@ -12,7 +12,7 @@ const TIMING_EPSILON = 0.001;
 const CHECKPOINT_VERSION = 3;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
-const REPAIR_POLICY_VERSION = 1;
+const REPAIR_POLICY_VERSION = 2;
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -471,10 +471,59 @@ function classifyRepairErrors(report, plan) {
   return { nonrepairable: null, byAct: attributed };
 }
 
-function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt }) {
+function beatTimingDiagnostic(beat) {
+  return {
+    durationSec: beat.durationSec,
+    startWordIndex: beat.startWordIndex,
+    endWordIndex: beat.endWordIndex,
+    narrationExcerpt: beat.narrationExcerpt,
+  };
+}
+
+function buildTimingDiagnostics(errors, validationPlan) {
+  if (!validationPlan?.sequences) return [];
+  const flattened = [];
+  validationPlan.sequences.forEach((sequence, sequenceIndex) => {
+    (sequence.beats || []).forEach((beat, beatIndex) => flattened.push({ sequenceIndex, beatIndex, beat }));
+  });
+  const diagnostics = [];
+  for (const error of errors) {
+    if (!['BEAT_TOO_SHORT', 'BEAT_TOO_LONG'].includes(error.code)) continue;
+    const match = /^\/sequences\/(\d+)\/beats\/(\d+)/.exec(error.path || '');
+    if (!match) continue;
+    const sequenceIndex = Number(match[1]);
+    const beatIndex = Number(match[2]);
+    const flatIndex = flattened.findIndex(item => item.sequenceIndex === sequenceIndex && item.beatIndex === beatIndex);
+    const current = flattened[flatIndex];
+    if (!current) continue;
+    const beat = current.beat;
+    diagnostics.push({
+      code: error.code, sequenceIndex, beatIndex, ...beatTimingDiagnostic(beat),
+      previous: flatIndex > 0 ? beatTimingDiagnostic(flattened[flatIndex - 1].beat) : undefined,
+      next: flatIndex + 1 < flattened.length ? beatTimingDiagnostic(flattened[flatIndex + 1].beat) : undefined,
+    });
+  }
+  return diagnostics;
+}
+
+function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan }) {
   const codes = errors.map(error => error.code);
-  const shortBeatGuidance = codes.includes('BEAT_TOO_SHORT') ? `
+  const hasShort = codes.includes('BEAT_TOO_SHORT');
+  const hasLong = codes.includes('BEAT_TOO_LONG');
+  const hasMixedTiming = hasShort && hasLong;
+  const shortBeatGuidance = hasShort && !hasMixedTiming ? `
 SHORT-BEAT REPAIR: repair semantic fragmentation first. For each BEAT_TOO_SHORT error, merge the short narration fragment into an adjacent semantically related beat whenever possible. Adjust word-index boundaries while preserving every narration word exactly once, playback order, no gaps, no overlaps, and coherent sequence meaning. Short noun lists, clauses, connective phrases, and sentence tails normally belong inside the neighbouring editorial idea. You may merge adjacent beats, redistribute boundaries, collapse a thin sequence, and rewrite the surviving visual intent. Do not solve ordinary short beats merely by adding timingExceptionReason. Keep a sub-2-second beat separate only for a genuinely intentional impact such as a major payoff, decisive reveal, single-word/statistical impact, or emotional punctuation, with a meaningful timingExceptionReason and, where appropriate, postNarrationHoldSec. Example: merge "credit cards", "checking accounts", "savings accounts", and "all fake" into one coherent beat with internal progression.` : '';
+  const mixedTimingGuidance = hasMixedTiming ? `
+MIXED TIMING REBALANCE:
+This draft contains both overlong and underlength beats. Treat neighbouring timing faults as one local editorial cluster rather than fixing each beat in isolation.
+First rebalance narration word boundaries across the affected neighbouring beats.
+Prefer redistributing word boundaries between adjacent beats; absorbing a fragment and then re-splitting the combined material at a meaningful semantic boundary; converting several badly sized beats into a smaller or larger set of coherent editorial beats; and preserving sequence meaning while restructuring local beat boundaries.
+Target approximately 3.5-5.5 seconds per ordinary beat.
+Hard guardrails remain: ordinary beat must not remain below 2 seconds; ordinary beat must not exceed 6 seconds; every narration word exactly once; original playback order; no narration gaps; no narration overlaps.
+Do not split a long beat mechanically if that simply creates another short fragment. Do not merge a short beat blindly into an already overlong neighbour. Do not alternate between splitting and merging the same material. Do not use timingExceptionReason simply to silence the validator.
+Timing exceptions remain only for genuine editorial impact, evidence reading, major reveal, emotional punctuation, intentional stillness, or deliberate hold.
+When one long beat sits beside one or more short beats, consider the combined narration span first, then repartition the whole span into coherent editorial units.` : '';
+  const timingDiagnostics = buildTimingDiagnostics(errors, validationPlan);
   return [
     `Repair the complete model draft for ${actKey}.`,
     `Repair attempt: ${attempt}`,
@@ -482,6 +531,8 @@ SHORT-BEAT REPAIR: repair semantic fragmentation first. For each BEAT_TOO_SHORT 
     `CURRENT MODEL DRAFT:\n${JSON.stringify(draft)}`,
     `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
     shortBeatGuidance,
+    mixedTimingGuidance,
+    timingDiagnostics.length ? `TIMING REPAIR DIAGNOSTICS:\n${JSON.stringify(timingDiagnostics)}` : '',
     'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
   ].join('\n\n');
 }
@@ -577,7 +628,7 @@ async function generateEditPlan({
           throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
         }
         const nextAttempt = attempts + 1;
-        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt });
+        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt, validationPlan: actValidation.plan });
         const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: act.durationSec, system: REPAIR_STANDARD });
         checkpoint.repairAttempts[actKey] = nextAttempt;
         checkpoint.repairAttemptFingerprints[actKey] = scopeFingerprint;
@@ -623,4 +674,7 @@ module.exports = {
   MODEL,
   _classifyRepairErrors: classifyRepairErrors,
   _repairAttemptScopeFingerprint: repairAttemptScopeFingerprint,
+  _requestFingerprint: requestFingerprint,
+  _buildTimingDiagnostics: buildTimingDiagnostics,
+  _repairPolicyVersion: REPAIR_POLICY_VERSION,
 };
