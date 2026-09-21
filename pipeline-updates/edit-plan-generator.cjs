@@ -12,7 +12,7 @@ const TIMING_EPSILON = 0.001;
 const CHECKPOINT_VERSION = 3;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
-const REPAIR_POLICY_VERSION = 2;
+const REPAIR_POLICY_VERSION = 3;
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -49,7 +49,7 @@ const DIRECTOR_CALIBRATION = `A beat is one coherent editorial idea, reveal, act
 const REPAIR_STANDARD = `${DIRECTOR_STANDARD}
 ${DIRECTOR_CALIBRATION}
 
-Repair only the reported editorial planning errors. Return the complete replacement compact MODEL DRAFT for the specified act as JSON only, never a patch. Preserve strong valid choices. Supply only creative planning fields and narration word indices; omit mechanical defaults when unused. Do not output motionIntent, final timestamps, durations, narrationExcerpt, sequenceId, beatId, actKey, renderer tracks, filenames, FFmpeg, or DaVinci instructions. For long beats, split adjacent narration coverage unless a hold is genuinely justified. Never invent evidence URLs, sources, quotations, or provenance.`;
+Repair only the reported editorial planning errors. Return the complete replacement compact MODEL DRAFT for the specified act as JSON only, never a patch. Preserve strong valid choices. Supply only creative planning fields and narration word indices; omit mechanical defaults when unused. Do not output motionIntent, final timestamps, durations, narrationExcerpt, sequenceId, beatId, actKey, renderer tracks, filenames, FFmpeg, or DaVinci instructions. For overlong narration beats, repartition narration at meaningful semantic boundaries unless continuous duration is genuinely necessary for an evidence read, major reveal, payoff, or other defensible editorial exception. postNarrationHoldSec does not shorten narration and is never a fix for an overlong narration beat. Never invent evidence URLs, sources, quotations, or provenance.`;
 
 const REPAIRABLE_CODES = new Set([
   'MISSING_VISUAL_INTENT', 'MISSING_STORY_FUNCTION',
@@ -523,6 +523,11 @@ Hard guardrails remain: ordinary beat must not remain below 2 seconds; ordinary 
 Do not split a long beat mechanically if that simply creates another short fragment. Do not merge a short beat blindly into an already overlong neighbour. Do not alternate between splitting and merging the same material. Do not use timingExceptionReason simply to silence the validator.
 Timing exceptions remain only for genuine editorial impact, evidence reading, major reveal, emotional punctuation, intentional stillness, or deliberate hold.
 When one long beat sits beside one or more short beats, consider the combined narration span first, then repartition the whole span into coherent editorial units.` : '';
+  const longBeatGuidance = hasLong && !hasShort ? `
+LONG-BEAT REPARTITION:
+First decide whether each overlong narration beat is an ordinary beat that should be repartitioned or a genuinely justified editorial exception. For an ordinary beat, inspect the indexed word timestamps in the ORIGINAL GENERATION PROMPT; do not estimate duration from word count. Identify meaningful semantic boundaries and split or redistribute coverage so ordinary beats are preferably 3.5-5.5 seconds, with no resulting ordinary beat below 2 seconds or above 6 seconds. Preserve every narration word exactly once, original playback order, no gaps, no overlaps, sequence meaning, and rewrite creative intent where needed so each resulting beat is a complete editorial idea. Restructure the local sequence when necessary rather than mechanically cutting one beat in half.
+For an overlong EVIDENCE beat, first decide whether the audience must consume the source as one continuous unit. If yes, preserve evidence metadata and provide a meaningful reason describing why continuous duration is editorially necessary. If no, repartition at meaningful claim/source boundaries and preserve evidence-first semantics and required metadata on each resulting EVIDENCE beat.
+Do not cut at the midpoint or arbitrary word counts, create a short fragment, split an incoherent sentence or evidentiary idea, duplicate or drop narration, or add timingExceptionReason merely to silence BEAT_TOO_LONG. postNarrationHoldSec is not a fix for BEAT_TOO_LONG, and intentionalStillness is not automatically a justification. Genuine exceptions require a meaningful reason for an evidence read, major reveal, major payoff, emotional punctuation, or other defensible editorial necessity.` : '';
   const timingDiagnostics = buildTimingDiagnostics(errors, validationPlan);
   return [
     `Repair the complete model draft for ${actKey}.`,
@@ -532,6 +537,7 @@ When one long beat sits beside one or more short beats, consider the combined na
     `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
     shortBeatGuidance,
     mixedTimingGuidance,
+    longBeatGuidance,
     timingDiagnostics.length ? `TIMING REPAIR DIAGNOSTICS:\n${JSON.stringify(timingDiagnostics)}` : '',
     'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
   ].join('\n\n');

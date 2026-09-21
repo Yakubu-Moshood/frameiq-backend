@@ -1087,9 +1087,9 @@ test('mixed timing diagnostics use immediate neighbours across sequence boundari
   assert.equal(diagnostics[1].previous.narrationExcerpt, 'act1 alpha beta');
 });
 
-test('repair policy version 2 changes scope while generation fingerprint stays stable', () => {
-  assert.equal(_repairPolicyVersion, 2);
-  assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 1 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 2 }));
+test('repair policy version 3 changes scope while generation fingerprint stays stable', () => {
+  assert.equal(_repairPolicyVersion, 3);
+  assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 2 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 3 }));
 });
 
 test('policy v2 preserves valid saved acts and refreshes an exhausted act3 repair budget', async () => {
@@ -1116,5 +1116,97 @@ test('policy v2 preserves valid saved acts and refreshes an exhausted act3 repai
     const act3GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act3'));
     assert.equal(_requestFingerprint(act3GenerationCall.messages[0].content), act3GenerationFingerprint);
     assert.ok(client.calls.some(call => call.messages[0].content.includes('Repair the complete model draft for act3')));
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('long-only repair uses exclusive repartition guidance and diagnostics', async () => {
+  const data = inputs();
+  data.actDurationsSec.act1 = 12;
+  data.script.acts.act1.voScript = 'act1 alpha beta gamma delta';
+  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== 'VO_Act1');
+  data.wordTimestamps.unshift(
+    { vo_file: 'VO_Act1', word: 'act1', start_seconds: 0.5, end_seconds: 0.9 },
+    { vo_file: 'VO_Act1', word: 'alpha', start_seconds: 1.5, end_seconds: 1.9 },
+    { vo_file: 'VO_Act1', word: 'beta', start_seconds: 4.5, end_seconds: 4.9 },
+    { vo_file: 'VO_Act1', word: 'gamma', start_seconds: 6.5, end_seconds: 6.9 },
+    { vo_file: 'VO_Act1', word: 'delta', start_seconds: 7.5, end_seconds: 7.9 },
+  );
+  const invalid = draft({ beats: [beat(0, 4)] });
+  const valid = draft({ beats: [beat(0, 1), beat(2, 3), beat(4, 4)] });
+  const client = fakeClient((index, request) => {
+    const prompt = request.messages[0].content;
+    if (prompt.includes('Repair the complete model draft for act1')) return valid;
+    if (prompt.includes('Plan only act1')) return invalid;
+    return draft();
+  });
+  const plan = await generateEditPlan({ ...data, client });
+  const repair = client.calls.find(call => call.messages[0].content.includes('LONG-BEAT REPARTITION'));
+  assert.ok(repair);
+  const text = repair.messages[0].content;
+  assert.doesNotMatch(text, /SHORT-BEAT REPAIR/);
+  assert.doesNotMatch(text, /MIXED TIMING REBALANCE/);
+  assert.match(text, /"durationSec":12/);
+  assert.match(text, /"startWordIndex":0/);
+  assert.match(text, /"endWordIndex":4/);
+  assert.match(text, /"narrationExcerpt":"act1 alpha beta gamma delta"/);
+  assert.match(text, /postNarrationHoldSec is not a fix/);
+  assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
+});
+
+test('long-only timing exception remains possible with a meaningful reason', async () => {
+  const data = inputs();
+  data.actDurationsSec.act1 = 12;
+  data.script.acts.act1.voScript = 'act1 alpha beta';
+  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== 'VO_Act1');
+  data.wordTimestamps.unshift(
+    { vo_file: 'VO_Act1', word: 'act1', start_seconds: 0.5, end_seconds: 0.9 },
+    { vo_file: 'VO_Act1', word: 'alpha', start_seconds: 1.5, end_seconds: 1.9 },
+    { vo_file: 'VO_Act1', word: 'beta', start_seconds: 3, end_seconds: 3.4 },
+  );
+  const ordinary = draft({ beats: [beat(0, 2)] });
+  const justified = draft({ beats: [beat(0, 2, { timingExceptionReason: 'The single major reveal must land as one continuous evidentiary statement.' })] });
+  const client = fakeClient((index, request) => request.messages[0].content.includes('Repair the complete model draft for act1') ? justified : ordinary);
+  const plan = await generateEditPlan({ ...data, client });
+  const repair = client.calls.find(call => call.messages[0].content.includes('LONG-BEAT REPARTITION'));
+  assert.ok(repair);
+  assert.doesNotMatch(repair.messages[0].content, /SHORT-BEAT REPAIR/);
+  assert.doesNotMatch(repair.messages[0].content, /MIXED TIMING REBALANCE/);
+  assert.equal(plan.sequences[0].beats[0].timingExceptionReason.startsWith('The single major reveal'), true);
+  const report = validateEditPlan({ plan, wordTimestamps: data.wordTimestamps });
+  assert.equal(report.status, 'PASS');
+  assert.equal(report.errors.some(error => error.code === 'BEAT_TOO_LONG'), false);
+  assert.ok(report.warnings.some(warning => warning.code === 'TIMING_EXCEPTION'));
+});
+
+test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-policy-v3-'));
+  try {
+    const originalRmSync = fs.rmSync;
+    fs.rmSync = (target, options) => target === path.join(dir, 'edit-plan.json') || target === checkpointPath(dir) ? undefined : originalRmSync(target, options);
+    try { await generateEditPlan({ ...inputs(), outputDir: dir, client: fakeClient() }); }
+    finally { fs.rmSync = originalRmSync; }
+    const checkpoint = readCheckpoint(dir);
+    const act4GenerationFingerprint = checkpoint.acts.act4.fingerprint;
+    delete checkpoint.acts.act4;
+    delete checkpoint.acts.act5;
+    checkpoint.repairAttempts.act4 = 2;
+    checkpoint.repairAttemptFingerprints.act4 = _repairAttemptScopeFingerprint({ generationFingerprint: act4GenerationFingerprint, repairPolicyVersion: 2 });
+    delete checkpoint.repairAttempts.act5;
+    delete checkpoint.repairAttemptFingerprints.act5;
+    fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
+    fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint));
+    const invalid = draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+    const client = fakeClient((index, request) => {
+      const prompt = request.messages[0].content;
+      if (prompt.includes('Repair the complete model draft for act4')) return draft();
+      if (prompt.includes('Plan only act4')) return invalid;
+      return draft();
+    });
+    await generateEditPlan({ ...inputs(), outputDir: dir, client });
+    assert.equal(client.calls.filter(call => /Plan only act1|Plan only act2|Plan only act3 of|Plan only act3b/.test(call.messages[0].content)).length, 0);
+    const act4GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act4'));
+    assert.equal(_requestFingerprint(act4GenerationCall.messages[0].content), act4GenerationFingerprint);
+    assert.equal(client.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft for act4')).length, 1);
+    assert.equal(client.calls.filter(call => call.messages[0].content.includes('Plan only act5')).length, 1);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
