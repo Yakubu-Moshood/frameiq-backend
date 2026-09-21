@@ -615,7 +615,7 @@ function buildTimingDiagnostics(errors, validationPlan) {
   return diagnostics;
 }
 
-function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan, words, durationSec }) {
+function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan, words, durationSec, previousRejection }) {
   const codes = errors.map(error => error.code);
   const hasShort = codes.includes('BEAT_TOO_SHORT');
   const hasLong = codes.includes('BEAT_TOO_LONG');
@@ -648,18 +648,20 @@ CONSTRAINED LOCAL TIMING OPTIONS:
 The listed clusters are the only narration regions requiring timing restructuring. Preserve word-index boundaries outside these clusters and do not globally repartition the act, reopen valid timing regions, or move a timing fault elsewhere. Choose a deterministic candidate only when it preserves coherent language and editorial meaning; the options are facts, not mechanical instructions. Preserve evidence semantics and rewrite creative fields inside affected clusters as needed.
 ${JSON.stringify(timingClusters)}` : '';
   return [
-    `Repair the complete model draft for ${actKey}.`,
+    timingOnly ? `Repair only the authorized timing cluster(s) for ${actKey}.` : `Repair the complete model draft for ${actKey}.`,
     `Repair attempt: ${attempt}`,
     `ORIGINAL GENERATION PROMPT:\n${originalPrompt}`,
     `CURRENT MODEL DRAFT:\n${JSON.stringify(draft)}`,
     `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
+    previousRejection ? `PREVIOUS TIMING PATCH REJECTED:\n${previousRejection}` : '',
     shortBeatGuidance,
     mixedTimingGuidance,
     longBeatGuidance,
     timingDiagnostics.length ? `TIMING REPAIR DIAGNOSTICS:\n${JSON.stringify(timingDiagnostics)}` : '',
     constrainedTiming,
     timingPatchProtocol,
-    'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
+    timingOnly ? 'For candidate resolution, optionIndex is ZERO-BASED: 0 is the first deterministic option, 1 the second, 2 the third.' : '',
+    timingOnly ? 'Return only the TIMING_CLUSTER_PATCH JSON object. Do not return markdown or a complete act draft.' : 'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
   ].join('\n\n');
 }
 
@@ -673,11 +675,17 @@ function applyTimingRepairPatch({ draft, validationPlan, clusters, patch }) {
     const cluster = clusters.find(item => `${item.clusterStartWordIndex}:${item.clusterEndWordIndex}` === key);
     if (!cluster || seen.has(key) || !entry.resolution || !Array.isArray(entry.replacementBeats)) throw new Error('[edit-plan] Timing patch cluster is outside the authorized scope.');
     seen.add(key);
+    const currentBeats = [];
+    validationPlan.sequences.forEach((sequence, sequenceIndex) => sequence.beats.forEach((beat, beatIndex) => {
+      if (beat.startWordIndex >= cluster.clusterStartWordIndex && beat.endWordIndex <= cluster.clusterEndWordIndex) currentBeats.push({ sequenceIndex, beatIndex, beat });
+    }));
     if (entry.resolution.type === 'candidate') {
       const option = cluster.options[entry.resolution.optionIndex];
       if (!option || entry.replacementBeats.length !== option.resultingRanges.length) throw new Error('[edit-plan] Timing patch candidate is invalid.');
       if (entry.replacementBeats.some(beat => Object.hasOwn(beat, 'startWordIndex') || Object.hasOwn(beat, 'endWordIndex'))) throw new Error('[edit-plan] Timing patch may not provide candidate geometry.');
-    } else if (entry.resolution.type !== 'exception') throw new Error('[edit-plan] Timing patch resolution is invalid.');
+    } else if (entry.resolution.type === 'exception') {
+      if (entry.replacementBeats.length !== currentBeats.length) throw new Error('[edit-plan] Timing exception must preserve current beat count.');
+    } else throw new Error('[edit-plan] Timing patch resolution is invalid.');
     const affected = new Set();
     next.sequences.forEach((sequence, sequenceIndex) => {
       sequence.beats = sequence.beats.filter(beat => {
@@ -687,10 +695,16 @@ function applyTimingRepairPatch({ draft, validationPlan, clusters, patch }) {
       });
     });
     const targetIndexes = entry.replacementBeats.map(beat => beat.targetSequenceIndex);
+    if (targetIndexes.some(index => !Number.isInteger(index)) || targetIndexes.some((index, indexInArray) => indexInArray && index < targetIndexes[indexInArray - 1])) throw new Error('[edit-plan] Timing patch target sequences must be non-decreasing.');
     if (targetIndexes.some(index => !affected.has(index))) throw new Error('[edit-plan] Timing patch targets an unrelated sequence.');
-    const ranges = entry.resolution.type === 'candidate' ? cluster.options[entry.resolution.optionIndex].resultingRanges : [{ startWordIndex: cluster.clusterStartWordIndex, endWordIndex: cluster.clusterEndWordIndex }];
-    ranges.forEach((range, index) => next.sequences[targetIndexes[index]].beats.push({ ...entry.replacementBeats[index], ...range }));
+    const ranges = entry.resolution.type === 'candidate' ? cluster.options[entry.resolution.optionIndex].resultingRanges : currentBeats.map(item => ({ startWordIndex: item.beat.startWordIndex, endWordIndex: item.beat.endWordIndex }));
+    ranges.forEach((range, index) => {
+      const { targetSequenceIndex, startWordIndex, endWordIndex, ...creativeFields } = entry.replacementBeats[index];
+      next.sequences[targetIndexes[index]].beats.push({ ...creativeFields, ...range });
+    });
   }
+  const affectedSequenceIndexes = new Set(patch.clusters.flatMap(entry => entry.replacementBeats.map(beat => beat.targetSequenceIndex)));
+  next.sequences.forEach((sequence, index) => { if (affectedSequenceIndexes.has(index)) sequence.beats.sort((a, b) => a.startWordIndex - b.startWordIndex); });
   if (seen.size !== expected.size) throw new Error('[edit-plan] Timing patch omitted an authorized cluster.');
   return next;
 }
@@ -774,6 +788,7 @@ async function generateEditPlan({
         && draftFingerprint(saved.draft) === saved.draftHash;
       let draft = reusableDraft ? saved.draft : await generateDraftWithRetry({ actKey, prompt, durationSec: act.durationSec });
       let actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
+      let previousRejection = '';
       while (actValidation.report.status !== 'PASS') {
         const classification = classifyRepairErrors(actValidation.report, actValidation.plan);
         if (classification.nonrepairable) {
@@ -786,7 +801,7 @@ async function generateEditPlan({
           throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
         }
         const nextAttempt = attempts + 1;
-        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt, validationPlan: actValidation.plan, words, durationSec: act.durationSec });
+        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt, validationPlan: actValidation.plan, words, durationSec: act.durationSec, previousRejection });
         const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: act.durationSec, system: REPAIR_STANDARD });
         checkpoint.repairAttempts[actKey] = nextAttempt;
         checkpoint.repairAttemptFingerprints[actKey] = scopeFingerprint;
@@ -795,9 +810,15 @@ async function generateEditPlan({
           throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${nextAttempt}.`);
         }
         const timingOnly = errors.every(error => error.code === 'BEAT_TOO_SHORT' || error.code === 'BEAT_TOO_LONG');
-        draft = timingOnly && repaired?.repairType === 'TIMING_CLUSTER_PATCH'
-          ? applyTimingRepairPatch({ draft, validationPlan: actValidation.plan, clusters: buildTimingRepairClusters({ errors, validationPlan: actValidation.plan, words, durationSec: act.durationSec }), patch: repaired })
-          : repaired;
+        if (timingOnly) {
+          try {
+            if (repaired?.repairType !== 'TIMING_CLUSTER_PATCH') throw new Error('Timing-only repair must return TIMING_CLUSTER_PATCH.');
+            draft = applyTimingRepairPatch({ draft, validationPlan: actValidation.plan, clusters: buildTimingRepairClusters({ errors, validationPlan: actValidation.plan, words, durationSec: act.durationSec }), patch: repaired });
+          } catch (error) {
+            previousRejection = error.message;
+            continue;
+          }
+        } else draft = repaired;
         actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
       }
       checkpoint.acts[actKey] = {

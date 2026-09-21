@@ -40,6 +40,29 @@ function inputs() {
   };
 }
 
+function setThreeWordActTiming(data, actKey, starts, durationSec) {
+  const voKey = Object.fromEntries(ACTS)[actKey];
+  const words = [actKey, 'alpha', 'beta'];
+  data.script.acts[actKey].voScript = words.join(' ');
+  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== voKey);
+  data.wordTimestamps.push(...words.map((word, index) => ({ vo_file: voKey, word, start_seconds: starts[index], end_seconds: starts[index] + 0.4 })));
+  data.actDurationsSec[actKey] = durationSec;
+  return data;
+}
+
+function repairableShortTiming(actKey = 'act1') { return setThreeWordActTiming(inputs(), actKey, [0.5, 2.5, 4], 6); }
+function repairableLongTiming(actKey = 'act1') { return setThreeWordActTiming(inputs(), actKey, [0.5, 3.5, 5.5], 8); }
+function repairableMixedTiming(actKey = 'act1') { return setThreeWordActTiming(inputs(), actKey, [0.5, 3.5, 6.5], 8); }
+
+function assertPromptHasLegalTimingCandidate(prompt) {
+  const clusters = extractJsonAfter(prompt, 'CONSTRAINED LOCAL TIMING OPTIONS:\n');
+  assert.ok(clusters.length > 0, 'timing repair must contain a cluster');
+  for (const cluster of clusters) {
+    assert.equal(cluster.strictPartitionAvailable, true, 'fixture must produce a strict legal timing partition');
+    assert.ok(cluster.options.length > 0, 'timing repair cluster must offer a legal candidate');
+  }
+}
+
 function evidence(required = false) {
   return required ? {
     required: true, evidenceType: 'regulatory filing', description: 'The relevant authenticated filing',
@@ -96,11 +119,89 @@ function fakeClient(makeDraft = () => draft(), { fenced = false, malformed = fal
       async create(request) {
         calls.push(request);
         if (malformed) return { content: [{ type: 'text', text: '{bad json' }] };
-        const body = JSON.stringify(makeDraft(calls.length - 1, request));
+        const value = makeDraft(calls.length - 1, request);
+        const body = JSON.stringify(value);
         return { content: [{ type: 'text', text: fenced ? `\n\n\`\`\`json\n${body}\n\`\`\`\n` : body }] };
       },
     },
   };
+}
+
+function timingPatchFromPrompt(prompt, { optionIndex = 0, optionSelector, exception = false, exceptionReason } = {}) {
+  const clusters = extractJsonAfter(prompt, 'CONSTRAINED LOCAL TIMING OPTIONS:\n');
+  const current = extractJsonAfter(prompt, 'CURRENT MODEL DRAFT:\n');
+  if (!clusters.length) throw new Error('No authorized timing clusters in prompt');
+  return {
+    repairType: 'TIMING_CLUSTER_PATCH',
+    clusters: clusters.map(cluster => {
+      const affected = [];
+      current.sequences.forEach((sequence, sequenceIndex) => sequence.beats.forEach(beat => {
+        if (beat.startWordIndex >= cluster.clusterStartWordIndex && beat.endWordIndex <= cluster.clusterEndWordIndex) affected.push({ sequenceIndex, beat });
+      }));
+      if (exception) return {
+        clusterStartWordIndex: cluster.clusterStartWordIndex, clusterEndWordIndex: cluster.clusterEndWordIndex,
+        resolution: { type: 'exception' },
+        replacementBeats: affected.map(item => { const { startWordIndex, endWordIndex, ...creative } = item.beat; return { targetSequenceIndex: item.sequenceIndex, ...creative, timingExceptionReason: exceptionReason || creative.timingExceptionReason || 'Continuous evidence reading is editorially necessary.' }; }),
+      };
+      const selectedIndex = optionSelector ? optionSelector(cluster.options) : optionIndex;
+      const option = cluster.options[selectedIndex];
+      if (!option) throw new Error('Requested timing option is unavailable');
+      return {
+        clusterStartWordIndex: cluster.clusterStartWordIndex, clusterEndWordIndex: cluster.clusterEndWordIndex,
+        resolution: { type: 'candidate', optionIndex: selectedIndex },
+        replacementBeats: option.resultingRanges.map((range, index) => {
+          const source = affected[index]?.beat || affected[0]?.beat || {};
+          const { startWordIndex, endWordIndex, ...creative } = source;
+          return { targetSequenceIndex: affected[index]?.sequenceIndex ?? affected[0]?.sequenceIndex ?? 0, ...creative };
+        }),
+      };
+    }),
+  };
+}
+
+function extractJsonAfter(text, marker) {
+  const start = text.indexOf(marker);
+  if (start < 0) throw new Error(`Missing ${marker}`);
+  const open = text.indexOf(text.slice(start).match(/[\[{]/)[0], start);
+  const close = text[open] === '{' ? '}' : ']';
+  let depth = 0; let quoted = false; let escaped = false;
+  for (let index = open; index < text.length; index++) {
+    const char = text[index];
+    if (quoted) { if (escaped) escaped = false; else if (char === '\\') escaped = true; else if (char === '"') quoted = false; continue; }
+    if (char === '"') { quoted = true; continue; }
+    if (char === text[open]) depth++;
+    if (char === close && --depth === 0) return JSON.parse(text.slice(open, index + 1));
+  }
+  throw new Error(`Unclosed JSON after ${marker}`);
+}
+
+function timingPatchFromDesiredDraft({ requestPrompt, desiredDraft }) {
+  const currentDraft = extractJsonAfter(requestPrompt, 'CURRENT MODEL DRAFT:\n');
+  const clusters = extractJsonAfter(requestPrompt, 'CONSTRAINED LOCAL TIMING OPTIONS:\n');
+  const replacement = [];
+  for (const cluster of clusters) {
+    const currentBeats = [];
+    currentDraft.sequences.forEach((sequence, sequenceIndex) => sequence.beats.forEach(beat => {
+      if (beat.startWordIndex >= cluster.clusterStartWordIndex && beat.endWordIndex <= cluster.clusterEndWordIndex) currentBeats.push({ sequenceIndex, beat });
+    }));
+    const desiredBeats = [];
+    desiredDraft.sequences.forEach((sequence, sequenceIndex) => sequence.beats.forEach(beat => {
+      if (beat.startWordIndex >= cluster.clusterStartWordIndex && beat.endWordIndex <= cluster.clusterEndWordIndex) desiredBeats.push({ sequenceIndex, beat });
+    }));
+    const desiredRanges = desiredBeats.map(item => [item.beat.startWordIndex, item.beat.endWordIndex]);
+    const optionIndex = cluster.options.findIndex(option => JSON.stringify(option.resultingRanges.map(range => [range.startWordIndex, range.endWordIndex])) === JSON.stringify(desiredRanges));
+    const currentRanges = currentBeats.map(item => [item.beat.startWordIndex, item.beat.endWordIndex]);
+    const creative = desiredBeats.map(item => { const { startWordIndex, endWordIndex, ...fields } = item.beat; return { targetSequenceIndex: item.sequenceIndex, ...fields }; });
+    if (optionIndex >= 0) replacement.push({ clusterStartWordIndex: cluster.clusterStartWordIndex, clusterEndWordIndex: cluster.clusterEndWordIndex, resolution: { type: 'candidate', optionIndex }, replacementBeats: creative });
+    else if (JSON.stringify(currentRanges) === JSON.stringify(desiredRanges) && creative.some(beat => typeof beat.timingExceptionReason === 'string' && beat.timingExceptionReason.trim())) replacement.push({ clusterStartWordIndex: cluster.clusterStartWordIndex, clusterEndWordIndex: cluster.clusterEndWordIndex, resolution: { type: 'exception' }, replacementBeats: creative });
+    else {
+      const option = cluster.options[0];
+      if (!option) throw new Error('Legacy desired draft is not a legal authorized timing patch.');
+      const fields = desiredBeats[0]?.beat || currentBeats[0]?.beat || {};
+      replacement.push({ clusterStartWordIndex: cluster.clusterStartWordIndex, clusterEndWordIndex: cluster.clusterEndWordIndex, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: option.resultingRanges.map((range, index) => { const { startWordIndex, endWordIndex, ...creativeFields } = desiredBeats[index]?.beat || fields; return { targetSequenceIndex: desiredBeats[index]?.sequenceIndex ?? currentBeats[0]?.sequenceIndex ?? 0, ...creativeFields }; }) });
+    }
+  }
+  return { repairType: 'TIMING_CLUSTER_PATCH', clusters: replacement };
 }
 
 async function generate(overrides = {}, client = fakeClient()) {
@@ -756,17 +857,20 @@ test('repair handles overlap, evidence metadata and invalid vocabulary while com
 });
 
 test('overlong beat is repaired by splitting coverage rather than changing deterministic time', async () => {
-  const data = inputs(); data.actDurationsSec.act1 = 7;
-  const client = fakeClient(callIndex => callIndex === 0
-    ? draft()
-    : callIndex === 1
-      ? draft({ beats: [beat(0, 0, { timingExceptionReason: 'short impact beat' }), beat(1, 2)] })
-      : draft());
+  const data = repairableLongTiming();
+  const client = fakeClient((index, request) => {
+    const prompt = request.messages[0].content;
+    if (prompt.includes('TIMING PATCH PROTOCOL')) {
+      assertPromptHasLegalTimingCandidate(prompt);
+      return timingPatchFromPrompt(prompt);
+    }
+    return draft();
+  });
   const plan = await generate(data, client);
   assert.equal(client.calls.length, 7);
   assert.equal(plan.sequences[0].beats.length, 2);
   assert.equal(plan.sequences[0].beats[0].startSec, 0);
-  assert.equal(plan.sequences[0].beats[1].endSec, 7);
+  assert.equal(plan.sequences[0].beats[1].endSec, 8);
 });
 
 test('nonrepairable word timestamp corruption makes no repair call', async () => {
@@ -980,10 +1084,10 @@ test('compact prompt forbids synthetic source impersonation', async () => { cons
 test('compact reconstruction example includes mode and action', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/"reconstructionMode":"representative"/); assert.match(p,/"secondaryAction":"The employee marks the target\."/); });
 test('missing reconstruction mode is repaired rather than defaulted', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{reconstructionMode:undefined})]}):draft()); const plan=await generate({},c); assert.equal(c.calls.length,7); assert.equal(plan.sequences[0].beats[0].reconstructionMode,'representative'); });
 test('invalid hold type is repaired', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{postNarrationHoldSec:'bad'})]}):draft()); await generate({},c); assert.equal(c.calls.length,7); });
-test('BEAT_TOO_SHORT repair prompt demands semantic merging', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({},c); const repair=c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')); assert.ok(repair); assert.match(repair.messages[0].content,/merge the short narration fragment/); });
-test('short beat repair guidance rejects exception as the default fix', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({},c); assert.match(c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')).messages[0].content,/Do not solve ordinary short beats merely by adding timingExceptionReason/); });
-test('short beat repair can merge adjacent coverage exactly', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); const plan=await generate({},c); assert.equal(plan.sequences[0].beats.length,1); assert.equal(plan.sequences[0].beats[0].startWordIndex,0); assert.equal(plan.sequences[0].beats[0].endWordIndex,2); });
-test('short beat repair removes all hard short-beat errors', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); const plan=await generate({},c); assert.equal(validateEditPlan({plan,wordTimestamps:inputs().wordTimestamps}).errors.some(e=>e.code==='BEAT_TOO_SHORT'),false); });
+test('BEAT_TOO_SHORT repair prompt demands semantic merging', async () => { const data=repairableShortTiming(); const c=fakeClient((i,r)=>r.messages[0].content.includes('TIMING PATCH PROTOCOL')?(assertPromptHasLegalTimingCandidate(r.messages[0].content),timingPatchFromPrompt(r.messages[0].content)):r.messages[0].content.includes('Plan only act1')?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({...data,client:c},c); const repair=c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')); assert.ok(repair); assert.match(repair.messages[0].content,/merge the short narration fragment/); });
+test('short beat repair guidance rejects exception as the default fix', async () => { const data=repairableShortTiming(); const c=fakeClient((i,r)=>r.messages[0].content.includes('TIMING PATCH PROTOCOL')?(assertPromptHasLegalTimingCandidate(r.messages[0].content),timingPatchFromPrompt(r.messages[0].content)):r.messages[0].content.includes('Plan only act1')?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({...data,client:c},c); assert.match(c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')).messages[0].content,/Do not solve ordinary short beats merely by adding timingExceptionReason/); });
+test('short beat repair can merge adjacent coverage exactly', async () => { const data=inputs(); const c=fakeClient((i,r)=>{ const p=r.messages[0].content; if(p.includes('TIMING PATCH PROTOCOL')) { assertPromptHasLegalTimingCandidate(p); return timingPatchFromPrompt(p,{optionSelector:options=>options.reduce((best,o,index)=>o.resultingRanges.length<options[best].resultingRanges.length?index:best,0)}); } return p.includes('Plan only act1')?draft({beats:[beat(0,0),beat(1,2)]}):draft(); }); const plan=await generate({...data,client:c}); assert.equal(plan.sequences[0].beats.length,1); assert.equal(plan.sequences[0].beats[0].startWordIndex,0); assert.equal(plan.sequences[0].beats[0].endWordIndex,2); });
+test('short beat repair removes all hard short-beat errors', async () => { const data=inputs(); const c=fakeClient((i,r)=>{const p=r.messages[0].content;if(p.includes('TIMING PATCH PROTOCOL')){assertPromptHasLegalTimingCandidate(p);return timingPatchFromPrompt(p);}return p.includes('Plan only act1')?draft({beats:[beat(0,0),beat(1,2)]}):draft();}); const plan=await generate({...data,client:c}); const report=validateEditPlan({plan,wordTimestamps:data.wordTimestamps}); assert.equal(report.errors.some(e=>e.code==='BEAT_TOO_SHORT'||e.code==='NARRATION_GAP'||e.code==='NARRATION_OVERLAP'),false); assert.equal(report.status,'PASS'); });
 test('repair attempt fingerprint is persisted with checkpoint metadata', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'repair-fp-')); try { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,0),beat(1,1),beat(2,2)]})); await assert.rejects(generateEditPlan({...inputs(),outputDir:d,client:c})); const cp=readCheckpoint(d); assert.equal(typeof cp.repairAttemptFingerprints.act1,'string'); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
 test('same fingerprint repair budget remains bounded after restart', async () => {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-bound-'));
@@ -1015,41 +1119,42 @@ test('changed request fingerprint receives and uses a fresh repair budget', asyn
     assert.equal(run2.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft')).length, 1);
   } finally { fs.rmSync(d, { recursive: true, force: true }); }
 });
-test('legacy unscoped repair attempts do not block a valid fresh repair', async () => {
+test('timing-only full-draft repair is rejected and second bounded patch can recover', async () => {
   const d = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-legacy-'));
-  const invalid = draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+  const data = inputs();
+  const invalid = draft({ beats: [beat(0, 0), beat(1, 2)] });
   try {
     fs.writeFileSync(checkpointPath(d), JSON.stringify({ checkpointVersion: 3, episodeId: 'episode-123', channel: 'EmpireOmitted', acts: {}, repairAttempts: { act1: 2 } }));
-    const valid = draft({ beats: [beat(0, 2)] });
-    const client = fakeClient(index => index === 0 ? invalid : valid);
-    await generateEditPlan({ ...inputs(), outputDir: d, client });
-    assert.equal(client.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft')).length, 1);
+    let repairCalls = 0;
+    const client = fakeClient((index, request) => {
+      const prompt = request.messages[0].content;
+      if (prompt.includes('TIMING PATCH PROTOCOL')) {
+        repairCalls += 1;
+        if (repairCalls === 1) return draft({ beats: [beat(0, 0, { visualIntent: 'A deliberately rejected full-draft response.' }), beat(1, 2)] });
+        assert.match(prompt, /PREVIOUS TIMING PATCH REJECTED/);
+        assertPromptHasLegalTimingCandidate(prompt);
+        return timingPatchFromPrompt(prompt);
+      }
+      return prompt.includes('Plan only act1') ? invalid : draft();
+    });
+    const plan = await generateEditPlan({ ...data, outputDir: d, client });
+    assert.equal(repairCalls, 2);
+    assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
   } finally { fs.rmSync(d, { recursive: true, force: true }); }
 });
 test('invalid repaired drafts never enter checkpoint acts', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'repair-invalid-')); try { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,0),beat(1,1),beat(2,2)]})); await assert.rejects(generateEditPlan({...inputs(),outputDir:d,client:c})); const cp=readCheckpoint(d); assert.equal(cp.acts.act1,undefined); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
-test('short-beat repair uses fake client only', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); await generate({},c); assert.ok(c.calls.every(x=>x && x.messages)); });
+test('short-beat repair uses fake client only', async () => { const data=repairableShortTiming(); const c=fakeClient((i,r)=>r.messages[0].content.includes('TIMING PATCH PROTOCOL')?timingPatchFromPrompt(r.messages[0].content):r.messages[0].content.includes('Plan only act1')?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({...data,client:c},c); assert.ok(c.calls.every(x=>x && x.messages)); });
 test('repair scope is stable for identical generation and policy', () => { const a=_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}); const b=_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}); assert.equal(a,b); });
 test('repair scope changes with generation fingerprint', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),_repairAttemptScopeFingerprint({generationFingerprint:'b'})); });
 test('repair scope changes with repair policy identity', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}),_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:2})); });
 test('scope includes repair attempt cap', () => { assert.match(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),/^[a-f0-9]{64}$/); });
 
 test('mixed short and long timing errors receive cluster rebalance guidance and diagnostics', async () => {
-  const data = inputs();
-  data.actDurationsSec.act1 = 12;
-  data.script.acts.act1.voScript = 'act1 alpha beta gamma delta';
-  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== 'VO_Act1');
-  data.wordTimestamps.unshift(
-    { vo_file: 'VO_Act1', word: 'act1', start_seconds: 0.5, end_seconds: 0.9 },
-    { vo_file: 'VO_Act1', word: 'alpha', start_seconds: 1.5, end_seconds: 1.9 },
-    { vo_file: 'VO_Act1', word: 'beta', start_seconds: 4.5, end_seconds: 4.9 },
-    { vo_file: 'VO_Act1', word: 'gamma', start_seconds: 6.5, end_seconds: 6.9 },
-    { vo_file: 'VO_Act1', word: 'delta', start_seconds: 7.5, end_seconds: 7.9 },
-  );
-  const invalid = draft({ beats: [beat(0, 2), beat(3, 3), beat(4, 4)] });
-  const valid = draft({ beats: [beat(0, 1), beat(2, 3), beat(4, 4)] });
+  const data = repairableMixedTiming();
+  const invalid = draft({ beats: [beat(0, 1), beat(2, 2)] });
   const client = fakeClient((index, request) => {
     const prompt = request.messages[0].content;
-    if (prompt.includes('Repair the complete model draft for act1')) return valid;
+    if (prompt.includes('TIMING PATCH PROTOCOL')) { assertPromptHasLegalTimingCandidate(prompt); return timingPatchFromPrompt(prompt); }
     if (prompt.includes('Plan only act1')) return invalid;
     return draft();
   });
@@ -1063,10 +1168,9 @@ test('mixed short and long timing errors receive cluster rebalance guidance and 
   assert.match(text, /timingExceptionReason simply to silence the validator/);
   assert.match(text, /TIMING REPAIR DIAGNOSTICS/);
   assert.match(text, /"code":"BEAT_TOO_LONG"/);
-  assert.match(text, /"durationSec":6\.5/);
-  assert.match(text, /"startWordIndex":0/);
-  assert.match(text, /"endWordIndex":2/);
-  assert.match(text, /"narrationExcerpt":"act1 alpha beta"/);
+  const diagnostics = extractJsonAfter(text, 'TIMING REPAIR DIAGNOSTICS:\n');
+  assert.ok(diagnostics.some(item => item.code === 'BEAT_TOO_LONG' && item.startWordIndex === 0 && item.endWordIndex === 1 && item.narrationExcerpt === 'act1 alpha'));
+  assert.ok(diagnostics.some(item => item.code === 'BEAT_TOO_SHORT' && item.startWordIndex === 2 && item.endWordIndex === 2 && item.narrationExcerpt === 'beta'));
   assert.match(text, /"previous":|"next":/);
   assert.doesNotMatch(text, /SHORT-BEAT REPAIR/);
   const report = validateEditPlan({ plan, wordTimestamps: data.wordTimestamps });
@@ -1092,7 +1196,7 @@ test('repair policy version 5 changes scope while generation fingerprint stays s
   assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 4 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 5 }));
 });
 
-test('policy v4 preserves valid saved acts and refreshes an exhausted act3 repair budget', async () => {
+test('policy v5 refreshes exhausted policy-v4 act3 repair scope', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-policy-v2-'));
   try {
     const originalRmSync = fs.rmSync;
@@ -1108,34 +1212,24 @@ test('policy v4 preserves valid saved acts and refreshes an exhausted act3 repai
     fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint));
     const client = fakeClient((index, request) => {
       const prompt = request.messages[0].content;
-      if (prompt.includes('Plan only act3') && !prompt.includes('Repair the complete model draft')) return draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+      if (prompt.includes('TIMING PATCH PROTOCOL')) { assertPromptHasLegalTimingCandidate(prompt); return timingPatchFromPrompt(prompt); }
+      if (prompt.includes('Plan only act3')) return draft({ beats: [beat(0, 0), beat(1, 2)] });
       return draft();
     });
     await generateEditPlan({ ...inputs(), outputDir: dir, client });
     assert.equal(client.calls.filter(call => /Plan only act1|Plan only act2/.test(call.messages[0].content)).length, 0);
     const act3GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act3'));
     assert.equal(_requestFingerprint(act3GenerationCall.messages[0].content), act3GenerationFingerprint);
-    assert.ok(client.calls.some(call => call.messages[0].content.includes('Repair the complete model draft for act3')));
+    assert.ok(client.calls.some(call => call.messages[0].content.includes('TIMING PATCH PROTOCOL')));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
 test('long-only repair uses exclusive repartition guidance and diagnostics', async () => {
-  const data = inputs();
-  data.actDurationsSec.act1 = 12;
-  data.script.acts.act1.voScript = 'act1 alpha beta gamma delta';
-  data.wordTimestamps = data.wordTimestamps.filter(word => word.vo_file !== 'VO_Act1');
-  data.wordTimestamps.unshift(
-    { vo_file: 'VO_Act1', word: 'act1', start_seconds: 0.5, end_seconds: 0.9 },
-    { vo_file: 'VO_Act1', word: 'alpha', start_seconds: 1.5, end_seconds: 1.9 },
-    { vo_file: 'VO_Act1', word: 'beta', start_seconds: 4.5, end_seconds: 4.9 },
-    { vo_file: 'VO_Act1', word: 'gamma', start_seconds: 6.5, end_seconds: 6.9 },
-    { vo_file: 'VO_Act1', word: 'delta', start_seconds: 7.5, end_seconds: 7.9 },
-  );
-  const invalid = draft({ beats: [beat(0, 4)] });
-  const valid = draft({ beats: [beat(0, 1), beat(2, 3), beat(4, 4)] });
+  const data = repairableLongTiming();
+  const invalid = draft({ beats: [beat(0, 2)] });
   const client = fakeClient((index, request) => {
     const prompt = request.messages[0].content;
-    if (prompt.includes('Repair the complete model draft for act1')) return valid;
+    if (prompt.includes('TIMING PATCH PROTOCOL')) { assertPromptHasLegalTimingCandidate(prompt); return timingPatchFromPrompt(prompt); }
     if (prompt.includes('Plan only act1')) return invalid;
     return draft();
   });
@@ -1145,10 +1239,10 @@ test('long-only repair uses exclusive repartition guidance and diagnostics', asy
   const text = repair.messages[0].content;
   assert.doesNotMatch(text, /SHORT-BEAT REPAIR/);
   assert.doesNotMatch(text, /MIXED TIMING REBALANCE/);
-  assert.match(text, /"durationSec":12/);
+  assert.match(text, /"durationSec":8/);
   assert.match(text, /"startWordIndex":0/);
-  assert.match(text, /"endWordIndex":4/);
-  assert.match(text, /"narrationExcerpt":"act1 alpha beta gamma delta"/);
+  assert.match(text, /"endWordIndex":2/);
+  assert.match(text, /"narrationExcerpt":"act1 alpha beta"/);
   assert.match(text, /postNarrationHoldSec is not a fix/);
   assert.equal(validateEditPlan({ plan, wordTimestamps: data.wordTimestamps }).status, 'PASS');
 });
@@ -1164,8 +1258,7 @@ test('long-only timing exception remains possible with a meaningful reason', asy
     { vo_file: 'VO_Act1', word: 'beta', start_seconds: 3, end_seconds: 3.4 },
   );
   const ordinary = draft({ beats: [beat(0, 2)] });
-  const justified = draft({ beats: [beat(0, 2, { timingExceptionReason: 'The single major reveal must land as one continuous evidentiary statement.' })] });
-  const client = fakeClient((index, request) => request.messages[0].content.includes('Repair the complete model draft for act1') ? justified : ordinary);
+  const client = fakeClient((index, request) => request.messages[0].content.includes('TIMING PATCH PROTOCOL') ? timingPatchFromPrompt(request.messages[0].content, { exception: true, exceptionReason: 'The single major reveal must land as one continuous evidentiary statement.' }) : ordinary);
   const plan = await generateEditPlan({ ...data, client });
   const repair = client.calls.find(call => call.messages[0].content.includes('LONG-BEAT REPARTITION'));
   assert.ok(repair);
@@ -1178,7 +1271,7 @@ test('long-only timing exception remains possible with a meaningful reason', asy
   assert.ok(report.warnings.some(warning => warning.code === 'TIMING_EXCEPTION'));
 });
 
-test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope', async () => {
+test('policy v5 preserves acts1-3b and refreshes exhausted policy-v4 act4 scope', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-policy-v3-'));
   try {
     const originalRmSync = fs.rmSync;
@@ -1195,10 +1288,10 @@ test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope',
     delete checkpoint.repairAttemptFingerprints.act5;
     fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
     fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint));
-    const invalid = draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+    const invalid = draft({ beats: [beat(0, 0), beat(1, 2)] });
     const client = fakeClient((index, request) => {
       const prompt = request.messages[0].content;
-      if (prompt.includes('Repair the complete model draft for act4')) return draft();
+      if (prompt.includes('TIMING PATCH PROTOCOL')) { assertPromptHasLegalTimingCandidate(prompt); return timingPatchFromPrompt(prompt); }
       if (prompt.includes('Plan only act4')) return invalid;
       return draft();
     });
@@ -1206,7 +1299,7 @@ test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope',
     assert.equal(client.calls.filter(call => /Plan only act1|Plan only act2|Plan only act3 of|Plan only act3b/.test(call.messages[0].content)).length, 0);
     const act4GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act4'));
     assert.equal(_requestFingerprint(act4GenerationCall.messages[0].content), act4GenerationFingerprint);
-    assert.equal(client.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft for act4')).length, 1);
+    assert.equal(client.calls.filter(call => call.messages[0].content.includes('TIMING PATCH PROTOCOL')).length, 1);
     assert.ok(client.calls.find(call => call.messages[0].content.includes('CONSTRAINED LOCAL TIMING OPTIONS')));
     assert.equal(client.calls.filter(call => call.messages[0].content.includes('Plan only act5')).length, 1);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
@@ -1313,4 +1406,39 @@ test('timing patch rejects model-supplied candidate boundaries and unrelated seq
   const current = { sequences: [{ beats: [beat(0, 1), beat(2, 2)] }, { beats: [beat(3, 3)] }] };
   const clusters = [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, options: [{ resultingRanges: [{ startWordIndex: 2, endWordIndex: 2, durationSec: 2 }] }] }];
   assert.throws(() => _applyTimingRepairPatch({ draft: current, validationPlan: { sequences: current.sequences }, clusters, patch: { repairType: 'TIMING_CLUSTER_PATCH', clusters: [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: [{ targetSequenceIndex: 1, startWordIndex: 2, endWordIndex: 2 }] }] } }), /may not provide candidate geometry|unrelated sequence/);
+});
+
+test('timing-only repair prompt uses the bounded patch response contract', async () => {
+  const data = repairableShortTiming();
+  const client = fakeClient((index, request) => {
+    const prompt = request.messages[0].content;
+    if (prompt.includes('TIMING PATCH PROTOCOL')) return timingPatchFromPrompt(prompt);
+    return prompt.includes('Plan only act1') ? draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] }) : draft();
+  });
+  await generateEditPlan({ ...data, client });
+  const prompt = client.calls.find(call => call.messages[0].content.includes('TIMING PATCH PROTOCOL')).messages[0].content;
+  const prefix = prompt.slice(0, prompt.indexOf('ORIGINAL GENERATION PROMPT:'));
+  const contract = prompt.slice(prompt.indexOf('TIMING PATCH PROTOCOL:'));
+  assert.match(prefix, /Repair only the authorized timing cluster\(s\)/);
+  assert.match(contract, /optionIndex is zero-based/i);
+  assert.match(prompt, /CONSTRAINED LOCAL TIMING OPTIONS/);
+  assert.doesNotMatch(contract, /Return (?:only )?the complete replacement model draft|Return (?:only )?the complete act|globally repartition the act\./i);
+});
+
+test('Wells Fargo Act4 local timing repair preserves later unrelated boundaries', () => {
+  const current = { sequences: [
+    { sequencePurpose: 'Repair region', beats: [beat(87, 101)] },
+    { sequencePurpose: 'Later region', beats: [beat(148, 158, { visualIntent: 'Later evidence remains frozen.' }), beat(159, 165, { visualIntent: 'Later consequence remains frozen.' })] },
+  ] };
+  const laterBefore = JSON.parse(JSON.stringify(current.sequences[1]));
+  const clusters = [{ clusterStartWordIndex: 87, clusterEndWordIndex: 101, options: [{ resultingRanges: [{ startWordIndex: 87, endWordIndex: 95, durationSec: 4 }, { startWordIndex: 96, endWordIndex: 101, durationSec: 4 }] }] }];
+  const patch = { repairType: 'TIMING_CLUSTER_PATCH', clusters: [{ clusterStartWordIndex: 87, clusterEndWordIndex: 101, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: [{ targetSequenceIndex: 0, visualIntent: 'First local repair.' }, { targetSequenceIndex: 0, visualIntent: 'Second local repair.' }] }] };
+  const repaired = _applyTimingRepairPatch({ draft: current, validationPlan: { sequences: current.sequences }, clusters, patch });
+  assert.deepEqual(repaired.sequences[0].beats.map(item => [item.startWordIndex, item.endWordIndex]), [[87, 95], [96, 101]]);
+  assert.deepEqual(repaired.sequences[1], laterBefore);
+  const laterBoundaries = repaired.sequences[1].beats.flatMap(item => [item.startWordIndex, item.endWordIndex]);
+  assert.ok([148, 158, 165].every(index => laterBoundaries.includes(index)));
+  assert.ok(!laterBoundaries.includes(150) && !laterBoundaries.includes(167));
+  assert.equal(repaired.sequences.some(sequence => sequence.beats.some(item => item.startWordIndex === 151 && item.endWordIndex === 167)), false);
+  assert.equal(repaired.sequences[0].beats.some(item => Object.hasOwn(item, 'targetSequenceIndex')), false);
 });
