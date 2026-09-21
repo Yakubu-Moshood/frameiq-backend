@@ -6,7 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
-const { generateEditPlan, MODEL, _classifyRepairErrors } = require('../pipeline-updates/edit-plan-generator.cjs');
+const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint } = require('../pipeline-updates/edit-plan-generator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
 const ACTS = [
@@ -980,3 +980,55 @@ test('compact prompt forbids synthetic source impersonation', async () => { cons
 test('compact reconstruction example includes mode and action', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/"reconstructionMode":"representative"/); assert.match(p,/"secondaryAction":"The employee marks the target\."/); });
 test('missing reconstruction mode is repaired rather than defaulted', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{reconstructionMode:undefined})]}):draft()); const plan=await generate({},c); assert.equal(c.calls.length,7); assert.equal(plan.sequences[0].beats[0].reconstructionMode,'representative'); });
 test('invalid hold type is repaired', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{postNarrationHoldSec:'bad'})]}):draft()); await generate({},c); assert.equal(c.calls.length,7); });
+test('BEAT_TOO_SHORT repair prompt demands semantic merging', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({},c); const repair=c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')); assert.ok(repair); assert.match(repair.messages[0].content,/merge the short narration fragment/); });
+test('short beat repair guidance rejects exception as the default fix', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft()); await generate({},c); assert.match(c.calls.find(x=>x.messages[0].content.includes('SHORT-BEAT REPAIR')).messages[0].content,/Do not solve ordinary short beats merely by adding timingExceptionReason/); });
+test('short beat repair can merge adjacent coverage exactly', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); const plan=await generate({},c); assert.equal(plan.sequences[0].beats.length,1); assert.equal(plan.sequences[0].beats[0].startWordIndex,0); assert.equal(plan.sequences[0].beats[0].endWordIndex,2); });
+test('short beat repair removes all hard short-beat errors', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); const plan=await generate({},c); assert.equal(validateEditPlan({plan,wordTimestamps:inputs().wordTimestamps}).errors.some(e=>e.code==='BEAT_TOO_SHORT'),false); });
+test('repair attempt fingerprint is persisted with checkpoint metadata', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'repair-fp-')); try { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,0),beat(1,1),beat(2,2)]})); await assert.rejects(generateEditPlan({...inputs(),outputDir:d,client:c})); const cp=readCheckpoint(d); assert.equal(typeof cp.repairAttemptFingerprints.act1,'string'); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
+test('same fingerprint repair budget remains bounded after restart', async () => {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-bound-'));
+  const invalid = i => draft({ beats: [beat(0, 0, { storyFunction: `bad_${i}` }), beat(1, 1), beat(2, 2)] });
+  try {
+    const run1 = fakeClient(index => invalid(index));
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: d, client: run1 }), /Repair limit reached for act1: 2/);
+    assert.equal(readCheckpoint(d).repairAttempts.act1, 2);
+    assert.ok(readCheckpoint(d).repairAttemptFingerprints.act1);
+    const run2 = fakeClient(() => invalid(9));
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: d, client: run2 }), /Repair limit reached for act1: 2/);
+    const repairCalls = run2.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft'));
+    assert.equal(run2.calls.length, 1);
+    assert.equal(repairCalls.length, 0);
+    assert.equal(readCheckpoint(d).repairAttempts.act1, 2);
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('changed request fingerprint receives and uses a fresh repair budget', async () => {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-reset-'));
+  const invalid = i => draft({ beats: [beat(0, 0, { storyFunction: `bad_${i}` }), beat(1, 1), beat(2, 2)] });
+  try {
+    const run1 = fakeClient(index => invalid(index));
+    await assert.rejects(generateEditPlan({ ...inputs(), outputDir: d, client: run1 }), /Repair limit reached for act1: 2/);
+    const changed = inputs(); changed.script.acts.act1.voScript += ' revised';
+    const valid = draft({ beats: [beat(0, 2)] });
+    const run2 = fakeClient(index => index === 0 ? invalid(9) : valid);
+    const plan = await generateEditPlan({ ...changed, outputDir: d, client: run2 });
+    assert.equal(plan.sequences[0].beats[0].endWordIndex, 2);
+    assert.equal(run2.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft')).length, 1);
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('legacy unscoped repair attempts do not block a valid fresh repair', async () => {
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-legacy-'));
+  const invalid = draft({ beats: [beat(0, 0), beat(1, 1), beat(2, 2)] });
+  try {
+    fs.writeFileSync(checkpointPath(d), JSON.stringify({ checkpointVersion: 3, episodeId: 'episode-123', channel: 'EmpireOmitted', acts: {}, repairAttempts: { act1: 2 } }));
+    const valid = draft({ beats: [beat(0, 2)] });
+    const client = fakeClient(index => index === 0 ? invalid : valid);
+    await generateEditPlan({ ...inputs(), outputDir: d, client });
+    assert.equal(client.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft')).length, 1);
+  } finally { fs.rmSync(d, { recursive: true, force: true }); }
+});
+test('invalid repaired drafts never enter checkpoint acts', async () => { const d=fs.mkdtempSync(path.join(os.tmpdir(),'repair-invalid-')); try { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,0),beat(1,1),beat(2,2)]})); await assert.rejects(generateEditPlan({...inputs(),outputDir:d,client:c})); const cp=readCheckpoint(d); assert.equal(cp.acts.act1,undefined); } finally { fs.rmSync(d,{recursive:true,force:true}); } });
+test('short-beat repair uses fake client only', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,0),beat(1,1),beat(2,2)]}):draft({beats:[beat(0,2)]})); await generate({},c); assert.ok(c.calls.every(x=>x && x.messages)); });
+test('repair scope is stable for identical generation and policy', () => { const a=_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}); const b=_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}); assert.equal(a,b); });
+test('repair scope changes with generation fingerprint', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),_repairAttemptScopeFingerprint({generationFingerprint:'b'})); });
+test('repair scope changes with repair policy identity', () => { assert.notEqual(_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:1}),_repairAttemptScopeFingerprint({generationFingerprint:'a',repairPolicyVersion:2})); });
+test('scope includes repair attempt cap', () => { assert.match(_repairAttemptScopeFingerprint({generationFingerprint:'a'}),/^[a-f0-9]{64}$/); });

@@ -12,6 +12,7 @@ const TIMING_EPSILON = 0.001;
 const CHECKPOINT_VERSION = 3;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
+const REPAIR_POLICY_VERSION = 1;
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -43,7 +44,7 @@ Preserve geometry: no morphing, warping, uncontrolled orbit, or unnecessary auto
 
 Use graphics selectively and only as: identity_lower_third, source_citation, impact_card, date_marker, data_graphic, direct_quote, document_callout, chapter_marker, takeaway. Reserve impact typography for major facts. Audio direction is creative intent only; it may express music, SFX, room tone, or meaningful silence, but never timeline automation.`;
 // The Director chooses semantic editorial units, not mechanical word slices.
-const DIRECTOR_CALIBRATION = `A beat is one coherent editorial idea, reveal, action, contrast, or emotional turn. Keep adjacent list items and short clauses that belong to one idea in one beat; do not create a new beat for every comma or noun fragment. A sequence is a sustained editorial idea with related beats and an audience transformation. Decide what changes inside the frame before choosing camera motion; story action, human behaviour, object interaction, document behaviour, environmental change, and graphic transformation outrank decorative camera movement. When narration presents a quantitative, legal, regulatory, official, documentary, quoted, historically recorded, or otherwise externally provable claim, FIRST ask: “Should authentic material prove this claim?” If yes, use visualClass EVIDENCE and provide evidenceRequirement. Never use EDITORIAL_ILLUSTRATION to fabricate an official memo, filing, termination document, report, newspaper front page, financial terminal, testimony record, quote card, regulatory document, or court document when the purpose is to prove the claim. Editorial graphics may explain or contextualise evidence but must not impersonate authentic source material. Never invent URLs, quotations, source names, publication names, filing numbers, provenance, or document wording unless supplied in source context. literal_supported means the specific physical action, object, interaction, location or procedure is explicitly supported by narration or supplied source context; do not use it merely because the reconstruction looks plausible. representative means the underlying situation is supported but exact staging is unknown, so communicate it generically without implying the precise action, person, location, procedure, object or interface is verified. atmospheric means human or location atmosphere only and does not assert a specific factual action. Never default mentally to representative; choose reconstructionMode from what the available source context actually supports, and do not upgrade unsupported action to literal_supported. intentionalStillness=true means absence of visual movement is itself the editorial decision, suitable for emotional aftermath, evidence reading, major reveal, final impact, or breathing room; it requires static_locked and a meaningful timingExceptionReason. static_locked alone does not mean intentionalStillness: locked framing may contain human, object, environmental, or graphic/document action. postNarrationHoldSec may coexist with intentionalStillness and represents future silence after narration; it never changes the narration clock.`;
+const DIRECTOR_CALIBRATION = `A beat is one coherent editorial idea, reveal, action, contrast, or emotional turn. Keep adjacent list items and short clauses that belong to one idea in one beat; do not create a new beat for every comma or noun fragment. A sequence is a sustained editorial idea with related beats and an audience transformation. Decide what changes inside the frame before choosing camera motion; story action, human behaviour, object interaction, document behaviour, environmental change, and graphic transformation outrank decorative camera movement. When narration presents a quantitative, legal, regulatory, official, documentary, quoted, historically recorded, or otherwise externally provable claim, FIRST ask: "Should authentic material prove this claim?" If yes, use visualClass EVIDENCE and provide evidenceRequirement. Never use EDITORIAL_ILLUSTRATION to fabricate an official memo, filing, termination document, report, newspaper front page, financial terminal, testimony record, quote card, regulatory document, or court document when the purpose is to prove the claim. Editorial graphics may explain or contextualise evidence but must not impersonate authentic source material. Never invent URLs, quotations, source names, publication names, filing numbers, provenance, or document wording unless supplied in source context. literal_supported means the specific physical action, object, interaction, location or procedure is explicitly supported by narration or supplied source context; do not use it merely because the reconstruction looks plausible. representative means the underlying situation is supported but exact staging is unknown, so communicate it generically without implying the precise action, person, location, procedure, object or interface is verified. atmospheric means human or location atmosphere only and does not assert a specific factual action. Never default mentally to representative; choose reconstructionMode from what the available source context actually supports, and do not upgrade unsupported action to literal_supported. intentionalStillness=true means absence of visual movement is itself the editorial decision, suitable for emotional aftermath, evidence reading, major reveal, final impact, or breathing room; it requires static_locked and a meaningful timingExceptionReason. static_locked alone does not mean intentionalStillness: locked framing may contain human, object, environmental, or graphic/document action. postNarrationHoldSec may coexist with intentionalStillness and represents future silence after narration; it never changes the narration clock.`;
 
 const REPAIR_STANDARD = `${DIRECTOR_STANDARD}
 ${DIRECTOR_CALIBRATION}
@@ -176,8 +177,12 @@ function draftFingerprint(draft) {
   return crypto.createHash('sha256').update(JSON.stringify(draft)).digest('hex');
 }
 
+function repairAttemptScopeFingerprint({ generationFingerprint, repairStandard = REPAIR_STANDARD, repairPolicyVersion = REPAIR_POLICY_VERSION } = {}) {
+  return crypto.createHash('sha256').update(JSON.stringify({ generationFingerprint, repairStandard, repairPolicyVersion, maxRepairAttempts: MAX_REPAIR_ATTEMPTS_PER_ACT })).digest('hex');
+}
+
 function freshCheckpoint(episodeId) {
-  return { checkpointVersion: CHECKPOINT_VERSION, episodeId, channel: 'EmpireOmitted', acts: {}, repairAttempts: {} };
+  return { checkpointVersion: CHECKPOINT_VERSION, episodeId, channel: 'EmpireOmitted', acts: {}, repairAttempts: {}, repairAttemptFingerprints: {} };
 }
 
 function loadCheckpoint(checkpointPath, episodeId) {
@@ -189,6 +194,7 @@ function loadCheckpoint(checkpointPath, episodeId) {
       && parsed.channel === 'EmpireOmitted'
       && parsed.acts && typeof parsed.acts === 'object' && !Array.isArray(parsed.acts)) {
       if (!parsed.repairAttempts || typeof parsed.repairAttempts !== 'object' || Array.isArray(parsed.repairAttempts)) parsed.repairAttempts = {};
+      if (!parsed.repairAttemptFingerprints || typeof parsed.repairAttemptFingerprints !== 'object' || Array.isArray(parsed.repairAttemptFingerprints)) parsed.repairAttemptFingerprints = {};
       return parsed;
     }
   } catch (error) {
@@ -466,12 +472,16 @@ function classifyRepairErrors(report, plan) {
 }
 
 function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt }) {
+  const codes = errors.map(error => error.code);
+  const shortBeatGuidance = codes.includes('BEAT_TOO_SHORT') ? `
+SHORT-BEAT REPAIR: repair semantic fragmentation first. For each BEAT_TOO_SHORT error, merge the short narration fragment into an adjacent semantically related beat whenever possible. Adjust word-index boundaries while preserving every narration word exactly once, playback order, no gaps, no overlaps, and coherent sequence meaning. Short noun lists, clauses, connective phrases, and sentence tails normally belong inside the neighbouring editorial idea. You may merge adjacent beats, redistribute boundaries, collapse a thin sequence, and rewrite the surviving visual intent. Do not solve ordinary short beats merely by adding timingExceptionReason. Keep a sub-2-second beat separate only for a genuinely intentional impact such as a major payoff, decisive reveal, single-word/statistical impact, or emotional punctuation, with a meaningful timingExceptionReason and, where appropriate, postNarrationHoldSec. Example: merge "credit cards", "checking accounts", "savings accounts", and "all fake" into one coherent beat with internal progression.` : '';
   return [
     `Repair the complete model draft for ${actKey}.`,
     `Repair attempt: ${attempt}`,
     `ORIGINAL GENERATION PROMPT:\n${originalPrompt}`,
     `CURRENT MODEL DRAFT:\n${JSON.stringify(draft)}`,
     `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
+    shortBeatGuidance,
     'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
   ].join('\n\n');
 }
@@ -543,6 +553,12 @@ async function generateEditPlan({
       const words = wordsByVo.get(voKey);
       const prompt = buildActPrompt({ script, actKey, words, durationSec: act.durationSec, channelDna, previousContext: priorContext.slice(-2).join('\n') });
       const fingerprint = requestFingerprint(prompt);
+      const scopeFingerprint = repairAttemptScopeFingerprint({ generationFingerprint: fingerprint });
+      const scopedFingerprint = checkpoint.repairAttemptFingerprints[actKey];
+      if (scopedFingerprint !== scopeFingerprint) {
+        checkpoint.repairAttempts[actKey] = 0;
+        checkpoint.repairAttemptFingerprints[actKey] = scopeFingerprint;
+      }
       const saved = checkpoint.acts[actKey];
       const reusableDraft = saved?.fingerprint === fingerprint && saved.draft && typeof saved.draft === 'object'
         && !Array.isArray(saved.draft) && typeof saved.draftHash === 'string' && /^[a-f0-9]{64}$/.test(saved.draftHash)
@@ -564,6 +580,7 @@ async function generateEditPlan({
         const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt });
         const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: act.durationSec, system: REPAIR_STANDARD });
         checkpoint.repairAttempts[actKey] = nextAttempt;
+        checkpoint.repairAttemptFingerprints[actKey] = scopeFingerprint;
         if (checkpointPath) writeCheckpointAtomic(checkpointPath, checkpoint);
         if (draftFingerprint(repaired) === draftFingerprint(draft)) {
           throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${nextAttempt}.`);
@@ -605,4 +622,5 @@ module.exports = {
   generateEditPlan,
   MODEL,
   _classifyRepairErrors: classifyRepairErrors,
+  _repairAttemptScopeFingerprint: repairAttemptScopeFingerprint,
 };
