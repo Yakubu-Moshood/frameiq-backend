@@ -12,7 +12,7 @@ const TIMING_EPSILON = 0.001;
 const CHECKPOINT_VERSION = 3;
 const CHECKPOINT_FILE = 'edit-plan-drafts.partial.json';
 const MAX_REPAIR_ATTEMPTS_PER_ACT = 2;
-const REPAIR_POLICY_VERSION = 3;
+const REPAIR_POLICY_VERSION = 5;
 const ACTS = [
   ['act1', 'VO_Act1'],
   ['act2', 'VO_Act2'],
@@ -480,6 +480,115 @@ function beatTimingDiagnostic(beat) {
   };
 }
 
+function localBeatSeconds(words, start, end, durationSec) {
+  const startSec = start === 0 ? 0 : words[start].start_seconds;
+  const endSec = end === words.length - 1 ? durationSec : words[end + 1].start_seconds;
+  return { startSec, endSec, durationSec: endSec - startSec };
+}
+
+function buildTimingRepairClusters({ errors = [], validationPlan, words = [], durationSec } = {}) {
+  const flattened = [];
+  (validationPlan?.sequences || []).forEach((sequence, sequenceIndex) => (sequence.beats || []).forEach((beat, beatIndex) => {
+    flattened.push({ sequenceIndex, beatIndex, beat });
+  }));
+  const faultIndexes = flattened.map((item, index) => errors.some(error => {
+    const match = /^\/sequences\/(\d+)\/beats\/(\d+)/.exec(error.path || '');
+    return match && Number(match[1]) === item.sequenceIndex && Number(match[2]) === item.beatIndex
+      && ['BEAT_TOO_SHORT', 'BEAT_TOO_LONG'].includes(error.code);
+  })).map((fault, index) => fault ? index : -1).filter(index => index >= 0);
+  const windows = faultIndexes.map(index => ({ start: Math.max(0, index - 1), end: Math.min(flattened.length - 1, index + 1) }));
+  const merged = [];
+  for (const window of windows.sort((a, b) => a.start - b.start)) {
+    const previous = merged[merged.length - 1];
+    if (previous && window.start <= previous.end + 1) previous.end = Math.max(previous.end, window.end);
+    else merged.push({ ...window });
+  }
+  function candidatesFor(start, end) {
+    const first = flattened[start].beat;
+    const last = flattened[end].beat;
+    const clusterStartWordIndex = first.startWordIndex;
+    const clusterEndWordIndex = last.endWordIndex;
+    const existingBeatCount = end - start + 1;
+    const clusterWords = words.slice(clusterStartWordIndex, clusterEndWordIndex + 1);
+    const all = [];
+    const makeOption = ranges => ({ resultingRanges: ranges.map(range => ({
+      ...range, ...localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec),
+      narrationExcerpt: words.slice(range.startWordIndex, range.endWordIndex + 1).map(word => word.word).join(' '),
+    })) });
+    const counts = [...new Set([existingBeatCount - 1, existingBeatCount, existingBeatCount + 1].filter(count => count > 0 && count <= clusterWords.length))];
+    for (const count of counts) {
+      const choose = (offset, left, ranges) => {
+        if (left === 1) {
+          const range = { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterEndWordIndex };
+          const timing = localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec);
+          if (timing.durationSec >= 2 && timing.durationSec <= 6) all.push(makeOption([...ranges, range]));
+          return;
+        }
+        for (let endOffset = offset; endOffset < clusterWords.length - left + 1; endOffset++) {
+          const timing = localBeatSeconds(words, clusterStartWordIndex + offset, clusterStartWordIndex + endOffset, durationSec);
+          if (timing.durationSec >= 2 && timing.durationSec <= 6) choose(endOffset + 1, left - 1, [...ranges, { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterStartWordIndex + endOffset }]);
+        }
+      };
+      choose(0, count, []);
+    }
+    const validBoundaryIndexes = new Set(flattened.slice(start, end + 1).slice(0, -1).filter(item => {
+      const duration = item.beat.durationSec;
+      return duration >= 2 && duration <= 6;
+    }).map(item => item.beat.endWordIndex));
+    const score = option => {
+      const ranges = option.resultingRanges;
+      const outsideTarget = ranges.reduce((n, range) => n + (range.durationSec < 3.5 || range.durationSec > 5.5 ? 1 : 0), 0);
+      const distance = ranges.reduce((n, range) => n + Math.abs(range.durationSec - 4.5), 0);
+      const candidateBoundaries = new Set(ranges.slice(0, -1).map(range => range.endWordIndex));
+      const movement = [...validBoundaryIndexes].filter(boundary => !candidateBoundaries.has(boundary)).length
+        + [...candidateBoundaries].filter(boundary => !validBoundaryIndexes.has(boundary)).length;
+      return [outsideTarget, distance, movement, Math.abs(ranges.length - existingBeatCount), JSON.stringify(ranges.map(range => [range.startWordIndex, range.endWordIndex]))];
+    };
+    all.sort((a, b) => {
+      const sa = score(a); const sb = score(b);
+      for (let i = 0; i < 4; i++) if (sa[i] !== sb[i]) return sa[i] - sb[i];
+      return sa[4].localeCompare(sb[4]);
+    });
+    return { clusterStartWordIndex, clusterEndWordIndex, existingBeatCount, options: all.slice(0, 5) };
+  }
+  return merged.map(window => {
+    const queue = [{ start: window.start, end: window.end }];
+    const visited = new Set();
+    while (queue.length) {
+      const depth = Math.max(window.start - queue[0].start, queue[0].end - window.end);
+      const layer = [];
+      while (queue.length) {
+        const state = queue[0];
+        const stateDepth = Math.max(window.start - state.start, state.end - window.end);
+        if (stateDepth !== depth) break;
+        layer.push(queue.shift());
+      }
+      const successes = [];
+      for (const state of layer) {
+        const key = `${state.start}:${state.end}`;
+        if (visited.has(key)) continue;
+        visited.add(key);
+        const result = candidatesFor(state.start, state.end);
+        if (result.options.length) successes.push({ state, result });
+      }
+      if (successes.length) {
+        successes.sort((a, b) => JSON.stringify(a.result.options).localeCompare(JSON.stringify(b.result.options)) || a.state.start - b.state.start || a.state.end - b.state.end);
+        return { ...successes[0].result, strictPartitionAvailable: true };
+      }
+      for (const state of layer) {
+        if (state.end - state.start + 1 >= 5) continue;
+        const expansions = [];
+        if (state.start > 0) expansions.push({ start: state.start - 1, end: state.end });
+        if (state.end < flattened.length - 1) expansions.push({ start: state.start, end: state.end + 1 });
+        expansions.sort((a, b) => a.start - b.start || a.end - b.end);
+        queue.push(...expansions);
+      }
+    }
+    const fallback = candidatesFor(window.start, window.end);
+    return { ...fallback, options: [], strictPartitionAvailable: false };
+  });
+}
+
 function buildTimingDiagnostics(errors, validationPlan) {
   if (!validationPlan?.sequences) return [];
   const flattened = [];
@@ -506,7 +615,7 @@ function buildTimingDiagnostics(errors, validationPlan) {
   return diagnostics;
 }
 
-function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan }) {
+function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan, words, durationSec }) {
   const codes = errors.map(error => error.code);
   const hasShort = codes.includes('BEAT_TOO_SHORT');
   const hasLong = codes.includes('BEAT_TOO_LONG');
@@ -529,6 +638,15 @@ First decide whether each overlong narration beat is an ordinary beat that shoul
 For an overlong EVIDENCE beat, first decide whether the audience must consume the source as one continuous unit. If yes, preserve evidence metadata and provide a meaningful reason describing why continuous duration is editorially necessary. If no, repartition at meaningful claim/source boundaries and preserve evidence-first semantics and required metadata on each resulting EVIDENCE beat.
 Do not cut at the midpoint or arbitrary word counts, create a short fragment, split an incoherent sentence or evidentiary idea, duplicate or drop narration, or add timingExceptionReason merely to silence BEAT_TOO_LONG. postNarrationHoldSec is not a fix for BEAT_TOO_LONG, and intentionalStillness is not automatically a justification. Genuine exceptions require a meaningful reason for an evidence read, major reveal, major payoff, emotional punctuation, or other defensible editorial necessity.` : '';
   const timingDiagnostics = buildTimingDiagnostics(errors, validationPlan);
+  const timingClusters = buildTimingRepairClusters({ errors, validationPlan, words, durationSec });
+  const timingOnly = errors.every(error => error.code === 'BEAT_TOO_SHORT' || error.code === 'BEAT_TOO_LONG');
+  const timingPatchProtocol = timingOnly ? `
+TIMING PATCH PROTOCOL:
+Return only a JSON timing patch object: {"repairType":"TIMING_CLUSTER_PATCH","clusters":[{"clusterStartWordIndex":number,"clusterEndWordIndex":number,"resolution":{"type":"candidate","optionIndex":number},"replacementBeats":[{"targetSequenceIndex":number, creative fields...}]}]}. Return one entry for every authorized cluster. For candidate resolution, do not provide startWordIndex or endWordIndex; code supplies exact deterministic geometry. Target sequences must be among the sequences intersected by that cluster and in playback order. A genuine exception may use resolution.type="exception" with the current boundaries and a meaningful timingExceptionReason. Do not address unrelated beats or sequences. Return only the timing repair patch JSON object.` : '';
+  const constrainedTiming = timingClusters.length ? `
+CONSTRAINED LOCAL TIMING OPTIONS:
+The listed clusters are the only narration regions requiring timing restructuring. Preserve word-index boundaries outside these clusters and do not globally repartition the act, reopen valid timing regions, or move a timing fault elsewhere. Choose a deterministic candidate only when it preserves coherent language and editorial meaning; the options are facts, not mechanical instructions. Preserve evidence semantics and rewrite creative fields inside affected clusters as needed.
+${JSON.stringify(timingClusters)}` : '';
   return [
     `Repair the complete model draft for ${actKey}.`,
     `Repair attempt: ${attempt}`,
@@ -539,8 +657,42 @@ Do not cut at the midpoint or arbitrary word counts, create a short fragment, sp
     mixedTimingGuidance,
     longBeatGuidance,
     timingDiagnostics.length ? `TIMING REPAIR DIAGNOSTICS:\n${JSON.stringify(timingDiagnostics)}` : '',
+    constrainedTiming,
+    timingPatchProtocol,
     'Return only the complete replacement model-draft JSON object. Do not return markdown or a JSON patch.',
   ].join('\n\n');
+}
+
+function applyTimingRepairPatch({ draft, validationPlan, clusters, patch }) {
+  if (!patch || patch.repairType !== 'TIMING_CLUSTER_PATCH' || !Array.isArray(patch.clusters) || patch.clusters.length !== clusters.length) throw new Error('[edit-plan] Invalid timing repair patch shape.');
+  const next = JSON.parse(JSON.stringify(draft));
+  const expected = new Set(clusters.map(cluster => `${cluster.clusterStartWordIndex}:${cluster.clusterEndWordIndex}`));
+  const seen = new Set();
+  for (const entry of patch.clusters) {
+    const key = `${entry.clusterStartWordIndex}:${entry.clusterEndWordIndex}`;
+    const cluster = clusters.find(item => `${item.clusterStartWordIndex}:${item.clusterEndWordIndex}` === key);
+    if (!cluster || seen.has(key) || !entry.resolution || !Array.isArray(entry.replacementBeats)) throw new Error('[edit-plan] Timing patch cluster is outside the authorized scope.');
+    seen.add(key);
+    if (entry.resolution.type === 'candidate') {
+      const option = cluster.options[entry.resolution.optionIndex];
+      if (!option || entry.replacementBeats.length !== option.resultingRanges.length) throw new Error('[edit-plan] Timing patch candidate is invalid.');
+      if (entry.replacementBeats.some(beat => Object.hasOwn(beat, 'startWordIndex') || Object.hasOwn(beat, 'endWordIndex'))) throw new Error('[edit-plan] Timing patch may not provide candidate geometry.');
+    } else if (entry.resolution.type !== 'exception') throw new Error('[edit-plan] Timing patch resolution is invalid.');
+    const affected = new Set();
+    next.sequences.forEach((sequence, sequenceIndex) => {
+      sequence.beats = sequence.beats.filter(beat => {
+        const inside = beat.startWordIndex >= cluster.clusterStartWordIndex && beat.endWordIndex <= cluster.clusterEndWordIndex;
+        if (inside) affected.add(sequenceIndex);
+        return !inside;
+      });
+    });
+    const targetIndexes = entry.replacementBeats.map(beat => beat.targetSequenceIndex);
+    if (targetIndexes.some(index => !affected.has(index))) throw new Error('[edit-plan] Timing patch targets an unrelated sequence.');
+    const ranges = entry.resolution.type === 'candidate' ? cluster.options[entry.resolution.optionIndex].resultingRanges : [{ startWordIndex: cluster.clusterStartWordIndex, endWordIndex: cluster.clusterEndWordIndex }];
+    ranges.forEach((range, index) => next.sequences[targetIndexes[index]].beats.push({ ...entry.replacementBeats[index], ...range }));
+  }
+  if (seen.size !== expected.size) throw new Error('[edit-plan] Timing patch omitted an authorized cluster.');
+  return next;
 }
 
 async function generateEditPlan({
@@ -634,7 +786,7 @@ async function generateEditPlan({
           throw new Error(`[edit-plan] Repair limit reached for ${actKey}: ${attempts} attempt(s) consumed; remaining errors: ${errors.map(error => error.code).join(', ')}`);
         }
         const nextAttempt = attempts + 1;
-        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt, validationPlan: actValidation.plan });
+        const repairPrompt = buildRepairPrompt({ actKey, originalPrompt: prompt, draft, errors, attempt: nextAttempt, validationPlan: actValidation.plan, words, durationSec: act.durationSec });
         const repaired = await generateDraftWithRetry({ actKey: `${actKey} repair`, prompt: repairPrompt, durationSec: act.durationSec, system: REPAIR_STANDARD });
         checkpoint.repairAttempts[actKey] = nextAttempt;
         checkpoint.repairAttemptFingerprints[actKey] = scopeFingerprint;
@@ -642,7 +794,10 @@ async function generateEditPlan({
         if (draftFingerprint(repaired) === draftFingerprint(draft)) {
           throw new Error(`[edit-plan] Repair made no progress for ${actKey} after attempt ${nextAttempt}.`);
         }
-        draft = repaired;
+        const timingOnly = errors.every(error => error.code === 'BEAT_TOO_SHORT' || error.code === 'BEAT_TOO_LONG');
+        draft = timingOnly && repaired?.repairType === 'TIMING_CLUSTER_PATCH'
+          ? applyTimingRepairPatch({ draft, validationPlan: actValidation.plan, clusters: buildTimingRepairClusters({ errors, validationPlan: actValidation.plan, words, durationSec: act.durationSec }), patch: repaired })
+          : repaired;
         actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
       }
       checkpoint.acts[actKey] = {
@@ -682,5 +837,7 @@ module.exports = {
   _repairAttemptScopeFingerprint: repairAttemptScopeFingerprint,
   _requestFingerprint: requestFingerprint,
   _buildTimingDiagnostics: buildTimingDiagnostics,
+  _buildTimingRepairClusters: buildTimingRepairClusters,
+  _applyTimingRepairPatch: applyTimingRepairPatch,
   _repairPolicyVersion: REPAIR_POLICY_VERSION,
 };

@@ -6,7 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
-const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint, _repairPolicyVersion, _requestFingerprint, _buildTimingDiagnostics } = require('../pipeline-updates/edit-plan-generator.cjs');
+const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint, _repairPolicyVersion, _requestFingerprint, _buildTimingDiagnostics, _buildTimingRepairClusters, _applyTimingRepairPatch } = require('../pipeline-updates/edit-plan-generator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
 const ACTS = [
@@ -1087,12 +1087,12 @@ test('mixed timing diagnostics use immediate neighbours across sequence boundari
   assert.equal(diagnostics[1].previous.narrationExcerpt, 'act1 alpha beta');
 });
 
-test('repair policy version 3 changes scope while generation fingerprint stays stable', () => {
-  assert.equal(_repairPolicyVersion, 3);
-  assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 2 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 3 }));
+test('repair policy version 5 changes scope while generation fingerprint stays stable', () => {
+  assert.equal(_repairPolicyVersion, 5);
+  assert.notEqual(_repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 4 }), _repairAttemptScopeFingerprint({ generationFingerprint: 'same', repairPolicyVersion: 5 }));
 });
 
-test('policy v2 preserves valid saved acts and refreshes an exhausted act3 repair budget', async () => {
+test('policy v4 preserves valid saved acts and refreshes an exhausted act3 repair budget', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'repair-policy-v2-'));
   try {
     const originalRmSync = fs.rmSync;
@@ -1103,7 +1103,7 @@ test('policy v2 preserves valid saved acts and refreshes an exhausted act3 repai
     const act3GenerationFingerprint = checkpoint.acts.act3.fingerprint;
     delete checkpoint.acts.act3;
     checkpoint.repairAttempts.act3 = 2;
-    checkpoint.repairAttemptFingerprints.act3 = _repairAttemptScopeFingerprint({ generationFingerprint: act3GenerationFingerprint, repairPolicyVersion: 1 });
+    checkpoint.repairAttemptFingerprints.act3 = _repairAttemptScopeFingerprint({ generationFingerprint: act3GenerationFingerprint, repairPolicyVersion: 3 });
     fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
     fs.writeFileSync(checkpointPath(dir), JSON.stringify(checkpoint));
     const client = fakeClient((index, request) => {
@@ -1190,7 +1190,7 @@ test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope',
     delete checkpoint.acts.act4;
     delete checkpoint.acts.act5;
     checkpoint.repairAttempts.act4 = 2;
-    checkpoint.repairAttemptFingerprints.act4 = _repairAttemptScopeFingerprint({ generationFingerprint: act4GenerationFingerprint, repairPolicyVersion: 2 });
+    checkpoint.repairAttemptFingerprints.act4 = _repairAttemptScopeFingerprint({ generationFingerprint: act4GenerationFingerprint, repairPolicyVersion: 4 });
     delete checkpoint.repairAttempts.act5;
     delete checkpoint.repairAttemptFingerprints.act5;
     fs.rmSync(path.join(dir, 'edit-plan.json'), { force: true });
@@ -1207,6 +1207,110 @@ test('policy v3 preserves acts 1 through 3b and refreshes exhausted act4 scope',
     const act4GenerationCall = client.calls.find(call => call.messages[0].content.includes('Plan only act4'));
     assert.equal(_requestFingerprint(act4GenerationCall.messages[0].content), act4GenerationFingerprint);
     assert.equal(client.calls.filter(call => call.messages[0].content.includes('Repair the complete model draft for act4')).length, 1);
+    assert.ok(client.calls.find(call => call.messages[0].content.includes('CONSTRAINED LOCAL TIMING OPTIONS')));
     assert.equal(client.calls.filter(call => call.messages[0].content.includes('Plan only act5')).length, 1);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('timing repair clusters stay local, merge touching windows, and rank bounded legal options', () => {
+  const words = Array.from({ length: 9 }, (_, index) => ({ word: `w${index}`, start_seconds: index * 1.5, end_seconds: index * 1.5 + 0.2 }));
+  const plan = { sequences: [{ beats: [
+    { startWordIndex: 0, endWordIndex: 1, durationSec: 3, narrationExcerpt: 'w0 w1' },
+    { startWordIndex: 2, endWordIndex: 2, durationSec: 1.5, narrationExcerpt: 'w2' },
+    { startWordIndex: 3, endWordIndex: 4, durationSec: 3, narrationExcerpt: 'w3 w4' },
+    { startWordIndex: 5, endWordIndex: 6, durationSec: 6.1, narrationExcerpt: 'w5 w6' },
+    { startWordIndex: 7, endWordIndex: 8, durationSec: 3, narrationExcerpt: 'w7 w8' },
+  ] }] };
+  const clusters = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({
+    errors: [
+      { code: 'BEAT_TOO_SHORT', path: '/sequences/0/beats/1' },
+      { code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/3' },
+    ], validationPlan: plan, words, durationSec: 13.5,
+  });
+  assert.equal(clusters.length, 1);
+  assert.deepEqual([clusters[0].clusterStartWordIndex, clusters[0].clusterEndWordIndex], [0, 8]);
+  assert.ok(clusters[0].options.length <= 5);
+  for (const option of clusters[0].options) {
+    assert.deepEqual(option.resultingRanges.map(range => [range.startWordIndex, range.endWordIndex]), option.resultingRanges.slice().sort((a, b) => a.startWordIndex - b.startWordIndex).map(range => [range.startWordIndex, range.endWordIndex]));
+    assert.ok(option.resultingRanges.every(range => range.durationSec >= 2 && range.durationSec <= 6));
+  }
+});
+
+test('timing cluster reports explicit no-candidate state when bounded search cannot partition', () => {
+  const words = Array.from({ length: 3 }, (_, index) => ({ word: `w${index}`, start_seconds: index * 10, end_seconds: index * 10 + 0.1 }));
+  const result = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({
+    errors: [{ code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/0' }],
+    validationPlan: { sequences: [{ beats: [{ startWordIndex: 0, endWordIndex: 2, durationSec: 20, narrationExcerpt: 'w0 w1 w2' }] }] },
+    words, durationSec: 20,
+  });
+  assert.equal(result[0].strictPartitionAvailable, false);
+  assert.equal(result[0].options.length, 0);
+});
+
+test('timing cluster results are deeply deterministic and cross sequence boundaries in both directions', () => {
+  const words = Array.from({ length: 8 }, (_, index) => ({ word: `w${index}`, start_seconds: index * 1.5, end_seconds: index * 1.5 + 0.1 }));
+  const plan = { sequences: [
+    { beats: [{ startWordIndex: 0, endWordIndex: 0, durationSec: 2, narrationExcerpt: 'w0' }, { startWordIndex: 1, endWordIndex: 2, durationSec: 1, narrationExcerpt: 'w1 w2' }] },
+    { beats: [{ startWordIndex: 3, endWordIndex: 4, durationSec: 3, narrationExcerpt: 'w3 w4' }, { startWordIndex: 5, endWordIndex: 6, durationSec: 1, narrationExcerpt: 'w5 w6' }, { startWordIndex: 7, endWordIndex: 7, durationSec: 2, narrationExcerpt: 'w7' }] },
+  ] };
+  const errors = [{ code: 'BEAT_TOO_SHORT', path: '/sequences/0/beats/1' }, { code: 'BEAT_TOO_LONG', path: '/sequences/1/beats/1' }];
+  const a = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({ errors, validationPlan: plan, words, durationSec: 12 });
+  const b = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({ errors: JSON.parse(JSON.stringify(errors)), validationPlan: JSON.parse(JSON.stringify(plan)), words: JSON.parse(JSON.stringify(words)), durationSec: 12 });
+  assert.deepEqual(a, b);
+  assert.ok(a.every(cluster => cluster.clusterEndWordIndex >= cluster.clusterStartWordIndex));
+});
+
+test('timing repair helper never crosses an act boundary', () => {
+  const words = Array.from({ length: 3 }, (_, index) => ({ word: `w${index}`, start_seconds: index, end_seconds: index + 0.1 }));
+  const result = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({
+    errors: [{ code: 'BEAT_TOO_SHORT', path: '/sequences/0/beats/0' }],
+    validationPlan: { sequences: [{ beats: [{ startWordIndex: 0, endWordIndex: 0, durationSec: 1 }] }] }, words, durationSec: 3,
+  });
+  assert.ok(result.every(cluster => cluster.clusterStartWordIndex >= 0 && cluster.clusterEndWordIndex < words.length));
+});
+
+test('timing repair options contain deterministic narration excerpts', () => {
+  const words = [{ word: 'one', start_seconds: 0, end_seconds: 0.2 }, { word: 'two', start_seconds: 2, end_seconds: 2.2 }, { word: 'three', start_seconds: 4, end_seconds: 4.2 }];
+  const result = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({ errors: [{ code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/0' }], validationPlan: { sequences: [{ beats: [{ startWordIndex: 0, endWordIndex: 2, durationSec: 6.0 }] }] }, words, durationSec: 6 });
+  for (const option of result[0].options) for (const range of option.resultingRanges) assert.equal(range.narrationExcerpt, words.slice(range.startWordIndex, range.endWordIndex + 1).map(word => word.word).join(' '));
+});
+
+test('same-depth expansion evaluates both directions before selecting a cluster', () => {
+  const words = Array.from({ length: 7 }, (_, index) => ({ word: `w${index}`, start_seconds: index * 2, end_seconds: index * 2 + 0.1 }));
+  const plan = { sequences: [{ beats: Array.from({ length: 7 }, (_, index) => ({ startWordIndex: index, endWordIndex: index, durationSec: 2, narrationExcerpt: `w${index}` })) }] };
+  const result = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({ errors: [{ code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/3' }], validationPlan: plan, words, durationSec: 14 });
+  assert.ok(result[0].strictPartitionAvailable === true || result[0].options.length === 0);
+  assert.ok(result[0].clusterEndWordIndex - result[0].clusterStartWordIndex + 1 <= 5);
+});
+
+test('returned timing candidates have contiguous exact coverage and hard bounds', () => {
+  const words = Array.from({ length: 6 }, (_, index) => ({ word: `w${index}`, start_seconds: index * 2, end_seconds: index * 2 + 0.1 }));
+  const plan = { sequences: [{ beats: [{ startWordIndex: 0, endWordIndex: 1, durationSec: 4 }, { startWordIndex: 2, endWordIndex: 2, durationSec: 2 }, { startWordIndex: 3, endWordIndex: 4, durationSec: 4 }, { startWordIndex: 5, endWordIndex: 5, durationSec: 2 }] }] };
+  const result = require('../pipeline-updates/edit-plan-generator.cjs')._buildTimingRepairClusters({ errors: [{ code: 'BEAT_TOO_SHORT', path: '/sequences/0/beats/1' }], validationPlan: plan, words, durationSec: 12 });
+  for (const option of result[0].options) {
+    const ranges = option.resultingRanges;
+    assert.equal(ranges[0].startWordIndex, result[0].clusterStartWordIndex);
+    assert.equal(ranges.at(-1).endWordIndex, result[0].clusterEndWordIndex);
+    ranges.forEach((range, index) => { assert.ok(range.durationSec >= 2 && range.durationSec <= 6); if (index) assert.equal(ranges[index - 1].endWordIndex + 1, range.startWordIndex); });
+  }
+});
+
+test('timing patch application uses deterministic candidate geometry and freezes unrelated beats', () => {
+  const current = { sequences: [
+    { sequencePurpose: 'A', beats: [beat(0, 1), beat(2, 2), beat(3, 4)] },
+    { sequencePurpose: 'B', beats: [beat(5, 5)] },
+  ] };
+  const validationPlan = { sequences: current.sequences };
+  const clusters = [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, options: [{ resultingRanges: [{ startWordIndex: 2, endWordIndex: 2, durationSec: 2, narrationExcerpt: 'x' }] }] }];
+  const patched = _applyTimingRepairPatch({ draft: current, validationPlan, clusters, patch: { repairType: 'TIMING_CLUSTER_PATCH', clusters: [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: [{ targetSequenceIndex: 0, storyFunction: 'reveal', visualIntent: 'Preserve the local idea.', visual: { type: 'CLIP', description: 'A connected action.', motionType: 'static_locked' } }] }] } });
+  assert.equal(patched.sequences[0].beats[0].startWordIndex, 0);
+  assert.ok(patched.sequences[0].beats.some(item => item.startWordIndex === 3));
+  assert.ok(patched.sequences[0].beats.some(item => item.startWordIndex === 2));
+  assert.deepEqual(patched.sequences[1], current.sequences[1]);
+});
+
+test('timing patch rejects model-supplied candidate boundaries and unrelated sequences', () => {
+  const current = { sequences: [{ beats: [beat(0, 1), beat(2, 2)] }, { beats: [beat(3, 3)] }] };
+  const clusters = [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, options: [{ resultingRanges: [{ startWordIndex: 2, endWordIndex: 2, durationSec: 2 }] }] }];
+  assert.throws(() => _applyTimingRepairPatch({ draft: current, validationPlan: { sequences: current.sequences }, clusters, patch: { repairType: 'TIMING_CLUSTER_PATCH', clusters: [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: [{ targetSequenceIndex: 1, startWordIndex: 2, endWordIndex: 2 }] }] } }), /may not provide candidate geometry|unrelated sequence/);
 });
