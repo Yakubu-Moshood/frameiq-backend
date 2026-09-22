@@ -857,6 +857,87 @@ test('repair handles overlap, evidence metadata and invalid vocabulary while com
   }
 });
 
+test('creative-only full-draft repair prompt freezes valid narration geometry', async () => {
+  const invalidEvidence = draft({
+    beats: [beat(0, 2, {
+      visualClass: 'EVIDENCE',
+      reconstructionMode: null,
+      evidenceRequirement: evidence(false),
+    })],
+  });
+  const validEvidence = draft({
+    beats: [beat(0, 2, {
+      visualClass: 'EVIDENCE',
+      reconstructionMode: null,
+      evidenceRequirement: evidence(true),
+    })],
+  });
+  const client = fakeClient((callIndex, request) => {
+    if (callIndex === 0) return invalidEvidence;
+    if (request.messages[0].content.includes('Repair the complete model draft for act1')) return validEvidence;
+    return draft();
+  });
+
+  const plan = await generate({}, client);
+  const repairPrompt = client.calls[1].messages[0].content;
+
+  assert.match(repairPrompt, /EVIDENCE_REQUIREMENT/);
+  assert.doesNotMatch(repairPrompt, /BEAT_TOO_SHORT|BEAT_TOO_LONG|NARRATION_GAP|NARRATION_OVERLAP|INVALID_WORD_RANGE|WORD_RANGE_ORDER/);
+  assert.match(repairPrompt, /CREATIVE-ONLY REPAIR SCOPE/);
+  assert.match(repairPrompt, /preserve the exact sequence count, beat count, playback order, startWordIndex, and endWordIndex/i);
+  assert.match(repairPrompt, /Return only the complete replacement model-draft JSON object/);
+  assert.doesNotMatch(repairPrompt, /TIMING PATCH PROTOCOL/);
+  assert.equal(plan.sequences[0].beats[0].startWordIndex, 0);
+  assert.equal(plan.sequences[0].beats[0].endWordIndex, 2);
+  assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
+});
+
+test('creative-only geometry mutation is rejected and retries from the unchanged draft', async () => {
+  const invalidEvidence = draft({
+    beats: [beat(0, 2, {
+      visualClass: 'EVIDENCE',
+      reconstructionMode: null,
+      evidenceRequirement: evidence(false),
+    })],
+  });
+  const mutatedGeometry = draft({
+    beats: [
+      beat(0, 0, { visualClass: 'EVIDENCE', reconstructionMode: null, evidenceRequirement: evidence(true) }),
+      beat(1, 2),
+    ],
+  });
+  const validEvidence = draft({
+    beats: [beat(0, 2, {
+      visualClass: 'EVIDENCE',
+      reconstructionMode: null,
+      evidenceRequirement: evidence(true),
+    })],
+  });
+  let repairCall = 0;
+  const client = fakeClient((callIndex, request) => {
+    const prompt = request.messages[0].content;
+    if (callIndex === 0) return invalidEvidence;
+    if (prompt.includes('Repair the complete model draft for act1')) {
+      repairCall += 1;
+      if (repairCall === 1) return mutatedGeometry;
+      assert.match(prompt, /PREVIOUS REPAIR RESPONSE REJECTED/);
+      const unchanged = extractJsonAfter(prompt, 'CURRENT MODEL DRAFT:\n');
+      assert.deepEqual(unchanged.sequences[0].beats.map(item => [item.startWordIndex, item.endWordIndex]), [[0, 2]]);
+      assert.match(prompt, /EVIDENCE_REQUIREMENT/);
+      assert.doesNotMatch(prompt, /BEAT_TOO_SHORT|BEAT_TOO_LONG/);
+      return validEvidence;
+    }
+    return draft();
+  });
+
+  const plan = await generate({}, client);
+
+  assert.equal(repairCall, 2);
+  assert.equal(client.calls.length, 8);
+  assert.deepEqual(plan.sequences[0].beats.map(item => [item.startWordIndex, item.endWordIndex]), [[0, 2]]);
+  assert.equal(validateEditPlan({ plan, wordTimestamps: inputs().wordTimestamps }).status, 'PASS');
+});
+
 test('overlong beat is repaired by splitting coverage rather than changing deterministic time', async () => {
   const data = repairableLongTiming();
   const client = fakeClient((index, request) => {

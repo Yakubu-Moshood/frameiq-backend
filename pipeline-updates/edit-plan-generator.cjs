@@ -629,6 +629,36 @@ function buildTimingDiagnostics(errors, validationPlan) {
   return diagnostics;
 }
 
+const GEOMETRY_REPAIR_CODES = new Set([
+  'BEAT_TOO_SHORT', 'BEAT_TOO_LONG', 'NARRATION_GAP', 'NARRATION_OVERLAP',
+  'WORD_RANGE_ORDER', 'INVALID_WORD_RANGE',
+]);
+
+function repairErrorsAuthorizeGeometry(errors = []) {
+  return errors.some(error => {
+    if (GEOMETRY_REPAIR_CODES.has(error?.code)) return true;
+    const errorPath = typeof error?.path === 'string' ? error.path : '';
+    if (/\/(?:startWordIndex|endWordIndex)$/.test(errorPath)) return true;
+    return ['SCHEMA_REQUIRED', 'SCHEMA_TYPE', 'SCHEMA_MIN_ITEMS', 'SCHEMA_MAX_ITEMS'].includes(error?.code)
+      && /^\/sequences(?:\/\d+)?(?:\/beats(?:\/\d+)?)?$/.test(errorPath);
+  });
+}
+
+function sameNarrationGeometry(current, repaired) {
+  const currentSequences = current?.sequences;
+  const repairedSequences = repaired?.sequences;
+  if (!Array.isArray(currentSequences) || !Array.isArray(repairedSequences)
+    || currentSequences.length !== repairedSequences.length) return false;
+  return currentSequences.every((sequence, sequenceIndex) => {
+    const currentBeats = sequence?.beats;
+    const repairedBeats = repairedSequences[sequenceIndex]?.beats;
+    return Array.isArray(currentBeats) && Array.isArray(repairedBeats)
+      && currentBeats.length === repairedBeats.length
+      && currentBeats.every((beat, beatIndex) => beat?.startWordIndex === repairedBeats[beatIndex]?.startWordIndex
+        && beat?.endWordIndex === repairedBeats[beatIndex]?.endWordIndex);
+  });
+}
+
 function buildRepairPrompt({ actKey, originalPrompt, draft, errors, attempt, validationPlan, words, durationSec, previousRejection }) {
   const codes = errors.map(error => error.code);
   const hasShort = codes.includes('BEAT_TOO_SHORT');
@@ -654,6 +684,10 @@ Do not cut at the midpoint or arbitrary word counts, create a short fragment, sp
   const timingDiagnostics = buildTimingDiagnostics(errors, validationPlan);
   const timingClusters = buildTimingRepairClusters({ errors, validationPlan, words, durationSec });
   const timingOnly = errors.every(error => error.code === 'BEAT_TOO_SHORT' || error.code === 'BEAT_TOO_LONG');
+  const creativeOnly = !repairErrorsAuthorizeGeometry(errors);
+  const creativeOnlyScope = creativeOnly ? `
+CREATIVE-ONLY REPAIR SCOPE:
+The reported errors do not authorize narration restructuring. Return the complete replacement model draft, but preserve the exact sequence count, beat count, playback order, startWordIndex, and endWordIndex from CURRENT MODEL DRAFT. Change only creative or schema fields needed to resolve the reported errors. Do not merge, split, add, remove, reorder, expand, or shrink any narration beat.` : '';
   const timingPatchProtocol = timingOnly ? `
 TIMING PATCH PROTOCOL:
 Return only a JSON timing patch object: {"repairType":"TIMING_CLUSTER_PATCH","clusters":[{"clusterStartWordIndex":number,"clusterEndWordIndex":number,"resolution":{"type":"candidate","optionIndex":number},"replacementBeats":[{"targetSequenceIndex":number, creative fields...}]}]}. Return one entry for every authorized cluster. For candidate resolution, do not provide startWordIndex or endWordIndex; code supplies exact deterministic geometry. Target sequences must be among the sequences intersected by that cluster and in playback order. A genuine exception may use resolution.type="exception" with the current boundaries and a meaningful timingExceptionReason. Do not address unrelated beats or sequences. Return only the timing repair patch JSON object.` : '';
@@ -667,7 +701,8 @@ ${JSON.stringify(timingClusters)}` : '';
     `ORIGINAL GENERATION PROMPT:\n${originalPrompt}`,
     `CURRENT MODEL DRAFT:\n${JSON.stringify(draft)}`,
     `VALIDATOR HARD ERRORS:\n${JSON.stringify(errors.map(({ code, path: errorPath, message }) => ({ code, path: errorPath, message })))}`,
-    previousRejection ? `PREVIOUS TIMING PATCH REJECTED:\n${previousRejection}` : '',
+    previousRejection ? `${timingOnly ? 'PREVIOUS TIMING PATCH REJECTED' : 'PREVIOUS REPAIR RESPONSE REJECTED'}:\n${previousRejection}` : '',
+    creativeOnlyScope,
     shortBeatGuidance,
     mixedTimingGuidance,
     longBeatGuidance,
@@ -832,6 +867,9 @@ async function generateEditPlan({
             previousRejection = error.message;
             continue;
           }
+        } else if (!repairErrorsAuthorizeGeometry(errors) && !sameNarrationGeometry(draft, repaired)) {
+          previousRejection = 'Creative-only repair changed narration geometry outside the authorized scope.';
+          continue;
         } else draft = repaired;
         actValidation = validateActDraft({ draft, act, words, episodeId: episodeId.trim() });
       }
