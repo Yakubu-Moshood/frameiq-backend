@@ -510,33 +510,15 @@ function buildTimingRepairClusters({ errors = [], validationPlan, words = [], du
     const clusterEndWordIndex = last.endWordIndex;
     const existingBeatCount = end - start + 1;
     const clusterWords = words.slice(clusterStartWordIndex, clusterEndWordIndex + 1);
-    const all = [];
-    const makeOption = ranges => ({ resultingRanges: ranges.map(range => ({
-      ...range, ...localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec),
-      narrationExcerpt: words.slice(range.startWordIndex, range.endWordIndex + 1).map(word => word.word).join(' '),
-    })) });
-    const counts = [...new Set([existingBeatCount - 1, existingBeatCount, existingBeatCount + 1].filter(count => count > 0 && count <= clusterWords.length))];
-    for (const count of counts) {
-      const choose = (offset, left, ranges) => {
-        if (left === 1) {
-          const range = { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterEndWordIndex };
-          const timing = localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec);
-          if (timing.durationSec >= 2 && timing.durationSec <= 6) all.push(makeOption([...ranges, range]));
-          return;
-        }
-        for (let endOffset = offset; endOffset < clusterWords.length - left + 1; endOffset++) {
-          const timing = localBeatSeconds(words, clusterStartWordIndex + offset, clusterStartWordIndex + endOffset, durationSec);
-          if (timing.durationSec >= 2 && timing.durationSec <= 6) choose(endOffset + 1, left - 1, [...ranges, { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterStartWordIndex + endOffset }]);
-        }
-      };
-      choose(0, count, []);
-    }
     const validBoundaryIndexes = new Set(flattened.slice(start, end + 1).slice(0, -1).filter(item => {
       const duration = item.beat.durationSec;
       return duration >= 2 && duration <= 6;
     }).map(item => item.beat.endWordIndex));
-    const score = option => {
-      const ranges = option.resultingRanges;
+    const makeOption = ranges => ({ resultingRanges: ranges.map(range => ({
+      ...range, ...localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec),
+      narrationExcerpt: words.slice(range.startWordIndex, range.endWordIndex + 1).map(word => word.word).join(' '),
+    })) });
+    const score = ranges => {
       const outsideTarget = ranges.reduce((n, range) => n + (range.durationSec < 3.5 || range.durationSec > 5.5 ? 1 : 0), 0);
       const distance = ranges.reduce((n, range) => n + Math.abs(range.durationSec - 4.5), 0);
       const candidateBoundaries = new Set(ranges.slice(0, -1).map(range => range.endWordIndex));
@@ -544,12 +526,44 @@ function buildTimingRepairClusters({ errors = [], validationPlan, words = [], du
         + [...candidateBoundaries].filter(boundary => !validBoundaryIndexes.has(boundary)).length;
       return [outsideTarget, distance, movement, Math.abs(ranges.length - existingBeatCount), JSON.stringify(ranges.map(range => [range.startWordIndex, range.endWordIndex]))];
     };
-    all.sort((a, b) => {
+    const compareRanges = (a, b) => {
       const sa = score(a); const sb = score(b);
       for (let i = 0; i < 4; i++) if (sa[i] !== sb[i]) return sa[i] - sb[i];
       return sa[4].localeCompare(sb[4]);
-    });
-    return { clusterStartWordIndex, clusterEndWordIndex, existingBeatCount, options: all.slice(0, 5) };
+    };
+    const keepBestFive = candidates => candidates.sort(compareRanges).slice(0, 5);
+    const counts = [...new Set([existingBeatCount - 1, existingBeatCount, existingBeatCount + 1].filter(count => count > 0 && count <= clusterWords.length))];
+    const ranked = [];
+    for (const count of counts) {
+      const memo = new Map();
+      const bestFrom = (offset, left) => {
+        const key = `${offset}:${left}`;
+        if (memo.has(key)) return memo.get(key);
+        if (left === 1) {
+          const range = { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterEndWordIndex };
+          const timing = localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec);
+          const result = timing.durationSec >= 2 && timing.durationSec <= 6 ? [[{ ...range, ...timing }]] : [];
+          memo.set(key, result);
+          return result;
+        }
+        let best = [];
+        for (let endOffset = offset; endOffset < clusterWords.length - left + 1; endOffset++) {
+          const range = { startWordIndex: clusterStartWordIndex + offset, endWordIndex: clusterStartWordIndex + endOffset };
+          const timing = localBeatSeconds(words, range.startWordIndex, range.endWordIndex, durationSec);
+          if (timing.durationSec < 2 || timing.durationSec > 6) continue;
+          for (const suffix of bestFrom(endOffset + 1, left - 1)) {
+            best.push([{ ...range, ...timing }, ...suffix]);
+            if (best.length > 5) best = keepBestFive(best);
+          }
+        }
+        best = keepBestFive(best);
+        memo.set(key, best);
+        return best;
+      };
+      ranked.push(...bestFrom(0, count));
+    }
+    const options = keepBestFive(ranked).map(makeOption);
+    return { clusterStartWordIndex, clusterEndWordIndex, existingBeatCount, options };
   }
   return merged.map(window => {
     const queue = [{ start: window.start, end: window.end }];

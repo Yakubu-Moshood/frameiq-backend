@@ -6,6 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
+const { spawnSync } = require('child_process');
 const { generateEditPlan, MODEL, _classifyRepairErrors, _repairAttemptScopeFingerprint, _repairPolicyVersion, _requestFingerprint, _buildTimingDiagnostics, _buildTimingRepairClusters, _applyTimingRepairPatch } = require('../pipeline-updates/edit-plan-generator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
@@ -1406,6 +1407,39 @@ test('timing patch rejects model-supplied candidate boundaries and unrelated seq
   const current = { sequences: [{ beats: [beat(0, 1), beat(2, 2)] }, { beats: [beat(3, 3)] }] };
   const clusters = [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, options: [{ resultingRanges: [{ startWordIndex: 2, endWordIndex: 2, durationSec: 2 }] }] }];
   assert.throws(() => _applyTimingRepairPatch({ draft: current, validationPlan: { sequences: current.sequences }, clusters, patch: { repairType: 'TIMING_CLUSTER_PATCH', clusters: [{ clusterStartWordIndex: 2, clusterEndWordIndex: 2, resolution: { type: 'candidate', optionIndex: 0 }, replacementBeats: [{ targetSequenceIndex: 1, startWordIndex: 2, endWordIndex: 2 }] }] } }), /may not provide candidate geometry|unrelated sequence/);
+});
+
+test('dense real-act timing cluster stays within bounded memory', () => {
+  const modulePath = require.resolve('../pipeline-updates/edit-plan-generator.cjs');
+  const source = `
+    const { _buildTimingRepairClusters } = require(${JSON.stringify(modulePath)});
+    const words = Array.from({ length: 147 }, (_, index) => ({
+      word: \`w\${index}\`, start_seconds: index * 0.2, end_seconds: index * 0.2 + 0.05,
+    }));
+    const boundaries = [[0, 27], [28, 58], [59, 86], [87, 117], [118, 146]];
+    const beats = boundaries.map(([startWordIndex, endWordIndex]) => {
+      const startSec = startWordIndex === 0 ? 0 : words[startWordIndex].start_seconds;
+      const endSec = endWordIndex === words.length - 1 ? 29.4 : words[endWordIndex + 1].start_seconds;
+      return { startWordIndex, endWordIndex, durationSec: endSec - startSec };
+    });
+    const clusters = _buildTimingRepairClusters({
+      errors: [
+        { code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/1' },
+        { code: 'BEAT_TOO_LONG', path: '/sequences/0/beats/3' },
+      ],
+      validationPlan: { sequences: [{ beats }] }, words, durationSec: 29.4,
+    });
+    process.stdout.write(JSON.stringify(clusters));
+  `;
+  const child = spawnSync(process.execPath, ['--max-old-space-size=64', '-e', source], {
+    encoding: 'utf8', timeout: 15000, maxBuffer: 1024 * 1024,
+  });
+  assert.equal(child.status, 0, `bounded candidate search failed: ${String(child.stderr || child.error || '').slice(-2000)}`);
+  const clusters = JSON.parse(child.stdout);
+  assert.equal(clusters.length, 1);
+  assert.equal(clusters[0].strictPartitionAvailable, true);
+  assert.equal(clusters[0].options.length, 5);
+  assert.deepEqual([clusters[0].clusterStartWordIndex, clusters[0].clusterEndWordIndex], [0, 146]);
 });
 
 test('timing-only repair prompt uses the bounded patch response contract', async () => {
