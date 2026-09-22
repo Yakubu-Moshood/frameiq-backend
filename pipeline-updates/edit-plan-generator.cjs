@@ -46,6 +46,12 @@ Use graphics selectively and only as: identity_lower_third, source_citation, imp
 // The Director chooses semantic editorial units, not mechanical word slices.
 const DIRECTOR_CALIBRATION = `A beat is one coherent editorial idea, reveal, action, contrast, or emotional turn. Keep adjacent list items and short clauses that belong to one idea in one beat; do not create a new beat for every comma or noun fragment. A sequence is a sustained editorial idea with related beats and an audience transformation. Decide what changes inside the frame before choosing camera motion; story action, human behaviour, object interaction, document behaviour, environmental change, and graphic transformation outrank decorative camera movement. When narration presents a quantitative, legal, regulatory, official, documentary, quoted, historically recorded, or otherwise externally provable claim, FIRST ask: "Should authentic material prove this claim?" If yes, use visualClass EVIDENCE and provide evidenceRequirement. Never use EDITORIAL_ILLUSTRATION to fabricate an official memo, filing, termination document, report, newspaper front page, financial terminal, testimony record, quote card, regulatory document, or court document when the purpose is to prove the claim. Editorial graphics may explain or contextualise evidence but must not impersonate authentic source material. Never invent URLs, quotations, source names, publication names, filing numbers, provenance, or document wording unless supplied in source context. literal_supported means the specific physical action, object, interaction, location or procedure is explicitly supported by narration or supplied source context; do not use it merely because the reconstruction looks plausible. representative means the underlying situation is supported but exact staging is unknown, so communicate it generically without implying the precise action, person, location, procedure, object or interface is verified. atmospheric means human or location atmosphere only and does not assert a specific factual action. Never default mentally to representative; choose reconstructionMode from what the available source context actually supports, and do not upgrade unsupported action to literal_supported. intentionalStillness=true means absence of visual movement is itself the editorial decision, suitable for emotional aftermath, evidence reading, major reveal, final impact, or breathing room; it requires static_locked and a meaningful timingExceptionReason. static_locked alone does not mean intentionalStillness: locked framing may contain human, object, environmental, or graphic/document action. postNarrationHoldSec may coexist with intentionalStillness and represents future silence after narration; it never changes the narration clock.`;
 
+const EDITORIAL_EXECUTION_CONTRACT = `Every sequence must include knowledgeQuestion, knowledgeAnswer, and createsQuestion: what the audience asks at the start, learns by the end, and needs answered next. These are editorial decisions, not optional metadata.
+Use motifRefs for recurring visual ideas and continuityRefs for deliberate callbacks, visual handoffs, or unresolved material carried forward. Each act must establish or continue at least one meaningful motif or continuity thread; do not add arbitrary labels merely to fill fields.
+Use audioDirection selectively at deliberate editorial turns such as an act opening, reveal, evidence read, emotional hold, transition, or payoff. Do not attach audioDirection mechanically to every beat. Describe creative music, room tone, SFX, a music event, or meaningful silence only where it changes the audience experience.
+When narration presents a date, number, identity, comparison, quotation, chapter turn, or takeaway that should appear on screen, encode it in the structured graphics array; do not hide the graphic instruction inside visualIntent or visual.description. Graphics may explain evidence but must never impersonate an authentic source.
+A beat whose storyFunction is evidence must use visualClass EVIDENCE and provide evidenceRequirement. If authentic material should prove a claim, do not downgrade it to reconstruction or editorial illustration for convenience.`;
+
 const REPAIR_STANDARD = `${DIRECTOR_STANDARD}
 ${DIRECTOR_CALIBRATION}
 
@@ -273,9 +279,10 @@ function buildActPrompt({ script, actKey, words, durationSec, channelDna, previo
     `Safe creative Channel DNA:\n${JSON.stringify(creativeDna(channelDna))}`,
     `Approved vocabularies (do not invent synonyms): ${JSON.stringify(APPROVED_VOCABULARIES)}`,
     DIRECTOR_CALIBRATION,
+    EDITORIAL_EXECUTION_CONTRACT,
     previousContext ? `Previous-act continuity context:\n${previousContext}` : '',
     `Return JSON only as a compact model draft. Example:
-{"sequences":[{"sequencePurpose":"Establish the mechanism.","directorIntent":"Show how pressure reaches an employee.","beats":[{"startWordIndex":0,"endWordIndex":12,"storyFunction":"establish","visualIntent":"An employee studies a target board.","visualClass":"RECONSTRUCTION","reconstructionMode":"representative","visual":{"type":"CLIP","description":"An employee studies a target board.","motionType":"dolly_forward","secondaryAction":"The employee marks the target."},"rhythmIntent":"measured"}]}]}
+{"sequences":[{"sequencePurpose":"Establish the mechanism.","directorIntent":"Show how pressure reaches an employee.","emotionalStateStart":"confident","emotionalStateEnd":"uneasy","knowledgeQuestion":"How does pressure reach the branch?","knowledgeAnswer":"Targets turn pressure into daily behaviour.","createsQuestion":"What happens when employees cannot meet them?","motifRefs":["sales-target-board"],"continuityRefs":["quota-pressure"],"beats":[{"startWordIndex":0,"endWordIndex":12,"storyFunction":"establish","visualIntent":"An employee studies a target board.","visualClass":"RECONSTRUCTION","reconstructionMode":"representative","visual":{"type":"CLIP","description":"An employee studies a target board.","motionType":"dolly_forward","secondaryAction":"The employee marks the target."},"rhythmIntent":"measured","graphics":[{"type":"impact_card","intent":"Land the quota as a governing rule.","text":"EIGHT IS GREAT"}],"audioDirection":{"musicCue":"restrained pulse","musicEvent":"drop","duckUnderVO":true,"sfx":[],"silenceIntent":null},"continuityRefs":["quota-pressure"]}]}]}
 For an EVIDENCE beat, optionally add only creative source-request fields such as evidenceRequirement:{"evidenceType":"regulatory filing","description":"The authenticated filing to retrieve","citationLabel":"Filing"}. Include optional creative fields only when meaningful. Do not output defaults, workflow states, motionIntent, IDs, timestamps, durations, narrationExcerpt, renderer fields, or empty graphics/audio objects unless creatively needed.`,
     'ARCHIVAL, BROLL, STOCK, GRAPHIC, DOCUMENT and similar invented synonyms are invalid. Use EVIDENCE for evidence planning and EDITORIAL_ILLUSTRATION for editorial graphics while keeping visual.type within the approved list. Omit optional values instead of inventing them. Do not output motionIntent. Only emit postNarrationHoldSec or reconstructionMode when relevant. Keep visualIntent and visual.description to one concise sentence; keep sequencePurpose, directorIntent, and emotional fields concise; keep secondaryAction a short phrase or null; do not repeat information across fields. Do not output startSec, endSec, durationSec, narrationExcerpt, beatId, sequenceId, actKey, tracks, filenames, FFmpeg, or DaVinci instructions. Cover every word index exactly once in playback order.',
   ].filter(Boolean).join('\n\n');
@@ -416,10 +423,17 @@ function finaliseActDraft({ draft, act, words }) {
 }
 
 function continuitySummary(actKey, draft) {
-  const purposes = (Array.isArray(draft?.sequences) ? draft.sequences : [])
-    .map(sequence => sequence?.sequencePurpose)
-    .filter(value => typeof value === 'string' && value.trim());
-  return `${actKey}: ${purposes.join(' | ')}`;
+  const sequences = (Array.isArray(draft?.sequences) ? draft.sequences : []).map(sequence => ({
+    sequencePurpose: sequence?.sequencePurpose ?? null,
+    knowledgeAnswer: sequence?.knowledgeAnswer ?? null,
+    createsQuestion: sequence?.createsQuestion ?? null,
+    motifRefs: Array.isArray(sequence?.motifRefs) ? sequence.motifRefs : [],
+    continuityRefs: [
+      ...(Array.isArray(sequence?.continuityRefs) ? sequence.continuityRefs : []),
+      ...(Array.isArray(sequence?.beats) ? sequence.beats.flatMap(beat => Array.isArray(beat?.continuityRefs) ? beat.continuityRefs : []) : []),
+    ].filter((value, index, values) => typeof value === 'string' && value.trim() && values.indexOf(value) === index),
+  }));
+  return `${actKey}: ${JSON.stringify(sequences)}`;
 }
 
 function attributeErrorToAct(error, plan) {

@@ -1163,6 +1163,40 @@ test('compact prompt defines reconstruction modes', async () => { const c=fakeCl
 test('compact prompt defines stillness distinction', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/static_locked/); assert.match(p,/static_locked alone does not mean intentionalStillness/); });
 test('compact prompt gives operational evidence-first rule', async () => { const c=fakeClient(); await generate({},c); assert.match(c.calls[0].messages[0].content,/Should authentic material prove this claim/); });
 test('compact prompt forbids synthetic source impersonation', async () => { const c=fakeClient(); await generate({},c); assert.match(c.calls[0].messages[0].content,/must not impersonate authentic source material/); });
+test('compact prompt requires explicit sequence knowledge progression', async () => {
+  const c = fakeClient(); await generate({}, c);
+  const prompt = c.calls[0].messages[0].content;
+  assert.match(prompt, /Every sequence must include knowledgeQuestion, knowledgeAnswer, and createsQuestion/);
+  assert.match(prompt, /what the audience asks at the start, learns by the end, and needs answered next/);
+});
+test('compact prompt requires selective audio direction at editorial turns', async () => {
+  const c = fakeClient(); await generate({}, c);
+  const prompt = c.calls[0].messages[0].content;
+  assert.match(prompt, /Use audioDirection selectively at deliberate editorial turns/);
+  assert.match(prompt, /Do not attach audioDirection mechanically to every beat/);
+});
+test('compact prompt requires structured graphics instead of burying them in descriptions', async () => {
+  const c = fakeClient(); await generate({}, c);
+  const prompt = c.calls[0].messages[0].content;
+  assert.match(prompt, /encode it in the structured graphics array/);
+  assert.match(prompt, /do not hide the graphic instruction inside visualIntent or visual\.description/);
+});
+test('next-act continuity context carries knowledge and motif state', async () => {
+  const first = draft({
+    knowledgeQuestion: 'Who created the pressure?',
+    knowledgeAnswer: 'Senior leadership made quotas decisive.',
+    createsQuestion: 'How did the pressure reach customers?',
+    motifRefs: ['eight-is-great-board'],
+    continuityRefs: ['sales-pressure-system'],
+  });
+  const c = fakeClient((index) => index === 0 ? first : draft());
+  await generate({}, c);
+  const act2Prompt = c.calls[1].messages[0].content;
+  assert.match(act2Prompt, /Senior leadership made quotas decisive\./);
+  assert.match(act2Prompt, /How did the pressure reach customers\?/);
+  assert.match(act2Prompt, /eight-is-great-board/);
+  assert.match(act2Prompt, /sales-pressure-system/);
+});
 test('compact reconstruction example includes mode and action', async () => { const c=fakeClient(); await generate({},c); const p=c.calls[0].messages[0].content; assert.match(p,/"reconstructionMode":"representative"/); assert.match(p,/"secondaryAction":"The employee marks the target\."/); });
 test('missing reconstruction mode is repaired rather than defaulted', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{reconstructionMode:undefined})]}):draft()); const plan=await generate({},c); assert.equal(c.calls.length,7); assert.equal(plan.sequences[0].beats[0].reconstructionMode,'representative'); });
 test('invalid hold type is repaired', async () => { const c=fakeClient(i=>i===0?draft({beats:[beat(0,2,{postNarrationHoldSec:'bad'})]}):draft()); await generate({},c); assert.equal(c.calls.length,7); });
