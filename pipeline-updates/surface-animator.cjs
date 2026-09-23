@@ -124,7 +124,8 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
 
   const defaultPrompt = ANIMATION_DEFAULTS[animationStyle] || ANIMATION_DEFAULTS['minimal'];
 
-  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
+  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP'
+    && (shotDefs.mode !== 'empire-omitted-v3' || s.assetType === 'generated_clip'));
 
   if (clipShots.length === 0) {
     log('[animator] No CLIP shots found — nothing to animate');

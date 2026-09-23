@@ -131,6 +131,8 @@ async function generateImages({ promptsFile, outputDir, channel, episodeId }) {
   if (!Array.isArray(prompts)) throw new Error('[image-gen] prompts file must contain an array');
   const evidence = prompts.filter(item => item?.assetType === 'evidence_reference');
   if (evidence.length) throw new Error(`[image-gen] Refusing synthetic generation for ${evidence.length} EVIDENCE source reference(s).`);
+  const graphics = prompts.filter(item => item?.assetType === 'graphic_compilation' || item?.requiresGraphicCompilation === true);
+  if (graphics.length) throw new Error(`[image-gen] Refusing image generation for ${graphics.length} plan-native graphic treatment(s); graphic compilation is required.`);
   fs2.mkdirSync(outputDir, { recursive: true });
 
   let imagePrimary   = 'openai_images';

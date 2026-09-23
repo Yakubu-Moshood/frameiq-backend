@@ -64,6 +64,7 @@ require('dotenv').config();
 'use strict';
 const fs        = require('fs');
 const path      = require('path');
+const crypto    = require('node:crypto');
 const Anthropic = require('@anthropic-ai/sdk');
 const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
@@ -221,8 +222,69 @@ Generated CLIP beats need a concrete motion prompt; generated stills use an empt
 animationPrompt. Use only these color grades: cold_blue, gold_warm,
 deep_shadow, red_alert, neutral, desaturated.
 
+When a beat contains a non-empty graphics specification, preserve it as locked
+context. Do not create an image or animation prompt for it: graphics are compiled
+separately. Return imagePrompt null and an empty animationPrompt for that beat.
+
 Return JSON only, with this shape:
 {"beats":[{"beatId":"...","imagePrompt":"... or null","negativePrompt":"...","sourceSearchInstruction":"... or null","animationPrompt":"... or empty string","reconstructionSafeguards":"... or null","colorGrade":"..."}]}`;
+
+function atomicWriteFile(filePath, content) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const tempPath = `${filePath}.${process.pid}.${crypto.randomBytes(6).toString('hex')}.tmp`;
+  try { fs.writeFileSync(tempPath, content, { encoding: 'utf8', flag: 'wx' }); fs.renameSync(tempPath, filePath); }
+  catch (error) { try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch (_) {} throw error; }
+}
+
+function atomicWriteJson(filePath, value) {
+  atomicWriteFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function jsonSha256(value) {
+  return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+function validateV3Act({ editPlan, episodeId, actKey, shots }) {
+  const plan = { ...editPlan, timing: { ...editPlan.timing, acts: editPlan.timing.acts.filter(act => act.actKey === actKey) }, sequences: editPlan.sequences.filter(sequence => sequence.actKey === actKey) };
+  const shotDefs = { shotDefinitionVersion: '1.0.0', mode: 'empire-omitted-v3', sourceEditPlanSha256: planFingerprint(plan), episodeId, title: editPlan.title, acts: { [actKey]: shots }, allShots: shots, totalShots: shots.length };
+  return validateShotDefinitions({ plan, shotDefs });
+}
+
+function buildV3Audit({ editPlan, shotDefs }) {
+  const shots = shotDefs.allShots || [];
+  const countBy = key => Object.fromEntries([...new Set(shots.map(shot => String(shot[key] ?? 'null')))].sort().map(value => [value, shots.filter(shot => String(shot[key] ?? 'null') === value).length]));
+  const promptEntries = shots.flatMap(shot => [['imagePrompt', shot.imagePrompt], ['negativePrompt', shot.negativePrompt], ['animationPrompt', shot.animationPrompt], ['sourceSearchInstruction', shot.sourceSearchInstruction], ['reconstructionSafeguards', shot.reconstructionSafeguards]].filter(([, value]) => typeof value === 'string' && value.trim()).map(([field, value]) => ({ beatId: shot.beatId, field, value })));
+  const normalize = value => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const nearDuplicatePromptGroups = [];
+  for (let i = 0; i < promptEntries.length; i++) for (let j = i + 1; j < promptEntries.length; j++) {
+    const a = new Set(normalize(promptEntries[i].value).split(/\s+/).filter(Boolean));
+    const b = new Set(normalize(promptEntries[j].value).split(/\s+/).filter(Boolean));
+    const union = new Set([...a, ...b]);
+    const similarity = [...a].filter(word => b.has(word)).length / (union.size || 1);
+    if (similarity >= 0.85) nearDuplicatePromptGroups.push({ beatIds: [promptEntries[i].beatId, promptEntries[j].beatId], similarity: Number(similarity.toFixed(3)) });
+  }
+  const malformedOrExcessivePrompts = promptEntries.filter(item => item.value.length > 1200 || /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(item.value)).map(({ beatId, field, value }) => ({ beatId, field, length: value.length }));
+  const lockedText = shots.map(shot => `${shot.narrationExcerpt} ${shot.visualIntent} ${shot.visual?.description || ''} ${JSON.stringify(shot.graphics || [])} ${shot.evidenceRequirement?.description || ''}`).join(' ').toLowerCase();
+  const factualClaimsIntroduced = shots.flatMap(shot => [shot.imagePrompt, shot.animationPrompt].filter(Boolean).flatMap(prompt => [...prompt.matchAll(/\b(?:19|20)\d{2}\b|\$\s?\d[\d,.]*(?:\s?(?:million|billion))?/gi)].map(match => ({ beatId: shot.beatId, claim: match[0] }))).filter(item => !lockedText.includes(item.claim.toLowerCase())));
+  return {
+    episodeId: editPlan.episodeId,
+    definitionsByAct: countBy('actKey'), definitionsByVisualClass: countBy('visualClass'), definitionsByAssetType: countBy('assetType'),
+    evidenceCount: shots.filter(s => s.visualClass === 'EVIDENCE').length,
+    reconstructionCount: shots.filter(s => s.visualClass === 'RECONSTRUCTION').length,
+    editorialIllustrationCount: shots.filter(s => s.visualClass === 'EDITORIAL_ILLUSTRATION').length,
+    graphicTreatmentCount: shots.filter(s => s.requiresGraphicCompilation).length,
+    intentionalStillnessCount: shots.filter(s => s.intentionalStillness === true).length,
+    animationCandidateCount: shots.filter(s => s.assetType === 'generated_clip').length,
+    sourcedAssetCount: 0,
+    syntheticStillCount: shots.filter(s => s.assetType === 'generated_image').length,
+    nearDuplicatePromptGroups, malformedOrExcessivePrompts,
+    unresolvedProductionIntents: shots.filter(s => (s.assetType === 'evidence_reference' && !s.sourceSearchInstruction?.trim()) || (s.assetType === 'generated_image' && !s.imagePrompt?.trim()) || (s.assetType === 'generated_clip' && (!s.imagePrompt?.trim() || !s.animationPrompt?.trim())) || (s.assetType === 'graphic_compilation' && (s.imagePrompt !== null || !s.requiresGraphicCompilation))).map(s => s.beatId),
+    unresolvedSourceRequirements: shots.filter(s => s.assetType === 'evidence_reference' && !s.sourceSearchInstruction?.trim()).map(s => s.beatId),
+    unsupportedProviderHints: shots.filter(s => Object.keys(s).some(key => /provider|modelhint/i.test(key))).map(s => s.beatId),
+    potentiallyMisleadingReconstruction: shots.filter(s => s.visualClass === 'RECONSTRUCTION' && !s.reconstructionSafeguards?.trim()).map(s => s.beatId),
+    factualClaimsIntroduced,
+  };
+}
 
 function v3BeatsForAct(editPlan, actKey) {
   return editPlan.sequences
@@ -231,9 +293,11 @@ function v3BeatsForAct(editPlan, actKey) {
 }
 
 function projectV3Shot({ beat, enrichment }) {
+  const requiresGraphicCompilation = Array.isArray(beat.graphics) && beat.graphics.length > 0;
   const assetType = beat.visualClass === 'EVIDENCE'
     ? 'evidence_reference'
-    : beat.visual.type === 'CLIP' ? 'generated_clip' : 'generated_image';
+    : requiresGraphicCompilation ? 'graphic_compilation'
+      : beat.visual.type === 'CLIP' ? 'generated_clip' : 'generated_image';
   const firstNarrationWord = beat.narrationExcerpt.trim().split(/\s+/)[0];
   return {
     shotId: beat.beatId,
@@ -267,6 +331,7 @@ function projectV3Shot({ beat, enrichment }) {
     hardcodedSec: null,
     estimatedDuration: beat.durationSec,
     assetType,
+    requiresGraphicCompilation,
     imagePrompt: enrichment.imagePrompt,
     negativePrompt: enrichment.negativePrompt,
     sourceSearchInstruction: enrichment.sourceSearchInstruction,
@@ -279,7 +344,7 @@ function projectV3Shot({ beat, enrichment }) {
 
 async function generateV3ShotDefinitions({
   script, outputDir = null, channel = null, editPlan, editPlanValidation,
-  wordTimestamps, client: injectedClient,
+  wordTimestamps, client: injectedClient, createClient, sourceManifest = null,
 }) {
   if (channel !== 'EmpireOmitted') {
     throw new Error('[shot-defs] V3 shot planning is restricted to EmpireOmitted.');
@@ -299,26 +364,46 @@ async function generateV3ShotDefinitions({
     throw new Error('[shot-defs] V3 edit plan must contain all six acts in playback order.');
   }
 
-  const client = injectedClient || new Anthropic();
-  const acts = {};
-  const allShots = [];
+  const candidatePath = outputDir ? path.join(outputDir, 'shot-definitions.json') : null;
+  if (candidatePath && fs.existsSync(candidatePath)) {
+    let existing;
+    try { existing = JSON.parse(fs.readFileSync(candidatePath, 'utf8')); }
+    catch (error) { throw new Error(`[shot-defs] Existing candidate is invalid JSON and will not be overwritten: ${error.message}`); }
+    const existingReport = validateShotDefinitions({ plan: editPlan, shotDefs: existing });
+    if (existingReport.status !== 'PASS') throw new Error(`[shot-defs] Existing candidate is invalid and will not be overwritten: ${existingReport.errors[0].code} ${existingReport.errors[0].path}`);
+    return existing;
+  }
+
+  let client = injectedClient || null;
+  const getClient = () => {
+    if (!client) client = typeof createClient === 'function' ? createClient() : new Anthropic();
+    return client;
+  };
+  const checkpointPath = outputDir ? path.join(outputDir, '.shot-definitions-checkpoint.json') : null;
+  const fullPlanFingerprint = planFingerprint(editPlan);
+  const checkpointVersion = 1;
+  let checkpoint = { checkpointVersion, episodeId: editPlan.episodeId, channel, planFingerprint: fullPlanFingerprint, providerCalls: 0, spendReservedUsd: 0, acts: {} };
+  if (checkpointPath && fs.existsSync(checkpointPath)) {
+    try {
+      const saved = JSON.parse(fs.readFileSync(checkpointPath, 'utf8'));
+      if (saved?.checkpointVersion === checkpointVersion && saved.episodeId === editPlan.episodeId
+        && saved.channel === channel && saved.planFingerprint === fullPlanFingerprint
+        && saved.acts && typeof saved.acts === 'object' && !Array.isArray(saved.acts)) checkpoint = saved;
+    } catch (_) { /* Invalid checkpoint ignored; successful new acts replace it atomically. */ }
+  }
+  if (outputDir && sourceManifest) atomicWriteJson(path.join(outputDir, 'candidate-source-manifest.json'), sourceManifest);
+  if (!Number.isInteger(checkpoint.providerCalls) || checkpoint.providerCalls < 0) checkpoint.providerCalls = 0;
+  const requestByAct = {};
+  const reusableByAct = {};
   for (const actKey of ACT_ORDER) {
     const beats = v3BeatsForAct(editPlan, actKey);
     if (!beats.length) throw new Error(`[shot-defs] V3 edit plan has no beats for ${actKey}.`);
     const requestBeats = beats.map(beat => ({
-      beatId: beat.beatId,
-      sequenceId: beat.sequenceId,
-      narrationExcerpt: beat.narrationExcerpt,
-      storyFunction: beat.storyFunction,
-      visualIntent: beat.visualIntent,
-      visualClass: beat.visualClass,
-      visual: beat.visual,
-      motionIntent: beat.motionIntent,
-      intentionalStillness: beat.intentionalStillness,
-      timingExceptionReason: beat.timingExceptionReason,
-      reconstructionMode: beat.reconstructionMode,
-      evidenceRequirement: beat.evidenceRequirement,
-      graphics: beat.graphics,
+      beatId: beat.beatId, sequenceId: beat.sequenceId, narrationExcerpt: beat.narrationExcerpt,
+      storyFunction: beat.storyFunction, visualIntent: beat.visualIntent, visualClass: beat.visualClass,
+      visual: beat.visual, motionIntent: beat.motionIntent, intentionalStillness: beat.intentionalStillness,
+      timingExceptionReason: beat.timingExceptionReason, reconstructionMode: beat.reconstructionMode,
+      evidenceRequirement: beat.evidenceRequirement, graphics: beat.graphics,
     }));
     const prompt = `Create production enrichment for ${actKey}. Treat every supplied beat as locked.
 Return one enrichment object per input beat, in input order, with each beatId unchanged.
@@ -327,30 +412,69 @@ documents, or facts beyond the supplied context. Color grade must be from the
 allowlist in the system prompt. EVIDENCE gets a source-search instruction and no
 image-generation prompt. Other classes get image and negative prompts. A generated
 CLIP gets an animation prompt; stills and EVIDENCE get an empty animationPrompt.
+If graphics is non-empty, set imagePrompt to null and animationPrompt to an empty
+string; it requires graphic compilation and must not be treated as a generated image.
 
-LOCKED BEATS:
-${JSON.stringify(requestBeats)}`;
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      system: V3_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: prompt }],
-    });
-    const raw = response.content.filter(block => block.type === 'text').map(block => block.text).join('');
-    let parsed;
-    try { parsed = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()); }
-    catch (error) { throw new Error(`[shot-defs] V3 ${actKey} enrichment returned malformed JSON: ${error.message}`); }
-    if (!Array.isArray(parsed?.beats) || parsed.beats.length !== beats.length) {
-      throw new Error(`[shot-defs] V3 ${actKey} enrichment must return exactly ${beats.length} beat(s).`);
+LOCKED BEATS:\n${JSON.stringify(requestBeats)}`;
+    const request = { model: MODEL, max_tokens: MAX_TOKENS, system: V3_SYSTEM_PROMPT, messages: [{ role: 'user', content: prompt }] };
+    requestByAct[actKey] = request;
+    const savedAct = checkpoint.acts[actKey];
+    reusableByAct[actKey] = Boolean(savedAct?.requestFingerprint === jsonSha256(request)
+      && Array.isArray(savedAct?.shots) && savedAct.shotsSha256 === jsonSha256(savedAct.shots)
+      && validateV3Act({ editPlan, episodeId: editPlan.episodeId, actKey, shots: savedAct.shots }).status === 'PASS');
+  }
+  const missingActs = ACT_ORDER.filter(actKey => !reusableByAct[actKey]);
+  const estimatedInputTokens = missingActs.reduce((sum, actKey) => {
+    const request = requestByAct[actKey];
+    return sum + Math.ceil(Buffer.byteLength(`${request.system}\n${request.messages[0].content}`, 'utf8') / 3);
+  }, 0);
+  const estimatedMaximumCost = (estimatedInputTokens * 3 + missingActs.length * MAX_TOKENS * 15) / 1_000_000;
+  if (estimatedMaximumCost > 5) throw new Error(`[shot-defs] Preflight estimate $${estimatedMaximumCost.toFixed(2)} exceeds the authorized $5 ceiling; no model calls made.`);
+  if (!Number.isFinite(checkpoint.spendReservedUsd) || checkpoint.spendReservedUsd < 0) checkpoint.spendReservedUsd = 0;
+  if (checkpoint.spendReservedUsd + estimatedMaximumCost > 5) throw new Error(`[shot-defs] Preflight estimate $${(checkpoint.spendReservedUsd + estimatedMaximumCost).toFixed(2)} exceeds the authorized $5 ceiling; no model calls made.`);
+  const acts = {};
+  const allShots = [];
+  const usageByAct = {};
+  for (const actKey of ACT_ORDER) {
+    const beats = v3BeatsForAct(editPlan, actKey);
+    const request = requestByAct[actKey];
+    const requestFingerprint = jsonSha256(request);
+    let actShots = null;
+    const savedAct = checkpoint.acts[actKey];
+    if (reusableByAct[actKey]) {
+      actShots = savedAct.shots;
+      usageByAct[actKey] = savedAct.usage || null;
     }
-    const byId = new Map();
-    for (const [index, enrichment] of parsed.beats.entries()) {
-      if (!enrichment || typeof enrichment.beatId !== 'string') throw new Error(`[shot-defs] V3 ${actKey} enrichment is missing beatId at index ${index}.`);
-      if (byId.has(enrichment.beatId)) throw new Error(`[shot-defs] V3 ${actKey} enrichment duplicated beatId ${enrichment.beatId}.`);
-      if (enrichment.beatId !== beats[index].beatId) throw new Error(`[shot-defs] V3 ${actKey} enrichment order/identity mismatch at ${beats[index].beatId}.`);
-      byId.set(enrichment.beatId, enrichment);
+    if (!actShots) {
+      const requestTokensEstimate = Math.ceil(Buffer.byteLength(`${request.system}\n${request.messages[0].content}`, 'utf8') / 3);
+      const reservedCallCost = (requestTokensEstimate * 3 + MAX_TOKENS * 15) / 1_000_000;
+      if (checkpoint.spendReservedUsd + reservedCallCost > 5) throw new Error('[shot-defs] The next request could exceed the authorized $5 ceiling; stopped before the model call.');
+      const activeClient = getClient();
+      checkpoint.providerCalls += 1;
+      checkpoint.spendReservedUsd += reservedCallCost;
+      if (checkpointPath) atomicWriteJson(checkpointPath, checkpoint);
+      const response = await activeClient.messages.create(request);
+      const raw = response.content.filter(block => block.type === 'text').map(block => block.text).join('');
+      let parsed;
+      try { parsed = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()); }
+      catch (error) { throw new Error(`[shot-defs] V3 ${actKey} enrichment returned malformed JSON: ${error.message}`); }
+      if (!Array.isArray(parsed?.beats) || parsed.beats.length !== beats.length) {
+        throw new Error(`[shot-defs] V3 ${actKey} enrichment must return exactly ${beats.length} beat(s).`);
+      }
+      const byId = new Map();
+      for (const [index, enrichment] of parsed.beats.entries()) {
+        if (!enrichment || typeof enrichment.beatId !== 'string') throw new Error(`[shot-defs] V3 ${actKey} enrichment is missing beatId at index ${index}.`);
+        if (byId.has(enrichment.beatId)) throw new Error(`[shot-defs] V3 ${actKey} enrichment duplicated beatId ${enrichment.beatId}.`);
+        if (enrichment.beatId !== beats[index].beatId) throw new Error(`[shot-defs] V3 ${actKey} enrichment order/identity mismatch at ${beats[index].beatId}.`);
+        byId.set(enrichment.beatId, enrichment);
+      }
+      actShots = beats.map(beat => projectV3Shot({ beat, enrichment: byId.get(beat.beatId) }));
+      const actReport = validateV3Act({ editPlan, episodeId: editPlan.episodeId, actKey, shots: actShots });
+      if (actReport.status !== 'PASS') throw new Error(`[shot-defs] V3 ${actKey} failed act validation: ${actReport.errors[0].code} ${actReport.errors[0].path}`);
+      usageByAct[actKey] = response.usage ? { inputTokens: response.usage.input_tokens ?? null, outputTokens: response.usage.output_tokens ?? null } : null;
+      checkpoint.acts[actKey] = { requestFingerprint, shots: actShots, shotsSha256: jsonSha256(actShots), usage: usageByAct[actKey] };
+      if (checkpointPath) atomicWriteJson(checkpointPath, checkpoint);
     }
-    const actShots = beats.map(beat => projectV3Shot({ beat, enrichment: byId.get(beat.beatId) }));
     acts[actKey] = actShots;
     allShots.push(...actShots);
   }
@@ -358,7 +482,7 @@ ${JSON.stringify(requestBeats)}`;
   const shotDefs = {
     shotDefinitionVersion: '1.0.0',
     mode: 'empire-omitted-v3',
-    sourceEditPlanSha256: planFingerprint(editPlan),
+    sourceEditPlanSha256: fullPlanFingerprint,
     episodeId: editPlan.episodeId,
     topic: script.topic,
     title: editPlan.title,
@@ -373,8 +497,14 @@ ${JSON.stringify(requestBeats)}`;
   }
   if (outputDir) {
     fs.mkdirSync(outputDir, { recursive: true });
-    fs.writeFileSync(path.join(outputDir, 'shot-definitions.json'), JSON.stringify(shotDefs, null, 2), 'utf8');
-    fs.writeFileSync(path.join(outputDir, 'shot-definitions-summary.txt'), buildSummaryText(shotDefs), 'utf8');
+    atomicWriteJson(path.join(outputDir, 'shot-definitions.json'), shotDefs);
+    atomicWriteFile(path.join(outputDir, 'shot-definitions-summary.txt'), buildSummaryText(shotDefs));
+    atomicWriteJson(path.join(outputDir, 'shot-definitions-audit.json'), buildV3Audit({ editPlan, shotDefs }));
+    atomicWriteJson(path.join(outputDir, 'shot-definitions-usage.json'), {
+      model: MODEL, calls: checkpoint.providerCalls, usageByAct,
+      inputTokens: Object.values(usageByAct).reduce((sum, usage) => sum + (usage?.inputTokens || 0), 0),
+      outputTokens: Object.values(usageByAct).reduce((sum, usage) => sum + (usage?.outputTokens || 0), 0),
+    });
   }
   return shotDefs;
 }
@@ -613,6 +743,8 @@ if (require.main === module) {
   const outputDir  = process.argv[3] || null;
   const channel    = process.argv[4] || null;
   const mode       = process.argv[5] || 'legacy';
+  const candidateArg = process.argv.indexOf('--candidate-output-dir');
+  const candidateOutputDir = candidateArg >= 0 ? process.argv[candidateArg + 1] : null;
   if (!scriptPath) {
     console.error('Usage: node surface-shot-definitions.cjs <script.json> [outputDir] [channel]');
     process.exit(1);
@@ -621,7 +753,14 @@ if (require.main === module) {
   const planInput = mode === 'v3'
     ? require('./shot-definitions-validator.cjs').loadValidatedV3Plan({ episodeDir: outputDir })
     : {};
-  generateShotDefinitions({ script, outputDir, channel, mode, ...planInput })
+  const hashFile = filePath => crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  const sourceManifest = mode === 'v3' ? {
+    sourceEpisodeDir: path.resolve(outputDir),
+    scriptPath: path.resolve(scriptPath), scriptSha256: hashFile(scriptPath),
+    editPlanPath: path.join(path.resolve(outputDir), 'edit-plan.json'), editPlanSha256: hashFile(path.join(outputDir, 'edit-plan.json')),
+    validationPath: path.join(path.resolve(outputDir), 'edit-plan-validation.json'), validationSha256: hashFile(path.join(outputDir, 'edit-plan-validation.json')),
+  } : null;
+  generateShotDefinitions({ script, outputDir: candidateOutputDir || outputDir, channel, mode, sourceManifest, ...planInput })
     .catch(err => { console.error('[shot-defs] FATAL:', err.message); process.exit(1); });
 }
 module.exports = { generateShotDefinitions, generateV3ShotDefinitions, generateLegacyShotDefinitions };

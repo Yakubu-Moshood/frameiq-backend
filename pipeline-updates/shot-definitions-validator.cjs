@@ -14,7 +14,7 @@ const BEAT_FIELDS = [
   'rhythmIntent', 'graphics', 'audioDirection', 'evidenceRequirement', 'intentionalStillness',
   'timingExceptionReason', 'postNarrationHoldSec', 'reconstructionMode', 'continuityRefs',
 ];
-const SUPPORTED_ASSET_TYPES = new Set(['evidence_reference', 'generated_image', 'generated_clip']);
+const SUPPORTED_ASSET_TYPES = new Set(['evidence_reference', 'graphic_compilation', 'generated_image', 'generated_clip']);
 const V3_COLOR_GRADES = new Set(['cold_blue', 'gold_warm', 'deep_shadow', 'red_alert', 'neutral', 'desaturated']);
 
 function planFingerprint(plan) {
@@ -83,12 +83,15 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
           }
         }
         if (shot.visualType !== source.beat.visual?.type) error('VISUAL_TYPE_MISMATCH', `${location}/visualType`, 'visualType must match the locked visual type.');
+        const hasGraphics = Array.isArray(source.beat.graphics) && source.beat.graphics.length > 0;
         const expectedAssetType = source.beat.visualClass === 'EVIDENCE'
           ? 'evidence_reference'
-          : source.beat.visual?.type === 'CLIP' ? 'generated_clip' : 'generated_image';
+          : hasGraphics ? 'graphic_compilation'
+            : source.beat.visual?.type === 'CLIP' ? 'generated_clip' : 'generated_image';
         if (!SUPPORTED_ASSET_TYPES.has(shot.assetType)) error('UNSUPPORTED_ASSET_TYPE', `${location}/assetType`, `Unsupported asset type ${String(shot.assetType)}.`);
         else if (shot.assetType !== expectedAssetType) error('ASSET_TYPE_MISMATCH', `${location}/assetType`, `Expected ${expectedAssetType} for this locked visual class and type.`);
         if (!sameJson(shot.overlaySpecification, source.beat.graphics)) error('OVERLAY_MISMATCH', `${location}/overlaySpecification`, 'Overlay specification must preserve locked graphics.');
+        if (shot.requiresGraphicCompilation !== hasGraphics) error('GRAPHIC_COMPILATION_MISMATCH', `${location}/requiresGraphicCompilation`, 'Graphic compilation flag must match whether the locked plan has graphics.');
         if (!sameJson(shot.motionTreatment, source.beat.motionIntent)) error('MOTION_MISMATCH', `${location}/motionTreatment`, 'Motion treatment must preserve locked motion intent.');
       }
     }
@@ -97,6 +100,11 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
       if (typeof shot.sourceSearchInstruction !== 'string' || !shot.sourceSearchInstruction.trim()) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/sourceSearchInstruction`, 'EVIDENCE needs a concrete source-search instruction.');
       if (shot.imagePrompt !== null) error('EVIDENCE_IMAGE_PROMPT', `${location}/imagePrompt`, 'EVIDENCE must not be routed to synthetic image generation.');
       if (shot.reconstructionSafeguards !== null) error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'EVIDENCE cannot carry reconstruction instructions.');
+    } else if (shot.assetType === 'graphic_compilation') {
+      if (shot.imagePrompt !== null) error('GRAPHIC_IMAGE_PROMPT', `${location}/imagePrompt`, 'Plan-native graphics must not be converted into image-generation prompts.');
+      if (shot.sourceSearchInstruction !== null) error('UNEXPECTED_SOURCE_SEARCH', `${location}/sourceSearchInstruction`, 'Only EVIDENCE may carry a source-search instruction.');
+      if (shot.reconstructionSafeguards !== null && source?.beat?.visualClass !== 'RECONSTRUCTION') error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'Only RECONSTRUCTION may carry reconstruction safeguards.');
+      if (source?.beat?.visualClass === 'RECONSTRUCTION' && (typeof shot.reconstructionSafeguards !== 'string' || !shot.reconstructionSafeguards.trim())) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/reconstructionSafeguards`, 'RECONSTRUCTION needs explicit safeguards.');
     } else {
       if (typeof shot.imagePrompt !== 'string' || !shot.imagePrompt.trim()) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/imagePrompt`, 'Generated visuals need a nonblank image prompt.');
       if (shot.sourceSearchInstruction !== null) error('UNEXPECTED_SOURCE_SEARCH', `${location}/sourceSearchInstruction`, 'Only EVIDENCE may carry a source-search instruction.');

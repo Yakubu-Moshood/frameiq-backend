@@ -81,7 +81,7 @@ function fakeClient(calls = []) {
     const prompt = request.messages[0].content;
     const payload = JSON.parse(prompt.split('LOCKED BEATS:\n')[1]);
     return { content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({
-      beatId: beat.beatId, imagePrompt: 'Editorial illustration of the described context.',
+      beatId: beat.beatId, imagePrompt: Array.isArray(beat.graphics) && beat.graphics.length ? null : 'Editorial illustration of the described context.',
       negativePrompt: 'No fabricated documents or identifiable people.',
       sourceSearchInstruction: null, animationPrompt: '', reconstructionSafeguards: null,
       colorGrade: 'cold_blue',
@@ -105,12 +105,102 @@ test('V3 generation makes six ordered enrichments and preserves locked beat iden
     assert.equal(shot.endSec, data.editPlan.sequences[0].beats[0].endSec);
     assert.deepEqual(shot.visual, data.editPlan.sequences[0].beats[0].visual);
     assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), true);
+    assert.equal(JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8')).acts.act5.shots.length, 1);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions-audit.json')), true);
+    assert.equal(fs.readdirSync(outputDir).some(name => name.endsWith('.tmp')), false);
     const rendererResolved = resolveEditPlanTimestamps({ shotDefs, editPlan: data.editPlan });
     assert.equal(rendererResolved[0].voKey, 'VO_Act1');
     assert.equal(rendererResolved[0].startSec, 0);
     assert.equal(rendererResolved[0].endSec, 4);
     assert.equal(rendererResolved[0].episodeStartSec, 0);
     assert.equal(rendererResolved[0].matched, true);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('V3 checkpoints each validated act and resumes after a later-act provider failure without repeating completed calls', async () => {
+  const data = fixture();
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-resume-'));
+  const firstCalls = [];
+  const firstClient = { messages: { create: async request => {
+    firstCalls.push(request);
+    if (firstCalls.length === 4) throw new Error('Act 3B provider failure');
+    const payload = JSON.parse(request.messages[0].content.split('LOCKED BEATS:\n')[1]);
+    return { content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({ beatId: beat.beatId, imagePrompt: 'Restrained contextual illustration.', negativePrompt: 'No false evidence.', sourceSearchInstruction: null, animationPrompt: '', reconstructionSafeguards: null, colorGrade: 'cold_blue' })) }) }] };
+  } } };
+  try {
+    await assert.rejects(generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: firstClient }), /Act 3B provider failure/);
+    const saved = JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8'));
+    assert.deepEqual(Object.keys(saved.acts), ['act1', 'act2', 'act3']);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), false);
+    const resumeCalls = [];
+    const resumeClient = { messages: { create: async request => {
+      resumeCalls.push(request);
+      const payload = JSON.parse(request.messages[0].content.split('LOCKED BEATS:\n')[1]);
+      return { content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({ beatId: beat.beatId, imagePrompt: 'Restrained contextual illustration.', negativePrompt: 'No false evidence.', sourceSearchInstruction: null, animationPrompt: '', reconstructionSafeguards: null, colorGrade: 'cold_blue' })) }) }] };
+    } } };
+    const resumed = await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: resumeClient });
+    assert.equal(resumeCalls.length, 3, 'resume calls only act3b, act4, and act5');
+    assert.match(resumeCalls[0].messages[0].content, /Create production enrichment for act3b/);
+    assert.equal(resumed.totalShots, 6);
+    assert.equal(validateShotDefinitions({ plan: data.editPlan, shotDefs: resumed }).status, 'PASS');
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('plan-native graphics are preserved and marked for compilation without an image prompt', async () => {
+  const data = fixture();
+  const beat = data.editPlan.sequences[0].beats[0];
+  beat.graphics = [{ type: 'data_graphic', intent: 'Show the approved comparison between the two named values.', text: 'Approved comparison' }];
+  const checked = validateEditPlan({ plan: data.editPlan, wordTimestamps: data.wordTimestamps });
+  assert.equal(checked.status, 'PASS', JSON.stringify(checked.errors));
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-graphics-'));
+  try {
+    const definitions = await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: fakeClient() });
+    const shot = definitions.allShots[0];
+    assert.equal(shot.assetType, 'graphic_compilation');
+    assert.equal(shot.requiresGraphicCompilation, true);
+    assert.deepEqual(shot.graphics, beat.graphics);
+    assert.equal(shot.imagePrompt, null);
+    assert.equal(shot.animationPrompt, '');
+    assert.equal(validateShotDefinitions({ plan: data.editPlan, shotDefs: definitions }).status, 'PASS');
+    const { generateImages } = require('../pipeline-updates/surface-image-generator.cjs');
+    const promptsFile = path.join(outputDir, 'prompts.json');
+    fs.writeFileSync(promptsFile, JSON.stringify([{ shotId: shot.shotId, filename: `${shot.shotId}.png`, prompt: null, assetType: shot.assetType }]));
+    await assert.rejects(generateImages({ promptsFile, outputDir: path.join(outputDir, 'images') }), /graphic compilation/);
+    assert.equal(fs.existsSync(path.join(outputDir, 'images')), false);
+    const audit = JSON.parse(fs.readFileSync(path.join(outputDir, 'shot-definitions-audit.json'), 'utf8'));
+    assert.equal(audit.graphicTreatmentCount, 1);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('complete valid checkpoint reuse constructs no Anthropic client and makes no model calls', async () => {
+  const data = fixture();
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-no-client-'));
+  try {
+    await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: fakeClient() });
+    assert.equal(JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8')).providerCalls, 6);
+    fs.unlinkSync(path.join(outputDir, 'shot-definitions.json'));
+    let constructions = 0;
+    const result = await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, createClient: () => { constructions++; throw new Error('must remain lazy'); } });
+    assert.equal(constructions, 0);
+    assert.equal(result.totalShots, 6);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('tampered act checkpoint is rejected and regenerated while intact acts are reused', async () => {
+  const data = fixture();
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-tamper-'));
+  try {
+    await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: fakeClient() });
+    fs.unlinkSync(path.join(outputDir, 'shot-definitions.json'));
+    const checkpointPath = path.join(outputDir, '.shot-definitions-checkpoint.json');
+    const checkpoint = JSON.parse(fs.readFileSync(checkpointPath, 'utf8'));
+    checkpoint.acts.act2.shots[0].rendererTrack = 'untrusted';
+    fs.writeFileSync(checkpointPath, JSON.stringify(checkpoint));
+    const calls = [];
+    const result = await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client: fakeClient(calls) });
+    assert.equal(calls.length, 1);
+    assert.match(calls[0].messages[0].content, /Create production enrichment for act2/);
+    assert.equal(Object.hasOwn(result.acts.act2[0], 'rendererTrack'), false);
   } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
 });
 

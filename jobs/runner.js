@@ -558,9 +558,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   // ── STEP 0D — IMAGE GENERATION ────────────────────────────────────────────
   const job0D  = jobFor('0D_images');
   if (shotDefs.mode === 'empire-omitted-v3') {
-    const unresolvedEvidence = (shotDefs.allShots || []).filter(shot => shot.assetType === 'evidence_reference');
-    if (unresolvedEvidence.length) {
-      throw new Error(`[runner] V3 image generation is blocked: ${unresolvedEvidence.length} EVIDENCE beat(s) require authentic source assets before synthetic generation.`);
+    const unresolvedProduction = (shotDefs.allShots || []).filter(shot => shot.assetType === 'evidence_reference' || shot.assetType === 'graphic_compilation');
+    if (unresolvedProduction.length) {
+      throw new Error(`[runner] V3 image generation is blocked: ${unresolvedProduction.length} beat(s) require authentic source assets or graphic compilation before image generation.`);
     }
   }
   const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
