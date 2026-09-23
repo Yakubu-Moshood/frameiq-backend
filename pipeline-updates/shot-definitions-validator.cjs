@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
+const { validatePersistedProductionFields } = require('./shot-definitions-production-contract.cjs');
 
 const EPSILON = 0.001;
 const SAFE_ID = /^[A-Za-z0-9_-]+$/;
@@ -115,8 +116,14 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
         error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'Only RECONSTRUCTION may carry reconstruction safeguards.');
       }
     }
-    if (typeof shot.negativePrompt !== 'string' || !shot.negativePrompt.trim()) error('INVALID_PRODUCTION_FIELD', `${location}/negativePrompt`, 'negativePrompt must be a nonblank string.');
-    if (!V3_COLOR_GRADES.has(shot.colorGrade)) error('INVALID_COLOR_GRADE', `${location}/colorGrade`, 'colorGrade must use the V3 allowlist.');
+    const productionContract = validatePersistedProductionFields(shot, { sourceBeat: source?.beat });
+    for (const item of productionContract.errors) {
+      const code = item.message.startsWith('Unknown canonical shot field') ? 'UNKNOWN_PRODUCTION_FIELD'
+        : item.field === 'colorGrade' ? 'INVALID_COLOR_GRADE'
+          : item.field === 'assetType' ? 'UNSUPPORTED_ASSET_TYPE'
+            : 'INVALID_PRODUCTION_FIELD';
+      error(code, `${location}/${item.field}`, item.message);
+    }
     if (shot.assetType === 'generated_clip' && (typeof shot.animationPrompt !== 'string' || !shot.animationPrompt.trim())) {
       error('UNRESOLVED_PRODUCTION_INTENT', `${location}/animationPrompt`, 'Generated clips need a nonblank motion prompt.');
     }

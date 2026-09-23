@@ -69,6 +69,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
 const { validateShotDefinitions, planFingerprint } = require('./shot-definitions-validator.cjs');
+const { COLOR_GRADES, RESPONSE_FIELDS, responseExample, validateModelEnrichment } = require('./shot-definitions-production-contract.cjs');
 // ─── Config ───────────────────────────────────────────────────────────────────
 const MODEL      = 'claude-opus-4-5';
 function log(msg) { console.log(msg); }
@@ -202,7 +203,6 @@ function pickProfile(narrationStyle) {
 // V3 production prompts enrich the locked plan; they never author its editorial
 // structure. Six calls are made in the plan's fixed act order. A model response
 // is accepted only when its beat IDs match the supplied list exactly.
-const V3_COLOR_GRADES = new Set(['cold_blue', 'gold_warm', 'deep_shadow', 'red_alert', 'neutral', 'desaturated']);
 const ACT_ORDER = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
 const V3_SYSTEM_PROMPT = `You are the visual production breakdown writer for Empire Omitted.
 The supplied edit-plan beats are locked editorial decisions. Do not create, remove,
@@ -225,9 +225,15 @@ deep_shadow, red_alert, neutral, desaturated.
 When a beat contains a non-empty graphics specification, preserve it as locked
 context. Do not create an image or animation prompt for it: graphics are compiled
 separately. Return imagePrompt null and an empty animationPrompt for that beat.
+negativePrompt is always a required nonblank string, including for EVIDENCE and
+graphic beats, and its exact canonical spelling is negativePrompt.
 
-Return JSON only, with this shape:
-{"beats":[{"beatId":"...","imagePrompt":"... or null","negativePrompt":"...","sourceSearchInstruction":"... or null","animationPrompt":"... or empty string","reconstructionSafeguards":"... or null","colorGrade":"..."}]}`;
+Return JSON only. Each beats[] object must contain exactly these fields, with the
+types and class-specific null/empty rules shown in the example. Copy beatId from
+the locked input. Use the exact camelCase field names; do not use snake_case,
+omit fields, or add provider/asset/overlay/motion fields:
+${JSON.stringify({ beats: [responseExample()] })}
+Allowed enrichment fields: ${RESPONSE_FIELDS.join(', ')}.`;
 
 function atomicWriteFile(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -238,6 +244,30 @@ function atomicWriteFile(filePath, content) {
 
 function atomicWriteJson(filePath, value) {
   atomicWriteFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function writeQuarantinedProviderResponse({ outputDir, actKey, attempt, response, requestFingerprint }) {
+  if (!outputDir) return null;
+  const directory = path.join(outputDir, '.quarantine', 'anthropic-responses');
+  const serialized = `${JSON.stringify(response, null, 2)}\n`;
+  const sha256 = crypto.createHash('sha256').update(serialized).digest('hex');
+  const file = path.join(directory, `${actKey}-attempt-${attempt}-${sha256.slice(0, 12)}.json`);
+  const manifest = `${file}.manifest.json`;
+  atomicWriteFile(file, serialized);
+  atomicWriteJson(manifest, {
+    file: path.basename(file), sha256, actKey, attempt, requestFingerprint,
+    usage: response?.usage ? { inputTokens: response.usage.input_tokens ?? null, outputTokens: response.usage.output_tokens ?? null } : null,
+    capturedAt: new Date().toISOString(), validationState: 'pending', validationErrors: [],
+  });
+  return { file, manifest, sha256 };
+}
+
+function updateQuarantinedResponse(artifact, validationState, validationErrors = []) {
+  if (!artifact) return;
+  let metadata;
+  try { metadata = JSON.parse(fs.readFileSync(artifact.manifest, 'utf8')); }
+  catch (_) { metadata = { file: path.basename(artifact.file), sha256: artifact.sha256 }; }
+  atomicWriteJson(artifact.manifest, { ...metadata, validationState, validationErrors });
 }
 
 function jsonSha256(value) {
@@ -344,7 +374,7 @@ function projectV3Shot({ beat, enrichment }) {
 
 async function generateV3ShotDefinitions({
   script, outputDir = null, channel = null, editPlan, editPlanValidation,
-  wordTimestamps, client: injectedClient, createClient, sourceManifest = null,
+  wordTimestamps, client: injectedClient, createClient, sourceManifest = null, onActCheckpoint = null,
 }) {
   if (channel !== 'EmpireOmitted') {
     throw new Error('[shot-defs] V3 shot planning is restricted to EmpireOmitted.');
@@ -454,27 +484,66 @@ LOCKED BEATS:\n${JSON.stringify(requestBeats)}`;
       checkpoint.spendReservedUsd += reservedCallCost;
       if (checkpointPath) atomicWriteJson(checkpointPath, checkpoint);
       const response = await activeClient.messages.create(request);
-      const raw = response.content.filter(block => block.type === 'text').map(block => block.text).join('');
+      const rawArtifact = writeQuarantinedProviderResponse({
+        outputDir, actKey, attempt: checkpoint.providerCalls,
+        response, requestFingerprint,
+      });
+      let raw;
+      try {
+        if (!Array.isArray(response?.content)) throw new Error('Provider response content must be an array.');
+        raw = response.content.filter(block => block.type === 'text').map(block => block.text).join('');
+      } catch (error) {
+        updateQuarantinedResponse(rawArtifact, 'malformed_response', [{ field: 'content', message: error.message }]);
+        throw new Error(`[shot-defs] V3 ${actKey} enrichment returned an invalid provider response envelope: ${error.message}`);
+      }
       let parsed;
       try { parsed = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()); }
-      catch (error) { throw new Error(`[shot-defs] V3 ${actKey} enrichment returned malformed JSON: ${error.message}`); }
+      catch (error) {
+        updateQuarantinedResponse(rawArtifact, 'malformed_json', [{ field: '/', message: error.message }]);
+        throw new Error(`[shot-defs] V3 ${actKey} enrichment returned malformed JSON: ${error.message}`);
+      }
+      const envelopeUnknown = Object.keys(parsed || {}).filter(key => key !== 'beats');
+      if (envelopeUnknown.length) {
+        const errors = envelopeUnknown.map(field => ({ field, message: `Unknown response envelope field ${field}.` }));
+        updateQuarantinedResponse(rawArtifact, 'rejected', errors);
+        throw new Error(`[shot-defs] V3 ${actKey} enrichment has unknown response field ${envelopeUnknown[0]}.`);
+      }
       if (!Array.isArray(parsed?.beats) || parsed.beats.length !== beats.length) {
+        updateQuarantinedResponse(rawArtifact, 'rejected', [{ field: 'beats', message: `Expected exactly ${beats.length} enrichment object(s).` }]);
         throw new Error(`[shot-defs] V3 ${actKey} enrichment must return exactly ${beats.length} beat(s).`);
       }
+      const productionErrors = parsed.beats.flatMap((enrichment, index) => validateModelEnrichment(enrichment, { beat: beats[index], assetType: beats[index].visualClass === 'EVIDENCE' ? 'evidence_reference' : undefined }).errors.map(item => ({ ...item, field: `beats[${index}].${item.field}` })));
+      const rejectResponse = (message, errors) => {
+        updateQuarantinedResponse(rawArtifact, 'rejected', errors);
+        throw new Error(message);
+      };
+      if (productionErrors.length) rejectResponse(
+        `[shot-defs] V3 ${actKey} enrichment violates production field contract: ${productionErrors[0].field} ${productionErrors[0].message}`,
+        productionErrors,
+      );
       const byId = new Map();
       for (const [index, enrichment] of parsed.beats.entries()) {
-        if (!enrichment || typeof enrichment.beatId !== 'string') throw new Error(`[shot-defs] V3 ${actKey} enrichment is missing beatId at index ${index}.`);
-        if (byId.has(enrichment.beatId)) throw new Error(`[shot-defs] V3 ${actKey} enrichment duplicated beatId ${enrichment.beatId}.`);
-        if (enrichment.beatId !== beats[index].beatId) throw new Error(`[shot-defs] V3 ${actKey} enrichment order/identity mismatch at ${beats[index].beatId}.`);
+        if (!enrichment || typeof enrichment.beatId !== 'string') rejectResponse(`[shot-defs] V3 ${actKey} enrichment is missing beatId at index ${index}.`, [{ field: `beats[${index}].beatId`, message: 'Missing string beatId.' }]);
+        if (byId.has(enrichment.beatId)) rejectResponse(`[shot-defs] V3 ${actKey} enrichment duplicated beatId ${enrichment.beatId}.`, [{ field: `beats[${index}].beatId`, message: 'Duplicate beatId.' }]);
+        if (enrichment.beatId !== beats[index].beatId) rejectResponse(`[shot-defs] V3 ${actKey} enrichment order/identity mismatch at ${beats[index].beatId}.`, [{ field: `beats[${index}].beatId`, message: 'Beat identity/order mismatch.' }]);
         byId.set(enrichment.beatId, enrichment);
       }
       actShots = beats.map(beat => projectV3Shot({ beat, enrichment: byId.get(beat.beatId) }));
       const actReport = validateV3Act({ editPlan, episodeId: editPlan.episodeId, actKey, shots: actShots });
-      if (actReport.status !== 'PASS') throw new Error(`[shot-defs] V3 ${actKey} failed act validation: ${actReport.errors[0].code} ${actReport.errors[0].path}`);
+      if (actReport.status !== 'PASS') {
+        const errors = actReport.errors.map(item => ({ field: item.path, message: `${item.code}: ${item.message}` }));
+        updateQuarantinedResponse(rawArtifact, 'rejected', errors);
+        throw new Error(`[shot-defs] V3 ${actKey} failed act validation: ${actReport.errors[0].code} ${actReport.errors[0].path}`);
+      }
+      updateQuarantinedResponse(rawArtifact, 'accepted', []);
       usageByAct[actKey] = response.usage ? { inputTokens: response.usage.input_tokens ?? null, outputTokens: response.usage.output_tokens ?? null } : null;
       checkpoint.acts[actKey] = { requestFingerprint, shots: actShots, shotsSha256: jsonSha256(actShots), usage: usageByAct[actKey] };
       if (checkpointPath) atomicWriteJson(checkpointPath, checkpoint);
     }
+    if (typeof onActCheckpoint === 'function') await onActCheckpoint({
+      actKey, shots: actShots, checkpoint: checkpointPath ? JSON.parse(fs.readFileSync(checkpointPath, 'utf8')) : checkpoint,
+      reused: reusableByAct[actKey],
+    });
     acts[actKey] = actShots;
     allShots.push(...actShots);
   }

@@ -576,7 +576,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0D_images', 'complete', 100, `[TEST] ${needed.length} placeholder images written`);
   } else {
     progress('0D_images', 'running', 0, `Generating ${needed.length} images via gpt-image-1...`);
-    const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt, assetType: s.assetType }));
+    const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt, negativePrompt: s.negativePrompt || '', assetType: s.assetType, requiresGraphicCompilation: s.requiresGraphicCompilation === true }));
     const promptsPath = path.join(stillsDir, 'pending-prompts.json');
     fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
     const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));

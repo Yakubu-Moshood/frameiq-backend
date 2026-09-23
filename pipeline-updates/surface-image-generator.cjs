@@ -21,6 +21,10 @@ function log(msg) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function withNegativePrompt(prompt, negativePrompt) {
+  return negativePrompt ? `${prompt}\n\nAvoid these elements: ${negativePrompt}` : prompt;
+}
+
 function saveBase64(b64, filepath) {
   fs2.writeFileSync(filepath, Buffer.from(b64, 'base64'));
 }
@@ -88,10 +92,10 @@ async function generateImageFal(prompt, imageStyle) {
 
 function makeOpenAIProvider(quality) {
   return {
-    generate: async ({ prompt, outputPath }) => {
+    generate: async ({ prompt, negativePrompt, outputPath }) => {
       const startedAt = Date.now();
       try {
-        const result = await generateImageOpenAI(prompt, quality);
+        const result = await generateImageOpenAI(withNegativePrompt(prompt, negativePrompt), quality);
         if (result.type === 'b64') saveBase64(result.value, outputPath);
         else await downloadUrl(result.value, outputPath);
         return { success: true, path: outputPath, provider: 'openai_images', durationMs: Date.now() - startedAt };
@@ -104,10 +108,10 @@ function makeOpenAIProvider(quality) {
 
 function makeFluxProvider(imageStyle) {
   return {
-    generate: async ({ prompt, outputPath }) => {
+    generate: async ({ prompt, negativePrompt, outputPath }) => {
       const startedAt = Date.now();
       try {
-        const result = await generateImageFal(prompt, imageStyle);
+        const result = await generateImageFal(withNegativePrompt(prompt, negativePrompt), imageStyle);
         await downloadUrl(result.value, outputPath);
         return { success: true, path: outputPath, provider: 'flux', durationMs: Date.now() - startedAt };
       } catch (err) {
@@ -124,7 +128,7 @@ function estimateImageCost(provider) {
   return null;
 }
 
-async function generateImages({ promptsFile, outputDir, channel, episodeId }) {
+async function generateImages({ promptsFile, outputDir, channel, episodeId, routerFactory = createRouter }) {
   if (!fs2.existsSync(promptsFile)) throw new Error('[image-gen] prompts file not found: ' + promptsFile);
 
   const prompts = JSON.parse(fs2.readFileSync(promptsFile, 'utf8'));
@@ -163,7 +167,7 @@ async function generateImages({ promptsFile, outputDir, channel, episodeId }) {
     sdxl,
   };
 
-  const imageRouter = createRouter({ step: 'image', providers, estimateCost: estimateImageCost });
+  const imageRouter = routerFactory({ step: 'image', providers, estimateCost: estimateImageCost });
 
   log('');
   log('════════════════════════════════════════');
@@ -187,7 +191,7 @@ async function generateImages({ promptsFile, outputDir, channel, episodeId }) {
 
     try {
       const result = await imageRouter.run(priorityList, {
-        input: { prompt: item.prompt, negativePrompt: '', width: 1536, height: 1024, outputPath: outPath },
+        input: { prompt: item.prompt, negativePrompt: item.negativePrompt || '', width: 1536, height: 1024, outputPath: outPath },
         providerConfig: {},
         episodeId: episodeId || null,
         shotId: item.shotId,
@@ -233,4 +237,4 @@ if (require.main === module) {
     .catch(err => { console.error('[image-gen] FATAL:', err.message); process.exit(1); });
 }
 
-module.exports = { generateImages };
+module.exports = { generateImages, withNegativePrompt };

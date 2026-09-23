@@ -20,7 +20,7 @@ process.on('exit', () => {
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 const { generateShotDefinitions } = require('../pipeline-updates/surface-shot-definitions.cjs');
 const { validateShotDefinitions } = require('../pipeline-updates/shot-definitions-validator.cjs');
-const { runDurableShotDefinitionGeneration } = require('../pipeline-updates/shot-definitions-durable-runner.cjs');
+const { runDurableShotDefinitionGeneration, validateResumeState } = require('../pipeline-updates/shot-definitions-durable-runner.cjs');
 const { resolveEditPlanTimestamps } = require('../pipeline-updates/surface-renderer.cjs');
 
 const ACTS = [
@@ -90,12 +90,29 @@ function fakeClient(calls = []) {
   } } };
 }
 
-test('durable supervisor records process state, atomic checkpoints, and successful act attempts', async () => {
+test('durable supervisor pauses after Act 1 until its checkpoint is externally verified', async () => {
   const data = fixture();
   const calls = [];
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-durable-'));
   try {
-    const result = await runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: fakeClient(calls) });
+    const resultPromise = runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: fakeClient(calls) });
+    let waiting;
+    for (let i = 0; i < 100; i++) {
+      try {
+        const current = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation-status.json'), 'utf8'));
+        if (current.awaitingAct1CheckpointVerification) { waiting = current; break; }
+      } catch (_) { /* process has not written status yet */ }
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    assert.ok(waiting, 'supervisor must pause after the validated Act 1 checkpoint');
+    const checkpointPath = path.join(outputDir, '.shot-definitions-checkpoint.json');
+    const checkpoint = JSON.parse(fs.readFileSync(checkpointPath, 'utf8'));
+    assert.ok(checkpoint.acts.act1);
+    assert.deepEqual(Object.keys(checkpoint.acts), ['act1']);
+    assert.equal(calls.length, 1, 'Act 2 must not be dispatched before external verification');
+    const gatePath = path.join(outputDir, waiting.verificationGate);
+    fs.writeFileSync(gatePath, JSON.stringify({ runId: waiting.runId, act1CheckpointSha256: waiting.act1CheckpointSha256 }));
+    const result = await resultPromise;
     const status = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation-status.json'), 'utf8'));
     const pid = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation.pid'), 'utf8'));
     const events = fs.readFileSync(path.join(outputDir, 'generation.log'), 'utf8').trim().split(/\r?\n/).map(line => JSON.parse(line));
@@ -114,7 +131,25 @@ test('durable supervisor records process state, atomic checkpoints, and successf
   } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
 });
 
-test('durable supervisor never dispatches a third Act 1 provider attempt', async () => {
+test('durable resume accepts only the authorized initial retry or an unused next-act attempt', () => {
+  const data = fixture();
+  const initial = validateResumeState({ checkpoint: { providerCalls: 2, spendReservedUsd: 0.54, acts: {} }, attemptRecord: null, editPlan: data.editPlan });
+  assert.deepEqual(initial, { completedActs: [], firstMissingAct: 'act1' });
+  const fingerprint = require('../pipeline-updates/shot-definitions-validator.cjs').planFingerprint(data.editPlan);
+  const resume = validateResumeState({
+    checkpoint: { providerCalls: 3, spendReservedUsd: 0.8, acts: { act1: { shots: [{}] } } },
+    attemptRecord: { version: 1, episodeId: data.editPlan.episodeId, planFingerprint: fingerprint, attemptsByAct: { act1: 3, act2: 0, act3: 0, act3b: 0, act4: 0, act5: 0 } },
+    editPlan: data.editPlan,
+  });
+  assert.deepEqual(resume, { completedActs: ['act1'], firstMissingAct: 'act2' });
+  assert.throws(() => validateResumeState({
+    checkpoint: { providerCalls: 4, spendReservedUsd: 1, acts: { act1: { shots: [{}] } } },
+    attemptRecord: { version: 1, episodeId: data.editPlan.episodeId, planFingerprint: fingerprint, attemptsByAct: { act1: 3, act2: 1, act3: 0, act3b: 0, act4: 0, act5: 0 } },
+    editPlan: data.editPlan,
+  }), /already used its authorized attempt/);
+});
+
+test('durable supervisor never dispatches a fourth Act 1 provider attempt', async () => {
   const data = fixture();
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-act1-limit-'));
   const failingClient = calls => ({ messages: { create: async () => { calls.push('act1'); throw new Error('synthetic Act 1 failure'); } } });
@@ -124,16 +159,102 @@ test('durable supervisor never dispatches a third Act 1 provider attempt', async
     const secondCalls = [];
     await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(secondCalls) }), /synthetic Act 1 failure/);
     const thirdCalls = [];
-    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(thirdCalls) }), /Authorized request limit blocked act1/);
+    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(thirdCalls) }), /synthetic Act 1 failure/);
+    const fourthCalls = [];
+    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(fourthCalls) }), /Authorized request limit blocked act1/);
     assert.equal(firstCalls.length, 1);
     assert.equal(secondCalls.length, 1);
-    assert.equal(thirdCalls.length, 0);
+    assert.equal(thirdCalls.length, 1);
+    assert.equal(fourthCalls.length, 0);
     const checkpoint = JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8'));
-    assert.equal(checkpoint.providerCalls, 2, 'the supervisor rolls back the refused dispatch so only actual provider calls are counted');
+    assert.equal(checkpoint.providerCalls, 3, 'the supervisor rolls back the refused dispatch so only actual provider calls are counted');
     const status = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation-status.json'), 'utf8'));
     assert.equal(status.terminalState, 'failure');
-    assert.equal(status.attemptsByAct.act1, 2);
+    assert.equal(status.attemptsByAct.act1, 3);
     assert.equal(status.actualRequestsInThisRun, 0);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), false);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('realistic V3 response shape with camelCase negativePrompt passes and is quarantined with a hash', async () => {
+  const data = fixture();
+  const calls = [];
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-response-shape-'));
+  try {
+    const client = { messages: { create: async request => {
+      calls.push(request);
+      const payload = JSON.parse(request.messages[0].content.split('LOCKED BEATS:\n')[1]);
+      return { id: 'msg_test', type: 'message', role: 'assistant', model: request.model,
+        content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({
+          beatId: beat.beatId, imagePrompt: 'Restrained documentary illustration of the locked beat.',
+          negativePrompt: 'No fabricated documents, logos, or identifiable people.',
+          sourceSearchInstruction: null, animationPrompt: '', reconstructionSafeguards: null, colorGrade: 'cold_blue',
+        })) }) }], usage: { input_tokens: 7615, output_tokens: 4941 } };
+    } } };
+    const result = await generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client });
+    assert.equal(result.totalShots, 6);
+    assert.equal(calls.length, 6);
+    assert.match(calls[0].system, /exact camelCase field names/);
+    assert.match(calls[0].system, /negativePrompt is always a required nonblank string/);
+    assert.equal(Object.hasOwn(calls[0], 'tools'), false);
+    assert.equal(Object.hasOwn(calls[0], 'output_config'), false);
+    const quarantine = path.join(outputDir, '.quarantine', 'anthropic-responses');
+    const rawFile = fs.readdirSync(quarantine).find(name => name.startsWith('act1-attempt-1-') && name.endsWith('.json'));
+    assert.ok(rawFile);
+    const rawText = fs.readFileSync(path.join(quarantine, rawFile), 'utf8');
+    const rawObject = JSON.parse(rawText);
+    assert.equal(rawObject.usage.input_tokens, 7615);
+    assert.equal(rawObject.usage.output_tokens, 4941);
+    const metadata = JSON.parse(fs.readFileSync(path.join(quarantine, `${rawFile}.manifest.json`), 'utf8'));
+    assert.equal(metadata.validationState, 'accepted');
+    assert.equal(metadata.sha256, require('node:crypto').createHash('sha256').update(rawText).digest('hex'));
+    assert.equal(metadata.usage.inputTokens, 7615);
+    assert.equal(metadata.usage.outputTokens, 4941);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('wrong negative_prompt spelling is retained in quarantine and never checkpointed', async () => {
+  const data = fixture();
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-response-alias-'));
+  const client = { messages: { create: async request => {
+    const payload = JSON.parse(request.messages[0].content.split('LOCKED BEATS:\n')[1]);
+    return { content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({
+      beatId: beat.beatId, imagePrompt: 'Illustrative context.', negative_prompt: 'No logos.',
+      sourceSearchInstruction: null, animationPrompt: '', reconstructionSafeguards: null, colorGrade: 'cold_blue',
+    })) }) }] };
+  } } };
+  try {
+    await assert.rejects(generateShotDefinitions({ ...data, channel: 'EmpireOmitted', mode: 'v3', outputDir, client }), /negative_prompt/);
+    const checkpoint = JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8'));
+    assert.equal(Object.hasOwn(checkpoint.acts, 'act1'), false);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), false);
+    const quarantine = path.join(outputDir, '.quarantine', 'anthropic-responses');
+    const rawFile = fs.readdirSync(quarantine).find(name => name.startsWith('act1-attempt-1-') && name.endsWith('.json'));
+    assert.ok(rawFile);
+    const metadata = JSON.parse(fs.readFileSync(path.join(quarantine, `${rawFile}.manifest.json`), 'utf8'));
+    assert.equal(metadata.validationState, 'rejected');
+    assert.ok(metadata.validationErrors.some(item => item.field.endsWith('.negative_prompt')));
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('plan-native graphic enrichment cannot silently turn a locked graphic into a synthetic still', async () => {
+  const data = fixture();
+  data.editPlan.sequences[0].beats[0].graphics = [{ type: 'data_graphic', intent: 'Approved data card.' }];
+  const dataValidation = validateEditPlan({ plan: data.editPlan, wordTimestamps: data.wordTimestamps });
+  assert.equal(dataValidation.status, 'PASS');
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-graphic-contract-'));
+  const client = { messages: { create: async request => {
+    const payload = JSON.parse(request.messages[0].content.split('LOCKED BEATS:\n')[1]);
+    return { content: [{ type: 'text', text: JSON.stringify({ beats: payload.map(beat => ({
+      beatId: beat.beatId, imagePrompt: 'Improper synthetic still prompt.',
+      negativePrompt: 'No misleading data.', sourceSearchInstruction: null,
+      animationPrompt: '', reconstructionSafeguards: null, colorGrade: 'cold_blue',
+    })) }) }] };
+  } } };
+  try {
+    await assert.rejects(generateShotDefinitions({ ...data, editPlanValidation: dataValidation, channel: 'EmpireOmitted', mode: 'v3', outputDir, client }), /imagePrompt/);
+    const checkpoint = JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8'));
+    assert.equal(Object.hasOwn(checkpoint.acts, 'act1'), false);
     assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), false);
   } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
 });
