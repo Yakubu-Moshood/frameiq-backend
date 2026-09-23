@@ -20,6 +20,7 @@ process.on('exit', () => {
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 const { generateShotDefinitions } = require('../pipeline-updates/surface-shot-definitions.cjs');
 const { validateShotDefinitions } = require('../pipeline-updates/shot-definitions-validator.cjs');
+const { runDurableShotDefinitionGeneration } = require('../pipeline-updates/shot-definitions-durable-runner.cjs');
 const { resolveEditPlanTimestamps } = require('../pipeline-updates/surface-renderer.cjs');
 
 const ACTS = [
@@ -88,6 +89,54 @@ function fakeClient(calls = []) {
     })) }) }] };
   } } };
 }
+
+test('durable supervisor records process state, atomic checkpoints, and successful act attempts', async () => {
+  const data = fixture();
+  const calls = [];
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-durable-'));
+  try {
+    const result = await runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: fakeClient(calls) });
+    const status = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation-status.json'), 'utf8'));
+    const pid = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation.pid'), 'utf8'));
+    const events = fs.readFileSync(path.join(outputDir, 'generation.log'), 'utf8').trim().split(/\r?\n/).map(line => JSON.parse(line));
+    assert.equal(calls.length, 6);
+    assert.equal(status.terminalState, 'success');
+    assert.equal(status.runId, result.runId);
+    assert.equal(pid.runId, result.runId);
+    assert.equal(status.currentAct, 'act5');
+    assert.deepEqual(status.completedActs, ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5']);
+    assert.deepEqual(status.attemptsByAct, { act1: 1, act2: 1, act3: 1, act3b: 1, act4: 1, act5: 1 });
+    assert.equal(status.totalAnthropicAttempts, 6);
+    assert.equal(events.at(-1).event, 'terminal');
+    assert.equal(fs.existsSync(path.join(outputDir, '.generation.lock')), false);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions-sha256.json')), true);
+    assert.equal(result.report.status, 'PASS');
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
+
+test('durable supervisor never dispatches a third Act 1 provider attempt', async () => {
+  const data = fixture();
+  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shot-def-act1-limit-'));
+  const failingClient = calls => ({ messages: { create: async () => { calls.push('act1'); throw new Error('synthetic Act 1 failure'); } } });
+  try {
+    const firstCalls = [];
+    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(firstCalls) }), /synthetic Act 1 failure/);
+    const secondCalls = [];
+    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(secondCalls) }), /synthetic Act 1 failure/);
+    const thirdCalls = [];
+    await assert.rejects(runDurableShotDefinitionGeneration({ ...data, channel: 'EmpireOmitted', outputDir, client: failingClient(thirdCalls) }), /Authorized request limit blocked act1/);
+    assert.equal(firstCalls.length, 1);
+    assert.equal(secondCalls.length, 1);
+    assert.equal(thirdCalls.length, 0);
+    const checkpoint = JSON.parse(fs.readFileSync(path.join(outputDir, '.shot-definitions-checkpoint.json'), 'utf8'));
+    assert.equal(checkpoint.providerCalls, 2, 'the supervisor rolls back the refused dispatch so only actual provider calls are counted');
+    const status = JSON.parse(fs.readFileSync(path.join(outputDir, 'generation-status.json'), 'utf8'));
+    assert.equal(status.terminalState, 'failure');
+    assert.equal(status.attemptsByAct.act1, 2);
+    assert.equal(status.actualRequestsInThisRun, 0);
+    assert.equal(fs.existsSync(path.join(outputDir, 'shot-definitions.json')), false);
+  } finally { fs.rmSync(outputDir, { recursive: true, force: true }); }
+});
 
 test('V3 generation makes six ordered enrichments and preserves locked beat identity, timing, and fields', async () => {
   const data = fixture();
