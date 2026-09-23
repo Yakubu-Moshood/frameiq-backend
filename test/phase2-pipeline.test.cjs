@@ -109,6 +109,7 @@ test('Phase 2 modules load without provider credentials or a production database
   for (const relativePath of phase2Modules) {
     assert.doesNotThrow(() => require(relativePath), relativePath);
   }
+  assert.doesNotThrow(() => require.resolve('@fal-ai/client'), 'image generator dynamic FAL dependency');
 
   const sdxl = require('../pipeline-updates/providers/image/sdxl.cjs');
   const svd = require('../pipeline-updates/providers/video/svd.cjs');
