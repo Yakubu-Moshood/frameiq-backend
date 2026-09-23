@@ -1,0 +1,226 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "warnings": [
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/0/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/2/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/3/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/3/beats/2",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/3/beats/3",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/5/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/6/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/6/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/9/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/11/beats/3",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/12/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/12/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/12/beats/2",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/13/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/13/beats/2",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/13/beats/3",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/17/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/17/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/18/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/19/beats/4",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/21/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/23/beats/2",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/23/beats/4",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/24/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/25/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/29/beats/0",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/29/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/32/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/32/beats/2",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/33/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/33/beats/4",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/35/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/36/beats/1",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    },
+    {
+      "code": "TIMING_EXCEPTION",
+      "path": "/sequences/37/beats/1",
+      "message": "Justified beat exceeds the normal 6-second maximum."
+    },
+    {
+      "code": "TARGET_DURATION",
+      "path": "/sequences/40/beats/6",
+      "message": "Beat is outside the normal 3.5–5.5 second target."
+    }
+  ],
+  "metrics": {
+    "totalDurationSec": 632.816326,
+    "totalSequences": 42,
+    "totalBeats": 154,
+    "averageBeatDurationSec": 4.109196922077922,
+    "longestBeatDurationSec": 7.408567337890645,
+    "longestNormalBeatDurationSec": 5.9199981689453125,
+    "timingExceptionCount": 10,
+    "intentionalStillnessCount": 3,
+    "plannedEditorialHoldSec": 9.2,
+    "projectedCompiledDurationSec": 642.016326,
+    "averageSequenceDurationSec": 15.06705538095238,
+    "shortSequenceCount": 0,
+    "evidenceFunctionWithoutSourceCount": 0,
+    "missingStoryActionCount": 0,
+    "narrationCoveragePercent": 100,
+    "timelineCoveragePercent": 100,
+    "narrationGapCount": 0,
+    "narrationOverlapCount": 0,
+    "timelineGapCount": 0,
+    "timelineOverlapCount": 0,
+    "missingStoryFunctionCount": 0,
+    "missingNarrationExcerptCount": 0,
+    "unresolvedVisualIntentCount": 0,
+    "visualClassCounts": {
+      "EVIDENCE": 46,
+      "RECONSTRUCTION": 67,
+      "EDITORIAL_ILLUSTRATION": 41
+    },
+    "storyFunctionCounts": {
+      "establish": 9,
+      "reveal": 29,
+      "evidence": 11,
+      "human_cost": 14,
+      "cause": 9,
+      "consequence": 27,
+      "contrast": 8,
+      "escalation": 10,
+      "orientation": 5,
+      "emotional_hold": 0,
+      "transition": 7,
+      "payoff": 15,
+      "context": 10
+    }
+  }
+}
