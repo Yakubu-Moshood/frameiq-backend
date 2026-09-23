@@ -26,6 +26,7 @@ const { execSync }  = require('child_process');
 const { queries }                    = require('../db');
 const sse                            = require('../sse');
 const { PIPELINE_DIR, EPISODES_DIR } = require('../startup-init');
+const { syncPipelineDirectory } = require('./pipeline-sync');
 const approvalGates  = new Map();
 const activeEpisodes = new Set();
 const actPreviews    = new Map();
@@ -65,12 +66,7 @@ const PIPELINE_UPDATES_DIR = path.join(__dirname, '..', 'pipeline-updates');
 function syncPipelineUpdates() {
   try {
     if (!PIPELINE_DIR || !fs.existsSync(PIPELINE_UPDATES_DIR)) return [];
-    const copied = [];
-    for (const f of fs.readdirSync(PIPELINE_UPDATES_DIR)) {
-      if (!f.endsWith('.cjs') && !f.endsWith('.json')) continue;
-      fs.copyFileSync(path.join(PIPELINE_UPDATES_DIR, f), path.join(PIPELINE_DIR, f));
-      copied.push(f);
-    }
+    const copied = syncPipelineDirectory({ sourceDir: PIPELINE_UPDATES_DIR, targetDir: PIPELINE_DIR });
     if (copied.length) console.log(`[runner] Synced pipeline updates: ${copied.join(', ')}`);
     return copied;
   } catch (e) {
