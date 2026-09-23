@@ -508,7 +508,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     && channelKey === 'EmpireOmitted';
   if (shadowRequested) {
     const { runEoV3ShadowHook } = require('./eo-v3-shadow-hook.js');
-    await runEoV3ShadowHook({
+    const shadowResult = await runEoV3ShadowHook({
       env: process.env,
       testMode: isTestMode(),
       channelKey,
@@ -519,12 +519,21 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
       pipelineDir: PIPELINE_DIR,
       getChannelDna: key => queries.getChannelDna(key),
     });
+    if (shadowResult?.status !== 'complete') {
+      throw new Error(`[runner] Empire Omitted V3 shadow planning did not complete (${shadowResult?.status || 'no status'}); refusing script-only shot planning.`);
+    }
     if (await checkPaused(episodeDbId, '0C_shots')) return;
   }
   await queries.updateJob(job0C.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   progress('0C_shots', 'running', 0, 'Generating shot definitions...');
   if (fs.existsSync(shotDefsPath)) {
     shotDefs = JSON.parse(fs.readFileSync(shotDefsPath, 'utf8'));
+    if (shadowRequested) {
+      const { loadValidatedV3Plan, validateShotDefinitions } = require(path.join(PIPELINE_DIR, 'shot-definitions-validator.cjs'));
+      const { editPlan } = loadValidatedV3Plan({ episodeDir, episodeId: episodeDbId });
+      const report = validateShotDefinitions({ plan: editPlan, shotDefs });
+      if (report.status !== 'PASS') throw new Error(`[runner] Existing V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
+    }
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots loaded`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `Loaded ${shotDefs.totalShots} existing shot definitions`);
   } else if (isTestMode()) {
@@ -533,14 +542,27 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0C_shots', 'complete', 100, `[TEST] ${shotDefs.totalShots} stub shot definitions`);
   } else {
     const { generateShotDefinitions } = require(path.join(PIPELINE_DIR, 'surface-shot-definitions.cjs'));
+    const v3Context = shadowRequested
+      ? require(path.join(PIPELINE_DIR, 'shot-definitions-validator.cjs')).loadValidatedV3Plan({ episodeDir, episodeId: episodeDbId })
+      : {};
     shotDefs = await runStageOrFail(episodeDbId, job0C.id, '0C_shots', () =>
-      generateShotDefinitions({ script, outputDir: episodeDir, channel: channelKey })
+      generateShotDefinitions({
+        script, outputDir: episodeDir, channel: channelKey,
+        mode: shadowRequested ? 'v3' : 'legacy',
+        ...v3Context,
+      })
     );
     await queries.updateJob(job0C.id, { status: 'complete', progress: 100, detail: `${shotDefs.totalShots} shots`, finished_at: new Date().toISOString() });
     progress('0C_shots', 'complete', 100, `${shotDefs.totalShots} shots defined`);
   }
   // ── STEP 0D — IMAGE GENERATION ────────────────────────────────────────────
   const job0D  = jobFor('0D_images');
+  if (shotDefs.mode === 'empire-omitted-v3') {
+    const unresolvedEvidence = (shotDefs.allShots || []).filter(shot => shot.assetType === 'evidence_reference');
+    if (unresolvedEvidence.length) {
+      throw new Error(`[runner] V3 image generation is blocked: ${unresolvedEvidence.length} EVIDENCE beat(s) require authentic source assets before synthetic generation.`);
+    }
+  }
   const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
   if (await checkPaused(episodeDbId, '0D_images')) return;
   await queries.updateJob(job0D.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
@@ -554,7 +576,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     progress('0D_images', 'complete', 100, `[TEST] ${needed.length} placeholder images written`);
   } else {
     progress('0D_images', 'running', 0, `Generating ${needed.length} images via gpt-image-1...`);
-    const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt }));
+    const prompts     = needed.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt, assetType: s.assetType }));
     const promptsPath = path.join(stillsDir, 'pending-prompts.json');
     fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
     const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));
@@ -570,7 +592,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   }
   // ── STEP 0E — ANIMATION ───────────────────────────────────────────────────
   const job0E     = jobFor('0E_anim');
-  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
+  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP' && s.assetType !== 'evidence_reference');
   const needsAnim = clipShots.filter(s => !fs.existsSync(path.join(clipsDir, `${s.shotId}.mp4`)));
   if (await checkPaused(episodeDbId, '0E_anim')) return;
   await queries.updateJob(job0E.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });

@@ -27,6 +27,7 @@ const path          = require('path');
 const readline      = require('readline');
 const { execSync }  = require('child_process');
 const { runWhisper } = require('./vo-timing.cjs');
+const { loadValidatedV3Plan, validateShotDefinitions } = require('./shot-definitions-validator.cjs');
 // ─── Constants ────────────────────────────────────────────────────────────────
 const W   = 1920;
 const H   = 1080;
@@ -577,6 +578,42 @@ function resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec = null
   }
   return resolved;
 }
+
+// V3 timings are episode-absolute in the approved edit plan. The renderer
+// assembles VO one act at a time, so convert to act-local coordinates here
+// without searching trigger words or changing the locked beat boundaries.
+function resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec = null }) {
+  const acts = new Map(editPlan.timing.acts.map(act => [act.actKey, act]));
+  const resolved = [];
+  for (const shot of shotDefs.allShots) {
+    const act = acts.get(shot.actKey);
+    if (!act) throw new Error(`[renderer] V3 shot ${shot.shotId} references an act absent from edit-plan timing.`);
+    const startSec = shot.startSec - act.startSec;
+    const endSec = shot.endSec - act.startSec;
+    if (!Number.isFinite(startSec) || !Number.isFinite(endSec) || endSec <= startSec) {
+      throw new Error(`[renderer] V3 shot ${shot.shotId} has invalid locked timing.`);
+    }
+    const durSec = endSec - startSec;
+    const capEnabled = Number.isFinite(maxShotDurationSec) && maxShotDurationSec > 0;
+    const motionDurSec = capEnabled ? Math.min(durSec, maxShotDurationSec) : durSec;
+    const freezeDurSec = Math.max(durSec - motionDurSec, 0);
+    const effectiveType = (shot.visualType === 'STILL_ZOOM' && motionDurSec > 10) ? 'STILL' : shot.visualType;
+    resolved.push({
+      ...shot,
+      voKey: act.voKey,
+      startSec,
+      endSec,
+      durSec,
+      motionDurSec,
+      freezeDurSec,
+      visualType: effectiveType,
+      matched: true,
+      episodeStartSec: shot.startSec,
+      episodeEndSec: shot.endSec,
+    });
+  }
+  return resolved;
+}
 // ─── Step 3: Render segments ──────────────────────────────────────────────────
 function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureGates = false }) {
   log('');
@@ -898,6 +935,14 @@ async function renderEpisode({
     throw new Error('[renderer] shot-definitions.json has no shots in allShots array');
   }
   log(`[renderer] Loaded ${shotDefs.allShots.length} shots`);
+  let resolved;
+  if (shotDefs.mode === 'empire-omitted-v3') {
+    if (channel !== 'EmpireOmitted') throw new Error('[renderer] V3 shot definitions are restricted to Empire Omitted.');
+    const { editPlan } = loadValidatedV3Plan({ episodeDir, episodeId });
+    const report = validateShotDefinitions({ plan: editPlan, shotDefs });
+    if (report.status !== 'PASS') throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
+    resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec });
+  } else {
   // Step 1 — Whisper
   log('');
   log('══════════════════════════════════════════');
@@ -915,7 +960,8 @@ async function renderEpisode({
   log('══════════════════════════════════════════');
   log('STEP 2 — TIMESTAMP RESOLUTION');
   log('══════════════════════════════════════════');
-  const resolved = resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec });
+  resolved = resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec });
+  }
   // Step 3 — Render segments
   log('');
   log('══════════════════════════════════════════');
@@ -1007,4 +1053,4 @@ if (require.main === module) {
       process.exit(1);
     });
 }
-module.exports = { renderEpisode };
+module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps };

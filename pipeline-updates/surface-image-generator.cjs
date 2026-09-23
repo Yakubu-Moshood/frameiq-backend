@@ -128,6 +128,9 @@ async function generateImages({ promptsFile, outputDir, channel, episodeId }) {
   if (!fs2.existsSync(promptsFile)) throw new Error('[image-gen] prompts file not found: ' + promptsFile);
 
   const prompts = JSON.parse(fs2.readFileSync(promptsFile, 'utf8'));
+  if (!Array.isArray(prompts)) throw new Error('[image-gen] prompts file must contain an array');
+  const evidence = prompts.filter(item => item?.assetType === 'evidence_reference');
+  if (evidence.length) throw new Error(`[image-gen] Refusing synthetic generation for ${evidence.length} EVIDENCE source reference(s).`);
   fs2.mkdirSync(outputDir, { recursive: true });
 
   let imagePrimary   = 'openai_images';

@@ -66,6 +66,8 @@ const fs        = require('fs');
 const path      = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
 const { getChannelConfigByLabel } = require('./config-reader.cjs');
+const { validateEditPlan } = require('./edit-plan-validator.cjs');
+const { validateShotDefinitions, planFingerprint } = require('./shot-definitions-validator.cjs');
 // ─── Config ───────────────────────────────────────────────────────────────────
 const MODEL      = 'claude-opus-4-5';
 function log(msg) { console.log(msg); }
@@ -196,8 +198,198 @@ function pickProfile(narrationStyle) {
   if (narrationStyle && VISUAL_PROFILES[narrationStyle]) return narrationStyle;
   return DEFAULT_PROFILE_KEY;
 }
-// ─── Main export ──────────────────────────────────────────────────────────────
-async function generateShotDefinitions({ script, outputDir = null, channel = null }) {
+// V3 production prompts enrich the locked plan; they never author its editorial
+// structure. Six calls are made in the plan's fixed act order. A model response
+// is accepted only when its beat IDs match the supplied list exactly.
+const V3_COLOR_GRADES = new Set(['cold_blue', 'gold_warm', 'deep_shadow', 'red_alert', 'neutral', 'desaturated']);
+const ACT_ORDER = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+const V3_SYSTEM_PROMPT = `You are the visual production breakdown writer for Empire Omitted.
+The supplied edit-plan beats are locked editorial decisions. Do not create, remove,
+reorder, merge, split, retime, rename, or reinterpret beats. Return exactly one
+enrichment object for every supplied beat, in the same order, with its beatId
+copied exactly. The beatId is only a join key; all other editorial fields are
+owned by the supplied plan.
+
+For EVIDENCE, imagePrompt must be null and sourceSearchInstruction must describe
+the authentic source material to locate. Never fabricate documentary evidence,
+documents, quotations, people, or provenance. For RECONSTRUCTION, imagePrompt
+must describe an explicitly illustrative, non-identifiable reconstruction and
+reconstructionSafeguards must say how it will avoid impersonating evidence.
+For EDITORIAL_ILLUSTRATION, create explanatory imagery that does not claim to be
+authentic source material. EVIDENCE beats must use an empty animationPrompt.
+Generated CLIP beats need a concrete motion prompt; generated stills use an empty
+animationPrompt. Use only these color grades: cold_blue, gold_warm,
+deep_shadow, red_alert, neutral, desaturated.
+
+Return JSON only, with this shape:
+{"beats":[{"beatId":"...","imagePrompt":"... or null","negativePrompt":"...","sourceSearchInstruction":"... or null","animationPrompt":"... or empty string","reconstructionSafeguards":"... or null","colorGrade":"..."}]}`;
+
+function v3BeatsForAct(editPlan, actKey) {
+  return editPlan.sequences
+    .filter(sequence => sequence.actKey === actKey)
+    .flatMap(sequence => sequence.beats);
+}
+
+function projectV3Shot({ beat, enrichment }) {
+  const assetType = beat.visualClass === 'EVIDENCE'
+    ? 'evidence_reference'
+    : beat.visual.type === 'CLIP' ? 'generated_clip' : 'generated_image';
+  const firstNarrationWord = beat.narrationExcerpt.trim().split(/\s+/)[0];
+  return {
+    shotId: beat.beatId,
+    beatId: beat.beatId,
+    sequenceId: beat.sequenceId,
+    actKey: beat.actKey,
+    startWordIndex: beat.startWordIndex,
+    endWordIndex: beat.endWordIndex,
+    startSec: beat.startSec,
+    endSec: beat.endSec,
+    durationSec: beat.durationSec,
+    narrationExcerpt: beat.narrationExcerpt,
+    storyFunction: beat.storyFunction,
+    visualIntent: beat.visualIntent,
+    visualClass: beat.visualClass,
+    rhythmIntent: beat.rhythmIntent,
+    visual: structuredClone(beat.visual),
+    visualType: beat.visual.type,
+    motionIntent: structuredClone(beat.motionIntent),
+    motionTreatment: structuredClone(beat.motionIntent),
+    intentionalStillness: beat.intentionalStillness,
+    timingExceptionReason: beat.timingExceptionReason,
+    postNarrationHoldSec: beat.postNarrationHoldSec,
+    reconstructionMode: beat.reconstructionMode,
+    continuityRefs: structuredClone(beat.continuityRefs),
+    evidenceRequirement: structuredClone(beat.evidenceRequirement),
+    graphics: structuredClone(beat.graphics),
+    overlaySpecification: structuredClone(beat.graphics),
+    audioDirection: structuredClone(beat.audioDirection),
+    triggerWord: firstNarrationWord,
+    hardcodedSec: null,
+    estimatedDuration: beat.durationSec,
+    assetType,
+    imagePrompt: enrichment.imagePrompt,
+    negativePrompt: enrichment.negativePrompt,
+    sourceSearchInstruction: enrichment.sourceSearchInstruction,
+    animationPrompt: enrichment.animationPrompt,
+    reconstructionSafeguards: enrichment.reconstructionSafeguards,
+    colorGrade: enrichment.colorGrade,
+    sfx: null,
+  };
+}
+
+async function generateV3ShotDefinitions({
+  script, outputDir = null, channel = null, editPlan, editPlanValidation,
+  wordTimestamps, client: injectedClient,
+}) {
+  if (channel !== 'EmpireOmitted') {
+    throw new Error('[shot-defs] V3 shot planning is restricted to EmpireOmitted.');
+  }
+  if (!script?.acts) throw new Error('[shot-defs] script.acts is required');
+  if (!editPlan || editPlan.channel !== 'EmpireOmitted' || editPlanValidation?.status !== 'PASS') {
+    throw new Error('[shot-defs] V3 requires an edit plan with PASS validation; script-only generation is prohibited.');
+  }
+  const planValidation = validateEditPlan({ plan: editPlan, wordTimestamps });
+  if (planValidation.status !== 'PASS') {
+    const first = planValidation.errors[0];
+    throw new Error(`[shot-defs] V3 edit plan failed deterministic validation: ${first.code} ${first.path}`);
+  }
+
+  const actKeys = editPlan.timing.acts.map(act => act.actKey);
+  if (actKeys.length !== 6 || actKeys.some((actKey, index) => actKey !== ACT_ORDER[index])) {
+    throw new Error('[shot-defs] V3 edit plan must contain all six acts in playback order.');
+  }
+
+  const client = injectedClient || new Anthropic();
+  const acts = {};
+  const allShots = [];
+  for (const actKey of ACT_ORDER) {
+    const beats = v3BeatsForAct(editPlan, actKey);
+    if (!beats.length) throw new Error(`[shot-defs] V3 edit plan has no beats for ${actKey}.`);
+    const requestBeats = beats.map(beat => ({
+      beatId: beat.beatId,
+      sequenceId: beat.sequenceId,
+      narrationExcerpt: beat.narrationExcerpt,
+      storyFunction: beat.storyFunction,
+      visualIntent: beat.visualIntent,
+      visualClass: beat.visualClass,
+      visual: beat.visual,
+      motionIntent: beat.motionIntent,
+      intentionalStillness: beat.intentionalStillness,
+      timingExceptionReason: beat.timingExceptionReason,
+      reconstructionMode: beat.reconstructionMode,
+      evidenceRequirement: beat.evidenceRequirement,
+      graphics: beat.graphics,
+    }));
+    const prompt = `Create production enrichment for ${actKey}. Treat every supplied beat as locked.
+Return one enrichment object per input beat, in input order, with each beatId unchanged.
+Prompt detail must be sufficient for a visual asset team. Do not add words, names,
+documents, or facts beyond the supplied context. Color grade must be from the
+allowlist in the system prompt. EVIDENCE gets a source-search instruction and no
+image-generation prompt. Other classes get image and negative prompts. A generated
+CLIP gets an animation prompt; stills and EVIDENCE get an empty animationPrompt.
+
+LOCKED BEATS:
+${JSON.stringify(requestBeats)}`;
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS,
+      system: V3_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: prompt }],
+    });
+    const raw = response.content.filter(block => block.type === 'text').map(block => block.text).join('');
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim()); }
+    catch (error) { throw new Error(`[shot-defs] V3 ${actKey} enrichment returned malformed JSON: ${error.message}`); }
+    if (!Array.isArray(parsed?.beats) || parsed.beats.length !== beats.length) {
+      throw new Error(`[shot-defs] V3 ${actKey} enrichment must return exactly ${beats.length} beat(s).`);
+    }
+    const byId = new Map();
+    for (const [index, enrichment] of parsed.beats.entries()) {
+      if (!enrichment || typeof enrichment.beatId !== 'string') throw new Error(`[shot-defs] V3 ${actKey} enrichment is missing beatId at index ${index}.`);
+      if (byId.has(enrichment.beatId)) throw new Error(`[shot-defs] V3 ${actKey} enrichment duplicated beatId ${enrichment.beatId}.`);
+      if (enrichment.beatId !== beats[index].beatId) throw new Error(`[shot-defs] V3 ${actKey} enrichment order/identity mismatch at ${beats[index].beatId}.`);
+      byId.set(enrichment.beatId, enrichment);
+    }
+    const actShots = beats.map(beat => projectV3Shot({ beat, enrichment: byId.get(beat.beatId) }));
+    acts[actKey] = actShots;
+    allShots.push(...actShots);
+  }
+
+  const shotDefs = {
+    shotDefinitionVersion: '1.0.0',
+    mode: 'empire-omitted-v3',
+    sourceEditPlanSha256: planFingerprint(editPlan),
+    episodeId: editPlan.episodeId,
+    topic: script.topic,
+    title: editPlan.title,
+    acts,
+    allShots,
+    totalShots: allShots.length,
+  };
+  const report = validateShotDefinitions({ plan: editPlan, shotDefs });
+  if (report.status !== 'PASS') {
+    const first = report.errors[0];
+    throw new Error(`[shot-defs] V3 shot-definition validation failed: ${first.code} ${first.path}`);
+  }
+  if (outputDir) {
+    fs.mkdirSync(outputDir, { recursive: true });
+    fs.writeFileSync(path.join(outputDir, 'shot-definitions.json'), JSON.stringify(shotDefs, null, 2), 'utf8');
+    fs.writeFileSync(path.join(outputDir, 'shot-definitions-summary.txt'), buildSummaryText(shotDefs), 'utf8');
+  }
+  return shotDefs;
+}
+
+// Mode is explicit at the runner boundary. The default retains direct-call
+// compatibility for the legacy, non-V3 command-line workflow.
+async function generateShotDefinitions(options = {}) {
+  const mode = options.mode || 'legacy';
+  if (mode === 'v3') return generateV3ShotDefinitions(options);
+  if (mode !== 'legacy') throw new Error(`[shot-defs] Unsupported generation mode: ${mode}`);
+  return generateLegacyShotDefinitions(options);
+}
+
+// ─── Legacy, script-only generator for non-V3 jobs ───────────────────────────
+async function generateLegacyShotDefinitions({ script, outputDir = null, channel = null, client: injectedClient }) {
   if (!script?.acts) throw new Error('[shot-defs] script.acts is required');
   let profileKey = DEFAULT_PROFILE_KEY;
   if (channel) {
@@ -210,7 +402,7 @@ async function generateShotDefinitions({ script, outputDir = null, channel = nul
     }
   }
   const profile = VISUAL_PROFILES[profileKey];
-  const client = new Anthropic();
+  const client = injectedClient || new Anthropic();
   console.log(`[shot-defs] Generating shot definitions for: "${script.topic}" (profile: ${profileKey})`);
   const systemPrompt = `${profile.channelIdentityLine}
 Your job is to read a script and create a complete shot map with overlays.
@@ -420,12 +612,16 @@ if (require.main === module) {
   const scriptPath = process.argv[2];
   const outputDir  = process.argv[3] || null;
   const channel    = process.argv[4] || null;
+  const mode       = process.argv[5] || 'legacy';
   if (!scriptPath) {
     console.error('Usage: node surface-shot-definitions.cjs <script.json> [outputDir] [channel]');
     process.exit(1);
   }
   const script = JSON.parse(fs.readFileSync(scriptPath, 'utf8'));
-  generateShotDefinitions({ script, outputDir, channel })
+  const planInput = mode === 'v3'
+    ? require('./shot-definitions-validator.cjs').loadValidatedV3Plan({ episodeDir: outputDir })
+    : {};
+  generateShotDefinitions({ script, outputDir, channel, mode, ...planInput })
     .catch(err => { console.error('[shot-defs] FATAL:', err.message); process.exit(1); });
 }
-module.exports = { generateShotDefinitions };
+module.exports = { generateShotDefinitions, generateV3ShotDefinitions, generateLegacyShotDefinitions };

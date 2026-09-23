@@ -62,6 +62,10 @@ function fixture(t, replies = [], env = { OPENAI_API_KEY: 'test-only' }) {
         if (name === 'readline') return {};
         if (name === 'child_process') return { execSync() { throw new Error('Unexpected external command'); } };
         if (name === './vo-timing.cjs') return load('vo-timing.cjs');
+        if (name === './shot-definitions-validator.cjs') return {
+          loadValidatedV3Plan() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
+          validateShotDefinitions() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
+        };
         throw new Error('Unexpected dependency: ' + name);
       },
     };
