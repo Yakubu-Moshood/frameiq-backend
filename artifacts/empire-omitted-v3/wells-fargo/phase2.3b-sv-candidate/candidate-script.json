@@ -1,0 +1,96 @@
+{
+  "title": "How Wells Fargo Opened 3.5 Million Fake Accounts — And Fired Employees Who Spoke Up | Empire Omitted",
+  "topic": "Wells Fargo Fake Accounts Scandal",
+  "totalEstimatedSeconds": 642,
+  "episode_open": {
+    "setupSentenceA": "In 2015, Wells Fargo was America's most valuable bank, worth 300 billion dollars.",
+    "setupSentenceB": "By 2020, the bank had agreed to a 3 billion dollar federal resolution — after more than 5,300 employees had been fired over its sales practices while accountability at the top arrived slowly.",
+    "fixedClosingLine": "This is Empire Omitted, bringing you the story they didn't want told."
+  },
+  "acts": {
+    "act1": {
+      "label": "THE HOOK",
+      "estimatedSeconds": 92,
+      "voScript": "In 2015, Wells Fargo was America's most valuable bank, worth 300 billion dollars.\nBy 2020, the bank had agreed to a 3 billion dollar federal resolution — after more than 5,300 employees had been fired over its sales practices while accountability at the top arrived slowly.\nThis is Empire Omitted, bringing you the story they didn't want told.\n\nIn 2013, a Wells Fargo employee in Los Angeles noticed something strange. Her colleague was opening accounts for customers who hadn't asked for them. Credit cards. Checking accounts. Savings accounts. All tied to real people who had no idea they existed. She reported it to her manager. Then to HR. Then to the ethics hotline. Within months, she was fired. Wells Fargo called it a performance issue. She believed she was being punished for speaking up. And she wasn't alone. Across the country, employees described pressure to create accounts customers had never requested, never signed for and sometimes never knew about. Some forged signatures. Some created false email addresses or misused customer identities. Others opened accounts for relatives without telling them. Wells Fargo would later blame individual misconduct. Federal investigators found something larger: unrealistic sales goals, relentless pressure and false records spread across the Community Bank for years. The number of potentially unauthorized accounts eventually reached 3.5 million. One senior executive later pleaded guilty to obstructing a bank examination. None went to prison."
+    },
+    "act2": {
+      "label": "THE RISE",
+      "estimatedSeconds": 108,
+      "voScript": "Wells Fargo was founded in 1852, during the California Gold Rush. For over 150 years, it built a reputation as the bank of the American heartland. Conservative. Reliable. Boring in the best possible way. While other banks collapsed during the 2008 financial crisis, Wells Fargo survived. It bought Wachovia for pennies on the dollar. It became the largest bank in America by market value. And at the center of this empire was a deceptively simple strategy. Cross-selling. The idea was straightforward. If a customer had a checking account... convince them to open a savings account. If they had a savings account... sell them a credit card. If they had a credit card... get them a mortgage. The goal was eight. Eight products per customer. Eight accounts. Eight fees. Eight relationships binding each person to Wells Fargo for life. CEO John Stumpf called it the cornerstone of their success. He said it in earnings calls. He said it to investors. He said it to Congress. 'Eight is great,' became the internal motto. Branch managers were evaluated on it. Bonuses were tied to it. Careers depended on it. And when employees couldn't meet these impossible quotas legitimately... they found another way. The pressure came from above. The fraud came from below. And for years... nobody at the top claimed to notice."
+    },
+    "act3": {
+      "label": "THE TRUTH",
+      "estimatedSeconds": 115,
+      "voScript": "The employees called them 'gaming' strategies. Management called them 'sales practices.' The lawyers would eventually call them fraud. Here's how it worked. A customer would come in to open a checking account. Simple enough. But the banker would also open a savings account. And a credit card. And online banking with a new password. All without the customer's knowledge. The signatures were forged. The email addresses were fake — often just the customer's real email with extra numbers added. The PINs for debit cards were set to 0000. Some employees got creative. They would open accounts using the identities of elderly customers who wouldn't notice. They would sign up immigrants who couldn't read the English paperwork. They would create accounts for people who had died. One whistleblower described watching a colleague open 24 accounts in a single day for customers who had never set foot in the branch. The pressure was relentless. Employees received multiple emails per day tracking their progress toward quotas. Managers held '4 o'clock huddles' where they would berate underperformers in front of their colleagues. Those who missed their numbers were put on performance improvement plans — the first step toward termination. One former employee described it as a choice: cheat or starve. Another said she developed an ulcer. A third said he vomited before work every morning. And when they reported what was happening? The ethics hotline became a pipeline to unemployment."
+    },
+    "act3b": {
+      "label": "THE COST",
+      "estimatedSeconds": 78,
+      "voScript": "The customers paid first. Unauthorized accounts generated unauthorized fees. Overdraft charges for accounts they didn't know existed. Annual fees for credit cards they never applied for. Hits to their credit scores when those cards went unpaid. Some customers were denied mortgages because of the damage to their credit. Others couldn't get car loans. A few lost their homes. Wells Fargo says it refunded about $2.6 million in fees tied to accounts flagged by its review. That is the bank’s own figure. Meanwhile, between 2011 and 2016, Wells Fargo said it fired more than 5,300 employees for sales-practice violations. Some had opened unauthorized accounts. Others said they had been punished for resisting impossible quotas or reporting misconduct. Different conduct. Same institution. The people who missed their targets were pushed out. The people who cheated to meet them could be fired. And some of the people who warned the bank said they were fired too."
+    },
+    "act4": {
+      "label": "THE FALL",
+      "estimatedSeconds": 112,
+      "voScript": "In 2013, Los Angeles Times reporter E. Scott Reckard documented Wells Fargo’s sales pressure, unauthorized accounts and employee firings. The city of Los Angeles sued. Federal regulators followed. In 2016, Wells Fargo agreed to pay 185 million dollars in penalties. John Stumpf went before Congress that September. Senator Elizabeth Warren asked whether he had returned any of his compensation. At that point, he had not. He retired the next month. Wells Fargo's board later clawed back or cancelled roughly 69 million dollars of his compensation. Carrie Tolstedt, who ran the Community Bank, had retired with holdings initially valued near 125 million dollars. The board later clawed back or forfeited roughly 67 million dollars from her and said she would receive no severance. But the story kept widening. The estimate of potentially unauthorized accounts rose from about 2 million to 3.5 million. Separate investigations found hundreds of thousands of customers charged for unwanted auto insurance, with some borrowers losing their vehicles, as well as improper mortgage fees and failures across other product lines. In 2018, the Federal Reserve capped Wells Fargo's growth until the bank fixed its governance and risk controls. The Fed removed that cap in June 2025, then terminated the remaining 2018 enforcement action in March 2026. By then, the cost was far beyond 3 billion dollars. A single 2022 consumer-protection order required 3.7 billion dollars in penalties and customer redress."
+    },
+    "act5": {
+      "label": "THE VERDICT",
+      "estimatedSeconds": 137,
+      "voScript": "In 2020, the Department of Justice announced a 3 billion dollar resolution with Wells Fargo. John Stumpf was barred from the banking industry and personally fined 17.5 million dollars. At the time, no senior executive had been criminally charged. That changed in 2023. Carrie Tolstedt pleaded guilty to obstructing a bank examination. She was sentenced to probation, barred from banking, fined 17 million dollars by the Office of the Comptroller of the Currency and ordered to pay nearly 5 million dollars in a separate Securities and Exchange Commission case. Those consequences were real. They were also late. For employees who reported misconduct, the outcome was uneven. Federal investigators found retaliation in some cases and ordered Wells Fargo to reinstate workers, clear their records and pay back wages or damages. Other employees spent years fighting, settled privately or left banking altogether. The clean version of this story says corrupt workers opened fake accounts and regulators punished the bank. The record is messier. Wells Fargo built a sales system that rewarded impossible numbers, ignored warnings and treated people lower down as disposable when the system finally became public. 3.5 million potentially unauthorized accounts. More than 5,300 employees fired over sales practices. Billions in penalties and customer redress. Some senior leaders lost money, positions and the right to work in banking. One pleaded guilty. None went to prison. Accountability arrived, but it did not land evenly.\n\nThis is Empire Omitted — where the empires you once admired are laid to rest, and the stories they buried get dug back up. If you found this worth watching, subscribing and sharing help keep these episodes coming. Which corporate scandal should we examine next? Let us know in the comments."
+    }
+  },
+  "youtubeDetails": {
+    "description": "Between 2002 and 2016, Wells Fargo's sales culture produced millions of accounts and products customers may not have authorized. Employees created false records and misused customer identities while managers imposed sales targets that federal investigators later described as unrealistic. The result was billions of dollars in penalties and customer redress, more than 5,300 employee terminations over sales practices, executive clawbacks and years of regulatory action.\n\nThis is the story of how one of America's oldest banks allowed that system to operate in plain sight — and how some employees who resisted or reported misconduct said they were punished for speaking up. From the 'Eight is Great' sales culture to the congressional hearings, criminal case and eventual removal of the Federal Reserve's asset cap, we examine what happened to customers, workers and the senior leaders responsible for the Community Bank.\n\nThe scandal was not a neat contest between innocent workers and a few guilty executives. The record is messier: misconduct below, pressure from above, ignored warnings and consequences that arrived years later and fell unevenly.",
+    "tags": [
+      "Wells Fargo scandal",
+      "Wells Fargo fake accounts",
+      "banking fraud",
+      "corporate scandal",
+      "whistleblower",
+      "John Stumpf",
+      "Elizabeth Warren",
+      "corporate accountability",
+      "financial crime",
+      "white collar crime",
+      "cross-selling fraud",
+      "bank scandal documentary",
+      "corporate greed",
+      "too big to fail",
+      "Wells Fargo documentary",
+      "Empire Omitted"
+    ],
+    "chapters": [
+      {
+        "time": "0:00",
+        "label": "Intro"
+      },
+      {
+        "time": "0:15",
+        "label": "The Hook — 3.5 Million Fake Accounts"
+      },
+      {
+        "time": "1:47",
+        "label": "The Rise — Eight Is Great"
+      },
+      {
+        "time": "3:35",
+        "label": "The Truth — How the Fraud Worked"
+      },
+      {
+        "time": "5:30",
+        "label": "The Cost — Who Paid the Price"
+      },
+      {
+        "time": "6:48",
+        "label": "The Fall — Congressional Hearings and Fines"
+      },
+      {
+        "time": "8:40",
+        "label": "The Verdict — Accountability and Its Absence"
+      }
+    ]
+  },
+  "sign_off": {
+    "text": "This is Empire Omitted — where the empires you once admired are laid to rest, and the stories they buried get dug back up. If you found this worth watching, subscribing and sharing help keep these episodes coming. Which corporate scandal should we examine next? Let us know in the comments."
+  }
+}

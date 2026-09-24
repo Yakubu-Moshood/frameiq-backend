@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "candidate-package-sha256/1.0.0",
+  "files": {
+    "README.md": {
+      "bytes": 4031,
+      "sha256": "7b71f2868f18964595790847f111d1b9b02c97df1224742755f6021efbaf9f38"
+    },
+    "authoritative-timing-extract.json": {
+      "bytes": 4133,
+      "sha256": "9153d7100eb567bde64791d172970f3699df3e3bd419046c848f7cf24092128c"
+    },
+    "candidate-edit-plan-pretiming.json": {
+      "bytes": 315300,
+      "sha256": "a15f99e70788343569a9620695923e94374f8c12986fcffc21e143d290a7a03a"
+    },
+    "candidate-production-manifest-pretiming.json": {
+      "bytes": 135589,
+      "sha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed"
+    },
+    "candidate-script.json": {
+      "bytes": 12523,
+      "sha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955"
+    },
+    "candidate-shot-definitions-pretiming.json": {
+      "bytes": 889824,
+      "sha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b"
+    },
+    "narration-texts.json": {
+      "bytes": 5538,
+      "sha256": "30995e6a5a78afb5d047a24f2ed3965a57084d635849991c35f0d08121e56577"
+    },
+    "revision-ledger.phase2.2d-lineage.v1.json": {
+      "bytes": 90940,
+      "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+    },
+    "revision-ledger.phase2.3b-sv-amendment.v1.json": {
+      "bytes": 22582,
+      "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+    },
+    "revision-mismatch-diagnostic.v1.json": {
+      "bytes": 36002,
+      "sha256": "7979aad27d7bb5b064d2b00d2efff44451aba016d7d2696022b7dc0bb67e2d69"
+    },
+    "source-hash-manifest.json": {
+      "bytes": 2266,
+      "sha256": "ae8c8dec8843e54ef3d5abbf425053c26f91c981d09f1929b5eb8f9eb3407963"
+    },
+    "phase2.3b-sv-validation-report.json": {
+      "bytes": 1529,
+      "sha256": "17704f94b8a4327c7c947c7a6e240b02932d87c0147377e79839b242a81f4261"
+    }
+  }
+}

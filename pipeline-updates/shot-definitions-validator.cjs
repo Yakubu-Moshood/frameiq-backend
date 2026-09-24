@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
 const { validatePersistedProductionFields } = require('./shot-definitions-production-contract.cjs');
+const { validateRevisionChain, collectDifferences, differenceIsApproved, revisionAuthorizesCurrentValue } = require('./revision-lineage.cjs');
 
 const EPSILON = 0.001;
 const SAFE_ID = /^[A-Za-z0-9_-]+$/;
@@ -33,9 +34,17 @@ function sameJson(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function validateShotDefinitions({ plan, shotDefs } = {}) {
+function validateShotDefinitions({ plan, shotDefs, revisionChain } = {}) {
   const errors = [];
   const error = (code, location, message) => errors.push({ code, path: location, message });
+  const lineage = validateRevisionChain({ shotDefs, revisionChain });
+  for (const item of lineage.errors) error(item.code, item.path, item.message);
+  const lineageCounts = {
+    baseMatches: 0,
+    approvedHistoricalRevisions: 0,
+    currentApprovedAmendments: lineage.status === 'PASS' ? lineage.counts.amendments : 0,
+    unapprovedDifferences: 0,
+  };
   const expected = flattenPlan(plan);
   const expectedById = new Map();
   expected.forEach(({ beat }, index) => {
@@ -75,7 +84,24 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
         if (shot.beatId !== expected[index]?.beat?.beatId) error('BEAT_ORDER', `${location}/beatId`, 'Shots must follow locked edit-plan beat order.');
         if (shot.shotId !== source.beat.beatId) error('SHOT_ID_MISMATCH', `${location}/shotId`, 'shotId must equal its locked beatId.');
         for (const field of BEAT_FIELDS) {
-          if (!sameJson(shot[field], source.beat[field])) error('EDITORIAL_FIELD_MISMATCH', `${location}/${field}`, `${field} must be copied unchanged from the edit plan.`);
+          const differences = collectDifferences(source.beat[field], shot[field], field);
+          if (differences.length === 0) {
+            lineageCounts.baseMatches++;
+            continue;
+          }
+          let allApproved = lineage.status === 'PASS';
+          for (const fieldPath of differences) {
+            const approved = lineage.status === 'PASS' && differenceIsApproved({
+              beatId: shot.beatId, fieldPath, expected: fieldPath === field ? source.beat[field] : fieldPath.split('.').slice(1).reduce((value, key) => value?.[key], source.beat[field]),
+              actual: fieldPath === field ? shot[field] : fieldPath.split('.').slice(1).reduce((value, key) => value?.[key], shot[field]),
+              approvedPlanDifferences: lineage.approvedPlanDifferences,
+            });
+            if (approved?.lineageRole === 'historical') lineageCounts.approvedHistoricalRevisions++;
+            if (approved) continue;
+            lineageCounts.unapprovedDifferences++;
+            allApproved = false;
+          }
+          if (!allApproved) error('EDITORIAL_FIELD_MISMATCH', `${location}/${field}`, `${field} differs from the edit plan without a complete verified revision chain.`);
         }
         for (const field of ['startSec', 'endSec', 'durationSec']) {
           const actual = shot[field], locked = source.beat[field];
@@ -100,11 +126,11 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
     if (shot.assetType === 'evidence_reference') {
       if (typeof shot.sourceSearchInstruction !== 'string' || !shot.sourceSearchInstruction.trim()) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/sourceSearchInstruction`, 'EVIDENCE needs a concrete source-search instruction.');
       if (shot.imagePrompt !== null) error('EVIDENCE_IMAGE_PROMPT', `${location}/imagePrompt`, 'EVIDENCE must not be routed to synthetic image generation.');
-      if (shot.reconstructionSafeguards !== null) error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'EVIDENCE cannot carry reconstruction instructions.');
+      if (shot.reconstructionSafeguards !== null && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'reconstructionSafeguards', actual: shot.reconstructionSafeguards, approvedPlanDifferences: lineage.approvedPlanDifferences }))) error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'EVIDENCE cannot carry reconstruction instructions.');
     } else if (shot.assetType === 'graphic_compilation') {
       if (shot.imagePrompt !== null) error('GRAPHIC_IMAGE_PROMPT', `${location}/imagePrompt`, 'Plan-native graphics must not be converted into image-generation prompts.');
       if (shot.sourceSearchInstruction !== null) error('UNEXPECTED_SOURCE_SEARCH', `${location}/sourceSearchInstruction`, 'Only EVIDENCE may carry a source-search instruction.');
-      if (shot.reconstructionSafeguards !== null && source?.beat?.visualClass !== 'RECONSTRUCTION') error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'Only RECONSTRUCTION may carry reconstruction safeguards.');
+      if (shot.reconstructionSafeguards !== null && source?.beat?.visualClass !== 'RECONSTRUCTION' && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'reconstructionSafeguards', actual: shot.reconstructionSafeguards, approvedPlanDifferences: lineage.approvedPlanDifferences }))) error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'Only RECONSTRUCTION may carry reconstruction safeguards.');
       if (source?.beat?.visualClass === 'RECONSTRUCTION' && (typeof shot.reconstructionSafeguards !== 'string' || !shot.reconstructionSafeguards.trim())) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/reconstructionSafeguards`, 'RECONSTRUCTION needs explicit safeguards.');
     } else {
       if (typeof shot.imagePrompt !== 'string' || !shot.imagePrompt.trim()) error('UNRESOLVED_PRODUCTION_INTENT', `${location}/imagePrompt`, 'Generated visuals need a nonblank image prompt.');
@@ -112,7 +138,7 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
       if (source?.beat?.visualClass === 'RECONSTRUCTION'
         && (typeof shot.reconstructionSafeguards !== 'string' || !shot.reconstructionSafeguards.trim())) {
         error('UNRESOLVED_PRODUCTION_INTENT', `${location}/reconstructionSafeguards`, 'RECONSTRUCTION needs explicit safeguards.');
-      } else if (source?.beat?.visualClass !== 'RECONSTRUCTION' && shot.reconstructionSafeguards !== null) {
+      } else if (source?.beat?.visualClass !== 'RECONSTRUCTION' && shot.reconstructionSafeguards !== null && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'reconstructionSafeguards', actual: shot.reconstructionSafeguards, approvedPlanDifferences: lineage.approvedPlanDifferences }))) {
         error('UNEXPECTED_RECONSTRUCTION_SAFEGUARDS', `${location}/reconstructionSafeguards`, 'Only RECONSTRUCTION may carry reconstruction safeguards.');
       }
     }
@@ -127,7 +153,7 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
     if (shot.assetType === 'generated_clip' && (typeof shot.animationPrompt !== 'string' || !shot.animationPrompt.trim())) {
       error('UNRESOLVED_PRODUCTION_INTENT', `${location}/animationPrompt`, 'Generated clips need a nonblank motion prompt.');
     }
-    if (shot.assetType !== 'generated_clip' && shot.animationPrompt !== '') error('UNEXPECTED_ANIMATION_PROMPT', `${location}/animationPrompt`, 'Only generated clips may carry an animation prompt.');
+    if (shot.assetType !== 'generated_clip' && shot.animationPrompt !== '' && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'animationPrompt', actual: shot.animationPrompt, approvedPlanDifferences: lineage.approvedPlanDifferences }))) error('UNEXPECTED_ANIMATION_PROMPT', `${location}/animationPrompt`, 'Only generated clips may carry an animation prompt.');
   });
 
   for (const { beat } of expected) {
@@ -148,7 +174,7 @@ function validateShotDefinitions({ plan, shotDefs } = {}) {
     }
   }
   if (shotDefs.totalShots !== expected.length) error('SHOT_COUNT_MISMATCH', '/totalShots', `totalShots must equal ${expected.length}.`);
-  return { status: errors.length ? 'FAIL' : 'PASS', errors };
+  return { status: errors.length ? 'FAIL' : 'PASS', errors, lineage: { status: lineage.status, errors: lineage.errors, counts: lineageCounts } };
 }
 
 function loadValidatedV3Plan({ episodeDir, episodeId } = {}) {
