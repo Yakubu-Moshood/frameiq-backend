@@ -23,6 +23,14 @@ const EXPECTED_EPISODE_HASHES = Object.freeze({
   'production-manifest.json': '7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca',
 });
 const ARCHIVE_VERSION = 'phase2.3b-sg-zero-call-recovery-v1';
+const NON_PROVIDER_GENERATION_EVENT_TYPES = Object.freeze([
+  'run-start', 'generator', 'failure', 'act-invoked', 'pre-reservation-failure',
+]);
+const PROVIDER_EVIDENCE_EVENT_TYPES = Object.freeze([
+  'provider-attempt-reserved', 'provider-attempt-failure',
+  'provider-request-start', 'provider-http-dispatch', 'provider-response',
+  'act-complete', 'act-reused-verified',
+]);
 const USAGE = [
   'Usage: node /app/scripts/phase2.3b-sg-recover-zero-call-run.cjs --run-id <id> [--dry-run]',
   '       EO_SG_RECOVERY_RUN_ID=<id> node /app/scripts/phase2.3b-sg-recover-zero-call-run.cjs [--dry-run]',
@@ -145,6 +153,32 @@ function classifyRunAudio(files, runDir, verifiedBackups) {
   return { generatedAudioOutputs, partialOutputs };
 }
 
+function auditGenerationJournal(journalBytes) {
+  const typeCounts = {};
+  const records = [];
+  const providerEvidence = [];
+  const unknownTypes = [];
+  const safeTypes = new Set(NON_PROVIDER_GENERATION_EVENT_TYPES);
+  const providerTypes = new Set(PROVIDER_EVIDENCE_EVENT_TYPES);
+  const lines = journalBytes.toString('utf8').split(/\r?\n/).filter(line => line.trim());
+  for (let index = 0; index < lines.length; index += 1) {
+    let record;
+    try { record = JSON.parse(lines[index]); }
+    catch (_) { throw new Error(`GENERATION_RECORD_INVALID:line-${index + 1}`); }
+    const type = typeof record?.type === 'string' && record.type.trim() ? record.type : '<missing>';
+    typeCounts[type] = (typeCounts[type] || 0) + 1;
+    records.push({ line: index + 1, type });
+    if (providerTypes.has(type)) providerEvidence.push({ line: index + 1, type });
+    else if (!safeTypes.has(type)) unknownTypes.push({ line: index + 1, type });
+  }
+  if (unknownTypes.length) throw new Error(`UNKNOWN_GENERATION_EVENT_TYPE:${unknownTypes.map(item => `${item.type}@${item.line}`).join(',')}`);
+  if (providerEvidence.length) throw new Error(`PROVIDER_EVENT_EVIDENCE_PRESENT:${providerEvidence.map(item => `${item.type}@${item.line}`).join(',')}`);
+  return {
+    typeCounts, safeNonProviderEventCount: records.length,
+    providerEvidenceEventCount: providerEvidence.length, unknownEventCount: unknownTypes.length, records,
+  };
+}
+
 function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes, expectedEpisodeHashes = EXPECTED_EPISODE_HASHES } = {}) {
   if (runId !== TARGET.runId) throw new Error('RECOVERY_RUN_ID_MISMATCH');
   const runDir = path.join(episodeRoot, '.review', `phase2.3b-sg-${runId}`);
@@ -155,6 +189,9 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
   const status = readJson(statusPath);
   if (status.runId !== runId || status.state !== 'FAILURE') throw new Error('RUN_NOT_CONFIRMED_FAILURE');
   if (!Array.isArray(status.completedActs) || status.completedActs.length !== 0) throw new Error('RUN_HAS_COMPLETED_ACTS');
+  const completedStateActs = Object.entries(status.actStates || {}).filter(([, value]) => value?.state === 'COMPLETED_PROVIDER_ATTEMPT').map(([actKey]) => actKey);
+  const completedAttemptCount = Object.values(status.completedAttemptsByAct || {}).reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+  if (completedStateActs.length || completedAttemptCount > 0) throw new Error('RUN_HAS_COMPLETED_ACTS');
 
   const pidFile = path.join(runDir, 'stage-a.pid.json');
   const pidRecord = fs.existsSync(pidFile) ? readJson(pidFile) : null;
@@ -171,31 +208,35 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
   const sharedLedger = path.join(reviewRoot, 'phase2.3b-sg-request-ledger.json');
   const localLedger = path.join(runDir, 'request-ledger.json');
   const ledgerEvidence = [readLedgerEvidence(sharedLedger, runDir), readLedgerEvidence(localLedger, runDir)];
+  const ledgerEntryCount = ledgerEvidence.reduce((sum, item) => sum + item.attempts, 0);
 
   const verifiedBackups = verifyBackups(runDir, expectedEpisodeHashes);
   const audioClassification = classifyRunAudio(files, runDir, verifiedBackups);
   if (audioClassification.generatedAudioOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.generatedAudioOutputs[0]}`);
   if (audioClassification.partialOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.partialOutputs[0]}`);
-  const eventMarker = /(?:provider[-_ ]?attempt[-_ ]?(?:reserved|started)|\bRESERVED\b|provider[-_ ]?(?:request|response)|http[-_ ]?(?:request|response)|elevenlabs[-_ ]?(?:request|response)|["']?(?:requestId|requestStatus|httpStatus)["']?\s*:)/i;
-  const verifiedBackupPaths = new Set(verifiedBackups.map(item => path.resolve(runDir, ...item.path.split('/'))));
-  for (const file of files.filter(item => !verifiedBackupPaths.has(path.resolve(item)) && /\.(?:json|jsonl|log|txt)$/i.test(item))) {
-    if (eventMarker.test(fs.readFileSync(file, 'utf8'))) throw new Error(`PROVIDER_EVENT_EVIDENCE_PRESENT:${path.relative(runDir, file)}`);
-  }
+  const journalBytes = fs.readFileSync(journalPath);
+  const generationEvents = auditGenerationJournal(journalBytes);
 
   const episodeHashes = verifyEpisodeHashes(episodeRoot);
   const statusBytes = fs.readFileSync(statusPath);
-  const journalBytes = fs.readFileSync(journalPath);
   const logPath = files.find(file => /(?:^|[\\/])(?:generation|run)\.log$/i.test(file)) || journalPath;
   const logBytes = fs.readFileSync(logPath);
+  const durableProviderAttemptEvidence = {
+    count: ledgerEntryCount + generationEvents.providerEvidenceEventCount + completedAttemptCount + completedStateActs.length,
+    requestLedgerEntryCount: ledgerEntryCount,
+    providerEvidenceEventCount: generationEvents.providerEvidenceEventCount,
+    completedActCount: completedStateActs.length + completedAttemptCount,
+  };
   return {
     runDir, runId, state: status.state, completedActs: status.completedActs,
-    legacyInvocationCounters: status.attemptsByAct || null,
+    legacyInvocationCounters: { attemptsByAct: status.attemptsByAct || null, maximumProviderRequests: status.maximumProviderRequests ?? null },
+    generationEvents,
     audioAudit: {
       verifiedAuthoritativeBackups: { count: verifiedBackups.length, files: verifiedBackups },
       generatedAudioOutputs: { count: audioClassification.generatedAudioOutputs.length, files: audioClassification.generatedAudioOutputs },
       partialOutputs: { count: audioClassification.partialOutputs.length, files: audioClassification.partialOutputs },
-      durableProviderAttemptEvidence: { count: 0, ledgers: ledgerEvidence, events: [] },
-      legacyInvocationCounters: status.attemptsByAct || null,
+      durableProviderAttemptEvidence: { ...durableProviderAttemptEvidence, ledgers: ledgerEvidence, events: generationEvents.records.filter(item => PROVIDER_EVIDENCE_EVENT_TYPES.includes(item.type)) },
+      legacyInvocationCounters: { attemptsByAct: status.attemptsByAct || null, maximumProviderRequests: status.maximumProviderRequests ?? null },
     },
     checks: { failureState: true, noCompletedActs: true, processInactive: true, noLocks: true, noProviderLedgerReservations: true, noProviderEvents: true, noAudioOrPartial: true, backupsMatchManifest: true, lockedEpisodeHashesMatch: true },
     evidence: {
@@ -204,7 +245,7 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
       generationJournal: { path: path.relative(runDir, journalPath), sha256: sha256(journalBytes), bytes: journalBytes.length },
       sameLogAndJournal: logPath === journalPath,
       ledgers: ledgerEvidence,
-      providerEvents: [], audioFiles: audioClassification,
+      providerEvents: generationEvents.records.filter(item => PROVIDER_EVIDENCE_EVENT_TYPES.includes(item.type)), audioFiles: audioClassification,
       verifiedAuthoritativeBackups: verifiedBackups, episodeHashes,
       legacyInvocationCounters: status.attemptsByAct || null,
     },
@@ -284,4 +325,9 @@ function main(args = process.argv.slice(2), env = process.env) {
 
 if (require.main === module) main();
 
-module.exports = { TARGET, EXPECTED_EPISODE_HASHES, ARCHIVE_VERSION, USAGE, auditFailedRun, archiveFailedRun, executeRecovery, verifyLockedEpisodeHashes, parseArgs, main, walkFiles, sha256 };
+module.exports = {
+  TARGET, EXPECTED_EPISODE_HASHES, ARCHIVE_VERSION, USAGE,
+  NON_PROVIDER_GENERATION_EVENT_TYPES, PROVIDER_EVIDENCE_EVENT_TYPES,
+  auditFailedRun, auditGenerationJournal, archiveFailedRun, executeRecovery,
+  verifyLockedEpisodeHashes, parseArgs, main, walkFiles, sha256,
+};

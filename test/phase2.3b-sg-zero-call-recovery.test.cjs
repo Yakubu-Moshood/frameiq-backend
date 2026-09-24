@@ -6,15 +6,26 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { TARGET, EXPECTED_EPISODE_HASHES, ARCHIVE_VERSION, USAGE, auditFailedRun, executeRecovery, parseArgs, sha256 } = require('../scripts/phase2.3b-sg-recover-zero-call-run.cjs');
+const { TARGET, EXPECTED_EPISODE_HASHES, ARCHIVE_VERSION, USAGE, PROVIDER_EVIDENCE_EVENT_TYPES, auditFailedRun, executeRecovery, parseArgs, sha256 } = require('../scripts/phase2.3b-sg-recover-zero-call-run.cjs');
 
-function fixture(t, { status = {}, journal = '{"type":"run-start"}\n', extras = [], ledger = undefined, backup = true } = {}) {
+const exactLegacyEvents = [
+  { type: 'run-start', runId: TARGET.runId },
+  ...Array.from({ length: 14 }, (_, index) => ({ type: 'generator', message: [
+    'Checking provider environment configuration', 'Request setup logger initialized',
+    'Provider routing is configured but no request has been sent', 'Preparing request metadata only',
+    `Startup check ${index + 5} completed without provider dispatch`,
+  ][index % 5] })),
+  { type: 'failure', errorCode: '[config-reader] Channel not found by id', message: '[config-reader] Channel not found by id: Empire Omitted' },
+];
+const exactLegacyJournal = `${exactLegacyEvents.map(event => JSON.stringify(event)).join('\n')}\n`;
+
+function fixture(t, { status = {}, journal = exactLegacyJournal, extras = [], ledger = undefined, backup = true } = {}) {
   const episodeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sg-zero-call-audit-'));
   t.after(() => fs.rmSync(episodeRoot, { recursive: true, force: true }));
   const review = path.join(episodeRoot, '.review');
   const runDir = path.join(review, `phase2.3b-sg-${TARGET.runId}`);
   fs.mkdirSync(runDir, { recursive: true });
-  fs.writeFileSync(path.join(runDir, 'run-status.json'), JSON.stringify({ runId: TARGET.runId, state: 'FAILURE', pid: 99999999, completedActs: [], attemptsByAct: { act3b: 1, act4: 0 }, ...status }));
+  fs.writeFileSync(path.join(runDir, 'run-status.json'), JSON.stringify({ runId: TARGET.runId, state: 'FAILURE', pid: 56, completedActs: [], attemptsByAct: { act3b: 1, act4: 0 }, maximumProviderRequests: 2, errorCode: '[config-reader] Channel not found by id', ...status }));
   fs.writeFileSync(path.join(runDir, 'generation.jsonl'), journal);
   const backupBytes = Buffer.concat([Buffer.from('ID3'), Buffer.alloc(1021, 0x42)]);
   const backupSha256 = sha256(backupBytes);
@@ -68,12 +79,19 @@ test('explicit run ID is required and environment fallback is documented', () =>
   assert.throws(() => parseArgs(['--run-id', 'another-run'], {}), /RUN_ID_MISMATCH/);
 });
 
-test('legacy Stage A attemptsByAct is reported separately and exact zero-call failure passes dry-run', t => {
+test('exact 16-event legacy failure passes dry-run with typed event counts and no writes', t => {
   const f = fixture(t);
   const before = treeHashes(f.runDir);
   const report = executeRecovery({ runId: TARGET.runId, dryRun: true, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes });
   assert.equal(report.status, 'DRY_RUN_PASS');
-  assert.equal(report.legacyInvocationCounters.act3b, 1);
+  assert.deepEqual(report.generationEvents.typeCounts, { 'run-start': 1, generator: 14, failure: 1 });
+  assert.equal(report.generationEvents.records.length, 16);
+  assert.equal(report.generationEvents.safeNonProviderEventCount, 16);
+  assert.equal(report.generationEvents.providerEvidenceEventCount, 0);
+  assert.equal(report.generationEvents.unknownEventCount, 0);
+  assert.deepEqual(report.legacyInvocationCounters, { attemptsByAct: { act3b: 1, act4: 0 }, maximumProviderRequests: 2 });
+  assert.equal(report.audioAudit.durableProviderAttemptEvidence.requestLedgerEntryCount, 0);
+  assert.equal(report.audioAudit.durableProviderAttemptEvidence.count, 0);
   assert.equal(report.checks.noProviderLedgerReservations, true);
   assert.equal(report.checks.lockedEpisodeHashesMatch, true);
   assert.equal(report.audioAudit.verifiedAuthoritativeBackups.count, 1);
@@ -84,6 +102,7 @@ test('legacy Stage A attemptsByAct is reported separately and exact zero-call fa
   assert.deepEqual(report.audioAudit.generatedAudioOutputs, { count: 0, files: [] });
   assert.deepEqual(report.audioAudit.partialOutputs, { count: 0, files: [] });
   assert.equal(report.audioAudit.durableProviderAttemptEvidence.count, 0);
+  assert.equal(report.checks.lockedEpisodeHashesMatch, true);
   assert.deepEqual(treeHashes(f.runDir), before);
   assert.equal(fs.existsSync(path.join(f.review, 'failed-run-archive')), false);
 });
@@ -93,11 +112,24 @@ test('a real request-ledger reservation is refused regardless of the legacy coun
   assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes }), /PROVIDER_REQUEST_LEDGER_ENTRY_FOUND/);
 });
 
-test('reservation, request, and response events are refused', t => {
-  for (const event of ['provider-attempt-reserved', 'HTTP request sent', 'ElevenLabs response received']) {
+test('each known provider-evidence event type is refused', t => {
+  for (const event of PROVIDER_EVIDENCE_EVENT_TYPES) {
     const f = fixture(t, { journal: `${JSON.stringify({ type: event })}\n` });
     assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes }), /PROVIDER_EVENT_EVIDENCE_PRESENT/);
   }
+});
+
+test('unknown typed generation events fail closed with a distinct code', t => {
+  const f = fixture(t, { journal: `${JSON.stringify({ type: 'future-provider-state' })}\n` });
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes }), /UNKNOWN_GENERATION_EVENT_TYPE/);
+});
+
+test('legacy request-budget and invocation metadata do not count as provider evidence', t => {
+  const f = fixture(t, { status: { attemptsByAct: { act3b: 1, act4: 0 }, maximumProviderRequests: 2 } });
+  const report = executeRecovery({ runId: TARGET.runId, dryRun: true, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes });
+  assert.equal(report.audioAudit.durableProviderAttemptEvidence.count, 0);
+  assert.equal(report.legacyInvocationCounters.attemptsByAct.act3b, 1);
+  assert.equal(report.legacyInvocationCounters.maximumProviderRequests, 2);
 });
 
 test('backup hash mismatch and a backup absent from the manifest are refused', t => {
@@ -142,7 +174,7 @@ test('active lock, live process, and completed-act state are refused', t => {
   fs.writeFileSync(path.join(lock.review, 'phase2.3b-sg-active.lock'), 'active');
   assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: lock.episodeRoot, processAlive: inactive, verifyEpisodeHashes: lock.hashVerifier, expectedEpisodeHashes: lock.expectedEpisodeHashes }), /LOCK_REQUIRES_INSPECTION/);
   const active = fixture(t);
-  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: active.episodeRoot, processAlive: pid => pid === 99999999, verifyEpisodeHashes: active.hashVerifier, expectedEpisodeHashes: active.expectedEpisodeHashes }), /RUN_PROCESS_STILL_ACTIVE/);
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: active.episodeRoot, processAlive: pid => pid === 56, verifyEpisodeHashes: active.hashVerifier, expectedEpisodeHashes: active.expectedEpisodeHashes }), /RUN_PROCESS_STILL_ACTIVE/);
   const done = fixture(t, { status: { completedActs: ['act3b'] } });
   assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: done.episodeRoot, processAlive: inactive, verifyEpisodeHashes: done.hashVerifier, expectedEpisodeHashes: done.expectedEpisodeHashes }), /RUN_HAS_COMPLETED_ACTS/);
 });
