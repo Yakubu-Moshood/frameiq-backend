@@ -178,6 +178,7 @@ async function main() {
     // Exact directory swap is attempted only after every candidate is persisted and checked.
     execFileSync('python3', ['/app/scripts/phase2.3b-sg-atomic-exchange.py', ROOT, stage], { stdio: 'ignore' });
     promoted = true;
+    for (const [relative, expected] of Object.entries(report.outputs)) assert(bytesHash(path.join(ROOT, relative)) === expected, `PROMOTED_HASH_MISMATCH:${relative}`);
     report.status = 'PROMOTED'; report.promotedAt = new Date().toISOString(); atomicJson(path.join(ROOT,'.review',`phase2.3b-sg-${runId}`,'stage-b-report.json'), report);
     console.log(JSON.stringify(report, null, 2));
   } catch (error) {
