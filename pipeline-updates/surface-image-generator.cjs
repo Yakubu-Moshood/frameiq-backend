@@ -8,6 +8,7 @@ const https = require('https');
 const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { createRouter } = require('./providers/provider-router.cjs');
 const sdxl = require('./providers/image/sdxl.cjs');
+const { loadProductionMethodManifest, validateImagePromptBatch } = require('./production-method-manifest.cjs');
 
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const SIZE       = '1536x1024';
@@ -128,11 +129,28 @@ function estimateImageCost(provider) {
   return null;
 }
 
-async function generateImages({ promptsFile, outputDir, channel, episodeId, routerFactory = createRouter }) {
+async function generateImages({ promptsFile, outputDir, channel, episodeId, mode = null, shotDefsPath = null, productionManifestPath = null, routerFactory = createRouter }) {
   if (!fs2.existsSync(promptsFile)) throw new Error('[image-gen] prompts file not found: ' + promptsFile);
 
   const prompts = JSON.parse(fs2.readFileSync(promptsFile, 'utf8'));
   if (!Array.isArray(prompts)) throw new Error('[image-gen] prompts file must contain an array');
+  let v3Manifest = null;
+  if (mode != null && !['v3', 'legacy'].includes(mode)) throw new Error('[image-gen] mode must be v3 or legacy.');
+  if (mode === 'v3' && (!shotDefsPath || !productionManifestPath)) throw new Error('[image-gen] V3 generation requires current shot definitions and production manifest.');
+  if (shotDefsPath) {
+    if (!fs2.existsSync(shotDefsPath)) throw new Error('[image-gen] shot-definitions file not found: ' + shotDefsPath);
+    const shotDefs = JSON.parse(fs2.readFileSync(shotDefsPath, 'utf8'));
+    if (shotDefs.mode === 'empire-omitted-v3') {
+      if (mode === 'legacy') throw new Error('[image-gen] V3 shot definitions cannot use the legacy image route.');
+      if (!productionManifestPath) throw new Error('[image-gen] V3 production manifest path is required.');
+      v3Manifest = loadProductionMethodManifest({ manifestPath: productionManifestPath, shotDefsPath, shotDefs });
+      validateImagePromptBatch(prompts, v3Manifest);
+    } else if (mode === 'v3' || productionManifestPath) {
+      throw new Error('[image-gen] V3 generation requires V3 shot definitions and a production manifest.');
+    }
+  } else if (productionManifestPath) {
+    throw new Error('[image-gen] shotDefsPath is required with a V3 production manifest.');
+  }
   const evidence = prompts.filter(item => item?.assetType === 'evidence_reference');
   if (evidence.length) throw new Error(`[image-gen] Refusing synthetic generation for ${evidence.length} EVIDENCE source reference(s).`);
   const graphics = prompts.filter(item => item?.assetType === 'graphic_compilation' || item?.requiresGraphicCompilation === true);
@@ -224,16 +242,19 @@ if (require.main === module) {
     if (args[i] === '--output-dir')   outputDir   = args[++i];
     if (args[i] === '--channel')      channel     = args[++i];
   }
+  let shotDefsPath = null, productionManifestPath = null;
   if (episode && !promptsFile) {
     const episodeDir = path.join('/data/pipeline/episodes', episode);
     promptsFile = path.join(episodeDir, 'assets', 'stills', 'pending-prompts.json');
     outputDir   = path.join(episodeDir, 'assets', 'stills');
+    shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
+    productionManifestPath = path.join(episodeDir, 'production-manifest.json');
   }
   if (!promptsFile || !outputDir) {
     console.error('Usage: node surface-image-generator.cjs --episode EP4 --channel "Empire Omitted"');
     process.exit(1);
   }
-  generateImages({ promptsFile, outputDir, channel })
+  generateImages({ promptsFile, outputDir, channel, shotDefsPath, productionManifestPath })
     .catch(err => { console.error('[image-gen] FATAL:', err.message); process.exit(1); });
 }
 

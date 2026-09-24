@@ -557,13 +557,20 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   }
   // ── STEP 0D — IMAGE GENERATION ────────────────────────────────────────────
   const job0D  = jobFor('0D_images');
+  const productionManifestPath = path.join(episodeDir, 'production-manifest.json');
+  let productionManifest = null;
+  let baseImageIds = null;
   if (shotDefs.mode === 'empire-omitted-v3') {
-    const unresolvedProduction = (shotDefs.allShots || []).filter(shot => shot.assetType === 'evidence_reference' || shot.assetType === 'graphic_compilation');
-    if (unresolvedProduction.length) {
-      throw new Error(`[runner] V3 image generation is blocked: ${unresolvedProduction.length} beat(s) require authentic source assets or graphic compilation before image generation.`);
+    const { loadProductionMethodManifest, baseImageShotIds } = require(path.join(PIPELINE_DIR, 'production-method-manifest.cjs'));
+    productionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath, shotDefsPath, shotDefs });
+    const pending = productionManifest.shots.filter(entry => entry.status !== 'APPROVED');
+    if (pending.length) {
+      const first = pending[0];
+      throw new Error('[runner] V3 production is blocked by ' + pending.length + ' pending production method(s); first ' + first.shotId + ': ' + first.blockerCodes.join(', ') + '.');
     }
+    baseImageIds = new Set(baseImageShotIds(productionManifest));
   }
-  const needed = (shotDefs.allShots || []).filter(s => !fs.existsSync(path.join(stillsDir, `${s.shotId}.png`)));
+  const needed = (shotDefs.allShots || []).filter(s => (!baseImageIds || baseImageIds.has(s.shotId)) && !fs.existsSync(path.join(stillsDir, s.shotId + ".png")));
   if (await checkPaused(episodeDbId, '0D_images')) return;
   await queries.updateJob(job0D.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   if (needed.length === 0) {
@@ -585,15 +592,19 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     // providers/provider-router.cjs can log provider_events and update
     // episodes.image_provider_used/provider_substituted per episode.
     await runStageOrFail(episodeDbId, job0D.id, '0D_images', () =>
-      generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey, episodeId: episodeDbId })
+      generateImages({ promptsFile: promptsPath, outputDir: stillsDir, channel: channelKey, episodeId: episodeDbId, mode: shotDefs.mode === 'empire-omitted-v3' ? 'v3' : 'legacy', ...(shotDefs.mode === 'empire-omitted-v3' ? { shotDefsPath, productionManifestPath } : {}) })
     );
     await queries.updateJob(job0D.id, { status: 'complete', progress: 100, detail: `${needed.length} images`, finished_at: new Date().toISOString() });
     progress('0D_images', 'complete', 100, `${needed.length} images generated`);
   }
   // ── STEP 0E — ANIMATION ───────────────────────────────────────────────────
   const job0E     = jobFor('0E_anim');
-  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP' && s.assetType !== 'evidence_reference');
-  const needsAnim = clipShots.filter(s => !fs.existsSync(path.join(clipsDir, `${s.shotId}.mp4`)));
+  const { essentialAnimationShotIds } = shotDefs.mode === 'empire-omitted-v3'
+    ? require(path.join(PIPELINE_DIR, 'production-method-manifest.cjs'))
+    : { essentialAnimationShotIds: null };
+  const animationIds = productionManifest ? new Set(essentialAnimationShotIds(productionManifest)) : null;
+  const clipShots = (shotDefs.allShots || []).filter(s => animationIds ? animationIds.has(s.shotId) : s.visualType === 'CLIP' && s.assetType !== 'evidence_reference');
+  const needsAnim = clipShots.filter(s => !fs.existsSync(path.join(clipsDir, s.shotId + '.mp4')));
   if (await checkPaused(episodeDbId, '0E_anim')) return;
   await queries.updateJob(job0E.id, { status: 'running', progress: 0, started_at: new Date().toISOString() });
   if (needsAnim.length === 0) {
@@ -611,7 +622,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
     // providers/provider-router.cjs's video-provider_events logging and
     // episodes.video_provider_used/provider_substituted updates.
     const result = await runStageOrFail(episodeDbId, job0E.id, '0E_anim', () =>
-      animateClips({ shotDefs, episodeDir, channel: channelKey, episodeId: episodeDbId })
+      animateClips({ shotDefs, episodeDir, channel: channelKey, episodeId: episodeDbId, ...(shotDefs.mode === 'empire-omitted-v3' ? { shotDefsPath, productionManifestPath } : {}) })
     );
     await queries.updateJob(job0E.id, { status: 'complete', progress: 100, detail: `${result.completed} clips`, finished_at: new Date().toISOString() });
     progress('0E_anim', 'complete', 100, `${result.completed} clips animated`);
@@ -670,6 +681,7 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
       brand,
       maxShotDurationSec,
       approvalCallback,
+      ...(shotDefs.mode === 'empire-omitted-v3' ? { productionManifestPath } : {}),
     })
   );
   await queries.updateEpisodeResult('complete', renderResult.title || script.title, renderResult.path, renderResult.durationSeconds, episodeDbId);

@@ -66,6 +66,11 @@ function fixture(t, replies = [], env = { OPENAI_API_KEY: 'test-only' }) {
           loadValidatedV3Plan() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
           validateShotDefinitions() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
         };
+        if (name === './production-method-manifest.cjs') return {
+          loadProductionMethodManifest() { throw new Error('V3 manifest loading is not expected in the legacy renderer test'); },
+          assertManifestReadyForRender() { throw new Error('V3 manifest validation is not expected in the legacy renderer test'); },
+          resolveProductionAssetLocation() { throw new Error('V3 asset routing is not expected in the legacy renderer test'); },
+        };
         throw new Error('Unexpected dependency: ' + name);
       },
     };

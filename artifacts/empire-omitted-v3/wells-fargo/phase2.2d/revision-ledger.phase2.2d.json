@@ -1,0 +1,1088 @@
+{
+  "sourceCandidateSha256": "bd79591ad465ddb927d62d106256b2c37687c6802d1f1c808fe16ce56b1df477",
+  "revisedCandidateSha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+  "auditSha256": "e672fcab9dcf876455bc054fc45e2cd5eb59d843ccec59901e51c6a07a04bbb9",
+  "revisionCount": 24,
+  "fieldChanges": [
+    {
+      "shotId": "ACT1_B015",
+      "auditIssue": "Replace legible/partially visible hotline number with a fully invented, unreadable prop; verify no real Wells Fargo hotline is implied.",
+      "field": "visual.description",
+      "originalFieldValue": "Employee on phone at home, notepad with ethics hotline number visible, waiting on hold.",
+      "revisedFieldValue": "Anonymous person at home pauses with a handset beside a notepad bearing only abstract, unreadable marks.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B015",
+      "auditIssue": "Replace legible/partially visible hotline number with a fully invented, unreadable prop; verify no real Wells Fargo hotline is implied.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Employee seated at home on phone, evening lighting. Notepad on table with phone number written, pen nearby. Hand holding phone to ear, posture suggesting extended wait. Living room or kitchen domestic setting. Soft lamp lighting creates intimate atmosphere of private concern. No corporate environment. Person shown in profile or from behind, features not clearly identifiable. Notepad shows ethics hotline notation, number partially visible.",
+      "revisedFieldValue": "Illustrative reconstruction, not documentary footage: anonymous adult seen from behind at home in a quiet evening interior, holding a plain handset beside a small notepad. The page contains only soft, non-letterlike marks with no digits, words, logos, or recognizable form design. Restrained domestic light, still composition, no readable screen or prop text.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B015",
+      "auditIssue": "Replace legible/partially visible hotline number with a fully invented, unreadable prop; verify no real Wells Fargo hotline is implied.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward toward figure on phone. Stillness of waiting emphasized. Hand writes additional note on pad. Camera approaches intimate domestic scene of institutional failure reaching home.",
+      "revisedFieldValue": "One restrained push toward the anonymous figure and notepad. The hand and props remain steady; no writing animation and no visible text.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B015",
+      "auditIssue": "Replace legible/partially visible hotline number with a fully invented, unreadable prop; verify no real Wells Fargo hotline is implied.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable face, Wells Fargo specific hotline, readable full phone number, corporate setting, celebrities, documentary footage appearance, specific individual",
+      "revisedFieldValue": "readable digits, phone numbers, hotline labels, legible writing, real forms, logos, identifiable face, recognizable person, documentary footage, fabricated evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B015",
+      "auditIssue": "Replace legible/partially visible hotline number with a fully invented, unreadable prop; verify no real Wells Fargo hotline is implied.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Figure unidentifiable through angle and lighting. Notepad text abstracted suggesting ethics hotline without fabricating specific Wells Fargo documentation. Domestic setting represents private escalation effort rather than documented specific call.",
+      "revisedFieldValue": "Composite reconstruction only. Do not imply a real hotline number, internal form, caller, or documented individual. All marks are abstract and unreadable.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B018",
+      "auditIssue": "Split the multiplicity implication from the single employee packing action; video generation may invent people and imply an unsupported count.",
+      "field": "visual.description",
+      "originalFieldValue": "Woman alone removing personal items from desk, colleagues avoiding eye contact, then frame multiplies to suggest thousands.",
+      "revisedFieldValue": "One anonymous employee packs personal items at a desk; the frame remains limited to this single person and action.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B018",
+      "auditIssue": "Split the multiplicity implication from the single employee packing action; video generation may invent people and imply an unsupported count.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Woman removing personal items from office desk, colleagues in background maintaining distance, avoiding eye contact. Central figure shown from behind or profile, unidentifiable. Cardboard box on desk. Open office environment with multiple workstations. Other employees visible as silhouettes or blurred figures in background, number suggesting scale beyond one person. Overhead fluorescent lighting. Atmosphere of isolation amid crowd.",
+      "revisedFieldValue": "Illustrative reconstruction, not documentary footage: one anonymous employee, viewed from behind, places a few personal objects into a plain cardboard box at a generic office desk. Keep the frame to this single person; empty, softly blurred workstations may sit in the distance. Do not imply a workforce count or a documented event.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B018",
+      "auditIssue": "Split the multiplicity implication from the single employee packing action; video generation may invent people and imply an unsupported count.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Lateral tracking shot past central figure packing desk. Background silhouettes multiply as camera moves, suggesting scale of terminated whistleblowers. Movement reveals depth of office space with additional isolated figures at desks.",
+      "revisedFieldValue": "A single measured lateral camera move across one employee and one box. The employee places one object; background remains still and unpopulated.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B018",
+      "auditIssue": "Split the multiplicity implication from the single employee packing action; video generation may invent people and imply an unsupported count.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, Wells Fargo branding, readable badges, specific individuals, celebrities, documentary footage, clear facial features on any figure",
+      "revisedFieldValue": "multiple employees, multiplying silhouettes, crowds, mass termination, numerical scale, identifiable faces, logos, readable badges, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B018",
+      "auditIssue": "Split the multiplicity implication from the single employee packing action; video generation may invent people and imply an unsupported count.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "All figures anonymous through angle, blur, or silhouette treatment. Background figures represent pattern of multiple terminations without depicting specific documented individuals. No company branding. Atmospheric representation of reported whistleblower retaliation scale.",
+      "revisedFieldValue": "The image represents a single illustrative composite and must not imply a verified number of terminated workers or depict a specific person.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B021",
+      "auditIssue": "Keep signature fully abstract and non-legible; this is a consequential forgery reconstruction and must not resemble a real customer signature.",
+      "field": "visual.description",
+      "originalFieldValue": "Employee hand signing customer name on signature line, camera tight on the forgery.",
+      "revisedFieldValue": "Anonymous hand over a generic form with a signature area rendered as abstract, non-legible strokes.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B021",
+      "auditIssue": "Keep signature fully abstract and non-legible; this is a consequential forgery reconstruction and must not resemble a real customer signature.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Extreme close-up of hand signing name on signature line of banking document. Pen completing final strokes of signature. Document form visible but customer name section abstracted. Desk surface with additional blank forms waiting. Hand suggests bank employee rather than customer through context. Clinical overhead lighting. Forgery in progress captured at moment of completion.",
+      "revisedFieldValue": "Illustrative reconstruction: tight view of an anonymous hand holding a pen above a generic blank form. At most, show a few abstract non-letterlike strokes in the signature area; no readable name, signature, account data, institutional layout, or authentic document details. Plain desk and restrained overhead light.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B021",
+      "auditIssue": "Keep signature fully abstract and non-legible; this is a consequential forgery reconstruction and must not resemble a real customer signature.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward as pen completes forged signature on line. Movement tight and uncomfortable, emphasizing transgression. Hand lifts pen from completed forgery. Clinical precision of the action emphasized through camera proximity.",
+      "revisedFieldValue": "A slow camera push toward the pen and abstract marks. Do not create or complete legible writing; keep the hand and page geometry stable.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B021",
+      "auditIssue": "Keep signature fully abstract and non-legible; this is a consequential forgery reconstruction and must not resemble a real customer signature.",
+      "field": "negativePrompt",
+      "originalFieldValue": "readable customer name, Wells Fargo branding, identifiable hand features, specific document text, real account information, documentary evidence",
+      "revisedFieldValue": "readable name, authentic signature, customer identity, account data, real bank form, logo, legible text, documentary evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B021",
+      "auditIssue": "Keep signature fully abstract and non-legible; this is a consequential forgery reconstruction and must not resemble a real customer signature.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Signature being written is stylized abstraction, not reproduction of real customer signature. No readable name or identifying information. Represents reported forgery pattern without fabricating specific documentary evidence of forgery.",
+      "revisedFieldValue": "Composite reconstruction only. The marks must not resemble or reproduce any real customer signature or authentic form.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B022",
+      "auditIssue": "Use obviously synthetic placeholder email text and no real customer data; generated UI text is unreliable.",
+      "field": "visual.description",
+      "originalFieldValue": "Computer screen showing email field filled with fabricated address, cursor clicks submit.",
+      "revisedFieldValue": "Generic blank account interface with abstract placeholder blocks; no customer data or copying between screens.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B022",
+      "auditIssue": "Use obviously synthetic placeholder email text and no real customer data; generated UI text is unreliable.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Computer screen displaying email address field being filled with fabricated address. Cursor visible in field. Form interface suggesting account application. Screen glow as dominant light source. Background blur suggests banking workstation environment. Second monitor edge visible showing customer database with abstracted data. No Wells Fargo specific interface design.",
+      "revisedFieldValue": "Illustrative reconstruction of a generic computer workstation showing one simple account-entry interface made only of blank fields and abstract gray placeholder blocks. No words, characters, digits, addresses, customer records, identifiable software design, or second data-bearing screen. Anonymous hands may rest near the keyboard; the interface remains unreadable.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B022",
+      "auditIssue": "Use obviously synthetic placeholder email text and no real customer data; generated UI text is unreliable.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from email field in foreground to customer data screen in background. Cursor clicks submit as focus shifts. Transition suggests data being misused from one screen to create false record on another.",
+      "revisedFieldValue": "A restrained rack focus between the keyboard and the single abstract interface. No cursor submission, field population, or transfer between screens.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B022",
+      "auditIssue": "Use obviously synthetic placeholder email text and no real customer data; generated UI text is unreliable.",
+      "field": "negativePrompt",
+      "originalFieldValue": "Wells Fargo branding, readable customer data, real email addresses, specific software interface, identifiable faces, documentary evidence",
+      "revisedFieldValue": "readable text, real or plausible email addresses, customer data, account numbers, address, identifiable UI, multiple data screens, logos, documentary evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT1_B022",
+      "auditIssue": "Use obviously synthetic placeholder email text and no real customer data; generated UI text is unreliable.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Email address shown is obviously fabricated string, not real address. Customer database information abstracted and illegible. Generic banking interface aesthetic. Represents reported false email creation without fabricating documentary evidence.",
+      "revisedFieldValue": "The interface is an abstract prop. Do not fabricate customer information or imply a specific documented transaction.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B002",
+      "auditIssue": "Prompt explicitly requests Wells Fargo signage while this is classified as RECONSTRUCTION; use an unbranded generic landscape or replace with authentic archival footage.",
+      "field": "visual.description",
+      "originalFieldValue": "Golden-hour footage of rural American landscape, Wells Fargo signage visible in distance.",
+      "revisedFieldValue": "Generic period-neutral rural American landscape with no identifiable bank or branch.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B002",
+      "auditIssue": "Prompt explicitly requests Wells Fargo signage while this is classified as RECONSTRUCTION; use an unbranded generic landscape or replace with authentic archival footage.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Sweeping golden-hour cinematography of rural American heartland landscape, rolling wheat fields extending to horizon, a distant Wells Fargo branch sign barely visible among small town buildings, warm late afternoon light casting long shadows across the terrain, cinematic wide shot composition, no identifiable individuals visible, atmospheric haze suggesting passage of time",
+      "revisedFieldValue": "Illustrative atmospheric reconstruction of a rural American landscape: rolling fields, a small distant town, warm late-afternoon light, and no readable signs or identifiable businesses. Wide calm composition with natural haze. Do not depict a specific location or connect the landscape to a named institution.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B002",
+      "auditIssue": "Prompt explicitly requests Wells Fargo signage while this is classified as RECONSTRUCTION; use an unbranded generic landscape or replace with authentic archival footage.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Smooth lateral tracking shot moving right to left across the landscape, camera mounted at moderate height, wheat fields sway gently in breeze, subtle parallax between foreground grass and distant town buildings, golden light remains consistent throughout movement",
+      "revisedFieldValue": "Gentle lateral camera drift across the fields; subtle grass movement only. Keep the distant town anonymous and sign-free.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B002",
+      "auditIssue": "Prompt explicitly requests Wells Fargo signage while this is classified as RECONSTRUCTION; use an unbranded generic landscape or replace with authentic archival footage.",
+      "field": "negativePrompt",
+      "originalFieldValue": "modern urban elements, highways, contemporary vehicles, identifiable people, night scene, harsh lighting, overcast weather, snow, rain",
+      "revisedFieldValue": "Wells Fargo, bank logos, readable signs, identifiable branch, specific location, documentary footage, fabricated signage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B002",
+      "auditIssue": "Prompt explicitly requests Wells Fargo signage while this is classified as RECONSTRUCTION; use an unbranded generic landscape or replace with authentic archival footage.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as clearly illustrative atmospheric footage representing generic American landscape. No specific location depicted. Wells Fargo signage shown only as distant environmental detail, not as documentary evidence. Scene constructed to evoke timelessness rather than document specific era.",
+      "revisedFieldValue": "Generic illustrative landscape only; not a record of a Wells Fargo branch or a verified location.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B003",
+      "auditIssue": "Prompt requests an identifiable Wells Fargo branch/sign while class is RECONSTRUCTION; remove branding or source authentic footage.",
+      "field": "visual.description",
+      "originalFieldValue": "A Wells Fargo branch in small-town America, American flag sways gently.",
+      "revisedFieldValue": "Unbranded, generic small-town banking exterior with no readable signage or identifiable branch.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B003",
+      "auditIssue": "Prompt requests an identifiable Wells Fargo branch/sign while class is RECONSTRUCTION; remove branding or source authentic footage.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Small-town America Wells Fargo branch exterior, modest single-story brick building with Wells Fargo signage, American flag on pole gently moving in breeze, clean sidewalk, few parked vehicles suggesting quiet weekday, clear blue sky, traditional Main Street aesthetic, warm afternoon light, no identifiable individuals visible, establishing shot framing",
+      "revisedFieldValue": "Illustrative reconstruction of a generic small-town commercial street in a historically plausible, non-specific period. A modest unbranded brick building and an American flag may appear; omit all business names, logos, readable signs, license plates, and identifiable people. Warm natural afternoon light.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B003",
+      "auditIssue": "Prompt requests an identifiable Wells Fargo branch/sign while class is RECONSTRUCTION; remove branding or source authentic footage.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly back movement revealing more of the street context, American flag provides subtle organic motion with gentle rippling, slight movement in tree branches at frame edges, camera pulls back smoothly to establish the quiet stability of the scene",
+      "revisedFieldValue": "Slow, steady dolly back from the anonymous brick storefront. The flag moves gently; no sign or building detail should identify a real branch.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B003",
+      "auditIssue": "Prompt requests an identifiable Wells Fargo branch/sign while class is RECONSTRUCTION; remove branding or source authentic footage.",
+      "field": "negativePrompt",
+      "originalFieldValue": "large city, skyscrapers, crowds, night scene, rain, snow, damaged buildings, graffiti, construction, modern glass architecture, identifiable faces",
+      "revisedFieldValue": "Wells Fargo name or logo, recognizable bank branding, readable signage, specific branch, documentary footage, fabricated historical evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B003",
+      "auditIssue": "Prompt requests an identifiable Wells Fargo branch/sign while class is RECONSTRUCTION; remove branding or source authentic footage.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as representative atmospheric reconstruction of generic small-town banking environment. No specific branch location depicted. Building design composited from common architectural elements rather than replicating identifiable structure. Flag included as environmental motion element only.",
+      "revisedFieldValue": "Generic composite setting only. Do not suggest this is an actual Wells Fargo location or archival image.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B009",
+      "auditIssue": "Prompt/company-lobby reference conflicts with reconstruction anonymity; use generic unbranded architecture and avoid suggesting a verified Wells Fargo interior.",
+      "field": "visual.description",
+      "originalFieldValue": "Camera pushes through Wells Fargo lobby toward back offices.",
+      "revisedFieldValue": "Anonymous generic corporate lobby without features that identify a verified Wells Fargo interior.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B009",
+      "auditIssue": "Prompt/company-lobby reference conflicts with reconstruction anonymity; use generic unbranded architecture and avoid suggesting a verified Wells Fargo interior.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Cinematic interior of generic corporate bank lobby, polished marble floors reflecting overhead lighting, camera positioned low moving forward through space, modern but anonymous banking environment, reception desk visible in middle distance, corridor leading to back office area visible beyond, institutional lighting casting even illumination, no identifiable logos or branding visible, no people in frame, atmospheric corporate emptiness",
+      "revisedFieldValue": "Illustrative reconstruction of an anonymous corporate banking lobby: polished floor, plain reception desk, neutral corridor, and soft institutional lighting. No logos, distinctive architecture, branded furniture, readable signage, employees, or details suggesting a verified Wells Fargo interior.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B009",
+      "auditIssue": "Prompt/company-lobby reference conflicts with reconstruction anonymity; use generic unbranded architecture and avoid suggesting a verified Wells Fargo interior.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Steady dolly forward through the lobby space, camera at chest height gliding smoothly across marble floor, passing reception desk and continuing toward corridor leading to back offices, lighting shifts subtly as camera moves deeper into building, sense of penetrating institutional facade",
+      "revisedFieldValue": "A restrained forward camera glide through the anonymous lobby. Maintain stable generic architecture and avoid revealing identifying signs or rooms.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B009",
+      "auditIssue": "Prompt/company-lobby reference conflicts with reconstruction anonymity; use generic unbranded architecture and avoid suggesting a verified Wells Fargo interior.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable bank branding, Wells Fargo logos, specific location markers, crowds of customers, tellers at windows, security guards, exterior views, residential spaces, identifiable faces",
+      "revisedFieldValue": "Wells Fargo, branded interior, identifiable location, logo, readable signs, specific real office, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B009",
+      "auditIssue": "Prompt/company-lobby reference conflicts with reconstruction anonymity; use generic unbranded architecture and avoid suggesting a verified Wells Fargo interior.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as atmospheric reconstruction of generic corporate banking environment. No Wells Fargo branding or identifiable location markers included. Interior design based on common corporate banking architectural elements rather than specific documented location. Scene functions as transitional visual suggesting institutional interior without claiming documentary authenticity.",
+      "revisedFieldValue": "Composite generic interior only; do not present or imply a verified Wells Fargo site.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B011",
+      "auditIssue": "Static paper placement does not justify generated video; make a controlled still unless physical form movement materially advances the beat.",
+      "field": "visual.description",
+      "originalFieldValue": "A banker produces a savings account form, placing it beside existing paperwork.",
+      "revisedFieldValue": "Controlled still of one blank generic savings form beside existing paperwork.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B011",
+      "auditIssue": "Static paper placement does not justify generated video; make a controlled still unless physical form movement materially advances the beat.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of hands across desk surface, professional banker's hands in crisp white shirt cuffs sliding a paper form toward camera position, existing paperwork already on desk, warm wood desk surface, soft office lighting, shallow depth of field focusing on the new form being presented, hands are generic and non-identifiable, professional but anonymous banking interaction",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: a plain blank form lies beside a small stack of generic papers on a warm wood desk. The page has no words, numbers, logos, personal information, or recognizable banking layout. Anonymous shirt cuffs may enter the edge of frame without an identifiable person.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B011",
+      "auditIssue": "Static paper placement does not justify generated video; make a controlled still unless physical form movement materially advances the beat.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus transition from background paperwork to the new savings account form being slid into frame, banker's hands move deliberately placing the document, subtle secondary motion as additional form edges appear at frame margins suggesting accumulation",
+      "revisedFieldValue": "Still image only. No generated action, paper movement, or simulated document text.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B011",
+      "auditIssue": "Static paper placement does not justify generated video; make a controlled still unless physical form movement materially advances the beat.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, specific bank logos on forms, readable personal information, casual clothing, home environment, digital tablets, computer screens, outdoor setting",
+      "revisedFieldValue": "readable text, customer data, logos, authentic banking forms, identifiable person, fabricated evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B011",
+      "auditIssue": "Static paper placement does not justify generated video; make a controlled still unless physical form movement materially advances the beat.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as representative reconstruction depicting generic banking upsell interaction. Hands shown are illustrative composites, not depicting specific individuals. Forms shown are blank or illegibly rendered to avoid fabricating documentary evidence. Scene illustrates common banking practice without claiming to document specific incident.",
+      "revisedFieldValue": "Generic blank paper props only; no specific incident or authentic document is depicted.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B012",
+      "auditIssue": "Repeated paper-slide motif; consolidate with neighboring cross-sell beats and avoid text-bearing AI-generated forms.",
+      "field": "visual.description",
+      "originalFieldValue": "A credit card application slides into frame, joining the growing stack of forms.",
+      "revisedFieldValue": "Controlled still of a generic blank card-application sheet within a restrained paperwork composition.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B012",
+      "auditIssue": "Repeated paper-slide motif; consolidate with neighboring cross-sell beats and avoid text-bearing AI-generated forms.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Tabletop composition showing accumulating bank paperwork, a credit card application form sliding into frame from the right, joining existing stack of banking documents, warm office lighting from above, shallow focus on the newest document, paper textures visible, professional desk surface, documents arranged in slight overlap suggesting growing pile, no readable text or personal information visible",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: one blank generic application sheet rests beside two plain sheets on an anonymous desk. Use only abstract non-letterlike lines, no visible text, names, numbers, logos, card art, or identifiable form design. Compose as a quiet continuation of the prior paperwork image, without implying a growing measured count.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B012",
+      "auditIssue": "Repeated paper-slide motif; consolidate with neighboring cross-sell beats and avoid text-bearing AI-generated forms.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Lateral tracking shot as credit card application slides smoothly into frame from right side, settling atop existing document stack, camera continues slight rightward movement, subtle paper settling motion as documents layer together",
+      "revisedFieldValue": "Still image only. No generated paper slide, multiplication, or text animation.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B012",
+      "auditIssue": "Repeated paper-slide motif; consolidate with neighboring cross-sell beats and avoid text-bearing AI-generated forms.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable bank logos, readable personal data, human faces, full body shots, outdoor scenes, digital devices, crumpled or damaged papers, coffee stains",
+      "revisedFieldValue": "readable text, customer data, real card design, bank logos, authentic application, numeric count, fabricated evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B012",
+      "auditIssue": "Repeated paper-slide motif; consolidate with neighboring cross-sell beats and avoid text-bearing AI-generated forms.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as representative reconstruction of cross-selling document accumulation. Forms depicted are generic banking document designs without specific institutional branding. No readable personal information or account numbers shown. Scene illustrates concept of product multiplication without fabricating specific documentary evidence.",
+      "revisedFieldValue": "Illustrative generic paper props only. No authentic application or customer record.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B013",
+      "auditIssue": "Repeated paperwork stack and impact; favor one controlled montage across B011–B013, with no readable document text.",
+      "field": "visual.description",
+      "originalFieldValue": "A thick mortgage document lands heavily on the stack of forms.",
+      "revisedFieldValue": "Controlled still of a thick but unmarked paper packet resting on a desk, without an impact action.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B013",
+      "auditIssue": "Repeated paperwork stack and impact; favor one controlled montage across B011–B013, with no readable document text.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of substantial mortgage document packet landing on desk surface, thick stack of papers with binding clip, existing smaller documents visible beneath, impact moment of heavy paperwork hitting desk, warm overhead office lighting creating slight shadow beneath document stack, professional desk surface, shallow depth of field, no readable text or personal information visible",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: a thick unmarked paper packet with a plain binder clip rests on an anonymous office desk. The pages are blank or softly out of focus, with no readable words, numbers, names, logos, or recognizable lender layout. Soft overhead office light; no impact or added stack.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B013",
+      "auditIssue": "Repeated paperwork stack and impact; favor one controlled montage across B011–B013, with no readable document text.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Tilt reveal beginning on desk surface then adjusting upward as heavy mortgage document packet lands with visible weight, papers settle slightly from impact, camera completes subtle tilt movement framing the full accumulated stack",
+      "revisedFieldValue": "Still image only. No generated impact, falling packet, or paper movement.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B013",
+      "auditIssue": "Repeated paperwork stack and impact; favor one controlled montage across B011–B013, with no readable document text.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable logos, readable names or addresses, human faces, casual setting, outdoor environment, digital screens, damaged documents, illegible blur",
+      "revisedFieldValue": "readable document text, names, addresses, mortgage terms, logos, authentic forms, dramatic impact, fabricated evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B013",
+      "auditIssue": "Repeated paperwork stack and impact; favor one controlled montage across B011–B013, with no readable document text.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as representative reconstruction of mortgage document weight and presence. Document shown is generic multi-page packet without specific lender branding or readable content. Scene illustrates the culmination of product accumulation without fabricating specific documentary evidence or impersonating authentic mortgage paperwork.",
+      "revisedFieldValue": "Generic blank paper packet only; do not imply an authentic mortgage file or specific customer.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B016",
+      "auditIssue": "Cards identify Wells Fargo in a reconstruction despite safeguards; use generic unbranded cards and avoid accurate logo/color unless sourced.",
+      "field": "visual.description",
+      "originalFieldValue": "A customer's wallet opens revealing multiple Wells Fargo cards fanned out.",
+      "revisedFieldValue": "Generic wallet with plain unbranded cards in neutral colors.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B016",
+      "auditIssue": "Cards identify Wells Fargo in a reconstruction despite safeguards; use generic unbranded cards and avoid accurate logo/color unless sourced.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of open leather wallet held in hands, multiple Wells Fargo-red colored bank cards fanned out in card slots, shallow depth of field focusing on the cards, hands are generic and non-identifiable, neutral clothing visible at wrists, soft lighting suggesting indoor environment, cards show generic red coloring suggesting brand without explicit logos",
+      "revisedFieldValue": "Illustrative reconstruction: close view of an open leather wallet held in anonymous hands, containing several plain, unbranded bank cards in muted neutral colors. Cards have no logos, recognizable color scheme, names, numbers, text, or specific issuer design. Soft indoor light and stable composition.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B016",
+      "auditIssue": "Cards identify Wells Fargo in a reconstruction despite safeguards; use generic unbranded cards and avoid accurate logo/color unless sourced.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from wallet exterior to the fanned cards within, subtle movement as fingers adjust grip on wallet, cards catch light slightly as position shifts, creating sense of examining one's financial entanglement",
+      "revisedFieldValue": "A restrained rack focus from wallet edge to the plain cards. Fingers make only a small natural adjustment; no card face becomes readable.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B016",
+      "auditIssue": "Cards identify Wells Fargo in a reconstruction despite safeguards; use generic unbranded cards and avoid accurate logo/color unless sourced.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, specific card numbers, readable names, explicit Wells Fargo logos, outdoor setting, empty wallet, damaged cards, casual phone wallet",
+      "revisedFieldValue": "Wells Fargo, red branded cards, logos, readable names, account numbers, real card designs, identifiable person, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B016",
+      "auditIssue": "Cards identify Wells Fargo in a reconstruction despite safeguards; use generic unbranded cards and avoid accurate logo/color unless sourced.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as atmospheric reconstruction showing concept of multiple banking products held by single customer. Cards depicted in generic red coloring without explicit Wells Fargo branding or readable account information. Hands shown are illustrative composites not representing specific individuals. Scene illustrates customer capture concept without fabricating documentary evidence.",
+      "revisedFieldValue": "Composite prop cards only. Do not identify a real issuer or reproduce a real customer card.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B023",
+      "auditIssue": "Keep all account-form fields illegible and avoid generating customer identity data; action can be covered by a controlled still.",
+      "field": "visual.description",
+      "originalFieldValue": "Same employee's hand moves to keyboard, begins typing customer information into new account form.",
+      "revisedFieldValue": "Controlled still of anonymous hands beside a single abstract, blank account interface.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B023",
+      "auditIssue": "Keep all account-form fields illegible and avoid generating customer identity data; action can be covered by a controlled still.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of hands at computer keyboard, employee's fingers moving to begin typing, computer screen visible showing blank new account form beginning to populate with customer information, tense hand positioning suggesting reluctant action, harsh office lighting, focus pulling between hands and screen, moment of moral compromise captured in gesture",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: anonymous hands rest near a keyboard while one monitor shows a generic account-entry screen composed only of blank fields and abstract placeholder blocks. No readable text, numbers, personal data, second screen, or recognizable software interface.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B023",
+      "auditIssue": "Keep all account-form fields illegible and avoid generating customer identity data; action can be covered by a controlled still.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from hands to screen as fingers begin typing motion, customer detail fields on screen begin populating with illegible placeholder text, hands move with slight hesitation suggesting moral weight of action, subtle keystroke rhythm",
+      "revisedFieldValue": "Still image only. No typing animation, field population, cursor action, or implied transfer of customer data.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B023",
+      "auditIssue": "Keep all account-form fields illegible and avoid generating customer identity data; action can be covered by a controlled still.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable face, readable personal information, casual setting, relaxed body language, celebratory mood, multiple people, outdoor environment, mobile phone",
+      "revisedFieldValue": "readable personal information, customer data, password, real account fields, identifiable software, logos, documentary evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT2_B023",
+      "auditIssue": "Keep all account-form fields illegible and avoid generating customer identity data; action can be covered by a controlled still.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Generated as representative reconstruction of the moment of ethical compromise. No identifiable individual depicted; only hands shown. Account form on screen contains no readable personal information or specific customer data. Scene illustrates conceptual turning point without fabricating documentary evidence of specific fraudulent act.",
+      "revisedFieldValue": "Generic abstract interface only; do not fabricate a specific account, customer, or transaction.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B007",
+      "auditIssue": "Password/application screen text and cascading windows are not reliably legible; use abstracted UI and do not show a usable password.",
+      "field": "visual.description",
+      "originalFieldValue": "Multiple application windows cascade on screen; online banking enrollment with password field the banker types unseen.",
+      "revisedFieldValue": "One generic monitor with abstract, unreadable application windows and no usable password.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B007",
+      "auditIssue": "Password/application screen text and cascading windows are not reliably legible; use abstracted UI and do not show a usable password.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up on computer monitor showing multiple cascading application windows, a credit card application overlapping an online banking enrollment form with password field visible, banker's hands continuing to type at rapid pace, customer figure blurred in background looking down at phone completely unaware, screen light casting blue glow, corporate desk environment",
+      "revisedFieldValue": "Illustrative reconstruction: a single anonymous monitor displays two simple overlapping abstract windows made of blank panels and non-letterlike placeholder blocks. A password field, if suggested, contains only uniform dots with no recoverable characters. No customer figure, readable text, account numbers, logos, or recognizable software styling.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B007",
+      "auditIssue": "Password/application screen text and cascading windows are not reliably legible; use abstracted UI and do not show a usable password.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward toward screen as windows cascade open, subtle focus shift between screen elements, background figure remains soft and unaware throughout movement",
+      "revisedFieldValue": "Slow camera push toward the stable abstract windows. No cascading windows, legible text, or visible typing.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B007",
+      "auditIssue": "Password/application screen text and cascading windows are not reliably legible; use abstracted UI and do not show a usable password.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable software interfaces, real bank branding, readable passwords or account numbers, identifiable faces, authentic documents, specific credit card designs",
+      "revisedFieldValue": "usable password, readable text, customer data, authentic application, real bank branding, identifiable face, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B007",
+      "auditIssue": "Password/application screen text and cascading windows are not reliably legible; use abstracted UI and do not show a usable password.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "All application windows use generic placeholder styling; password field shows asterisks only; customer shown as defocused silhouette to prevent identification; represents systematic practice without impersonating evidence.",
+      "revisedFieldValue": "Generic abstract screen prop; no real or usable credentials and no authentic customer record.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B014",
+      "auditIssue": "Sensitive elderly-customer exploitation reconstruction; no face/identity, readable form, or implication that a particular victim is depicted.",
+      "field": "visual.description",
+      "originalFieldValue": "An elderly woman's hands sign a document; across the desk, the banker opens additional forms she cannot see.",
+      "revisedFieldValue": "Sensitive composite reconstruction limited to anonymous hands and generic blank paperwork.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B014",
+      "auditIssue": "Sensitive elderly-customer exploitation reconstruction; no face/identity, readable form, or implication that a particular victim is depicted.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of elderly woman's weathered hands signing a document with pen, reading glasses resting unused beside the paperwork, shallow depth of field revealing banker across desk opening additional forms on computer that the elderly customer cannot see, soft diffused light suggesting vulnerability, institutional desk surface",
+      "revisedFieldValue": "Sensitive illustrative reconstruction: close view of older adult hands beside a pen, plain reading glasses, and a generic blank form on an anonymous desk. No face, identifiable features, readable document content, second hidden screen, or specific victim is shown. Keep the composition respectful and observational.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B014",
+      "auditIssue": "Sensitive elderly-customer exploitation reconstruction; no face/identity, readable form, or implication that a particular victim is depicted.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from elderly hands signing in foreground to banker's hidden screen activity in background, reading glasses prominent and unused, revealing the exploitation dynamic",
+      "revisedFieldValue": "A restrained rack focus from the anonymous hands to the plain glasses and blank form. No hidden activity or unseen individual is revealed.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B014",
+      "auditIssue": "Sensitive elderly-customer exploitation reconstruction; no face/identity, readable form, or implication that a particular victim is depicted.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, readable document content, real bank forms, specific personal information, documentary footage, news imagery",
+      "revisedFieldValue": "identifiable face, readable form, customer data, specific victim, exploitative stereotype, authentic document, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B014",
+      "auditIssue": "Sensitive elderly-customer exploitation reconstruction; no face/identity, readable form, or implication that a particular victim is depicted.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Elderly figure represented by hands only to prevent identification with specific victims; documents are clearly generic props; represents documented pattern of elder targeting without impersonating specific individuals.",
+      "revisedFieldValue": "Composite illustration only. Do not imply a particular elderly customer is depicted or reproduce a real document.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B015",
+      "auditIssue": "Do not encode ethnicity or English fluency as a visual stereotype; use hands/pointing and anonymous paper interaction only.",
+      "field": "visual.description",
+      "originalFieldValue": "A customer struggles to read English paperwork; the banker points to signature lines, not content.",
+      "revisedFieldValue": "Anonymous hands and paper interaction without cues about ethnicity or English fluency.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B015",
+      "auditIssue": "Do not encode ethnicity or English fluency as a visual stereotype; use hands/pointing and anonymous paper interaction only.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Medium shot of customer leaning over paperwork with visible difficulty, brow furrowed at English text, banker's hand entering frame pointing to signature lines rather than document content, multiple pages of dense text visible, customer's posture suggesting confusion and trust, institutional lighting",
+      "revisedFieldValue": "Sensitive illustrative reconstruction: only two anonymous sets of hands and a generic blank paper form on a desk. One hand points to an unmarked line while another holds a pen. No faces, readable language, personal information, ethnicity cues, or identifiable institution.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B015",
+      "auditIssue": "Do not encode ethnicity or English fluency as a visual stereotype; use hands/pointing and anonymous paper interaction only.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward as banker's finger directs toward signature line, customer's hesitation visible in body language before signing, emphasis on pointing past content to signature",
+      "revisedFieldValue": "A slow camera push toward the pointing hand and unmarked form. Keep gestures restrained; no signing or readable text is generated.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B015",
+      "auditIssue": "Do not encode ethnicity or English fluency as a visual stereotype; use hands/pointing and anonymous paper interaction only.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces clearly visible, readable document content, specific languages identified, real bank branding, documentary footage, stereotypical representations",
+      "revisedFieldValue": "ethnicity stereotype, language-fluency stereotype, identifiable faces, readable text, customer data, authentic form, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B015",
+      "auditIssue": "Do not encode ethnicity or English fluency as a visual stereotype; use hands/pointing and anonymous paper interaction only.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Customer shown in partial profile or from angle obscuring full facial features; represents language barrier exploitation without depicting specific ethnicity or individual; documents are generic props.",
+      "revisedFieldValue": "Composite hands-only illustration. Do not encode ethnicity, literacy, or a specific person through appearance.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B020",
+      "auditIssue": "Accumulating quota emails and pulsing red indicators need graphic compilation; generated video text is unreliable.",
+      "field": "visual.description",
+      "originalFieldValue": "An employee's inbox fills with tracking emails; each message shows quota status in red.",
+      "revisedFieldValue": "Abstract, static inbox-like graphic surface without legible messages or fabricated communications.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B020",
+      "auditIssue": "Accumulating quota emails and pulsing red indicators need graphic compilation; generated video text is unreliable.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of computer monitor showing email inbox with multiple tracking messages, quota status indicators showing red warning colors, unread count accumulating, employee's hand on mouse in hesitation, screen glow on tense hand, corporate email interface, oppressive accumulation of surveillance messages",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: a generic monitor shows a quiet grid of abstract message rectangles and a few muted red accent blocks. No readable email, sender, subject, names, quota figures, count, or identifiable software interface. Keep the screen static and simple.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B020",
+      "auditIssue": "Accumulating quota emails and pulsing red indicators need graphic compilation; generated video text is unreliable.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward toward screen as emails accumulate in inbox, hand on mouse showing micro-movements of hesitation, red status indicators pulsing subtly",
+      "revisedFieldValue": "Still image only. No generated message accumulation, pulsing indicators, or text animation; any final graphic treatment remains separately authored.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B020",
+      "auditIssue": "Accumulating quota emails and pulsing red indicators need graphic compilation; generated video text is unreliable.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable email software, real company names, readable personal addresses, specific employee names, authentic corporate communications, faces",
+      "revisedFieldValue": "readable email, authentic internal communication, employee names, quota numbers, logo, identifiable software, fabricated evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B020",
+      "auditIssue": "Accumulating quota emails and pulsing red indicators need graphic compilation; generated video text is unreliable.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Email interface is stylized generic representation; all sender names and content are placeholder text; represents documented surveillance practice without replicating authentic internal communications.",
+      "revisedFieldValue": "Abstract interface prop only. Do not present fabricated internal messages or exact quota information.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B027",
+      "auditIssue": "Visible Wells Fargo badge contradicts the generic reconstruction safeguard; remove logo/badge or use authenticated evidence.",
+      "field": "visual.description",
+      "originalFieldValue": "A man leans over a bathroom sink in dim morning light, Wells Fargo badge visible on the counter.",
+      "revisedFieldValue": "Anonymous person at a bathroom sink with a completely blank, unmarked lanyard card.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B027",
+      "auditIssue": "Visible Wells Fargo badge contradicts the generic reconstruction safeguard; remove logo/badge or use authenticated evidence.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Medium shot of man leaning over bathroom sink in dim early morning light, bracing against porcelain edge, Wells Fargo employee badge visible on counter beside sink, morning light through small window, institutional bathroom tiles, physical dread before workday begins",
+      "revisedFieldValue": "Illustrative reconstruction: anonymous person seen from behind at a plain bathroom sink in dim early-morning light. A blank unmarked card on a counter may be visible, with no logo, name, text, badge design, or identifying details. Keep the human figure non-identifiable and the scene restrained.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B027",
+      "auditIssue": "Visible Wells Fargo badge contradicts the generic reconstruction safeguard; remove logo/badge or use authenticated evidence.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from man's braced posture to badge on counter, subtle movement of gripping sink edge, morning dread made physical",
+      "revisedFieldValue": "A restrained rack focus from the braced hands to the blank card. No readable badge or identifying detail appears.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B027",
+      "auditIssue": "Visible Wells Fargo badge contradicts the generic reconstruction safeguard; remove logo/badge or use authenticated evidence.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable face, graphic illness depiction, real employee badges with names, specific individual identification, documentary footage, explicit vomiting",
+      "revisedFieldValue": "Wells Fargo badge, logo, readable name, identifiable face, real employee ID, documentary footage, graphic illness",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B027",
+      "auditIssue": "Visible Wells Fargo badge contradicts the generic reconstruction safeguard; remove logo/badge or use authenticated evidence.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Man shown from behind or profile preventing facial identification; badge is generic prop with no readable name; represents documented stress symptoms without identifying specific individuals or creating graphic content.",
+      "revisedFieldValue": "Composite anonymous figure and blank prop only; do not identify an employer or individual.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B028",
+      "auditIssue": "Replace the legible hotline poster/number with unreadable invented prop text; no real internal document should be implied.",
+      "field": "visual.description",
+      "originalFieldValue": "An employee's hand reaches for a desk phone; a poster behind reads 'Ethics Hotline.'",
+      "revisedFieldValue": "Anonymous hand near a plain desk phone; background wall is blank and contains no hotline material.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B028",
+      "auditIssue": "Replace the legible hotline poster/number with unreadable invented prop text; no real internal document should be implied.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of employee's hand reaching toward desk phone handset, wall poster partially visible in background reading 'Ethics Hotline' with phone number, hand hesitating before lifting receiver, institutional office setting, moment of decision captured in gesture",
+      "revisedFieldValue": "Illustrative reconstruction: close view of an anonymous hand pausing beside a plain desk telephone in a generic office. The wall behind it is blank. No poster, label, number, company mark, readable text, or authentic internal material is present.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B028",
+      "auditIssue": "Replace the legible hotline poster/number with unreadable invented prop text; no real internal document should be implied.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly forward toward phone as hand hesitates, subtle tremor in fingers before committing to dial, tension in moment of decision",
+      "revisedFieldValue": "A slow push toward the hand and plain phone, holding before the receiver is lifted. No dialing or text appears.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B028",
+      "auditIssue": "Replace the legible hotline poster/number with unreadable invented prop text; no real internal document should be implied.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, real hotline numbers, specific company branding beyond referenced poster, documentary footage, authentic internal posters",
+      "revisedFieldValue": "hotline number, poster text, ethics label, company branding, authentic internal poster, identifiable person, documentary evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3_B028",
+      "auditIssue": "Replace the legible hotline poster/number with unreadable invented prop text; no real internal document should be implied.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Hand shown without identifying features; poster is stylized representation of ethics hotline concept; phone number is clearly placeholder; represents act of reporting without replicating authentic company materials.",
+      "revisedFieldValue": "Generic phone and blank wall only. Do not imply or reproduce any real hotline material.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "auditIssue": "The car-lot-to-home dissolve, multiple locations and moving objects exceed a single reliable five-second generated clip; split or use still/graphic treatment.",
+      "field": "visual.description",
+      "originalFieldValue": "Figure walks through car lot toward exit; dissolve to for-sale sign on lawn at dusk, single box on porch.",
+      "revisedFieldValue": "One static composite view of an anonymous moving box at a generic home threshold; no location transition.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "auditIssue": "The car-lot-to-home dissolve, multiple locations and moving objects exceed a single reliable five-second generated clip; split or use still/graphic treatment.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Wide shot of anonymous silhouette figure walking away through car dealership lot at dusk, rows of vehicles on either side, dissolving to suburban house exterior at twilight with for-sale sign on lawn, single moving box on front porch, windows dark, golden hour fading to blue hour, photorealistic documentary style, melancholic atmosphere",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: a single plain moving box sits on the porch of a generic suburban home at dusk. No person, car lot, for-sale text, visible address, readable sign, or location marker. One stable composition, quiet natural light.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "auditIssue": "The car-lot-to-home dissolve, multiple locations and moving objects exceed a single reliable five-second generated clip; split or use still/graphic treatment.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Lateral tracking shot following silhouette through car lot toward exit, dissolve transition to house exterior, subtle camera drift past for-sale sign, windows go dark in sequence suggesting abandonment",
+      "revisedFieldValue": "Still image only. No dissolve, second location, walking figure, or moving windows.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "auditIssue": "The car-lot-to-home dissolve, multiple locations and moving objects exceed a single reliable five-second generated clip; split or use still/graphic treatment.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable person, recognizable face, specific dealership branding, readable license plates, specific address visible, bright daylight, cheerful mood, fantasy elements, stylized dramatic effects",
+      "revisedFieldValue": "two-scene composition, dealership, identifiable person, readable address, for-sale text, specific home, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "auditIssue": "The car-lot-to-home dissolve, multiple locations and moving objects exceed a single reliable five-second generated clip; split or use still/graphic treatment.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Figure shown only as distant silhouette without identifying features, generic car lot and house exterior without specific location markers, represents atmospheric composite of financial consequences rather than specific individual story",
+      "revisedFieldValue": "Generic composite setting only. Do not imply a specific employee or actual home.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "auditIssue": "Two-scene phone-to-elevator sequence is too complex for one clip and risks face/continuity artifacts; split into separate shots or use stills.",
+      "field": "visual.description",
+      "originalFieldValue": "Employee at ethics hotline phone, hanging up; cut to same employee walking out with box, doors closing behind.",
+      "revisedFieldValue": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "auditIssue": "Two-scene phone-to-elevator sequence is too complex for one clip and risks face/continuity artifacts; split into separate shots or use stills.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Two-part composition: anonymous employee silhouette at office phone hanging up receiver in cubicle setting, transitioning to same silhouette figure walking toward elevator carrying cardboard box, elevator doors beginning to close, fluorescent office lighting transitioning to stark elevator lobby light, photorealistic documentary style, profound isolation in framing",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: one anonymous office composition places a plain telephone in the foreground and a closed, unmarked cardboard box farther back near a generic corridor. No person, face, logos, readable hotline material, elevator-door action, or scene transition.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "auditIssue": "Two-scene phone-to-elevator sequence is too complex for one clip and risks face/continuity artifacts; split into separate shots or use stills.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow dolly back from phone being hung up, cut to employee walking toward elevator with box, camera holds as elevator doors close on the figure's face, final frame of closed metal doors emphasizes silencing and exclusion",
+      "revisedFieldValue": "Still image only. No cut, phone action, walking sequence, elevator motion, or face.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "auditIssue": "Two-scene phone-to-elevator sequence is too complex for one clip and risks face/continuity artifacts; split into separate shots or use stills.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable face, recognizable person, Wells Fargo branding, specific bank logo, readable ethics hotline number, personal information, bright cheerful colors, fantasy elements, supportive colleagues, open doors",
+      "revisedFieldValue": "two-scene layout, identifiable face, company branding, readable number, authentic poster, specific employee, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "auditIssue": "Two-scene phone-to-elevator sequence is too complex for one clip and risks face/continuity artifacts; split into separate shots or use stills.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Figure shown only as silhouette without identifying features throughout, generic corporate phone and elevator without specific institution branding, represents composite experience of whistleblower retaliation rather than specific individual",
+      "revisedFieldValue": "Composite still only; do not imply a specific whistleblower or document a real event.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B012",
+      "auditIssue": "Settlement signing can imply a specific agreement; keep document terms illegible and label as generic reconstruction.",
+      "field": "visual.description",
+      "originalFieldValue": "A hand signs a settlement document, pushes it across a table.",
+      "revisedFieldValue": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B012",
+      "auditIssue": "Settlement signing can imply a specific agreement; keep document terms illegible and label as generic reconstruction.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Close-up of non-identifiable hand with pen signing bottom of settlement document on wooden conference table, document sliding across polished surface toward unseen recipient, formal legal paperwork aesthetic, shallow depth of field, documentary cinematography style",
+      "revisedFieldValue": "Illustrative reconstruction: anonymous hand with a pen rests beside a plain, unmarked sheet on a conference table. The page contains no title, terms, signatures, names, figures, logos, or recognizable legal layout. Shallow focus and restrained neutral light.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B012",
+      "auditIssue": "Settlement signing can imply a specific agreement; keep document terms illegible and label as generic reconstruction.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Rack focus from signing hand to document sliding across table surface, subtle paper movement as document is pushed forward",
+      "revisedFieldValue": "A small controlled camera move from the pen to the blank page. Do not animate signing or sliding a document.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B012",
+      "auditIssue": "Settlement signing can imply a specific agreement; keep document terms illegible and label as generic reconstruction.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, readable personal names, specific dollar amounts, corporate logos, Wells Fargo branding, cheerful setting, casual environment",
+      "revisedFieldValue": "settlement terms, readable legal text, dollar amounts, names, real signatures, logos, authentic agreement, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B012",
+      "auditIssue": "Settlement signing can imply a specific agreement; keep document terms illegible and label as generic reconstruction.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Hands only shown without identifying features. Document text deliberately illegible to avoid fabricating specific settlement terms. Representative of settlement process, not depicting any specific case.",
+      "revisedFieldValue": "Generic blank prop only. Do not suggest or reproduce a particular settlement agreement or case.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B013",
+      "auditIssue": "Motion is mainly foliage/haze while the figure is static; prefer controlled still unless the departure has clear story value.",
+      "field": "visual.description",
+      "originalFieldValue": "A person walks away from a bank building for the last time, silhouette against afternoon light.",
+      "revisedFieldValue": "Controlled still of an anonymous departure silhouette outside an unbranded building.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B013",
+      "auditIssue": "Motion is mainly foliage/haze while the figure is static; prefer controlled still unless the departure has clear story value.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Silhouetted figure walking away from generic bank building entrance toward camera, afternoon backlight creating strong silhouette, corporate architecture in soft focus background, trees with gentle movement in breeze, final departure composition, documentary cinematography style, wide shot",
+      "revisedFieldValue": "Controlled still, illustrative reconstruction: a distant non-identifiable silhouette stands beyond the entrance of a generic unbranded building in afternoon backlight. Keep the figure still and the composition quiet; no specific bank architecture, signage, or identifiable person.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B013",
+      "auditIssue": "Motion is mainly foliage/haze while the figure is static; prefer controlled still unless the departure has clear story value.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Subtle environmental motion in trees and foliage from gentle breeze, figure remains static in silhouette, slight atmospheric haze movement in backlit scene",
+      "revisedFieldValue": "Still image only. No generated walking, foliage motion, haze, or simulated departure.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B013",
+      "auditIssue": "Motion is mainly foliage/haze while the figure is static; prefer controlled still unless the departure has clear story value.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable face, recognizable features, Wells Fargo branding, specific bank logos, cheerful mood, returning to building, multiple people, night scene",
+      "revisedFieldValue": "Wells Fargo, recognizable bank, identifiable face, readable signage, specific person, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B013",
+      "auditIssue": "Motion is mainly foliage/haze while the figure is static; prefer controlled still unless the departure has clear story value.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Figure in full silhouette against backlight to prevent any identification. Generic bank architecture without identifiable branding. Atmospheric representation of departure from banking industry, not depicting any specific individual.",
+      "revisedFieldValue": "Composite anonymous still; it does not depict a verified individual or institution.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B017",
+      "auditIssue": "Repeated termination-box motif appears earlier; differentiate composition/action or use a controlled still to avoid another indistinguishable firing image.",
+      "field": "visual.description",
+      "originalFieldValue": "An employee's personal items are placed in a box; a manager watches from across the floor.",
+      "revisedFieldValue": "Distinct restrained composition of an anonymous desk after belongings have been removed, without repeating a packing action.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B017",
+      "auditIssue": "Repeated termination-box motif appears earlier; differentiate composition/action or use a controlled still to avoid another indistinguishable firing image.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Non-identifiable employee placing personal items into cardboard box on generic office desk, framed photo face-down, small plant, coffee mug, manager figure blurred in deep background observing from across open floor plan, corporate office fluorescent lighting, documentary cinematography style, medium shot",
+      "revisedFieldValue": "Illustrative reconstruction: a quiet generic office desk after personal objects have been removed, with one closed plain cardboard box in the foreground and an empty chair beyond. No people, readable material, logos, or identifiable office. Use a composed aftermath image distinct from a person packing belongings.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B017",
+      "auditIssue": "Repeated termination-box motif appears earlier; differentiate composition/action or use a controlled still to avoid another indistinguishable firing image.",
+      "field": "animationPrompt",
+      "originalFieldValue": "Slow lateral track across scene revealing manager observing from distance, subtle movement as items are placed in box, fluorescent light flicker",
+      "revisedFieldValue": "A slow restrained camera move across the empty desk toward the closed box. No person enters and no objects are packed.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B017",
+      "auditIssue": "Repeated termination-box motif appears earlier; differentiate composition/action or use a controlled still to avoid another indistinguishable firing image.",
+      "field": "negativePrompt",
+      "originalFieldValue": "identifiable faces, recognizable features, Wells Fargo branding, specific corporate logos, cheerful mood, colleagues helping, bright natural light",
+      "revisedFieldValue": "packing action, manager watching, identifiable people, readable papers, company branding, specific office, documentary footage",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT5_B017",
+      "auditIssue": "Repeated termination-box motif appears earlier; differentiate composition/action or use a controlled still to avoid another indistinguishable firing image.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": "Both figures shown without identifiable facial features through angle and focus. Generic office environment without corporate branding. Representative of termination process, not depicting any specific individual or location.",
+      "revisedFieldValue": "Composite generic office scene; do not depict a specific termination or individual.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "auditIssue": "“Real number is almost certainly higher” is an editorial inference; the image must not visually present unsupported exactness. Qualify the claim or foreground official-vs-estimated distinction.",
+      "field": "visual.description",
+      "originalFieldValue": "The number fragments at edges—editorial suggestion of incompleteness.",
+      "revisedFieldValue": "Abstract incomplete-data motif with no visible numerals or implied exact total.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "auditIssue": "“Real number is almost certainly higher” is an editorial inference; the image must not visually present unsupported exactness. Qualify the claim or foreground official-vs-estimated distinction.",
+      "field": "imagePrompt",
+      "originalFieldValue": "Editorial typographic composition showing the 2.6 MILLION figure with edges fragmenting and dissolving into darkness, suggesting incompleteness and uncertainty, deep black background, white typography breaking apart at margins, particles dispersing, abstract data visualization aesthetic, minimal and stark presentation",
+      "revisedFieldValue": "Editorial illustration: an abstract field of incomplete, fragmented shapes fading into a dark background, suggesting uncertainty in a count without displaying any number, word, chart scale, or documentary artifact. Minimal white and charcoal geometry with no labels.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "auditIssue": "“Real number is almost certainly higher” is an editorial inference; the image must not visually present unsupported exactness. Qualify the claim or foreground official-vs-estimated distinction.",
+      "field": "animationPrompt",
+      "originalFieldValue": "",
+      "revisedFieldValue": "Still editorial illustration; no generated text or numeric reveal.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "auditIssue": "“Real number is almost certainly higher” is an editorial inference; the image must not visually present unsupported exactness. Qualify the claim or foreground official-vs-estimated distinction.",
+      "field": "negativePrompt",
+      "originalFieldValue": "fabricated document, specific data claims, personal information, bank branding, Wells Fargo logo, bright colors, cheerful design, photorealistic elements, complete solid typography",
+      "revisedFieldValue": "2.6 million, numerals, exact count, unsupported estimate, readable label, bank branding, fabricated document, photorealistic evidence",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "auditIssue": "“Real number is almost certainly higher” is an editorial inference; the image must not visually present unsupported exactness. Qualify the claim or foreground official-vs-estimated distinction.",
+      "field": "reconstructionSafeguards",
+      "originalFieldValue": null,
+      "revisedFieldValue": "Abstract editorial illustration only. Do not visually assert an exact or inferred total.",
+      "reason": "Correct only the audited shot prompt to remove unsupported specificity, unreliable text, branding, identity risk, or non-essential generated motion.",
+      "noLockedEditorialFieldChanged": true
+    }
+  ]
+}

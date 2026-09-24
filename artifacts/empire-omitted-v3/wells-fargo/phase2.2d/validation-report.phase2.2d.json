@@ -1,0 +1,94 @@
+{
+  "validationVersion": "1.0.0",
+  "candidateSha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+  "sourceCandidateSha256": "bd79591ad465ddb927d62d106256b2c37687c6802d1f1c808fe16ce56b1df477",
+  "sourceAuditSha256": "e672fcab9dcf876455bc054fc45e2cd5eb59d843ccec59901e51c6a07a04bbb9",
+  "productionManifestSha256": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+  "checks": {
+    "shotCount154": true,
+    "sequenceCount42": true,
+    "uniqueShotIds154": true,
+    "zeroChangedTimings": true,
+    "zeroChangedNarration": true,
+    "zeroChangedVisualClasses": true,
+    "zeroChangedStoryFunctions": true,
+    "zeroMissingGraphicObjects": true,
+    "zeroSyntheticEvidenceRoutes": true,
+    "zeroGraphicSyntheticRoutes": true,
+    "exactly23AnimationCalls": true,
+    "exactly67BaseImageCalls": true,
+    "zeroReviseStatuses": true,
+    "remainingBlockersAllowed": true,
+    "only24TargetedShotsRevised": true,
+    "lockedEditorialFieldsUnchanged": true,
+    "methodManifestPass": true
+  },
+  "observed": {
+    "totalShots": 154,
+    "sequenceCount": 42,
+    "uniqueShotIds": 154,
+    "timingChanges": 0,
+    "changedNarration": 0,
+    "changedClass": 0,
+    "changedStoryFunction": 0,
+    "missingOrChangedGraphicArrays": 0,
+    "lockedObjectChanges": 0,
+    "revisionShotIds": [
+      "ACT1_B015",
+      "ACT1_B018",
+      "ACT1_B021",
+      "ACT1_B022",
+      "ACT2_B002",
+      "ACT2_B003",
+      "ACT2_B009",
+      "ACT2_B011",
+      "ACT2_B012",
+      "ACT2_B013",
+      "ACT2_B016",
+      "ACT2_B023",
+      "ACT3_B007",
+      "ACT3_B014",
+      "ACT3_B015",
+      "ACT3_B020",
+      "ACT3_B027",
+      "ACT3_B028",
+      "ACT3B_B007",
+      "ACT3B_B018",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017",
+      "ACT3B_B010"
+    ],
+    "methodCounts": {
+      "ESSENTIAL_ANIMATION": 23,
+      "CONTROLLED_STILL": 34,
+      "GENERATED_STILL": 10,
+      "EVIDENCE_REFERENCE": 46,
+      "GRAPHIC_COMPILATION": 41
+    },
+    "graphicSummary": {
+      "primaryGraphicAssetShots": 41,
+      "overlayGraphicShots": 28,
+      "graphicBearingBeats": 69,
+      "graphicObjectCount": 73,
+      "multiObjectBeatCount": 4
+    },
+    "statusCounts": {
+      "BLOCKED": 87,
+      "APPROVED": 67,
+      "REVISE": 0
+    },
+    "methodValidation": {
+      "status": "PASS",
+      "errors": []
+    }
+  },
+  "artifactHashes": {
+    "shot-definitions.phase2.2d.json": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+    "production-manifest.phase2.2d.json": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+    "revision-ledger.phase2.2d.json": "ee483ff82b0f10e42279b0b6b9e4d6b3d4621872e7f605b485085c7456ecdc47"
+  },
+  "hashIndexFile": "phase2.2d-artifact-hashes.json",
+  "selfHashNote": "The validation report hash is recorded in the separate hash index to avoid recursive self-hashing.",
+  "overallStatus": "PASS"
+}

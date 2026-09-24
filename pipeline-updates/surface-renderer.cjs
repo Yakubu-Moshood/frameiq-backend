@@ -28,6 +28,7 @@ const readline      = require('readline');
 const { execSync }  = require('child_process');
 const { runWhisper } = require('./vo-timing.cjs');
 const { loadValidatedV3Plan, validateShotDefinitions } = require('./shot-definitions-validator.cjs');
+const { loadProductionMethodManifest, assertManifestReadyForRender, resolveProductionAssetLocation } = require('./production-method-manifest.cjs');
 // ─── Constants ────────────────────────────────────────────────────────────────
 const W   = 1920;
 const H   = 1080;
@@ -582,8 +583,9 @@ function resolveTimestamps({ shotDefs, wordTimestamps, maxShotDurationSec = null
 // V3 timings are episode-absolute in the approved edit plan. The renderer
 // assembles VO one act at a time, so convert to act-local coordinates here
 // without searching trigger words or changing the locked beat boundaries.
-function resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec = null }) {
+function resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec = null, productionManifest = null }) {
   const acts = new Map(editPlan.timing.acts.map(act => [act.actKey, act]));
+  const productionMethods = new Map((productionManifest?.shots || []).map(entry => [entry.shotId, entry.productionMethod]));
   const resolved = [];
   for (const shot of shotDefs.allShots) {
     const act = acts.get(shot.actKey);
@@ -600,6 +602,7 @@ function resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec = nu
     const effectiveType = (shot.visualType === 'STILL_ZOOM' && motionDurSec > 10) ? 'STILL' : shot.visualType;
     resolved.push({
       ...shot,
+      ...(productionManifest ? { productionMethod: productionMethods.get(shot.shotId) } : {}),
       voKey: act.voKey,
       startSec,
       endSec,
@@ -746,6 +749,16 @@ function resolveAssetPath(shot, assetsDir) {
   const stillsDir = path.join(assetsDir, 'stills');
   const clipsDir  = path.join(assetsDir, 'clips');
   const shotLabel = shot.shotId || '(unknown shot)';
+  if (shot.productionMethod) {
+    const location = resolveProductionAssetLocation(shot.productionMethod);
+    if (!location || !SAFE_SHOT_ID_RE.test(shot.shotId || '')) return null;
+    const methodDir = path.join(assetsDir, location.directory);
+    for (const extension of location.extensions) {
+      const candidate = path.join(methodDir, `${shot.shotId}${extension}`);
+      if (fs.existsSync(candidate)) return candidate;
+    }
+    return null;
+  }
   if (shot.asset) {
     if (typeof shot.asset !== 'string' || !SAFE_ASSET_FILENAME_RE.test(shot.asset)) {
       log(`  ⚠️  ${shotLabel}: shot.asset "${shot.asset}" rejected — not a plain safe filename (no path separators, traversal, or absolute paths allowed)`);
@@ -911,6 +924,7 @@ async function renderEpisode({
   brand = null,
   maxShotDurationSec = null,
   approvalCallback = null,
+  productionManifestPath = null,
 }) {
   const audioDir     = path.join(episodeDir, 'assets', 'audio');
   const assetsDir    = path.join(episodeDir, 'assets');
@@ -938,10 +952,13 @@ async function renderEpisode({
   let resolved;
   if (shotDefs.mode === 'empire-omitted-v3') {
     if (channel !== 'EmpireOmitted') throw new Error('[renderer] V3 shot definitions are restricted to Empire Omitted.');
+    const manifestPath = productionManifestPath || path.join(episodeDir, 'production-manifest.json');
+    const productionManifest = loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs });
+    assertManifestReadyForRender(productionManifest);
     const { editPlan } = loadValidatedV3Plan({ episodeDir, episodeId });
     const report = validateShotDefinitions({ plan: editPlan, shotDefs });
     if (report.status !== 'PASS') throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
-    resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec });
+    resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec, productionManifest });
   } else {
   // Step 1 — Whisper
   log('');
@@ -1053,4 +1070,4 @@ if (require.main === module) {
       process.exit(1);
     });
 }
-module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps };
+module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath };

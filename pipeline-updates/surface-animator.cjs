@@ -9,6 +9,7 @@ const http  = require('http');
 const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { createRouter } = require('./providers/provider-router.cjs');
 const svd = require('./providers/video/svd.cjs');
+const { loadProductionMethodManifest, essentialAnimationShotIds, selectShotsByIds } = require('./production-method-manifest.cjs');
 
 const KLING_MODEL   = 'fal-ai/kling-video/v1.6/standard/image-to-video';
 const CLIP_DURATION = '5';
@@ -84,7 +85,15 @@ function estimateVideoCost(provider) {
   return null;
 }
 
-async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
+async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefsPath = null, productionManifestPath = null, routerFactory = createRouter, channelConfigLoader = getChannelConfigByLabel, sleepFn = sleep }) {
+  let productionManifest = null;
+  if (shotDefs?.mode === 'empire-omitted-v3') {
+    shotDefsPath = shotDefsPath || path.join(episodeDir, 'shot-definitions.json');
+    productionManifestPath = productionManifestPath || path.join(episodeDir, 'production-manifest.json');
+    productionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath, shotDefsPath, shotDefs });
+  } else if (productionManifestPath || shotDefsPath) {
+    throw new Error('[animator] Production manifests are only accepted for V3 shot definitions.');
+  }
   let animationStyle = 'minimal';
   let imageMotion    = 'subtle-ken-burns';
   let videoPrimary   = 'kling';
@@ -93,7 +102,7 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
 
   if (channel) {
     try {
-      const dna = await getChannelConfigByLabel(channel);
+      const dna = await channelConfigLoader(channel);
       animationStyle = dna.animation_style || 'minimal';
       imageMotion    = dna.image_motion    || 'subtle-ken-burns';
       videoPrimary   = dna.video_primary   || 'kling';
@@ -106,11 +115,17 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
   }
 
   if (animationStyle === 'none' || imageMotion === 'still') {
+    if (productionManifest && essentialAnimationShotIds(productionManifest).length) {
+      throw new Error('[animator] V3 production manifest requires essential animation but Channel DNA disables animation.');
+    }
     log('[animator] Channel DNA says no animation — skipping animator entirely');
     return { completed: 0, skipped: 0, failed: 0 };
   }
 
   if (animationStyle === 'motion-graphics-only') {
+    if (productionManifest && essentialAnimationShotIds(productionManifest).length) {
+      throw new Error('[animator] V3 production manifest requires essential animation but Channel DNA is motion-graphics-only.');
+    }
     log('[animator] Channel DNA says motion-graphics-only — skipping fal.ai Kling cinematic clip animation.');
     log('[animator] NOTE: this does NOT produce animated charts / counting numbers.');
     log('[animator] No module in this pipeline currently renders that — it needs new build work,');
@@ -124,8 +139,9 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
 
   const defaultPrompt = ANIMATION_DEFAULTS[animationStyle] || ANIMATION_DEFAULTS['minimal'];
 
-  const clipShots = (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP'
-    && (shotDefs.mode !== 'empire-omitted-v3' || s.assetType === 'generated_clip'));
+  const clipShots = productionManifest
+    ? selectShotsByIds(shotDefs, essentialAnimationShotIds(productionManifest))
+    : (shotDefs.allShots || []).filter(s => s.visualType === 'CLIP');
 
   if (clipShots.length === 0) {
     log('[animator] No CLIP shots found — nothing to animate');
@@ -149,7 +165,7 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
     svd,
   };
   const priorityList = [videoPrimary, videoSecondary, videoTertiary].filter(Boolean);
-  const videoRouter = createRouter({ step: 'video', providers, estimateCost: estimateVideoCost });
+  const videoRouter = routerFactory({ step: 'video', providers, estimateCost: estimateVideoCost });
 
   log('');
   log('[animator] ════════════════════════════════════════');
@@ -186,11 +202,11 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId }) {
       });
       completed++;
       log('    OK: ' + path.basename(clipFile) + ' (' + completed + '/' + clipShots.length + ', via ' + result.provider + ')');
-      if (i < clipShots.length - 1) await sleep(SLEEP_BETWEEN);
+      if (i < clipShots.length - 1) await sleepFn(SLEEP_BETWEEN);
     } catch (err) {
       failed++;
       log('    FAILED [' + shot.shotId + ']: ' + err.message);
-      await sleep(SLEEP_FAIL);
+      await sleepFn(SLEEP_FAIL);
     }
   }
 
@@ -217,7 +233,7 @@ if (require.main === module) {
     process.exit(1);
   }
   const shotDefs = JSON.parse(fs2.readFileSync(shotDefsPath, 'utf8'));
-  animateClips({ shotDefs, episodeDir, channel })
+  animateClips({ shotDefs, episodeDir, channel, shotDefsPath, productionManifestPath: path.join(episodeDir, 'production-manifest.json') })
     .catch(err => { console.error('[animator] FATAL:', err.message); process.exit(1); });
 }
 

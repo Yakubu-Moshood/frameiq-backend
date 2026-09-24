@@ -409,7 +409,29 @@ test('stable beat IDs resolve to still, clip, and renderer asset paths without p
     const imageResult = await generateImages({ promptsFile, outputDir: stillsDir });
     assert.equal(imageResult.skipped, 1);
     const { animateClips } = require('../pipeline-updates/surface-animator.cjs');
-    const animationResult = await animateClips({ shotDefs, episodeDir });
+    const productionShotDefs = structuredClone(shotDefs);
+    productionShotDefs.allShots = [{ ...shot, visualClass: 'RECONSTRUCTION', assetType: 'generated_clip' }];
+    productionShotDefs.totalShots = 1;
+    productionShotDefs.sourceEditPlanSha256 = 'a'.repeat(64);
+    const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
+    const productionManifestPath = path.join(episodeDir, 'production-manifest.json');
+    const shotDefsBytes = Buffer.from(JSON.stringify(productionShotDefs));
+    fs.writeFileSync(shotDefsPath, shotDefsBytes);
+    const manifestEntry = {
+      shotId: shot.shotId, actKey: shot.actKey, sequenceId: shot.sequenceId,
+      visualClass: 'RECONSTRUCTION', assetType: 'generated_clip', productionMethod: 'ESSENTIAL_ANIMATION',
+      status: 'APPROVED', blockerCodes: [], sourceStatus: 'NOT_REQUIRED', graphicStatus: 'NOT_REQUIRED', primaryGraphicAsset: false, overlayGraphicRequirement: false,
+      graphicObjectCount: 0, graphicObjects: [], sourceRequirement: null,
+    };
+    fs.writeFileSync(productionManifestPath, JSON.stringify({
+      manifestVersion: '1.0.0', mode: 'empire-omitted-v3', episodeId: productionShotDefs.episodeId,
+      candidateSha256: require('node:crypto').createHash('sha256').update(shotDefsBytes).digest('hex'),
+      sourceEditPlanSha256: productionShotDefs.sourceEditPlanSha256, totalShots: 1, sequenceCount: 1,
+      methodCounts: { ESSENTIAL_ANIMATION: 1, CONTROLLED_STILL: 0, GENERATED_STILL: 0, EVIDENCE_REFERENCE: 0, GRAPHIC_COMPILATION: 0 },
+      graphicSummary: { primaryGraphicAssetShots: 0, overlayGraphicShots: 0, graphicBearingBeats: 0, graphicObjectCount: 0, multiObjectBeatCount: 0 },
+      baseImageCount: 1, animationCallCount: 1, shots: [manifestEntry],
+    }));
+    const animationResult = await animateClips({ shotDefs: productionShotDefs, episodeDir, shotDefsPath, productionManifestPath, routerFactory: () => ({ run: async () => { throw new Error('existing clip should skip'); } }) });
     assert.equal(animationResult.skipped, 1);
     const rendererResolved = resolveEditPlanTimestamps({ shotDefs, editPlan: data.editPlan });
     assert.equal(rendererResolved[0].shotId, shot.beatId);

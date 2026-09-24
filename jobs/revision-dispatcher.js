@@ -213,14 +213,19 @@ async function applyImageRevision({ episodeDir, episode, revision, actKey }) {
   }
   fs.writeFileSync(shotDefsPath, JSON.stringify(shotDefs, null, 2), 'utf8');
 
-  const prompts = shots.map(s => ({ shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt }));
+  const isV3 = shotDefs.mode === 'empire-omitted-v3';
+  const prompts = shots.map(s => ({
+    shotId: s.shotId, filename: `${s.shotId}.png`, prompt: s.imagePrompt,
+    ...(isV3 ? { assetType: s.assetType, negativePrompt: s.negativePrompt || '', requiresGraphicCompilation: s.requiresGraphicCompilation === true } : {}),
+  }));
   const promptsPath = path.join(stillsDir, `revision-prompts-${revision.id}.json`);
   fs.writeFileSync(promptsPath, JSON.stringify(prompts, null, 2), 'utf8');
 
   const { generateImages } = require(path.join(PIPELINE_DIR, 'surface-image-generator.cjs'));
   await generateImages({
     promptsFile: promptsPath, outputDir: stillsDir,
-    channel: episode.channel, episodeId: episode.id,
+    channel: episode.channel, episodeId: episode.id, mode: isV3 ? 'v3' : 'legacy',
+    ...(isV3 ? { shotDefsPath, productionManifestPath: path.join(episodeDir, 'production-manifest.json') } : {}),
   });
 
   return `Regenerated ${touched.length} image(s) for Act ${revision.act}: ${touched.join(', ')}`;
