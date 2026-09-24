@@ -9,6 +9,7 @@ const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { createRouter } = require('./providers/provider-router.cjs');
 const sdxl = require('./providers/image/sdxl.cjs');
 const { loadProductionMethodManifest, validateImagePromptBatch } = require('./production-method-manifest.cjs');
+const { assertV3EvidenceReady, assertV3GraphicsReady } = require('./v3-asset-readiness.cjs');
 
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 const SIZE       = '1536x1024';
@@ -155,6 +156,12 @@ async function generateImages({ promptsFile, outputDir, channel, episodeId, mode
   if (evidence.length) throw new Error(`[image-gen] Refusing synthetic generation for ${evidence.length} EVIDENCE source reference(s).`);
   const graphics = prompts.filter(item => item?.assetType === 'graphic_compilation' || item?.requiresGraphicCompilation === true);
   if (graphics.length) throw new Error(`[image-gen] Refusing image generation for ${graphics.length} plan-native graphic treatment(s); graphic compilation is required.`);
+  if (v3Manifest) {
+    const shotDefs = JSON.parse(fs2.readFileSync(shotDefsPath, 'utf8'));
+    const episodeDir = path.dirname(shotDefsPath);
+    assertV3EvidenceReady({ episodeDir, shotDefsPath, shotDefs });
+    assertV3GraphicsReady({ episodeDir, shotDefsPath, shotDefs });
+  }
   fs2.mkdirSync(outputDir, { recursive: true });
 
   let imagePrimary   = 'openai_images';

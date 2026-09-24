@@ -1,0 +1,262 @@
+{
+  "manifestVersion": "1.0.0",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "sourceShotDefinitionsSha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+  "sourceProductionManifestSha256": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+  "purpose": "One representative locally compiled fixture preview for every unique locked type. These are not episode-level compiled assets.",
+  "compiler": "pipeline-updates/graphic-compiler.cjs",
+  "brandConfig": {
+    "name": "Empire Omitted",
+    "provenance": "Palette is derived from the approved visual identity description: charcoal/black foundation, gold accent, restrained red, and high-contrast typography.",
+    "width": 1920,
+    "height": 1080,
+    "fontFamily": "Arial, sans-serif",
+    "palette": {
+      "background": "#171615",
+      "foreground": "#f4f0e6",
+      "accent": "#c8a24a",
+      "muted": "#99938b",
+      "danger": "#9e3d35"
+    }
+  },
+  "supportedTypes": [
+    "chapter_marker",
+    "data_graphic",
+    "date_marker",
+    "direct_quote",
+    "document_callout",
+    "identity_lower_third",
+    "impact_card",
+    "source_citation",
+    "takeaway"
+  ],
+  "unsupportedTypes": [],
+  "previewCount": 9,
+  "previews": [
+    {
+      "type": "chapter_marker",
+      "exampleShotId": "ACT1_B007",
+      "graphicIndex": 0,
+      "previewFilename": "ACT1_B007__g00.svg",
+      "previewPath": "previews/ACT1_B007__g00.svg",
+      "sha256": "8ad518c559a2471578cde7662efa08ef4332e620c7489176db2cd3928004e988",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 3.5,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "PRIMARY",
+      "sourceGraphic": {
+        "type": "chapter_marker",
+        "intent": "Series tagline.",
+        "text": "THE STORY THEY DIDN'T WANT TOLD"
+      },
+      "renderInstructions": {
+        "animation": "chapter-title-reveal",
+        "deterministic": true,
+        "durationSec": 3.5,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "data_graphic",
+      "exampleShotId": "ACT1_B019",
+      "graphicIndex": 0,
+      "previewFilename": "ACT1_B019__g00.svg",
+      "previewPath": "previews/ACT1_B019__g00.svg",
+      "sha256": "4b4304ef9422a2a7ae90718448ccf13cc59c825571eccbcd3fc7a360a0a36522",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 4.279998779296875,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "PRIMARY",
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Visualize geographic spread.",
+        "text": "EMPLOYEE REPORTS NATIONWIDE"
+      },
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.279998779296875,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "date_marker",
+      "exampleShotId": "ACT1_B003",
+      "graphicIndex": 0,
+      "previewFilename": "ACT1_B003__g00.svg",
+      "previewPath": "previews/ACT1_B003__g00.svg",
+      "sha256": "62cfdde431216cd1b0f207cf3ef1017f2c5d8656d7dc7505cdb02f8784b71307",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 5.240000247955322,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "OVERLAY",
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Mark the timeline endpoint.",
+        "text": "2020"
+      },
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 5.240000247955322,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "direct_quote",
+      "exampleShotId": "ACT2_B019",
+      "graphicIndex": 0,
+      "previewFilename": "ACT2_B019__g00.svg",
+      "previewPath": "previews/ACT2_B019__g00.svg",
+      "sha256": "764356a3d0db26d8b5786d31f16d84a623e037577c334775333637632f26f590",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 3.9199981689453125,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "OVERLAY",
+      "sourceGraphic": {
+        "type": "direct_quote",
+        "intent": "Land the slogan as doctrine.",
+        "text": "\"EIGHT IS GREAT\""
+      },
+      "renderInstructions": {
+        "animation": "quote-reveal",
+        "deterministic": true,
+        "durationSec": 3.9199981689453125,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "document_callout",
+      "exampleShotId": "ACT1_B029",
+      "graphicIndex": 0,
+      "previewFilename": "ACT1_B029__g00.svg",
+      "previewPath": "previews/ACT1_B029__g00.svg",
+      "sha256": "31d97326b39ee4036bce5f8a0139e41e748de818de6d381d9ed40e3ab82bbb4c",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 4.480003356933594,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "OVERLAY",
+      "sourceGraphic": {
+        "type": "document_callout",
+        "intent": "Specify the charge.",
+        "text": "PLEADED GUILTY — OBSTRUCTING BANK EXAMINATION"
+      },
+      "renderInstructions": {
+        "animation": "document-highlight-reveal",
+        "deterministic": true,
+        "durationSec": 4.480003356933594,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "identity_lower_third",
+      "exampleShotId": "ACT2_B017",
+      "graphicIndex": 0,
+      "previewFilename": "ACT2_B017__g00.svg",
+      "previewPath": "previews/ACT2_B017__g00.svg",
+      "sha256": "26d95bf0957dcf60f61b8a4e16d39f313ffcef1712f31d5ac578efd4c67b4757",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 4.700004577636719,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "OVERLAY",
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the speaker.",
+        "text": "JOHN STUMPF | CEO, Wells Fargo"
+      },
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 4.700004577636719,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "impact_card",
+      "exampleShotId": "ACT1_B002",
+      "graphicIndex": 0,
+      "previewFilename": "ACT1_B002__g00.svg",
+      "previewPath": "previews/ACT1_B002__g00.svg",
+      "sha256": "3f7e9921f0feca9abccf5c56a77a32e709a566732429d6b76c3ae3c4d7bbe0a0",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 2.1399998664855957,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "PRIMARY",
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Establish the scale of wealth and power.",
+        "text": "$300 BILLION"
+      },
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 2.1399998664855957,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "source_citation",
+      "exampleShotId": "ACT5_B011",
+      "graphicIndex": 0,
+      "previewFilename": "ACT5_B011__g00.svg",
+      "previewPath": "previews/ACT5_B011__g00.svg",
+      "sha256": "eaad1f5b703946f997ba038d7396c446c9c06a54ec7cf6132fa269591ef753f0",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 4.519996643066406,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "OVERLAY",
+      "sourceGraphic": {
+        "type": "source_citation",
+        "intent": "Attribute the finding.",
+        "text": "Federal Investigators"
+      },
+      "renderInstructions": {
+        "animation": "citation-fade-in",
+        "deterministic": true,
+        "durationSec": 4.519996643066406,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    },
+    {
+      "type": "takeaway",
+      "exampleShotId": "ACT3B_B015",
+      "graphicIndex": 0,
+      "previewFilename": "ACT3B_B015__g00.svg",
+      "previewPath": "previews/ACT3B_B015__g00.svg",
+      "sha256": "20f891b15dcdabe027685611b8e9457bfdbe0bc19fe37495f73093cc7bf31f7a",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 4.659999847412109,
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "role": "PRIMARY",
+      "sourceGraphic": {
+        "type": "takeaway",
+        "text": "DIFFERENT CONDUCT. SAME INSTITUTION.",
+        "intent": "Land the editorial contrast without presenting it as a quotation."
+      },
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 4.659999847412109,
+        "textIsBurnedFromLockedGraphicObject": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "hashManifestVersion": "1.0.0",
+  "algorithm": "SHA-256",
+  "artifacts": [
+    {
+      "path": "evidence-source-candidates.json",
+      "sha256": "791b01ca4ec3443df31594219287232d7f863e569e0e9cba3447ac7fc5344e90",
+      "bytes": 166860
+    },
+    {
+      "path": "evidence-source-validation.json",
+      "sha256": "a1bc723676e1244ad88539ab7690175f87b3f9b584f2147800cbe41c5334d736",
+      "bytes": 40512
+    },
+    {
+      "path": "graphic-template-manifest.json",
+      "sha256": "02733113d6d1f57c57f0573235d50c1b2c756694d7084a3b4fa0e6035b48d35b",
+      "bytes": 8645
+    },
+    {
+      "path": "graphic-type-census.json",
+      "sha256": "d6a963c12c04eff5706a059ac3cbe1fc4726915a5ff581a0c9979c9ddf15105e",
+      "bytes": 3733
+    },
+    {
+      "path": "phase2.3a-summary.md",
+      "sha256": "79eca49a473f9ca16c0165a220acbf467d1cb11c3003a417a97b2023ee6590dd",
+      "bytes": 2216
+    },
+    {
+      "path": "previews/ACT1_B002__g00.svg",
+      "sha256": "3f7e9921f0feca9abccf5c56a77a32e709a566732429d6b76c3ae3c4d7bbe0a0",
+      "bytes": 509
+    },
+    {
+      "path": "previews/ACT1_B003__g00.svg",
+      "sha256": "62cfdde431216cd1b0f207cf3ef1017f2c5d8656d7dc7505cdb02f8784b71307",
+      "bytes": 432
+    },
+    {
+      "path": "previews/ACT1_B007__g00.svg",
+      "sha256": "8ad518c559a2471578cde7662efa08ef4332e620c7489176db2cd3928004e988",
+      "bytes": 560
+    },
+    {
+      "path": "previews/ACT1_B019__g00.svg",
+      "sha256": "4b4304ef9422a2a7ae90718448ccf13cc59c825571eccbcd3fc7a360a0a36522",
+      "bytes": 540
+    },
+    {
+      "path": "previews/ACT1_B029__g00.svg",
+      "sha256": "31d97326b39ee4036bce5f8a0139e41e748de818de6d381d9ed40e3ab82bbb4c",
+      "bytes": 523
+    },
+    {
+      "path": "previews/ACT2_B017__g00.svg",
+      "sha256": "26d95bf0957dcf60f61b8a4e16d39f313ffcef1712f31d5ac578efd4c67b4757",
+      "bytes": 520
+    },
+    {
+      "path": "previews/ACT2_B019__g00.svg",
+      "sha256": "764356a3d0db26d8b5786d31f16d84a623e037577c334775333637632f26f590",
+      "bytes": 477
+    },
+    {
+      "path": "previews/ACT3B_B015__g00.svg",
+      "sha256": "20f891b15dcdabe027685611b8e9457bfdbe0bc19fe37495f73093cc7bf31f7a",
+      "bytes": 554
+    },
+    {
+      "path": "previews/ACT5_B011__g00.svg",
+      "sha256": "eaad1f5b703946f997ba038d7396c446c9c06a54ec7cf6132fa269591ef753f0",
+      "bytes": 497
+    },
+    {
+      "path": "proof-section-plan.json",
+      "sha256": "37adde185941cbadd18fcd1974d3d384121633e060fe3f99cc6cc3e1fa6b2282",
+      "bytes": 13920
+    }
+  ]
+}

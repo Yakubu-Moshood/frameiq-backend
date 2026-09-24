@@ -223,7 +223,7 @@ function resolveProductionAssetLocation(method) {
     CONTROLLED_STILL: { directory: 'stills', extensions: ['.png', '.jpg'] },
     GENERATED_STILL: { directory: 'stills', extensions: ['.png', '.jpg'] },
     EVIDENCE_REFERENCE: { directory: 'evidence', extensions: ['.mp4', '.png', '.jpg'] },
-    GRAPHIC_COMPILATION: { directory: 'graphics', extensions: ['.mp4', '.png', '.jpg'] },
+    GRAPHIC_COMPILATION: { directory: 'graphics', extensions: ['.mp4', '.png', '.jpg', '.svg'] },
   };
   return locations[method] || null;
 }

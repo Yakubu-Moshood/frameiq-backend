@@ -71,6 +71,9 @@ function fixture(t, replies = [], env = { OPENAI_API_KEY: 'test-only' }) {
           assertManifestReadyForRender() { throw new Error('V3 manifest validation is not expected in the legacy renderer test'); },
           resolveProductionAssetLocation() { throw new Error('V3 asset routing is not expected in the legacy renderer test'); },
         };
+        if (name === './v3-asset-readiness.cjs') return {
+          assertV3AssetsReadyForRender() { throw new Error('V3 asset readiness is not expected in the legacy renderer test'); },
+        };
         throw new Error('Unexpected dependency: ' + name);
       },
     };

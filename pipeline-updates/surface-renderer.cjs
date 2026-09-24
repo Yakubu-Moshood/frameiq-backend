@@ -29,6 +29,7 @@ const { execSync }  = require('child_process');
 const { runWhisper } = require('./vo-timing.cjs');
 const { loadValidatedV3Plan, validateShotDefinitions } = require('./shot-definitions-validator.cjs');
 const { loadProductionMethodManifest, assertManifestReadyForRender, resolveProductionAssetLocation } = require('./production-method-manifest.cjs');
+const { assertV3AssetsReadyForRender } = require('./v3-asset-readiness.cjs');
 // ─── Constants ────────────────────────────────────────────────────────────────
 const W   = 1920;
 const H   = 1080;
@@ -643,7 +644,7 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         log(`  SKIP ${shot.shotId} [${shot.triggerWord}]`);
         continue;
       }
-      const assetPath = resolveAssetPath(shot, assetsDir);
+      let assetPath = resolveAssetPath(shot, assetsDir);
       if (!assetPath) {
         const expected = shot.visualType === 'CLIP'
           ? [
@@ -674,6 +675,21 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         log(`  ⚠️  ${shot.shotId}: unknown colorGrade "${shot.colorGrade}" — using neutral grade instead`);
       }
       const grade       = GRADE[shot.colorGrade] || GRADE.neutral;
+      const graphicEntries = shot.productionMethod === 'GRAPHIC_COMPILATION' ? (shot.graphicAssetEntries || []) : [];
+      const primarySvg = assetPath.endsWith('.svg');
+      const overlayEntries = graphicEntries.filter(entry => entry.role === 'OVERLAY');
+      const renderAssetDir = path.join(episodeDir, 'temp', voKey, 'verified-graphics');
+      const rasterizeSvg = (svgPath, outputPath, label) => {
+        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+        run(`${FF} -y -i "${svgPath}" -frames:v 1 "${outputPath}"`, `rasterize verified graphic ${label}`);
+        if (!fs.existsSync(outputPath) || fs.statSync(outputPath).size === 0) throw new Error(`[renderer] Verified SVG did not rasterize: ${label}`);
+        return outputPath;
+      };
+      if (primarySvg) assetPath = rasterizeSvg(assetPath, path.join(renderAssetDir, `${shot.shotId}__primary.png`), shot.shotId);
+      const overlayPngs = overlayEntries.map(entry => {
+        const svgPath = path.join(assetsDir, 'graphics', entry.filename);
+        return rasterizeSvg(svgPath, path.join(renderAssetDir, `${shot.shotId}__g${String(entry.graphicIndex).padStart(2, '0')}.png`), `${shot.shotId} overlay ${entry.graphicIndex}`);
+      });
       const isImg       = assetPath.endsWith('.png') || assetPath.endsWith('.jpg');
       const isZoom      = shot.visualType === 'STILL_ZOOM';
       const totalFrames  = Math.round(shot.durSec * FPS);
@@ -686,7 +702,7 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         // feeding it a modest 1.1x-of-output frame keeps memory flat.
         // Motion applies to every still image (not just STILL_ZOOM-tagged
         // shots); STILL_ZOOM keeps a stronger push-in for emphasis.
-        const maxZoom = isZoom ? 1.22 : 1.12;
+        const maxZoom = primarySvg ? 1 : (isZoom ? 1.22 : 1.12);
         const zoomInc = ((maxZoom - 1) / motionFrames).toFixed(6);
         const zoomExpr = freezeDurSec > 0
           ? `if(lt(on,${motionFrames}),min(zoom+${zoomInc},${maxZoom}),zoom)`
@@ -711,10 +727,23 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
       if (cinOverlay) filterParts.push(cinOverlay);
       if (shot.stat)  filterParts.push(statCardFilter(shot.stat.label, shot.stat.value, shot.stat.sub, shot.durSec, brand.accent));
       if (shot.lower) filterParts.push(lowerThirdFilter(shot.lower.name, shot.lower.title, shot.durSec, brand.accent));
-      if (WM)         filterParts.push(WM);
+      if (WM && overlayPngs.length === 0) filterParts.push(WM);
       const vf = filterParts.filter(Boolean).join(',');
       let cmd;
-      if (isImg) {
+      if (overlayPngs.length > 0) {
+        const inputs = overlayPngs.map(file => `-loop 1 -framerate ${FPS} -i "${file}"`).join(' ');
+        const filters = [`[0:v]${vf}[base]`];
+        let current = 'base';
+        overlayPngs.forEach((_, index) => {
+          const next = `comp${index}`;
+          filters.push(`[${index + 1}:v]format=rgba[ov${index}]`);
+          filters.push(`[${current}][ov${index}]overlay=0:0:format=auto:eof_action=repeat[${next}]`);
+          current = next;
+        });
+        if (WM) filters.push(`[${current}]${WM}[vout]`);
+        else filters.push(`[${current}]null[vout]`);
+        cmd = `${FF} ${isImg ? `-loop 1 -i "${assetPath}"` : `-stream_loop -1 -i "${assetPath}"`} ${inputs} -t ${shot.durSec.toFixed(3)} -filter_complex "${filters.join(';')}" -map "[vout]" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+      } else if (isImg) {
         const input = freezeDurSec > 0 ? `-i "${assetPath}"` : `-loop 1 -i "${assetPath}"`;
         cmd = `${FF} ${input} -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
       } else if (freezeDurSec > 0) {
@@ -750,6 +779,14 @@ function resolveAssetPath(shot, assetsDir) {
   const clipsDir  = path.join(assetsDir, 'clips');
   const shotLabel = shot.shotId || '(unknown shot)';
   if (shot.productionMethod) {
+    if (shot.productionMethod === 'EVIDENCE_REFERENCE' && shot.evidenceAssetPath && fs.existsSync(shot.evidenceAssetPath)) return shot.evidenceAssetPath;
+    if (shot.productionMethod === 'GRAPHIC_COMPILATION') {
+      const primary = (shot.graphicAssetEntries || []).find(entry => entry.role === 'PRIMARY');
+      if (primary) {
+        const candidate = path.join(assetsDir, 'graphics', primary.filename);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
     const location = resolveProductionAssetLocation(shot.productionMethod);
     if (!location || !SAFE_SHOT_ID_RE.test(shot.shotId || '')) return null;
     const methodDir = path.join(assetsDir, location.directory);
@@ -955,10 +992,25 @@ async function renderEpisode({
     const manifestPath = productionManifestPath || path.join(episodeDir, 'production-manifest.json');
     const productionManifest = loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs });
     assertManifestReadyForRender(productionManifest);
+    const v3Assets = assertV3AssetsReadyForRender({ episodeDir, shotDefsPath, shotDefs });
     const { editPlan } = loadValidatedV3Plan({ episodeDir, episodeId });
     const report = validateShotDefinitions({ plan: editPlan, shotDefs });
     if (report.status !== 'PASS') throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
     resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec, productionManifest });
+    const evidenceByShot = new Map(v3Assets.evidenceManifest.entries.map(entry => [entry.shotId, entry]));
+    const graphicsByShot = new Map();
+    for (const entry of v3Assets.graphicAssetManifest.entries) {
+      if (!graphicsByShot.has(entry.shotId)) graphicsByShot.set(entry.shotId, []);
+      graphicsByShot.get(entry.shotId).push(entry);
+    }
+    resolved = resolved.map(shot => {
+      const evidence = evidenceByShot.get(shot.shotId);
+      return {
+        ...shot,
+        ...(evidence?.localFilename ? { evidenceAssetPath: path.join(episodeDir, 'assets', 'evidence', evidence.localFilename) } : {}),
+        ...(graphicsByShot.has(shot.shotId) ? { graphicAssetEntries: graphicsByShot.get(shot.shotId) } : {}),
+      };
+    });
   } else {
   // Step 1 — Whisper
   log('');

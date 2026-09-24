@@ -1,0 +1,407 @@
+{
+  "plannerVersion": "1.0.0",
+  "durationBoundsSec": {
+    "min": 60,
+    "max": 90
+  },
+  "startSec": 340.31551045776365,
+  "endSec": 424.7910207629394,
+  "durationSec": 84.47551030517576,
+  "acts": [
+    "act3b",
+    "act4"
+  ],
+  "sequences": [
+    "SEQ_ACT3B_02",
+    "SEQ_ACT3B_03",
+    "SEQ_ACT3B_04",
+    "SEQ_ACT3B_05",
+    "SEQ_ACT3B_06",
+    "SEQ_ACT4_01",
+    "SEQ_ACT4_02",
+    "SEQ_ACT4_03"
+  ],
+  "shotIds": [
+    "ACT3B_B005",
+    "ACT3B_B006",
+    "ACT3B_B007",
+    "ACT3B_B008",
+    "ACT3B_B009",
+    "ACT3B_B010",
+    "ACT3B_B011",
+    "ACT3B_B012",
+    "ACT3B_B013",
+    "ACT3B_B014",
+    "ACT3B_B015",
+    "ACT3B_B016",
+    "ACT3B_B017",
+    "ACT3B_B018",
+    "ACT4_B001",
+    "ACT4_B002",
+    "ACT4_B003",
+    "ACT4_B004",
+    "ACT4_B005",
+    "ACT4_B006"
+  ],
+  "selectionScore": 86.1,
+  "criteria": {
+    "evidenceShotIds": [
+      "ACT3B_B008",
+      "ACT3B_B012",
+      "ACT4_B001",
+      "ACT4_B002",
+      "ACT4_B003",
+      "ACT4_B004",
+      "ACT4_B005",
+      "ACT4_B006"
+    ],
+    "primaryGraphicShotIds": [
+      "ACT3B_B005",
+      "ACT3B_B011",
+      "ACT3B_B015"
+    ],
+    "overlayShotIds": [
+      "ACT3B_B008",
+      "ACT3B_B012",
+      "ACT4_B001",
+      "ACT4_B002",
+      "ACT4_B004",
+      "ACT4_B005",
+      "ACT4_B006"
+    ],
+    "reconstructionShotIds": [
+      "ACT3B_B006",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B014",
+      "ACT3B_B016",
+      "ACT3B_B017",
+      "ACT3B_B018"
+    ],
+    "essentialAnimationShotIds": [
+      "ACT3B_B006",
+      "ACT3B_B014",
+      "ACT3B_B017"
+    ],
+    "controlledStillShotIds": [
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018"
+    ],
+    "methodTransitions": 13,
+    "narrationTimingPresent": true
+  },
+  "requiredEvidenceSources": [
+    {
+      "shotId": "ACT3B_B008",
+      "exactRequirement": "CFPB consent order or settlement document showing the $2.6 million fee figure",
+      "sourceSearchInstruction": "Locate CFPB consent order or settlement documents from 2016 Wells Fargo enforcement action, specifically pages or sections citing the $2.6 million figure in unauthorized fees collected from customers, verify authenticity through official CFPB database or Federal Register publication"
+    },
+    {
+      "shotId": "ACT3B_B012",
+      "exactRequirement": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+      "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "exactRequirement": "Los Angeles Times 2013 coverage of Wells Fargo unauthorized accounts scandal",
+      "sourceSearchInstruction": "Locate Los Angeles Times front page or section front from 2013 containing coverage of Wells Fargo unauthorized accounts investigation. Search LA Times archive for Wells Fargo scandal coverage, cross-sell investigation, or unauthorized account opening stories from 2013. Verify masthead authenticity and publication date."
+    },
+    {
+      "shotId": "ACT4_B002",
+      "exactRequirement": "E. Scott Reckard byline and article documenting pressure, unauthorized accounts, firings",
+      "sourceSearchInstruction": "Locate Los Angeles Times article bylined by E. Scott Reckard covering Wells Fargo unauthorized accounts, sales pressure, or employee terminations. Search LA Times archive 2013-2016 for Reckard Wells Fargo investigation pieces. Verify byline spelling and article authenticity."
+    },
+    {
+      "shotId": "ACT4_B003",
+      "exactRequirement": "City of Los Angeles complaint and federal regulatory enforcement actions against Wells Fargo",
+      "sourceSearchInstruction": "Locate City of Los Angeles lawsuit filing against Wells Fargo related to fraudulent account practices. Search Los Angeles City Attorney records, PACER, or court archives for complaint documents. Cross-reference with federal regulatory enforcement actions OCC, CFPB filings from same period."
+    },
+    {
+      "shotId": "ACT4_B004",
+      "exactRequirement": "2016 Wells Fargo settlement documents showing $185 million penalty",
+      "sourceSearchInstruction": "Locate 2016 CFPB, OCC, or Los Angeles City consent order documents showing Wells Fargo $185 million settlement. Search CFPB enforcement database, OCC enforcement actions, for September 2016 Wells Fargo orders. Verify penalty figure and signatory authenticity."
+    },
+    {
+      "shotId": "ACT4_B005",
+      "exactRequirement": "Senate Banking Committee hearing room setup, September 2016",
+      "sourceSearchInstruction": "Locate C-SPAN or Senate Banking Committee archive footage of September 2016 hearing room setup before or during John Stumpf testimony on Wells Fargo. Search Senate Banking Committee hearing archives, C-SPAN video library for Wells Fargo September 2016 hearing establishing shots."
+    },
+    {
+      "shotId": "ACT4_B006",
+      "exactRequirement": "Elizabeth Warren questioning Stumpf about compensation",
+      "sourceSearchInstruction": "Locate C-SPAN or Senate Banking Committee footage of Senator Elizabeth Warren questioning John Stumpf about returning compensation during September 2016 Wells Fargo hearing. Search C-SPAN video library for Warren-Stumpf exchange on clawback or compensation return."
+    }
+  ],
+  "requiredGraphicObjects": [
+    {
+      "shotId": "ACT3B_B005",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "data_graphic",
+        "intent": "Show the hidden damage",
+        "text": "CREDIT SCORE IMPACT"
+      }
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "Land the official theft figure",
+        "text": "$2.6 MILLION IN UNAUTHORIZED FEES"
+      }
+    },
+    {
+      "shotId": "ACT3B_B011",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Establish the timeframe",
+        "text": "2011–2016"
+      }
+    },
+    {
+      "shotId": "ACT3B_B012",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "Land the termination scale",
+        "text": "5,300 EMPLOYEES FIRED"
+      }
+    },
+    {
+      "shotId": "ACT3B_B015",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "takeaway",
+        "text": "DIFFERENT CONDUCT. SAME INSTITUTION.",
+        "intent": "Land the editorial contrast without presenting it as a quotation."
+      }
+    },
+    {
+      "shotId": "ACT4_B001",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the public exposure moment.",
+        "text": "2013"
+      }
+    },
+    {
+      "shotId": "ACT4_B002",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "identity_lower_third",
+        "intent": "Credit the journalist who exposed the scandal.",
+        "text": "E. Scott Reckard | Los Angeles Times"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "Land the first major penalty.",
+        "text": "$185 MILLION"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 1,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the settlement year.",
+        "text": "2016"
+      }
+    },
+    {
+      "shotId": "ACT4_B005",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the congressional moment.",
+        "text": "SEPTEMBER 2016"
+      }
+    },
+    {
+      "shotId": "ACT4_B006",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the Senator delivering accountability.",
+        "text": "Sen. Elizabeth Warren | Massachusetts"
+      }
+    }
+  ],
+  "requiredGeneratedBaseImages": [
+    {
+      "shotId": "ACT3B_B006",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "A couple at a banker's desk receiving denial—the dream deferred."
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "Car dealership rejection and the ultimate loss—homes taken."
+    },
+    {
+      "shotId": "ACT3B_B009",
+      "productionMethod": "GENERATED_STILL",
+      "visualIntent": "The official designation—presented with clinical precision."
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "productionMethod": "GENERATED_STILL",
+      "visualIntent": "The real number remains unknown—official count is the floor."
+    },
+    {
+      "shotId": "ACT3B_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "Some employees genuinely committed fraud—the guilty acknowledged."
+    },
+    {
+      "shotId": "ACT3B_B014",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims."
+    },
+    {
+      "shotId": "ACT3B_B016",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "The employee who couldn't meet targets—pushed out."
+    },
+    {
+      "shotId": "ACT3B_B017",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "The employee who cheated—also expendable."
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save."
+    }
+  ],
+  "requiredAnimations": [
+    {
+      "shotId": "ACT3B_B006",
+      "visualIntent": "A couple at a banker's desk receiving denial—the dream deferred.",
+      "animationPrompt": "Slow dolly forward toward the couple's backs as loan officer shakes head, woman's hand reaches across to partner's hand on armrest, postures visibly deflate, camera movement emphasizes the weight of the moment"
+    },
+    {
+      "shotId": "ACT3B_B014",
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims.",
+      "animationPrompt": "Lateral tracking shot as employee steps away from desk, manager figure enters frame and places hand deliberately on the back of the empty chair, the territorial gesture implying threat"
+    },
+    {
+      "shotId": "ACT3B_B017",
+      "visualIntent": "The employee who cheated—also expendable.",
+      "animationPrompt": "Lateral tracking shot following the escort past cubicles, employee silhouette reaches security desk and surrenders badge, the mechanical process emphasizing institutional indifference"
+    }
+  ],
+  "expectedProviderCalls": {
+    "imageJobs": 9,
+    "animationJobs": 3,
+    "evidenceSourceProviderCalls": 0,
+    "graphicCompilationProviderCalls": 0,
+    "generationProviderCallsTotal": 12,
+    "note": "Counts are deterministic job counts; provider failover may add attempts. This plan does not execute them."
+  },
+  "knownBlockers": [
+    "Evidence sources and rights have not yet been approved; all source candidates require individual review.",
+    "Episode-level graphics have not been compiled; only one representative preview per unique type is produced in Phase 2.3A.",
+    "Generated base images and animations are requirements only; no provider calls are made in this phase."
+  ],
+  "reason": "The deterministic selector chose this contiguous section across act3b and act4 because it provides the strongest scored combination of evidence requirements, primary and overlay graphics, reconstruction, essential animation, controlled stills, narration timing, and method transitions within the 60–90 second bound.",
+  "narrationMethodTransitions": [
+    {
+      "fromShotId": "ACT3B_B005",
+      "toShotId": "ACT3B_B006",
+      "from": "GRAPHIC_COMPILATION",
+      "to": "ESSENTIAL_ANIMATION"
+    },
+    {
+      "fromShotId": "ACT3B_B006",
+      "toShotId": "ACT3B_B007",
+      "from": "ESSENTIAL_ANIMATION",
+      "to": "CONTROLLED_STILL"
+    },
+    {
+      "fromShotId": "ACT3B_B007",
+      "toShotId": "ACT3B_B008",
+      "from": "CONTROLLED_STILL",
+      "to": "EVIDENCE_REFERENCE"
+    },
+    {
+      "fromShotId": "ACT3B_B008",
+      "toShotId": "ACT3B_B009",
+      "from": "EVIDENCE_REFERENCE",
+      "to": "GENERATED_STILL"
+    },
+    {
+      "fromShotId": "ACT3B_B010",
+      "toShotId": "ACT3B_B011",
+      "from": "GENERATED_STILL",
+      "to": "GRAPHIC_COMPILATION"
+    },
+    {
+      "fromShotId": "ACT3B_B011",
+      "toShotId": "ACT3B_B012",
+      "from": "GRAPHIC_COMPILATION",
+      "to": "EVIDENCE_REFERENCE"
+    },
+    {
+      "fromShotId": "ACT3B_B012",
+      "toShotId": "ACT3B_B013",
+      "from": "EVIDENCE_REFERENCE",
+      "to": "CONTROLLED_STILL"
+    },
+    {
+      "fromShotId": "ACT3B_B013",
+      "toShotId": "ACT3B_B014",
+      "from": "CONTROLLED_STILL",
+      "to": "ESSENTIAL_ANIMATION"
+    },
+    {
+      "fromShotId": "ACT3B_B014",
+      "toShotId": "ACT3B_B015",
+      "from": "ESSENTIAL_ANIMATION",
+      "to": "GRAPHIC_COMPILATION"
+    },
+    {
+      "fromShotId": "ACT3B_B015",
+      "toShotId": "ACT3B_B016",
+      "from": "GRAPHIC_COMPILATION",
+      "to": "CONTROLLED_STILL"
+    },
+    {
+      "fromShotId": "ACT3B_B016",
+      "toShotId": "ACT3B_B017",
+      "from": "CONTROLLED_STILL",
+      "to": "ESSENTIAL_ANIMATION"
+    },
+    {
+      "fromShotId": "ACT3B_B017",
+      "toShotId": "ACT3B_B018",
+      "from": "ESSENTIAL_ANIMATION",
+      "to": "CONTROLLED_STILL"
+    },
+    {
+      "fromShotId": "ACT3B_B018",
+      "toShotId": "ACT4_B001",
+      "from": "CONTROLLED_STILL",
+      "to": "EVIDENCE_REFERENCE"
+    }
+  ]
+}

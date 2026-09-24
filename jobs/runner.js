@@ -563,6 +563,9 @@ async function runFullRenderWorkflow(episodeDbId, channelKey, episodeId, topic) 
   if (shotDefs.mode === 'empire-omitted-v3') {
     const { loadProductionMethodManifest, baseImageShotIds } = require(path.join(PIPELINE_DIR, 'production-method-manifest.cjs'));
     productionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath, shotDefsPath, shotDefs });
+    const { assertV3EvidenceReady, assertV3GraphicsReady } = require(path.join(PIPELINE_DIR, 'v3-asset-readiness.cjs'));
+    assertV3EvidenceReady({ episodeDir, shotDefsPath, shotDefs });
+    assertV3GraphicsReady({ episodeDir, shotDefsPath, shotDefs });
     const pending = productionManifest.shots.filter(entry => entry.status !== 'APPROVED');
     if (pending.length) {
       const first = pending[0];

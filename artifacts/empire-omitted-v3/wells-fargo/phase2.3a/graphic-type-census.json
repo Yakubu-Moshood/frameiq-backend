@@ -1,0 +1,171 @@
+{
+  "censusVersion": "1.0.0",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "shotDefinitionsSha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+  "productionManifestSha256": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+  "lockedGraphicObjectCount": 73,
+  "uniqueTypeCount": 9,
+  "primaryGraphicShotCount": 41,
+  "overlayBearingShotCount": 28,
+  "types": [
+    {
+      "type": "chapter_marker",
+      "objectCount": 3,
+      "primaryObjectCount": 3,
+      "overlayObjectCount": 0,
+      "categories": [
+        "chapter marker"
+      ],
+      "supported": true,
+      "previewShotId": "ACT1_B007",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "data_graphic",
+      "objectCount": 8,
+      "primaryObjectCount": 6,
+      "overlayObjectCount": 2,
+      "categories": [
+        "data graphic"
+      ],
+      "supported": true,
+      "previewShotId": "ACT1_B019",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "date_marker",
+      "objectCount": 12,
+      "primaryObjectCount": 3,
+      "overlayObjectCount": 9,
+      "categories": [
+        "timeline/date marker"
+      ],
+      "supported": true,
+      "previewShotId": "ACT1_B003",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "direct_quote",
+      "objectCount": 1,
+      "primaryObjectCount": 0,
+      "overlayObjectCount": 1,
+      "categories": [
+        "quotation"
+      ],
+      "supported": true,
+      "previewShotId": "ACT2_B019",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "document_callout",
+      "objectCount": 4,
+      "primaryObjectCount": 2,
+      "overlayObjectCount": 2,
+      "categories": [
+        "document highlight/callout"
+      ],
+      "supported": true,
+      "previewShotId": "ACT1_B029",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "identity_lower_third",
+      "objectCount": 6,
+      "primaryObjectCount": 0,
+      "overlayObjectCount": 6,
+      "categories": [
+        "lower third / identity label"
+      ],
+      "supported": true,
+      "previewShotId": "ACT2_B017",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "impact_card",
+      "objectCount": 32,
+      "primaryObjectCount": 21,
+      "overlayObjectCount": 11,
+      "categories": [
+        "impact card",
+        "full-frame or overlay"
+      ],
+      "supported": true,
+      "previewShotId": "ACT1_B002",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "source_citation",
+      "objectCount": 1,
+      "primaryObjectCount": 0,
+      "overlayObjectCount": 1,
+      "categories": [
+        "source citation"
+      ],
+      "supported": true,
+      "previewShotId": "ACT5_B011",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    },
+    {
+      "type": "takeaway",
+      "objectCount": 6,
+      "primaryObjectCount": 6,
+      "overlayObjectCount": 0,
+      "categories": [
+        "takeaway"
+      ],
+      "supported": true,
+      "previewShotId": "ACT3B_B015",
+      "fieldShape": [
+        "intent",
+        "text",
+        "type"
+      ]
+    }
+  ],
+  "unsupportedTypes": [],
+  "classification": {
+    "fullFrameGraphics": 41,
+    "overlayGraphicObjects": 32,
+    "primaryGraphicObjects": 41,
+    "lowerThirds": 6,
+    "quotations": 1,
+    "documentHighlights": 4,
+    "timelines": 12,
+    "counters": 0,
+    "charts": 8,
+    "comparisonGraphics": 0,
+    "labels": 7
+  }
+}
