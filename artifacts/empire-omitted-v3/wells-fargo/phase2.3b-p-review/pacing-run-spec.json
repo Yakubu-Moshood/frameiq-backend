@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "phase2.3b-p-run-spec/1.0.0",
+  "phase": "2.3B-P",
+  "channelKey": "EmpireOmitted",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "episodeDirectory": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO",
+  "candidateDirectory": "/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate",
+  "timingRelativePath": ".v3-shadow/timing/350bc59988d2f291583282f6ace4b1f3523e4ed7bcc362d11d4932a4cf71c1f7/word-timestamps.json",
+  "lockedFiles": {
+    "script.json": "b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8",
+    "edit-plan.json": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "edit-plan-validation.json": "b4c37ca8e5c24115e21f218a654bcc2de21368d947f62e159067aedb09616fac",
+    "shot-definitions.json": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+    "production-manifest.json": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+    "assets/audio/VO_Act3B.mp3": "05f9f48849f2ac94e88ed7b368c1da8a6cb3f833497ef913886cce8300a70d06",
+    ".v3-shadow/timing/350bc59988d2f291583282f6ace4b1f3523e4ed7bcc362d11d4932a4cf71c1f7/word-timestamps.json": "68234536e839e1ac07f5a92d32cc6a2c9bfbe1a87974af1626c320333330212c"
+  },
+  "approvedCorrectionText": {
+    "act3b": { "characters": 961, "sha256": "ff9ab4bbe43c3f25844b6e6231abaa462cde3692dcd9e57f4c319dda168a0e49" },
+    "act4": { "characters": 1496, "sha256": "26d10ba68ea1aa328bc26160e4f795545dc0f02fabbe3717e57187b161be8338" }
+  },
+  "actOrder": ["act1", "act2", "act3", "act3b", "act4", "act5"],
+  "voFilenames": {
+    "act1": "VO_Act1.mp3",
+    "act2": "VO_Act2.mp3",
+    "act3": "VO_Act3.mp3",
+    "act3b": "VO_Act3B.mp3",
+    "act4": "VO_Act4.mp3",
+    "act5": "VO_Act5.mp3"
+  },
+  "model": "eleven_multilingual_v2",
+  "outputFormat": "mp3_44100_128",
+  "voiceSettings": {
+    "stability": 0.45,
+    "similarity_boost": 0.75,
+    "style": 0.1,
+    "use_speaker_boost": true,
+    "speed": 0.94
+  },
+  "maximumSegmentLength": 720,
+  "joinPauseDurationMs": 350,
+  "maximumRequests": 18,
+  "maximumCharacters": 9200
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "phase2.3b-p-package/1.0.0",
+  "files": {
+    "pacing-run-spec.json": {
+      "bytes": 2086,
+      "sha256": "978201dc2cf0a3015b674119868d405f500e34ac3e2948028f1eed21b26b996a"
+    },
+    "pacing-plan-baseline.json": {
+      "bytes": 7200,
+      "sha256": "a2cd86958fe9277e660811a4552a3e140e7ae85908fcf848c6d9ec8149e0216f"
+    }
+  }
+}

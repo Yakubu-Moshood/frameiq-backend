@@ -1,0 +1,223 @@
+{
+  "schemaVersion": "phase2.3b-p-plan-preview/1.0.0",
+  "sourceScriptSha256": "b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8",
+  "authoritativeWordTimestampsSha256": "68234536e839e1ac07f5a92d32cc6a2c9bfbe1a87974af1626c320333330212c",
+  "correctionTextHashes": {
+    "act3b": {
+      "characters": 961,
+      "sha256": "ff9ab4bbe43c3f25844b6e6231abaa462cde3692dcd9e57f4c319dda168a0e49"
+    },
+    "act4": {
+      "characters": 1496,
+      "sha256": "26d10ba68ea1aa328bc26160e4f795545dc0f02fabbe3717e57187b161be8338"
+    }
+  },
+  "unchangedActTextSha256": {
+    "act1": "e900b9b31b0b5b506e12095d087a5d6a9b002fdf330c138a9743c08d7c10fa1f",
+    "act2": "564db57fe9a3d31ade15233e8a04922a3574cf6dfbed4c35b512dc1526d35847",
+    "act3": "f2a64723763b8497c3479ccd295bee2d5c7942f1979499cf482a45626073dc89",
+    "act5": "4b71ff19cedcf8fc485a2e1e88d9c471938025f3db51401710ad8a223c5c09c7"
+  },
+  "plan": {
+    "channelKey": "EmpireOmitted",
+    "model": "eleven_multilingual_v2",
+    "voiceSettings": {
+      "stability": 0.45,
+      "similarity_boost": 0.75,
+      "style": 0.1,
+      "use_speaker_boost": true,
+      "speed": 0.94
+    },
+    "outputFormat": "mp3_44100_128",
+    "maximumSegmentLength": 720,
+    "joinPauseDurationMs": 350,
+    "totalRequests": 16,
+    "totalBillableCharacters": 8686,
+    "totalWords": 1363,
+    "planSha256": "25fb60687137e2117cc27432edc32377123b1388145cf14e0652aabcbccddc46",
+    "acts": [
+      {
+        "actKey": "act1",
+        "sourceCharacters": 1501,
+        "sourceWords": 232,
+        "performanceCharacters": 1519,
+        "performanceWords": 232,
+        "segments": [
+          {
+            "segmentId": "act1.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 701,
+            "characters": 711,
+            "words": 118,
+            "textSha256": "9ba013b043b00596e5ca17b8683322dad1245757f5f64a5b896d92006aa90c6f"
+          },
+          {
+            "segmentId": "act1.segment-002",
+            "sourceStart": 702,
+            "sourceEnd": 1403,
+            "characters": 710,
+            "words": 99,
+            "textSha256": "08ec6ca0157bfa37bb516689b349e9e4778b460135381a18576af011fea23b3c"
+          },
+          {
+            "segmentId": "act1.segment-003",
+            "sourceStart": 1404,
+            "sourceEnd": 1501,
+            "characters": 98,
+            "words": 15,
+            "textSha256": "59d51373cbd9278878aeedf90cd9d8224c452bb1c8ea9fd069dd067a9bbcc71c"
+          }
+        ]
+      },
+      {
+        "actKey": "act2",
+        "sourceCharacters": 1311,
+        "sourceWords": 220,
+        "performanceCharacters": 1344,
+        "performanceWords": 220,
+        "segments": [
+          {
+            "segmentId": "act2.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 690,
+            "characters": 706,
+            "words": 117,
+            "textSha256": "2fb25d68714ea4340f4915bf837d7dd167175334ca17a2e6413e5af451c7ac0d"
+          },
+          {
+            "segmentId": "act2.segment-002",
+            "sourceStart": 691,
+            "sourceEnd": 1311,
+            "characters": 638,
+            "words": 103,
+            "textSha256": "ea2db439c34c165b1950c73f2565ebb62fb47ff9dc0afa7fb1911591da993b38"
+          }
+        ]
+      },
+      {
+        "actKey": "act3",
+        "sourceCharacters": 1484,
+        "sourceWords": 234,
+        "performanceCharacters": 1506,
+        "performanceWords": 234,
+        "segments": [
+          {
+            "segmentId": "act3.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 654,
+            "characters": 668,
+            "words": 104,
+            "textSha256": "2b45595bce1244dadab09df7a47a7e413a0e9b9d9d90f94efb83e757a3f88cee"
+          },
+          {
+            "segmentId": "act3.segment-002",
+            "sourceStart": 655,
+            "sourceEnd": 1336,
+            "characters": 689,
+            "words": 106,
+            "textSha256": "86fa577450b01f2d940ef3c707634213ed0e9965c277de5cc7e49df9fe3a2a0f"
+          },
+          {
+            "segmentId": "act3.segment-003",
+            "sourceStart": 1337,
+            "sourceEnd": 1484,
+            "characters": 149,
+            "words": 24,
+            "textSha256": "db1a25805d58610401983f8b8b73b05b33f680781a061871a52ea92be8fd4d26"
+          }
+        ]
+      },
+      {
+        "actKey": "act3b",
+        "sourceCharacters": 961,
+        "sourceWords": 156,
+        "performanceCharacters": 976,
+        "performanceWords": 156,
+        "segments": [
+          {
+            "segmentId": "act3b.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 658,
+            "characters": 669,
+            "words": 106,
+            "textSha256": "050c7c6e79250c4d349841ea502dbacb7f289335ab307b99cfd4e73cb6c5c6b0"
+          },
+          {
+            "segmentId": "act3b.segment-002",
+            "sourceStart": 659,
+            "sourceEnd": 961,
+            "characters": 307,
+            "words": 50,
+            "textSha256": "99d633c017b72197705f396815579f6c1f6a1b93db4d28c8b0c990cc5e5badfc"
+          }
+        ]
+      },
+      {
+        "actKey": "act4",
+        "sourceCharacters": 1496,
+        "sourceWords": 235,
+        "performanceCharacters": 1509,
+        "performanceWords": 235,
+        "segments": [
+          {
+            "segmentId": "act4.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 661,
+            "characters": 670,
+            "words": 102,
+            "textSha256": "3f31c4f8b49d4ad5fb55ce55f021fa14b81d953160aa4b93e3a78008fbcc3e15"
+          },
+          {
+            "segmentId": "act4.segment-002",
+            "sourceStart": 662,
+            "sourceEnd": 1340,
+            "characters": 683,
+            "words": 107,
+            "textSha256": "dcd92beadb3c71bc61ade970230802f9cd4d0d330208534f139e384b03f80a1c"
+          },
+          {
+            "segmentId": "act4.segment-003",
+            "sourceStart": 1341,
+            "sourceEnd": 1496,
+            "characters": 156,
+            "words": 26,
+            "textSha256": "fcdbd189567a3f5144208e91435211eeb7581121876b4ae343a3025d458ee7f6"
+          }
+        ]
+      },
+      {
+        "actKey": "act5",
+        "sourceCharacters": 1813,
+        "sourceWords": 286,
+        "performanceCharacters": 1832,
+        "performanceWords": 286,
+        "segments": [
+          {
+            "segmentId": "act5.segment-001",
+            "sourceStart": 0,
+            "sourceEnd": 674,
+            "characters": 682,
+            "words": 107,
+            "textSha256": "e11f12423b66259eec28159d91d620e91b727187d98477ffc4469eda3e6f219c"
+          },
+          {
+            "segmentId": "act5.segment-002",
+            "sourceStart": 675,
+            "sourceEnd": 1352,
+            "characters": 684,
+            "words": 101,
+            "textSha256": "0ec539cdef5fb342744ce530082559afdc59f8896321c62b8dc1c4f25d2dc9e2"
+          },
+          {
+            "segmentId": "act5.segment-003",
+            "sourceStart": 1353,
+            "sourceEnd": 1813,
+            "characters": 466,
+            "words": 78,
+            "textSha256": "7efe99a7967c0acab5e69661f4264f5a69e43228e055757b41310a453075795a"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -11,6 +11,12 @@ const OPERATIONAL_FILES = [
   'test/phase2.3b-sg-stage-a-accounting.test.cjs',
   'test/phase2.3b-sg-zero-call-recovery.test.cjs',
   'test/deployment-package-portability.test.cjs',
+  'test/paced-narration-generator.test.cjs',
+  'pipeline-updates/paced-narration-generator.cjs',
+  'scripts/phase2.3b-p-run.cjs',
+  'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/pacing-run-spec.json',
+  'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/pacing-plan-baseline.json',
+  'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/pacing-package-sha256.json',
   'scripts/phase2.3b-sg-stage-a.cjs',
   'scripts/phase2.3b-sg-recover-zero-call-run.cjs',
   'scripts/phase2.3b-sg-stage-b.cjs',
@@ -22,6 +28,7 @@ const OPERATIONAL_FILES = [
   'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate/candidate-package-sha256.json',
 ];
 const CANDIDATE = 'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
+const PACING_PACKAGE = 'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review';
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 
 function gitBlob(commit, gitPath, cwd) {
@@ -50,7 +57,15 @@ function verifyPackage({ root, commit, gitRoot = process.cwd() }) {
     const bytes = fs.readFileSync(file);
     if (bytes.length !== expected.bytes || sha256(bytes) !== expected.sha256) throw new Error(`CANDIDATE_PACKAGE_HASH_MISMATCH:${relative}`);
   }
-  return { commit, files, candidateFilesVerified: Object.keys(packageManifest.files || {}).length };
+  const pacingRoot = path.join(snapshotRoot, PACING_PACKAGE);
+  const pacingManifest = JSON.parse(fs.readFileSync(path.join(pacingRoot, 'pacing-package-sha256.json'), 'utf8'));
+  for (const [relative, expected] of Object.entries(pacingManifest.files || {})) {
+    const file = path.resolve(pacingRoot, relative);
+    if (!file.startsWith(path.resolve(pacingRoot) + path.sep)) throw new Error('PACING_PACKAGE_PATH_INVALID:' + relative);
+    const bytes = fs.readFileSync(file);
+    if (bytes.length !== expected.bytes || sha256(bytes) !== expected.sha256) throw new Error('PACING_PACKAGE_HASH_MISMATCH:' + relative);
+  }
+  return { commit, files, candidateFilesVerified: Object.keys(packageManifest.files || {}).length, pacingFilesVerified: Object.keys(pacingManifest.files || {}).length };
 }
 
 function parseArgs(args) {

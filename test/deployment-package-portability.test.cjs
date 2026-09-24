@@ -17,7 +17,7 @@ function run(command, args, options = {}) {
 
 test('portable Git archive preserves committed bytes and candidate integrity hashes', t => {
   const gitRoot = path.resolve(__dirname, '..');
-  const commit = run('git', ['rev-parse', 'HEAD'], { cwd: gitRoot });
+  const commit = run('git', ['write-tree'], { cwd: gitRoot });
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-sg-portable-'));
   t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
   const archive = path.join(tempRoot, 'source.tar');
@@ -31,6 +31,7 @@ test('portable Git archive preserves committed bytes and candidate integrity has
   const report = verifyPackage({ root: snapshot, commit, gitRoot });
   assert.equal(report.files.length, OPERATIONAL_FILES.length);
   assert.equal(report.candidateFilesVerified, 12);
+  assert.equal(report.pacingFilesVerified, 2);
   assert.ok(report.files.every(file => file.gitBlobSha256 === file.packageSha256));
   for (const relative of OPERATIONAL_FILES.filter(file => file.endsWith('.cjs'))) {
     run(process.execPath, ['--check', path.join(snapshot, relative)], { cwd: gitRoot });
@@ -51,7 +52,7 @@ test('portable Git archive preserves committed bytes and candidate integrity has
 
 test('Stage B preflight validates staging inputs without audio generation or promotion', t => {
   const gitRoot = path.resolve(__dirname, '..');
-  const commit = run('git', ['rev-parse', 'HEAD'], { cwd: gitRoot });
+  const commit = run('git', ['write-tree'], { cwd: gitRoot });
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-sg-stage-b-preflight-'));
   t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
   const episode = path.join(tempRoot, 'episode');
@@ -122,7 +123,7 @@ test('Stage B preflight validates staging inputs without audio generation or pro
   assert.match(result.stdout, /"promotion": false/);
   assert.equal(fs.existsSync(path.join(path.dirname(episode), '.EmpireOmitted_V3_SHADOW_WELLSFARGO-candidate-portability-0001')), false);
   assert.equal(fs.readFileSync(path.join(episode, 'script.json'), 'utf8'), bytesByPath.get('script.json').toString());
-  assert.equal(run('git', ['rev-parse', 'HEAD'], { cwd: gitRoot }), commit);
+  assert.equal(run('git', ['write-tree'], { cwd: gitRoot }), commit);
 });
 
 const CANDIDATE = 'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
