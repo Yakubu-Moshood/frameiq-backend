@@ -177,7 +177,8 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
   if (audioClassification.generatedAudioOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.generatedAudioOutputs[0]}`);
   if (audioClassification.partialOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.partialOutputs[0]}`);
   const eventMarker = /(?:provider[-_ ]?attempt[-_ ]?(?:reserved|started)|\bRESERVED\b|provider[-_ ]?(?:request|response)|http[-_ ]?(?:request|response)|elevenlabs[-_ ]?(?:request|response)|["']?(?:requestId|requestStatus|httpStatus)["']?\s*:)/i;
-  for (const file of files.filter(item => /\.(?:json|jsonl|log|txt)$/i.test(item))) {
+  const verifiedBackupPaths = new Set(verifiedBackups.map(item => path.resolve(runDir, ...item.path.split('/'))));
+  for (const file of files.filter(item => !verifiedBackupPaths.has(path.resolve(item)) && /\.(?:json|jsonl|log|txt)$/i.test(item))) {
     if (eventMarker.test(fs.readFileSync(file, 'utf8'))) throw new Error(`PROVIDER_EVENT_EVIDENCE_PRESENT:${path.relative(runDir, file)}`);
   }
 

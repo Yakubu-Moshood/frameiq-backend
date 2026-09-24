@@ -110,6 +110,21 @@ test('backup hash mismatch and a backup absent from the manifest are refused', t
   assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: unlisted.episodeRoot, processAlive: inactive, verifyEpisodeHashes: unlisted.hashVerifier, expectedEpisodeHashes: unlisted.expectedEpisodeHashes }), /BACKUP_FILE_ABSENT_FROM_MANIFEST/);
 });
 
+test('verified immutable pre-run backup metadata is not mistaken for a current provider event', t => {
+  const f = fixture(t);
+  const relativePath = 'prior-run-metadata.json';
+  const bytes = Buffer.from('{"requestId":"historical-render-request","httpStatus":200}\n');
+  const backupPath = path.join(f.runDir, 'backups', relativePath);
+  fs.writeFileSync(backupPath, bytes);
+  const manifestPath = path.join(f.runDir, 'backup-manifest.json');
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.files.push({ relativePath, existed: true, sha256: sha256(bytes), bytes: bytes.length });
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+  const report = auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier, expectedEpisodeHashes: f.expectedEpisodeHashes });
+  assert.equal(report.audioAudit.durableProviderAttemptEvidence.count, 0);
+  assert.ok(report.audioAudit.verifiedAuthoritativeBackups.files.some(file => file.relativePath === relativePath));
+});
+
 test('generated MP3 and partial output outside verified backups are refused', t => {
   for (const audio of ['audio/VO_Act3B.mp3', 'diagnostics/VO_Act4.mp3.partial']) {
     const f = fixture(t, { extras: [[audio, 'audio bytes']] });
