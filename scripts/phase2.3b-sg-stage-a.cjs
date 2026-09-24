@@ -8,7 +8,7 @@ const crypto = require('node:crypto');
 const { generateActVoice, MODEL, OUTPUT_FORMAT, APPROVED_VOICE_SETTINGS, sha256 } = require('../pipeline-updates/act-voice-generator.cjs');
 
 const EPISODE = '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO';
-const CANDIDATE = '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
+const CANDIDATE = process.env.EO_SG_CANDIDATE_DIR || '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
 const GLOBAL_LEDGER = path.join(EPISODE, '.review', 'phase2.3b-sg-request-ledger.json');
 const EXPECTED = {
   'script.json': 'b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8',
@@ -31,6 +31,30 @@ const atomicJson = (file, data) => {
   finally { try { fs.rmSync(tmp, { force: true }); } catch (_) {} }
 };
 function appendLog(file, entry) { fs.appendFileSync(file, `${JSON.stringify({ at: now(), ...entry })}\n`, { flag: 'a' }); }
+function verifyCandidatePackage(candidateDir = CANDIDATE) {
+  const packageManifest = JSON.parse(fs.readFileSync(path.join(candidateDir, 'candidate-package-sha256.json'), 'utf8'));
+  for (const [relative, expected] of Object.entries(packageManifest.files || {})) {
+    const file = path.resolve(candidateDir, relative);
+    if (!file.startsWith(`${path.resolve(candidateDir)}${path.sep}`) || !fs.existsSync(file)) throw new Error(`CANDIDATE_PACKAGE_FILE_MISSING:${relative}`);
+    const bytes = fs.readFileSync(file);
+    if (bytes.length !== expected.bytes || hashFile(file) !== expected.sha256) throw new Error(`CANDIDATE_PACKAGE_HASH_MISMATCH:${relative}`);
+  }
+  const manifest = JSON.parse(fs.readFileSync(path.join(candidateDir, 'source-hash-manifest.json'), 'utf8'));
+  const captureKeys = {
+    'script.json': 'script', 'edit-plan.json': 'editPlan', 'edit-plan-validation.json': 'validation',
+    'assets/audio/VO_Act3B.mp3': 'act3bAudio', 'shot-definitions.json': 'shotDefinitions',
+    'production-manifest.json': 'productionManifest',
+  };
+  for (const [relative, key] of Object.entries(captureKeys)) {
+    if (manifest.files?.[key]?.sha256 !== EXPECTED[relative]) throw new Error(`SOURCE_CAPTURE_EXPECTATION_MISSING:${relative}`);
+  }
+  const narration = JSON.parse(fs.readFileSync(path.join(candidateDir, 'narration-texts.json'), 'utf8'));
+  for (const [actKey, spec] of Object.entries(TEXT)) {
+    const text = narration[actKey]?.next;
+    if (typeof text !== 'string' || text.length !== spec.characters || sha256(text) !== spec.sha256) throw new Error(`APPROVED_TEXT_MISMATCH:${actKey}`);
+  }
+  return { candidateDir: path.resolve(candidateDir), filesVerified: Object.keys(packageManifest.files).length, actsVerified: Object.keys(TEXT) };
+}
 function checkLiveHashes() {
   const hashes = {};
   for (const [relative, expected] of Object.entries(EXPECTED)) {
@@ -88,6 +112,11 @@ function createBackups(root, targets) {
 }
 
 async function main() {
+  if (process.argv.includes('--dry-run')) {
+    const verification = verifyCandidatePackage();
+    console.log(JSON.stringify({ status: 'PREFLIGHT_PASS', ...verification, providerRequests: 0, episodeWrites: 0 }, null, 2));
+    return;
+  }
   const runId = process.env.EO_VOICE_RUN_ID;
   if (!runId || !/^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/.test(runId)) throw new Error('EO_VOICE_RUN_ID must be a unique safe 6–64 character token.');
   if (process.env.RAILWAY_PROJECT_ID && process.env.RAILWAY_PROJECT_ID !== '98a75a00-ce8e-4a7a-833e-ff76d3bdefea') throw new Error('WRONG_RAILWAY_PROJECT');
@@ -164,4 +193,6 @@ async function main() {
     try { fs.rmSync(globalLock, { force: true }); } catch (_) {}
   }
 }
-main().catch(error => { console.error(`STAGE_A_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
+if (require.main === module) main().catch(error => { console.error(`STAGE_A_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
+
+module.exports = { verifyCandidatePackage };

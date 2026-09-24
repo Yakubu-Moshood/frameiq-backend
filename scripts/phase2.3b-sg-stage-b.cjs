@@ -6,8 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
-const ROOT = '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO';
-const CANDIDATE = '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
+const ROOT = process.env.EO_SG_EPISODE_DIR || '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO';
+const CANDIDATE = process.env.EO_SG_CANDIDATE_DIR || '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
 const EPISODE_ID = 'e59b6b79-96aa-4dcd-92c3-749fd536f55e';
 const ACTS = [['act1','VO_Act1'],['act2','VO_Act2'],['act3','VO_Act3'],['act3b','VO_Act3B'],['act4','VO_Act4'],['act5','VO_Act5']];
 const DYNAMIC = new Set(['startWordIndex','endWordIndex','startSec','endSec','durationSec','narrationExcerpt']);
@@ -73,6 +73,10 @@ async function main() {
   const liveTargets = { 'script.json': 'script', 'edit-plan.json': 'editPlan', 'edit-plan-validation.json': 'validation', 'assets/audio/VO_Act3B.mp3': 'act3bAudio', 'shot-definitions.json': 'shotDefinitions', 'production-manifest.json': 'productionManifest' };
   for (const [relative, key] of Object.entries(liveTargets)) assert(bytesHash(path.join(ROOT, relative)) === status.liveHashes[relative], `LIVE_HASH_CHANGED:${relative}`);
   for (const [key, item] of Object.entries(captured.files)) assert(bytesHash(path.resolve(item.remotePath)) === status.liveHashes[item.localFile], `LIVE_CAPTURE_CHANGED:${key}`);
+  if (process.argv.includes('--preflight-only')) {
+    console.log(JSON.stringify({ status: 'PREFLIGHT_PASS', runId, completedActs: status.completedActs, validatedInputs: Object.keys(status.liveHashes), episodeWrites: 0, audioGeneration: false, promotion: false }, null, 2));
+    return;
+  }
   const parent = path.dirname(ROOT); const stage = path.join(parent, `.EmpireOmitted_V3_SHADOW_WELLSFARGO-candidate-${runId}`);
   assert(!fs.existsSync(stage), 'STAGE_DIRECTORY_EXISTS');
   execFileSync('cp', ['-al', ROOT, stage], { stdio: 'ignore' });
@@ -192,4 +196,4 @@ async function main() {
     process.exitCode = 1;
   }
 }
-main().catch(error => { console.error(`STAGE_B_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
+if (require.main === module) main().catch(error => { console.error(`STAGE_B_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
