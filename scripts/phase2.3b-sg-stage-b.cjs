@@ -126,14 +126,30 @@ async function main() {
       const clean = value => Object.fromEntries(Object.entries(value).filter(([key]) => !DYNAMIC.has(key) && key !== 'sourceEditPlanSha256'));
       assert(equal(clean(shot), clean(original)), `CREATIVE_FIELD_CHANGED:${shot.shotId}`);
     }
-    const timingLedger = readJson(source('revision-ledger.phase2.3b-sv-amendment.v1.json'));
-    timingLedger.bindings = timingLedger.bindings || [];
-    timingLedger.bindings.push({ fieldPath: 'sourceEditPlanSha256', beforeValue: readJson(source('candidate-shot-definitions-pretiming.json')).sourceEditPlanSha256, afterValue: planSha, reason: 'Approved two-act finished-VO retiming updates only the deterministic plan identity; all creative fields remain frozen.', approvalStatus: 'APPROVED', revisionVersion: timingLedger.revisionVersion });
-    timingLedger.resultArtifactSha256 = sha(jsonBytes(shotDefs));
-    const lineage = [readJson(source('revision-ledger.phase2.2d-lineage.v1.json')), timingLedger];
+    const preTimingShotDefs = readJson(source('candidate-shot-definitions-pretiming.json'));
+    const timingFields = ['startWordIndex','endWordIndex','startSec','endSec','durationSec','narrationExcerpt'];
+    const timingEntries = [];
+    const permittedImmutablePaths = [];
+    for (const shot of shotDefs.allShots) {
+      const before = preTimingShotDefs.allShots.find(item => item.shotId === shot.shotId);
+      for (const field of timingFields) if (!equal(before[field], shot[field])) {
+        const fieldPath = `${shot.shotId}.${field}`;
+        permittedImmutablePaths.push(fieldPath);
+        timingEntries.push({ shotId: shot.shotId, beatId: shot.beatId, fieldPath: field, beforeValue: before[field], afterValue: shot[field], reason: 'Approved deterministic timing propagation from the two authorized replacement VO acts; creative direction remains frozen.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-SG' });
+      }
+    }
+    const timingLedger = {
+      ledgerVersion: '1.0.0', revisionId: `phase2.3b-sg-retiming-${runId}`, revisionVersion: '2.3B-SG', lineageRole: 'current', approvalStatus: 'APPROVED',
+      approval: { status: 'APPROVED', basis: 'CTO-approved two-act finished-VO correction with deterministic downstream timing propagation.' },
+      parentArtifactSha256: readJson(source('revision-ledger.phase2.3b-sv-amendment.v1.json')).resultArtifactSha256,
+      resultArtifactSha256: sha(jsonBytes(shotDefs)), permittedImmutablePaths, entries: timingEntries,
+      bindings: [{ fieldPath: 'sourceEditPlanSha256', beforeValue: preTimingShotDefs.sourceEditPlanSha256, afterValue: planSha, reason: 'Approved retiming binds shot definitions to the final finished-VO edit plan.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-SG' }],
+    };
+    const lineage = [readJson(source('revision-ledger.phase2.2d-lineage.v1.json')), readJson(source('revision-ledger.phase2.3b-sv-amendment.v1.json')), timingLedger];
     const { validateShotDefinitions } = require('/data/pipeline/shot-definitions-validator.cjs');
     const shotValidation = validateShotDefinitions({ plan, shotDefs, revisionChain: lineage });
     assert(shotValidation.status === 'PASS', `SHOT_VALIDATION:${shotValidation.errors?.[0]?.code || 'FAIL'}`);
+    atomicJson(path.join(review, 'revision-ledger.phase2.3b-sg-retiming.v1.json'), timingLedger);
     const manifest = readJson(source('candidate-production-manifest-pretiming.json'));
     manifest.sourceEditPlanSha256 = planSha; manifest.candidateSha256 = sha(jsonBytes(shotDefs));
     const { validateProductionMethodManifest } = require('/data/pipeline/production-method-manifest.cjs');
