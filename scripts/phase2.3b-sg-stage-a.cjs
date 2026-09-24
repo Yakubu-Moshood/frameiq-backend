@@ -39,9 +39,10 @@ function checkLiveHashes() {
     if (hashes[relative] !== expected) throw new Error(`LIVE_HASH_MISMATCH:${relative}`);
   }
   const manifest = JSON.parse(fs.readFileSync(path.join(CANDIDATE, 'source-hash-manifest.json'), 'utf8'));
+  const packageManifest = JSON.parse(fs.readFileSync(path.join(CANDIDATE, 'candidate-package-sha256.json'), 'utf8'));
+  const manifestLock = packageManifest.files?.['source-hash-manifest.json'];
+  if (!manifestLock || hashFile(path.join(CANDIDATE, 'source-hash-manifest.json')) !== manifestLock.sha256) throw new Error('SOURCE_MANIFEST_LOCK_MISMATCH');
   for (const item of Object.values(manifest.files)) {
-    const file = path.join(CANDIDATE, item.localFile);
-    if (!fs.existsSync(file) || hashFile(file) !== item.sha256) throw new Error(`CAPTURE_HASH_MISMATCH:${item.localFile}`);
     const livePath = path.resolve(item.remotePath);
     if (!livePath.startsWith(`${path.resolve(EPISODE)}${path.sep}`) || !fs.existsSync(livePath)) throw new Error(`LIVE_CAPTURE_PATH_MISSING:${item.localFile}`);
     hashes[item.localFile] = hashFile(livePath);
