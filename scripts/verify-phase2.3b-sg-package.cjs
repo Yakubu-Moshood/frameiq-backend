@@ -8,8 +8,11 @@ const { spawnSync } = require('node:child_process');
 const OPERATIONAL_FILES = [
   'pipeline-updates/act-voice-generator.cjs',
   'test/act-voice-generator.test.cjs',
+  'test/phase2.3b-sg-stage-a-accounting.test.cjs',
+  'test/phase2.3b-sg-zero-call-recovery.test.cjs',
   'test/deployment-package-portability.test.cjs',
   'scripts/phase2.3b-sg-stage-a.cjs',
+  'scripts/phase2.3b-sg-recover-zero-call-run.cjs',
   'scripts/phase2.3b-sg-stage-b.cjs',
   'scripts/phase2.3b-sg-rollback.cjs',
   'scripts/phase2.3b-sg-atomic-exchange.py',

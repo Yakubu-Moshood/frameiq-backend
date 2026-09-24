@@ -160,6 +160,13 @@ function safeReport(attempt) {
   };
 }
 
+// `channelKey` is the canonical channel_dna ID (for example, `EmpireOmitted`).
+// Display labels are deliberately not resolved or normalised here.
+async function resolveChannelDnaByKey(channelKey, getChannelConfig) {
+  const lookup = getChannelConfig || (key => require('./config-reader.cjs').getChannelConfig(key));
+  return lookup(channelKey);
+}
+
 async function generateActVoice(args = {}, dependencies = {}) {
   validateInput(args);
   const fs = dependencies.fs || fsDefault;
@@ -175,7 +182,7 @@ async function generateActVoice(args = {}, dependencies = {}) {
   if (fs.existsSync(outputPath)) throw new Error('ACT_VOICE_OUTPUT_EXISTS: refusing to overwrite an existing final audio file.');
   if (fs.existsSync(partialPath)) throw new Error('ACT_VOICE_PARTIAL_EXISTS: refusing to overwrite or resume a partial audio file.');
 
-  const resolver = dependencies.resolveChannelDna || (async channel => require('./config-reader.cjs').getChannelConfigByLabel(channel));
+  const resolver = dependencies.resolveChannelDna || (channelKey => resolveChannelDnaByKey(channelKey));
   const dna = args.channelDna || await resolver(args.channel);
   const voiceId = dna?.voice_id_elevenlabs || dna?.elevenlabs_voice_id || process.env.ELEVENLABS_VOICE_ID;
   if (typeof voiceId !== 'string' || !voiceId.trim()) throw new Error('ACT_VOICE_ID_MISSING: no ElevenLabs voice is configured for this channel.');
@@ -219,6 +226,9 @@ async function generateActVoice(args = {}, dependencies = {}) {
     });
 
     try {
+      if (typeof dependencies.onRequestReserved === 'function') {
+        await dependencies.onRequestReserved(safeReport(attempt));
+      }
       const url = `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=${OUTPUT_FORMAT}`;
       let response;
       try {
@@ -303,4 +313,5 @@ module.exports = {
   sha256,
   voiceFingerprint,
   probeMp3Default,
+  resolveChannelDnaByKey,
 };

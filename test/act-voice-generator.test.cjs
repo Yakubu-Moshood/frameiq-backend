@@ -7,7 +7,7 @@ const os = require('node:os');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '..', 'pipeline-updates', 'act-voice-generator.cjs'), 'utf8');
 const {
-  generateActVoice, MODEL, OUTPUT_FORMAT, APPROVED_VOICE_SETTINGS, LEDGER_VERSION, sha256,
+  generateActVoice, MODEL, OUTPUT_FORMAT, APPROVED_VOICE_SETTINGS, LEDGER_VERSION, sha256, resolveChannelDnaByKey,
 } = require('../pipeline-updates/act-voice-generator.cjs');
 
 const SECRET_KEY = 'test-elevenlabs-api-key-never-report';
@@ -29,7 +29,7 @@ function setup() {
   const calls = [];
   const dependencies = {
     apiKey: SECRET_KEY,
-    resolveChannelDna: async channel => { assert.equal(channel, 'Empire Omitted'); return { voice_id_elevenlabs: SECRET_VOICE }; },
+    resolveChannelDna: async channel => { assert.equal(channel, 'EmpireOmitted'); return { voice_id_elevenlabs: SECRET_VOICE }; },
     fetch: async (url, options) => {
       calls.push({ url, options, ledger: fs.existsSync(ledgerPath) ? JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) : null });
       return response(200, 'audio/mpeg', MP3);
@@ -42,7 +42,7 @@ function setup() {
     },
   };
   const args = {
-    channel: 'Empire Omitted', episodeId: 'episode-test', actKey: 'act3b', text: TEXT,
+    channel: 'EmpireOmitted', episodeId: 'episode-test', actKey: 'act3b', text: TEXT,
     expectedTextSha256: sha256(TEXT), outputPath, ledgerPath, model: MODEL,
     outputFormat: OUTPUT_FORMAT, voiceSettings: { ...APPROVED_VOICE_SETTINGS },
     maximumCharacters: 1000, maximumRequests: 2, allowOverwrite: false,
@@ -79,6 +79,52 @@ test('one requested act makes one provider request with an atomic reservation al
   assert.equal(ledger.attempts[0].status, 'COMPLETE');
   assert.equal(ledger.attempts[0].audioSha256, sha256(MP3));
   assert.equal(trappedNetworkCalls, 0);
+});
+
+test('canonical EmpireOmitted key is passed unchanged to the channel config resolver', async () => {
+  const f = setup();
+  const lookupKeys = [];
+  f.dependencies.resolveChannelDna = key => resolveChannelDnaByKey(key, async exactKey => {
+    lookupKeys.push(exactKey);
+    return { voice_id_elevenlabs: SECRET_VOICE };
+  });
+  await generateActVoice(f.args, f.dependencies);
+  assert.deepEqual(lookupKeys, ['EmpireOmitted']);
+  assert.equal(f.calls.length, 1);
+});
+
+test('display label channel failure occurs before ledger creation or provider request', async () => {
+  const f = setup();
+  f.args.channel = 'Empire Omitted';
+  const lookupKeys = [];
+  f.dependencies.resolveChannelDna = key => resolveChannelDnaByKey(key, async exactKey => {
+    lookupKeys.push(exactKey);
+    throw new Error(`[config-reader] Channel not found by id: ${exactKey}`);
+  });
+  let reservations = 0;
+  f.dependencies.onRequestReserved = async () => { reservations += 1; };
+  await assert.rejects(generateActVoice(f.args, f.dependencies), /Channel not found by id: Empire Omitted/);
+  assert.deepEqual(lookupKeys, ['Empire Omitted']);
+  assert.equal(reservations, 0);
+  assert.equal(fs.existsSync(f.ledgerPath), false);
+  assert.equal(f.calls.length, 0);
+});
+
+test('request reservation callback observes the durable RESERVED ledger before fetch', async () => {
+  const f = setup();
+  const order = [];
+  f.dependencies.onRequestReserved = async reservation => {
+    order.push('reservation-callback');
+    assert.equal(reservation.status, 'RESERVED');
+    const ledger = JSON.parse(fs.readFileSync(f.ledgerPath, 'utf8'));
+    assert.equal(ledger.attempts.length, 1);
+    assert.equal(ledger.attempts[0].requestId, reservation.requestId);
+    assert.equal(ledger.attempts[0].status, 'RESERVED');
+  };
+  f.dependencies.fetch = async (url, options) => { order.push('provider-request'); f.calls.push({ url, options }); return response(200, 'audio/mpeg', MP3); };
+  await generateActVoice(f.args, f.dependencies);
+  assert.deepEqual(order, ['reservation-callback', 'provider-request']);
+  assert.equal(f.calls.length, 1);
 });
 
 test('a text-hash mismatch is rejected before any provider request', async () => {

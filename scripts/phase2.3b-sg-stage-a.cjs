@@ -10,6 +10,10 @@ const { generateActVoice, MODEL, OUTPUT_FORMAT, APPROVED_VOICE_SETTINGS, sha256 
 const EPISODE = '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO';
 const CANDIDATE = process.env.EO_SG_CANDIDATE_DIR || '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
 const GLOBAL_LEDGER = path.join(EPISODE, '.review', 'phase2.3b-sg-request-ledger.json');
+const CHANNEL_KEY = 'EmpireOmitted';
+const EPISODE_ID = 'e59b6b79-96aa-4dcd-92c3-749fd536f55e';
+const ACT_KEYS = ['act3b', 'act4'];
+const LIMITS = Object.freeze({ maximumProviderRequests: 2, maximumCharacters: 2457, maximumCharactersPerAct: 2600 });
 const EXPECTED = {
   'script.json': 'b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8',
   'edit-plan.json': '33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337',
@@ -31,6 +35,36 @@ const atomicJson = (file, data) => {
   finally { try { fs.rmSync(tmp, { force: true }); } catch (_) {} }
 };
 function appendLog(file, entry) { fs.appendFileSync(file, `${JSON.stringify({ at: now(), ...entry })}\n`, { flag: 'a' }); }
+function matchingLedgerAttempts(ledger, actKey, textSha256) {
+  return (ledger?.attempts || []).filter(item => item.channel === CHANNEL_KEY && item.episodeId === EPISODE_ID
+    && item.actKey === actKey && item.textSha256 === textSha256);
+}
+function refreshAttemptCounts(status, ledger) {
+  for (const actKey of ACT_KEYS) {
+    const spec = TEXT[actKey];
+    const attempts = matchingLedgerAttempts(ledger, actKey, spec.sha256);
+    status.attemptsByAct[actKey] = attempts.length;
+    status.completedAttemptsByAct[actKey] = attempts.filter(item => item.status === 'COMPLETE').length;
+  }
+  return status.attemptsByAct;
+}
+function markPreReservationFailure(status, actKey, ledger, error) {
+  const attempts = matchingLedgerAttempts(ledger, actKey, TEXT[actKey].sha256);
+  refreshAttemptCounts(status, ledger);
+  status.currentAct = null;
+  if (attempts.length === 0) {
+    status.preReservationFailuresByAct[actKey] += 1;
+    status.actStates[actKey] = { state: 'PRE_RESERVATION_FAILURE', failedAt: now(), errorCode: String(error.message || 'ACT_FAILED').split(':')[0] };
+  } else {
+    const latest = attempts.at(-1);
+    status.actStates[actKey] = {
+      state: latest.status === 'COMPLETE' ? 'COMPLETED_PROVIDER_ATTEMPT' : 'FAILED_AFTER_RESERVATION',
+      requestId: latest.requestId, requestStatus: latest.status, finishedAt: latest.finishedAt || null,
+      errorCode: latest.errorCode || String(error.message || 'ACT_FAILED').split(':')[0],
+    };
+  }
+  return status.actStates[actKey];
+}
 function verifyCandidatePackage(candidateDir = CANDIDATE) {
   const packageManifest = JSON.parse(fs.readFileSync(path.join(candidateDir, 'candidate-package-sha256.json'), 'utf8'));
   for (const [relative, expected] of Object.entries(packageManifest.files || {})) {
@@ -141,7 +175,14 @@ async function main() {
   }
   const logPath = path.join(root, 'generation.jsonl');
   const statusPath = path.join(root, 'run-status.json');
-  const status = { schemaVersion: 'phase2.3b-sg-run/1.0.0', runId, pid: process.pid, startedAt: now(), updatedAt: now(), state: 'PREPARING', currentAct: null, completedActs: [], attemptsByAct: { act3b: 0, act4: 0 }, maximumProviderRequests: 2, totalCharacters: 2457 };
+  const status = {
+    schemaVersion: 'phase2.3b-sg-run/1.1.0', runId, pid: process.pid, startedAt: now(), updatedAt: now(),
+    state: 'PREPARING', currentAct: null, completedActs: [], attemptsByAct: { act3b: 0, act4: 0 },
+    completedAttemptsByAct: { act3b: 0, act4: 0 }, invocationsByAct: { act3b: 0, act4: 0 },
+    preReservationFailuresByAct: { act3b: 0, act4: 0 },
+    actStates: { act3b: { state: 'NOT_STARTED' }, act4: { state: 'NOT_STARTED' } },
+    maximumProviderRequests: LIMITS.maximumProviderRequests, totalCharacters: LIMITS.maximumCharacters,
+  };
   atomicJson(path.join(root, 'stage-a.pid.json'), { runId, pid: process.pid, startedAt: status.startedAt });
   const heartbeat = setInterval(() => { status.updatedAt = now(); try { atomicJson(statusPath, status); } catch (_) {} }, 15000);
   const oldLog = console.log;
@@ -149,6 +190,8 @@ async function main() {
   try {
     const live = checkLiveHashes();
     status.liveHashes = live; status.updatedAt = now();
+    const startingLedger = fs.existsSync(GLOBAL_LEDGER) ? JSON.parse(fs.readFileSync(GLOBAL_LEDGER, 'utf8')) : { attempts: [] };
+    refreshAttemptCounts(status, startingLedger);
     createBackups(root, backupTargets());
     const narration = JSON.parse(fs.readFileSync(path.join(CANDIDATE, 'narration-texts.json'), 'utf8'));
     const ledgerPath = GLOBAL_LEDGER;
@@ -158,29 +201,62 @@ async function main() {
       if (typeof text !== 'string' || text.length !== spec.characters || sha256(text) !== spec.sha256) throw new Error(`APPROVED_TEXT_MISMATCH:${actKey}`);
       const outputPath = path.join(root, 'audio', spec.filename);
       const previous = fs.existsSync(ledgerPath) ? JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) : { attempts: [] };
-      status.attemptsByAct[actKey] = previous.attempts.filter(item => item.channel === 'Empire Omitted'
-        && item.episodeId === 'e59b6b79-96aa-4dcd-92c3-749fd536f55e' && item.actKey === actKey && item.textSha256 === spec.sha256).length;
-      const prior = previous.attempts.find(item => item.channel === 'Empire Omitted' && item.episodeId === 'e59b6b79-96aa-4dcd-92c3-749fd536f55e' && item.actKey === actKey && item.textSha256 === spec.sha256);
+      const attempts = matchingLedgerAttempts(previous, actKey, spec.sha256);
+      status.attemptsByAct[actKey] = attempts.length;
+      status.completedAttemptsByAct[actKey] = attempts.filter(item => item.status === 'COMPLETE').length;
+      const prior = attempts[0];
       if (fs.existsSync(outputPath) && prior?.status === 'COMPLETE' && hashFile(outputPath) === prior.audioSha256) {
         if (!status.completedActs.includes(actKey)) status.completedActs.push(actKey);
+        status.actStates[actKey] = { state: 'COMPLETED_PROVIDER_ATTEMPT', requestId: prior.requestId, reused: true };
         status.updatedAt = now(); atomicJson(statusPath, status); appendLog(logPath, { type: 'act-reused-verified', actKey, audioSha256: prior.audioSha256 }); continue;
       }
       if (prior || fs.existsSync(outputPath) || fs.existsSync(`${outputPath}.partial`)) throw new Error(`ACT_STATE_UNCERTAIN:${actKey}: preserve output and ledger; no retry is permitted.`);
-      status.currentAct = actKey; status.attemptsByAct[actKey]++; status.updatedAt = now(); atomicJson(statusPath, status);
-      const report = await generateActVoice({
-        channel: 'Empire Omitted', episodeId: 'e59b6b79-96aa-4dcd-92c3-749fd536f55e', actKey, text,
-        expectedTextSha256: spec.sha256, outputPath, ledgerPath, model: MODEL, outputFormat: OUTPUT_FORMAT,
-        voiceSettings: { ...APPROVED_VOICE_SETTINGS }, maximumCharacters: 2600, maximumRequests: 2, allowOverwrite: false,
-      });
+      status.currentAct = actKey; status.invocationsByAct[actKey] += 1;
+      status.actStates[actKey] = { state: 'ACT_INVOKED', invocation: status.invocationsByAct[actKey], invokedAt: now() };
+      status.updatedAt = now(); atomicJson(statusPath, status);
+      appendLog(logPath, { type: 'act-invoked', actKey, invocation: status.invocationsByAct[actKey] });
+      let report;
+      try {
+        report = await generateActVoice({
+          channel: CHANNEL_KEY, episodeId: EPISODE_ID, actKey, text,
+          expectedTextSha256: spec.sha256, outputPath, ledgerPath, model: MODEL, outputFormat: OUTPUT_FORMAT,
+          voiceSettings: { ...APPROVED_VOICE_SETTINGS }, maximumCharacters: LIMITS.maximumCharactersPerAct,
+          maximumRequests: LIMITS.maximumProviderRequests, allowOverwrite: false,
+        }, {
+          onRequestReserved: reservation => {
+            const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+            refreshAttemptCounts(status, ledger);
+            status.actStates[actKey] = { state: 'RESERVED_PROVIDER_ATTEMPT', requestId: reservation.requestId, reservedAt: reservation.startedAt };
+            status.updatedAt = now(); atomicJson(statusPath, status);
+            appendLog(logPath, { type: 'provider-attempt-reserved', actKey, requestId: reservation.requestId, reservedAt: reservation.startedAt });
+          },
+        });
+      } catch (error) {
+        const ledger = fs.existsSync(ledgerPath) ? JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) : { attempts: [] };
+        const actState = markPreReservationFailure(status, actKey, ledger, error);
+        status.updatedAt = now(); atomicJson(statusPath, status);
+        appendLog(logPath, { type: actState.state === 'PRE_RESERVATION_FAILURE' ? 'pre-reservation-failure' : 'provider-attempt-failure', actKey, ...actState });
+        throw error;
+      }
       atomicJson(path.join(root, 'request-ledger.json'), JSON.parse(fs.readFileSync(ledgerPath, 'utf8')));
-      status.completedActs.push(actKey); status.currentAct = null; status.updatedAt = now(); atomicJson(statusPath, status);
+      const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+      refreshAttemptCounts(status, ledger);
+      status.completedActs.push(actKey);
+      status.actStates[actKey] = { state: 'COMPLETED_PROVIDER_ATTEMPT', requestId: report.requestId, completedAt: report.finishedAt };
+      status.currentAct = null; status.updatedAt = now(); atomicJson(statusPath, status);
       appendLog(logPath, { type: 'act-complete', ...report });
     }
     status.state = 'SUCCESS'; status.finishedAt = now(); status.updatedAt = now(); atomicJson(statusPath, status);
     atomicJson(path.join(root, 'stage-a-report.json'), { ...status, requestLedger: JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) });
-    console.log(JSON.stringify({ status: 'SUCCESS', runId, completedActs: status.completedActs, totalCharacters: 2457, maximumProviderRequests: 2, outputDirectory: path.join(root, 'audio') }, null, 2));
+    console.log(JSON.stringify({ status: 'SUCCESS', runId, completedActs: status.completedActs, totalCharacters: LIMITS.maximumCharacters, maximumProviderRequests: LIMITS.maximumProviderRequests, outputDirectory: path.join(root, 'audio') }, null, 2));
   } catch (error) {
-    try { if (fs.existsSync(GLOBAL_LEDGER)) atomicJson(path.join(root, 'request-ledger.json'), JSON.parse(fs.readFileSync(GLOBAL_LEDGER, 'utf8'))); } catch (_) {}
+    try {
+      if (fs.existsSync(GLOBAL_LEDGER)) {
+        const ledger = JSON.parse(fs.readFileSync(GLOBAL_LEDGER, 'utf8'));
+        refreshAttemptCounts(status, ledger);
+        atomicJson(path.join(root, 'request-ledger.json'), ledger);
+      }
+    } catch (_) {}
     status.state = 'FAILURE'; status.errorCode = String(error.message || 'STAGE_A_FAILED').split(':')[0]; status.updatedAt = now(); status.finishedAt = now();
     try { atomicJson(statusPath, status); appendLog(logPath, { type: 'failure', errorCode: status.errorCode, message: error.message }); } catch (_) {}
     console.error(JSON.stringify({ status: 'FAILURE', runId, completedActs: status.completedActs, attemptsByAct: status.attemptsByAct, errorCode: status.errorCode, reviewDirectory: root }, null, 2));
@@ -196,4 +272,4 @@ async function main() {
 }
 if (require.main === module) main().catch(error => { console.error(`STAGE_A_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
 
-module.exports = { verifyCandidatePackage };
+module.exports = { verifyCandidatePackage, refreshAttemptCounts, markPreReservationFailure, CHANNEL_KEY, EPISODE_ID, ACT_KEYS, TEXT, LIMITS };
