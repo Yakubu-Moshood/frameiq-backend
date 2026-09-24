@@ -38,6 +38,7 @@ function walkFiles(root) {
   if (!fs.existsSync(root)) return found;
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     const target = path.join(root, entry.name);
+    if (entry.isSymbolicLink()) throw new Error(`SYMLINK_IN_RUN_EVIDENCE:${target}`);
     if (entry.isDirectory()) found.push(...walkFiles(target));
     else if (entry.isFile()) found.push(target);
   }
@@ -68,12 +69,83 @@ function readLedgerEvidence(ledgerPath, runDir) {
   try { ledger = readJson(ledgerPath); }
   catch (_) { throw new Error(`REQUEST_LEDGER_UNREADABLE:${path.relative(runDir, ledgerPath)}`); }
   if (!ledger || !Array.isArray(ledger.attempts)) throw new Error(`REQUEST_LEDGER_INVALID:${path.relative(runDir, ledgerPath)}`);
-  const reservations = ledger.attempts.filter(item => item?.channel === 'EmpireOmitted' && item?.episodeId === TARGET.episodeId);
-  if (reservations.length) throw new Error(`PROVIDER_REQUEST_LEDGER_ENTRY_FOUND:${path.relative(runDir, ledgerPath)}`);
-  return { path: path.relative(runDir, ledgerPath), exists: true, attempts: ledger.attempts.length, reservations: [] };
+  if (ledger.attempts.length) throw new Error(`PROVIDER_REQUEST_LEDGER_ENTRY_FOUND:${path.relative(runDir, ledgerPath)}`);
+  return { path: path.relative(runDir, ledgerPath), exists: true, attempts: 0, reservations: [] };
 }
 
-function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes } = {}) {
+function normalizeManifestPath(value) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error('BACKUP_MANIFEST_PATH_INVALID');
+  const normalized = value.replace(/\\/g, '/');
+  if (normalized.startsWith('/') || /^[A-Za-z]:/.test(normalized) || normalized.split('/').some(part => part === '..' || part === '' || part === '.')) {
+    throw new Error(`BACKUP_MANIFEST_PATH_INVALID:${value}`);
+  }
+  return normalized;
+}
+
+function verifyBackups(runDir, expectedEpisodeHashes = EXPECTED_EPISODE_HASHES) {
+  const backupRoot = path.join(runDir, 'backups');
+  const manifestPath = path.join(runDir, 'backup-manifest.json');
+  if (!fs.existsSync(manifestPath)) throw new Error('BACKUP_MANIFEST_MISSING');
+  const manifest = readJson(manifestPath);
+  if (!Array.isArray(manifest?.files)) throw new Error('BACKUP_MANIFEST_INVALID');
+  const rows = new Map();
+  for (const row of manifest.files) {
+    const relativePath = normalizeManifestPath(row?.relativePath);
+    if (rows.has(relativePath)) throw new Error(`BACKUP_MANIFEST_DUPLICATE_PATH:${relativePath}`);
+    if (typeof row.existed !== 'boolean') throw new Error(`BACKUP_MANIFEST_EXISTENCE_INVALID:${relativePath}`);
+    rows.set(relativePath, { ...row, relativePath });
+  }
+
+  const expectedAct3bBackup = rows.get('assets/audio/VO_Act3B.mp3');
+  if (!expectedAct3bBackup?.existed) throw new Error('AUTHORITATIVE_ACT3B_BACKUP_MISSING_FROM_MANIFEST');
+
+  const verified = [];
+  for (const row of rows.values()) {
+    const backupPath = path.resolve(backupRoot, ...row.relativePath.split('/'));
+    if (!backupPath.startsWith(`${path.resolve(backupRoot)}${path.sep}`)) throw new Error(`BACKUP_PATH_ESCAPES_ROOT:${row.relativePath}`);
+    if (!row.existed) {
+      if (fs.existsSync(backupPath)) throw new Error(`UNEXPECTED_BACKUP_FILE:${row.relativePath}`);
+      continue;
+    }
+    if (!fs.existsSync(backupPath) || !fs.statSync(backupPath).isFile()) throw new Error(`BACKUP_FILE_MISSING:${row.relativePath}`);
+    const bytes = fs.readFileSync(backupPath);
+    const actualHash = sha256(bytes);
+    if (Number.isSafeInteger(row.bytes) && row.bytes !== bytes.length) throw new Error(`BACKUP_SIZE_MISMATCH:${row.relativePath}`);
+    if (typeof row.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(row.sha256) || row.sha256.toLowerCase() !== actualHash) {
+      throw new Error(`BACKUP_HASH_MISMATCH:${row.relativePath}`);
+    }
+    const expectedSourceHash = expectedEpisodeHashes[row.relativePath];
+    if (expectedSourceHash && actualHash !== expectedSourceHash) throw new Error(`BACKUP_AUTHORITATIVE_HASH_MISMATCH:${row.relativePath}`);
+    verified.push({ path: `backups/${row.relativePath}`, relativePath: row.relativePath, bytes: bytes.length, sha256: actualHash, authoritativeSourceSha256: expectedSourceHash || null });
+  }
+
+  const actualBackupFiles = walkFiles(backupRoot).map(file => normalizeManifestPath(path.relative(backupRoot, file)));
+  const expectedBackupFiles = [...rows.values()].filter(row => row.existed).map(row => row.relativePath);
+  for (const relativePath of actualBackupFiles) {
+    if (!expectedBackupFiles.includes(relativePath)) throw new Error(`BACKUP_FILE_ABSENT_FROM_MANIFEST:${relativePath}`);
+  }
+  for (const relativePath of expectedBackupFiles) {
+    if (!actualBackupFiles.includes(relativePath)) throw new Error(`BACKUP_FILE_MISSING:${relativePath}`);
+  }
+  return verified;
+}
+
+function classifyRunAudio(files, runDir, verifiedBackups) {
+  const verifiedBackupPaths = new Set(verifiedBackups.map(item => path.resolve(runDir, ...item.path.split('/'))));
+  const generatedAudioOutputs = [];
+  const partialOutputs = [];
+  for (const file of files) {
+    if (verifiedBackupPaths.has(path.resolve(file))) continue;
+    const relative = path.relative(runDir, file).replace(/\\/g, '/');
+    const basename = path.basename(file);
+    if (/\.partial$/i.test(basename)) { partialOutputs.push(relative); continue; }
+    const audioExtension = /\.(?:mp3|wav|m4a|aac|ogg|flac|opus|aiff?)$/i.test(basename);
+    if (/(^|\/)audio\//i.test(relative) || audioExtension) generatedAudioOutputs.push(relative);
+  }
+  return { generatedAudioOutputs, partialOutputs };
+}
+
+function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes, expectedEpisodeHashes = EXPECTED_EPISODE_HASHES } = {}) {
   if (runId !== TARGET.runId) throw new Error('RECOVERY_RUN_ID_MISMATCH');
   const runDir = path.join(episodeRoot, '.review', `phase2.3b-sg-${runId}`);
   if (!fs.existsSync(runDir) || !fs.statSync(runDir).isDirectory()) throw new Error('FAILED_RUN_DIRECTORY_MISSING');
@@ -100,9 +172,10 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
   const localLedger = path.join(runDir, 'request-ledger.json');
   const ledgerEvidence = [readLedgerEvidence(sharedLedger, runDir), readLedgerEvidence(localLedger, runDir)];
 
-  const audioFiles = files.filter(file => /[\\/]audio[\\/]/i.test(file)
-    || /\.(?:mp3|wav|m4a|aac|ogg|partial)$/i.test(file));
-  if (audioFiles.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${path.relative(runDir, audioFiles[0])}`);
+  const verifiedBackups = verifyBackups(runDir, expectedEpisodeHashes);
+  const audioClassification = classifyRunAudio(files, runDir, verifiedBackups);
+  if (audioClassification.generatedAudioOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.generatedAudioOutputs[0]}`);
+  if (audioClassification.partialOutputs.length) throw new Error(`AUDIO_OR_PARTIAL_PRESENT:${audioClassification.partialOutputs[0]}`);
   const eventMarker = /(?:provider[-_ ]?attempt[-_ ]?(?:reserved|started)|\bRESERVED\b|provider[-_ ]?(?:request|response)|http[-_ ]?(?:request|response)|elevenlabs[-_ ]?(?:request|response)|["']?(?:requestId|requestStatus|httpStatus)["']?\s*:)/i;
   for (const file of files.filter(item => /\.(?:json|jsonl|log|txt)$/i.test(item))) {
     if (eventMarker.test(fs.readFileSync(file, 'utf8'))) throw new Error(`PROVIDER_EVENT_EVIDENCE_PRESENT:${path.relative(runDir, file)}`);
@@ -116,14 +189,22 @@ function auditFailedRun({ episodeRoot = TARGET.episodeRoot, runId, processAlive 
   return {
     runDir, runId, state: status.state, completedActs: status.completedActs,
     legacyInvocationCounters: status.attemptsByAct || null,
-    checks: { failureState: true, noCompletedActs: true, processInactive: true, noLocks: true, noProviderLedgerReservations: true, noProviderEvents: true, noAudioOrPartial: true, lockedEpisodeHashesMatch: true },
+    audioAudit: {
+      verifiedAuthoritativeBackups: { count: verifiedBackups.length, files: verifiedBackups },
+      generatedAudioOutputs: { count: audioClassification.generatedAudioOutputs.length, files: audioClassification.generatedAudioOutputs },
+      partialOutputs: { count: audioClassification.partialOutputs.length, files: audioClassification.partialOutputs },
+      durableProviderAttemptEvidence: { count: 0, ledgers: ledgerEvidence, events: [] },
+      legacyInvocationCounters: status.attemptsByAct || null,
+    },
+    checks: { failureState: true, noCompletedActs: true, processInactive: true, noLocks: true, noProviderLedgerReservations: true, noProviderEvents: true, noAudioOrPartial: true, backupsMatchManifest: true, lockedEpisodeHashesMatch: true },
     evidence: {
       runStatus: { path: path.relative(runDir, statusPath), sha256: sha256(statusBytes), bytes: statusBytes.length },
       log: { path: path.relative(runDir, logPath), sha256: sha256(logBytes), bytes: logBytes.length },
       generationJournal: { path: path.relative(runDir, journalPath), sha256: sha256(journalBytes), bytes: journalBytes.length },
       sameLogAndJournal: logPath === journalPath,
       ledgers: ledgerEvidence,
-      providerEvents: [], audioFiles: [], episodeHashes,
+      providerEvents: [], audioFiles: audioClassification,
+      verifiedAuthoritativeBackups: verifiedBackups, episodeHashes,
       legacyInvocationCounters: status.attemptsByAct || null,
     },
   };
@@ -137,10 +218,10 @@ function atomicJson(file, value) {
   } finally { try { fs.rmSync(temp, { force: true }); } catch (_) {} }
 }
 
-function archiveFailedRun({ episodeRoot = TARGET.episodeRoot, runId, env = process.env, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes } = {}) {
+function archiveFailedRun({ episodeRoot = TARGET.episodeRoot, runId, env = process.env, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes, expectedEpisodeHashes = EXPECTED_EPISODE_HASHES } = {}) {
   if (env.RAILWAY_PROJECT_ID !== TARGET.projectId || env.RAILWAY_ENVIRONMENT_ID !== TARGET.environmentId
     || env.RAILWAY_SERVICE_ID !== TARGET.serviceId) throw new Error('WRONG_RAILWAY_TARGET');
-  const report = auditFailedRun({ episodeRoot, runId, processAlive, verifyEpisodeHashes });
+  const report = auditFailedRun({ episodeRoot, runId, processAlive, verifyEpisodeHashes, expectedEpisodeHashes });
   const archiveDir = path.join(episodeRoot, '.review', 'failed-run-archive', ARCHIVE_VERSION);
   const destination = path.join(archiveDir, runId);
   const recoveryRecordPath = path.join(archiveDir, `${runId}.recovery-record.json`);
@@ -176,11 +257,11 @@ function parseArgs(args, env = process.env) {
   return parsed;
 }
 
-function executeRecovery({ runId, dryRun = false, episodeRoot = TARGET.episodeRoot, env = process.env, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes } = {}) {
+function executeRecovery({ runId, dryRun = false, episodeRoot = TARGET.episodeRoot, env = process.env, processAlive = pidIsAlive, verifyEpisodeHashes = verifyLockedEpisodeHashes, expectedEpisodeHashes = EXPECTED_EPISODE_HASHES } = {}) {
   if (!runId) throw new Error('RUN_ID_REQUIRED');
   if (runId !== TARGET.runId) throw new Error('RECOVERY_RUN_ID_MISMATCH');
-  if (dryRun) return { status: 'DRY_RUN_PASS', ...auditFailedRun({ episodeRoot, runId, processAlive, verifyEpisodeHashes }) };
-  return archiveFailedRun({ episodeRoot, runId, env, processAlive, verifyEpisodeHashes });
+  if (dryRun) return { status: 'DRY_RUN_PASS', ...auditFailedRun({ episodeRoot, runId, processAlive, verifyEpisodeHashes, expectedEpisodeHashes }) };
+  return archiveFailedRun({ episodeRoot, runId, env, processAlive, verifyEpisodeHashes, expectedEpisodeHashes });
 }
 
 function main(args = process.argv.slice(2), env = process.env) {
