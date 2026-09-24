@@ -103,7 +103,7 @@ function dbAll(db, sql, params) {
   return new Promise((resolve, reject) => db.all(sql, params, (error, rows) => error ? reject(error) : resolve(rows || [])));
 }
 
-async function inspectProductionActivity({ db, episodeId, episodeDirectory, fs = fsDefault, reviewOutputDirectory }) {
+async function inspectProductionActivity({ db, episodeId, episodeDirectory, fs = fsDefault, reviewOutputDirectory, ownedPacingLockPath, runId }) {
   const rows = await dbAll(db,
     "SELECT e.id, e.status AS episodeStatus, j.step, j.status AS jobStatus FROM episodes e LEFT JOIN jobs j ON j.episode_id = e.id WHERE e.id = ? OR e.episode_id = ?",
     [episodeId, episodeId]);
@@ -121,7 +121,24 @@ async function inspectProductionActivity({ db, episodeId, episodeDirectory, fs =
     path.join(episodeDirectory, 'assets', 'audio', 'VO_Act4.mp3.act-voice.lock'),
     path.join(episodeDirectory, 'assets', 'audio', 'VO_Act5.mp3.act-voice.lock'),
   ];
-  for (const lock of lockCandidates) if (fs.existsSync(lock)) throw new Error('NARRATION_OR_STAGE_LOCK_ACTIVE:' + path.basename(lock));
+  const globalPacingLock = path.resolve(path.join(reviewRoot, 'narration-pacing-active.lock'));
+  for (const lock of lockCandidates) {
+    if (!fs.existsSync(lock)) continue;
+    const resolvedLock = path.resolve(lock);
+    const explicitlyOwnedGlobalLock = resolvedLock === globalPacingLock
+      && typeof ownedPacingLockPath === 'string'
+      && path.resolve(ownedPacingLockPath) === globalPacingLock
+      && typeof runId === 'string'
+      && runId.length > 0;
+    if (explicitlyOwnedGlobalLock) {
+      let owner;
+      try { owner = JSON.parse(fs.readFileSync(lock, 'utf8')); }
+      catch (_) { throw new Error('NARRATION_OR_STAGE_LOCK_ACTIVE:' + path.basename(lock)); }
+      if (owner && owner.runId === runId && owner.pid === process.pid
+          && typeof owner.startedAt === 'string' && owner.startedAt.trim()) continue;
+    }
+    throw new Error('NARRATION_OR_STAGE_LOCK_ACTIVE:' + path.basename(lock));
+  }
   for (const filename of fs.readdirSync(reviewRoot)) {
     const directory = path.join(reviewRoot, filename);
     if (!fs.statSync(directory).isDirectory() || !filename.startsWith('phase2.3b-p-narration-')) continue;
@@ -237,8 +254,9 @@ async function runCli(args = process.argv.slice(2), dependencies = {}) {
   const options = parseArgs(args);
   if (options.mode === 'help') return { status: 'HELP', usage: usage() };
   const fs = dependencies.fs || fsDefault;
-  const episodeDirectory = dependencies.episodeDirectory || SPEC.episodeDirectory;
-  const candidateDirectory = dependencies.candidateDirectory || SPEC.candidateDirectory;
+  const spec = dependencies.spec || SPEC;
+  const episodeDirectory = dependencies.episodeDirectory || spec.episodeDirectory;
+  const candidateDirectory = dependencies.candidateDirectory || spec.candidateDirectory;
   const outputDirectory = path.join(episodeDirectory, '.review', 'phase2.3b-p-narration-' + options.runId);
   if (options.mode === 'status') {
     const status = readJson(fs, path.join(outputDirectory, 'run-status.json'));
@@ -246,19 +264,21 @@ async function runCli(args = process.argv.slice(2), dependencies = {}) {
   }
   if (options.mode === 'verify-complete') return verifyReviewOutputs({ episodeDirectory, runId: options.runId, fs, probeAudio: dependencies.probeAudio });
   verifyRailwayTarget(dependencies.env || process.env);
-  const inputs = loadInputs({ fs, episodeDirectory, candidateDirectory, spec: SPEC });
-  const dna = dependencies.channelDna || await (dependencies.resolveChannelDna || (key => require('/data/pipeline/config-reader.cjs').getChannelConfig(key)))(SPEC.channelKey);
+  const inputs = (dependencies.loadInputs || loadInputs)({ fs, episodeDirectory, candidateDirectory, spec });
+  const dna = dependencies.channelDna || await (dependencies.resolveChannelDna || (key => require('/data/pipeline/config-reader.cjs').getChannelConfig(key)))(spec.channelKey);
   const credentialState = getCredentialState({ channelDna: dna, env: dependencies.env || process.env });
   if (!credentialState.credentialsPresent || !credentialState.voiceIdConfigured) throw new Error('PACING_CREDENTIAL_PREFLIGHT_FAILED');
-  const activity = await inspectProductionActivity({ db: dependencies.db || require('/app/db').db, episodeId: SPEC.episodeId, episodeDirectory, fs, reviewOutputDirectory: outputDirectory });
+  const inspectActivity = dependencies.inspectProductionActivity || inspectProductionActivity;
+  const activityOptions = { db: dependencies.db || require('/app/db').db, episodeId: spec.episodeId, episodeDirectory, fs, reviewOutputDirectory: outputDirectory };
+  const activity = await inspectActivity(activityOptions);
   if (options.mode === 'preflight') {
     fs.mkdirSync(outputDirectory, { recursive: true });
     const report = {
       schemaVersion: 'phase2.3b-p-preflight/1.0.0', status: 'PREFLIGHT_PASS', runId: options.runId,
       createdAt: new Date().toISOString(), lockedHashes: inputs.lockedHashes,
       planSha256: inputs.plan.planSha256, totalRequests: inputs.plan.totalSegments,
-      totalBillableCharacters: inputs.plan.totalCharacters, requestCeiling: SPEC.maximumRequests,
-      characterCeiling: SPEC.maximumCharacters, credentialsPresent: credentialState.credentialsPresent,
+      totalBillableCharacters: inputs.plan.totalCharacters, requestCeiling: spec.maximumRequests,
+      characterCeiling: spec.maximumCharacters, credentialsPresent: credentialState.credentialsPresent,
       voiceIdConfigured: credentialState.voiceIdConfigured, activity,
       audioGenerationRequests: 0, rootArtifactWrites: 0,
     };
@@ -278,16 +298,16 @@ async function runCli(args = process.argv.slice(2), dependencies = {}) {
   catch (error) { if (error?.code === 'EEXIST') throw new Error('NARRATION_PACING_LOCK_ACTIVE'); throw error; }
   try {
     fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, runId: options.runId, startedAt: new Date().toISOString() }), 'utf8');
-    verifyLockedFiles({ fs, episodeDirectory, spec: SPEC });
-    await inspectProductionActivity({ db: dependencies.db || require('/app/db').db, episodeId: SPEC.episodeId, episodeDirectory, fs, reviewOutputDirectory: outputDirectory });
-    const narrationTexts = readCandidateTexts({ fs, candidateDirectory });
+    verifyLockedFiles({ fs, episodeDirectory, spec });
+    await inspectActivity({ ...activityOptions, ownedPacingLockPath: globalLock, runId: options.runId });
+    const narrationTexts = (dependencies.readCandidateTexts || readCandidateTexts)({ fs, candidateDirectory });
     const script = readJson(fs, path.join(episodeDirectory, 'script.json'));
-    const actMap = buildActMap({ script, narrationTexts, spec: SPEC });
-    const result = await runPacedNarration({
-      channelKey: SPEC.channelKey, episodeDirectory, actMap,
-      voiceSettings: SPEC.voiceSettings, outputFormat: SPEC.outputFormat,
-      maximumSegmentLength: SPEC.maximumSegmentLength, joinPauseDurationMs: SPEC.joinPauseDurationMs,
-      maximumRequests: SPEC.maximumRequests, maximumCharacters: SPEC.maximumCharacters,
+    const actMap = buildActMap({ script, narrationTexts, spec });
+    const result = await (dependencies.runPacedNarration || runPacedNarration)({
+      channelKey: spec.channelKey, episodeDirectory, actMap,
+      voiceSettings: spec.voiceSettings, outputFormat: spec.outputFormat,
+      maximumSegmentLength: spec.maximumSegmentLength, joinPauseDurationMs: spec.joinPauseDurationMs,
+      maximumRequests: spec.maximumRequests, maximumCharacters: spec.maximumCharacters,
       reviewOutputDirectory: outputDirectory, channelDna: dna,
     }, dependencies);
     return { status: result.status, runId: result.runId, reviewDirectory: result.reviewDirectory, plan: planSummary(result.plan), state: result.state };

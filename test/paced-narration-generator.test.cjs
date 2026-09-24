@@ -9,7 +9,7 @@ const {
   DEFAULT_OUTPUT_FORMAT, DEFAULT_JOIN_PAUSE_MS, lexicalTokens, splitSentences,
   planPacedNarration, runPacedNarration, joinPacedSegments, sha256,
 } = require('../pipeline-updates/paced-narration-generator.cjs');
-const { buildActMap, makePlan, getCredentialState, verifyRailwayTarget, parseArgs, verifyPacingPackage } = require('../scripts/phase2.3b-p-run.cjs');
+const { SPEC, buildActMap, makePlan, getCredentialState, verifyRailwayTarget, parseArgs, verifyPacingPackage, inspectProductionActivity, runCli } = require('../scripts/phase2.3b-p-run.cjs');
 
 const SETTINGS = Object.freeze({ stability: 0.45, similarity_boost: 0.75, style: 0.1, use_speaker_boost: true, speed: 0.94 });
 const MP3 = Buffer.concat([Buffer.from('ID3'), Buffer.alloc(1400, 0x41)]);
@@ -344,6 +344,103 @@ test('CLI has a read-only help path and requires an explicit safe run ID', () =>
   assert.equal(parseArgs(['--help']).mode, 'help');
   assert.throws(() => parseArgs(['--preflight']), /RUN_ID_REQUIRED/);
   assert.equal(parseArgs(['--preflight', '--run-id', 'paced-review-001']).runId, 'paced-review-001');
+});
+
+function activityFixture() {
+  const episodeDirectory = tempEpisode();
+  const runId = 'lock-owner-test-001';
+  const outputDirectory = path.join(episodeDirectory, '.review', 'phase2.3b-p-narration-' + runId);
+  fs.mkdirSync(outputDirectory, { recursive: true });
+  fs.writeFileSync(path.join(episodeDirectory, 'script.json'), JSON.stringify({ acts: { act1: { voScript: 'A safe test sentence.' } } }));
+  const plan = {
+    channelKey: 'EmpireOmitted', model: 'eleven_multilingual_v2', voiceSettings: SETTINGS,
+    outputFormat: DEFAULT_OUTPUT_FORMAT, maximumSegmentLength: 720, joinPauseDurationMs: 350,
+    totalSegments: 1, totalCharacters: 21, totalWords: 4, planSha256: 'test-plan-sha256',
+    acts: [{ actKey: 'act1', sourceCharacters: 21, sourceWords: 4, performanceCharacters: 21, performanceWords: 4, segments: [{ segmentId: 'act1.segment-001', sourceStart: 0, sourceEnd: 21, characters: 21, words: 4, textSha256: 'test-text-sha256' }] }],
+  };
+  fs.writeFileSync(path.join(outputDirectory, 'preflight-report.json'), JSON.stringify({ status: 'PREFLIGHT_PASS', runId, planSha256: plan.planSha256 }));
+  const spec = {
+    ...SPEC, episodeId: 'test-episode', episodeDirectory, candidateDirectory: path.join(episodeDirectory, 'candidate'),
+    actOrder: ['act1'], voFilenames: { act1: 'VO_Act1.mp3' }, approvedCorrectionText: {}, lockedFiles: {},
+    channelKey: 'EmpireOmitted', maximumRequests: 1, maximumCharacters: 100,
+    voiceSettings: SETTINGS, outputFormat: DEFAULT_OUTPUT_FORMAT, maximumSegmentLength: 720, joinPauseDurationMs: 350,
+  };
+  const db = { all: (_sql, _params, callback) => callback(null, []) };
+  const dependencies = {
+    episodeDirectory, candidateDirectory: spec.candidateDirectory, spec, db,
+    env: { ELEVENLABS_API_KEY: SECRET_KEY },
+    channelDna: { voice_id_elevenlabs: SECRET_VOICE },
+    loadInputs: () => ({ lockedHashes: {}, plan }),
+    readCandidateTexts: () => ({}),
+  };
+  return { episodeDirectory, runId, outputDirectory, spec, plan, db, dependencies };
+}
+
+test('preflight refuses any existing global pacing lock', async () => {
+  const fixture = activityFixture();
+  const lockPath = path.join(fixture.episodeDirectory, '.review', 'narration-pacing-active.lock');
+  fs.writeFileSync(lockPath, JSON.stringify({ pid: process.pid, runId: fixture.runId, startedAt: new Date().toISOString() }));
+  fixture.dependencies.loadInputs = () => ({ lockedHashes: {}, plan: fixture.plan });
+  await assert.rejects(runCli(['--preflight', '--run-id', fixture.runId], fixture.dependencies), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+  assert.equal(fs.existsSync(path.join(fixture.outputDirectory, 'generation-plan.json')), false);
+});
+
+test('owned-lock exemption requires the exact global path and matching run, PID, and start time', async () => {
+  const fixture = activityFixture();
+  const lockPath = path.join(fixture.episodeDirectory, '.review', 'narration-pacing-active.lock');
+  const inspect = overrides => inspectProductionActivity({
+    db: fixture.db, episodeId: fixture.spec.episodeId, episodeDirectory: fixture.episodeDirectory,
+    reviewOutputDirectory: fixture.outputDirectory, ...overrides,
+  });
+  const owner = { pid: process.pid, runId: fixture.runId, startedAt: new Date().toISOString() };
+
+  fs.writeFileSync(lockPath, JSON.stringify(owner));
+  await assert.rejects(inspect({}), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+  await inspect({ ownedPacingLockPath: lockPath, runId: fixture.runId });
+
+  fs.writeFileSync(lockPath, JSON.stringify({ ...owner, runId: 'foreign-run-0001' }));
+  await assert.rejects(inspect({ ownedPacingLockPath: lockPath, runId: fixture.runId }), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+  fs.writeFileSync(lockPath, JSON.stringify({ ...owner, pid: process.pid + 1 }));
+  await assert.rejects(inspect({ ownedPacingLockPath: lockPath, runId: fixture.runId }), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+  fs.writeFileSync(lockPath, '{not-json');
+  await assert.rejects(inspect({ ownedPacingLockPath: lockPath, runId: fixture.runId }), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+  fs.writeFileSync(lockPath, JSON.stringify(owner));
+  await assert.rejects(inspect({ ownedPacingLockPath: path.join(fixture.episodeDirectory, '.review', 'other.lock'), runId: fixture.runId }), /NARRATION_OR_STAGE_LOCK_ACTIVE/);
+});
+
+test('execute accepts its own lock on the second check before generation begins and completes through a fake runner', async () => {
+  const fixture = activityFixture();
+  let inspections = 0;
+  let runnerCalled = false;
+  let networkCalls = 0;
+  fixture.dependencies.inspectProductionActivity = async activityOptions => {
+    inspections += 1;
+    if (inspections === 1) {
+      assert.equal(activityOptions.ownedPacingLockPath, undefined);
+      return inspectProductionActivity(activityOptions);
+    }
+    assert.equal(activityOptions.ownedPacingLockPath, path.join(fixture.episodeDirectory, '.review', 'narration-pacing-active.lock'));
+    assert.equal(activityOptions.runId, fixture.runId);
+    assert.equal(runnerCalled, false);
+    const lock = JSON.parse(fs.readFileSync(activityOptions.ownedPacingLockPath, 'utf8'));
+    assert.equal(lock.runId, fixture.runId);
+    assert.equal(lock.pid, process.pid);
+    assert.ok(lock.startedAt);
+    return inspectProductionActivity(activityOptions);
+  };
+  fixture.dependencies.runPacedNarration = async (_options, deps) => {
+    assert.equal(inspections, 2);
+    runnerCalled = true;
+    assert.equal(fs.existsSync(path.join(fixture.outputDirectory, 'request-ledger.jsonl')), false);
+    return { status: 'SUCCESS', runId: fixture.runId, reviewDirectory: fixture.outputDirectory, plan: fixture.plan, state: { state: 'SUCCESS' } };
+  };
+  fixture.dependencies.fetch = async () => { networkCalls += 1; throw new Error('test must not dispatch a network request'); };
+  const result = await runCli(['--execute', '--run-id', fixture.runId], fixture.dependencies);
+  assert.equal(result.status, 'SUCCESS');
+  assert.equal(inspections, 2);
+  assert.equal(runnerCalled, true);
+  assert.equal(networkCalls, 0);
+  assert.equal(fs.existsSync(path.join(fixture.episodeDirectory, '.review', 'narration-pacing-active.lock')), false);
 });
 
 test('source inputs and settings are not mutated during planning', () => {
