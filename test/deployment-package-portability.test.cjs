@@ -92,7 +92,11 @@ test('Stage B preflight validates staging inputs without audio generation or pro
     liveHashes[relative] = hash(bytesByPath.get(relative));
     liveHashes[localFile] = hash(bytesByPath.get(relative));
   }
-  fs.writeFileSync(path.join(candidate, 'source-hash-manifest.json'), json({ files: sourceFiles }));
+  const sourceManifestBytes = json({ files: sourceFiles });
+  fs.writeFileSync(path.join(candidate, 'source-hash-manifest.json'), sourceManifestBytes);
+  fs.writeFileSync(path.join(candidate, 'candidate-package-sha256.json'), json({ files: {
+    'source-hash-manifest.json': { bytes: sourceManifestBytes.length, sha256: hash(sourceManifestBytes) },
+  } }));
   const audio3b = bytesByPath.get('assets/audio/VO_Act3B.mp3');
   const audio4 = bytesByPath.get('assets/audio/VO_Act4.mp3');
   fs.mkdirSync(path.join(review, 'audio'), { recursive: true });

@@ -24,6 +24,21 @@ function atomicJson(file, value) {
 }
 function equal(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
 function assert(condition, code) { if (!condition) throw new Error(code); }
+function verifyCandidatePackage() {
+  const manifestPath = path.join(CANDIDATE, 'candidate-package-sha256.json');
+  const packageManifest = readJson(manifestPath);
+  for (const [relative, expected] of Object.entries(packageManifest.files || {})) {
+    const file = path.resolve(CANDIDATE, relative);
+    assert(file.startsWith(`${path.resolve(CANDIDATE)}${path.sep}`), `CANDIDATE_PACKAGE_PATH_INVALID:${relative}`);
+    assert(fs.existsSync(file), `CANDIDATE_PACKAGE_FILE_MISSING:${relative}`);
+    const bytes = fs.readFileSync(file);
+    assert(bytes.length === expected.bytes && sha(bytes) === expected.sha256, `CANDIDATE_PACKAGE_HASH_MISMATCH:${relative}`);
+  }
+  const sourceManifest = path.join(CANDIDATE, 'source-hash-manifest.json');
+  const sourceLock = packageManifest.files?.['source-hash-manifest.json'];
+  assert(sourceLock && bytesHash(sourceManifest) === sourceLock.sha256, 'SOURCE_MANIFEST_LOCK_MISMATCH');
+  return Object.keys(packageManifest.files || {}).length;
+}
 function retimePlan(plan, timestamps, durations) {
   const grouped = new Map(ACTS.map(([, vo]) => [vo, []]));
   for (const item of timestamps) { assert(grouped.has(item.vo_file), 'TIMING_UNKNOWN_VO'); grouped.get(item.vo_file).push(item); }
@@ -52,6 +67,7 @@ async function main() {
   const runId = process.env.EO_VOICE_RUN_ID;
   assert(runId && /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/.test(runId), 'RUN_ID_INVALID');
   assert(process.env.EO_VOICE_EPISODE_QUIESCED === 'I_CONFIRMED', 'EPISODE_QUIESCENCE_CONFIRMATION_REQUIRED');
+  verifyCandidatePackage();
   const review = path.join(ROOT, '.review', `phase2.3b-sg-${runId}`);
   const status = readJson(path.join(review, 'run-status.json'));
   const ledger = readJson(path.join(review, 'request-ledger.json'));

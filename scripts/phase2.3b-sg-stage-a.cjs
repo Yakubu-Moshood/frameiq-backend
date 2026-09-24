@@ -56,6 +56,7 @@ function verifyCandidatePackage(candidateDir = CANDIDATE) {
   return { candidateDir: path.resolve(candidateDir), filesVerified: Object.keys(packageManifest.files).length, actsVerified: Object.keys(TEXT) };
 }
 function checkLiveHashes() {
+  verifyCandidatePackage();
   const hashes = {};
   for (const [relative, expected] of Object.entries(EXPECTED)) {
     const file = path.join(EPISODE, relative);
