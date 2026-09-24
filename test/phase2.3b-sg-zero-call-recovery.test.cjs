@@ -5,69 +5,120 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { TARGET, auditFailedRun } = require('../scripts/phase2.3b-sg-recover-zero-call-run.cjs');
+const { spawnSync } = require('node:child_process');
+const { TARGET, EXPECTED_EPISODE_HASHES, ARCHIVE_VERSION, USAGE, auditFailedRun, executeRecovery, parseArgs, sha256 } = require('../scripts/phase2.3b-sg-recover-zero-call-run.cjs');
 
-function fixture(t, { status = {}, journal = '{"type":"run-start"}\n', extras = [] } = {}) {
+function fixture(t, { status = {}, journal = '{"type":"run-start"}\n', extras = [], ledger = undefined } = {}) {
   const episodeRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sg-zero-call-audit-'));
   t.after(() => fs.rmSync(episodeRoot, { recursive: true, force: true }));
-  const runDir = path.join(episodeRoot, '.review', `phase2.3b-sg-${TARGET.runId}`);
+  const review = path.join(episodeRoot, '.review');
+  const runDir = path.join(review, `phase2.3b-sg-${TARGET.runId}`);
   fs.mkdirSync(runDir, { recursive: true });
-  fs.writeFileSync(path.join(runDir, 'run-status.json'), JSON.stringify({ runId: TARGET.runId, state: 'FAILURE', pid: 99999999, completedActs: [], attemptsByAct: { act3b: 0, act4: 0 }, ...status }));
+  fs.writeFileSync(path.join(runDir, 'run-status.json'), JSON.stringify({ runId: TARGET.runId, state: 'FAILURE', pid: 99999999, completedActs: [], attemptsByAct: { act3b: 1, act4: 0 }, ...status }));
   fs.writeFileSync(path.join(runDir, 'generation.jsonl'), journal);
+  if (ledger !== undefined) fs.writeFileSync(path.join(review, 'phase2.3b-sg-request-ledger.json'), JSON.stringify(ledger));
   for (const [relative, contents] of extras) {
     const file = path.join(runDir, relative);
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, contents);
   }
-  return { episodeRoot, runDir };
+  const hashVerifier = () => Object.fromEntries(Object.entries(EXPECTED_EPISODE_HASHES));
+  return { episodeRoot, review, runDir, hashVerifier };
 }
 
 const inactive = () => false;
+const railwayEnv = {
+  RAILWAY_PROJECT_ID: TARGET.projectId,
+  RAILWAY_ENVIRONMENT_ID: TARGET.environmentId,
+  RAILWAY_SERVICE_ID: TARGET.serviceId,
+};
+function treeHashes(root) {
+  const result = {};
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const file = path.join(root, entry.name);
+    if (entry.isDirectory()) Object.assign(result, Object.fromEntries(Object.entries(treeHashes(file)).map(([name, hash]) => [path.join(entry.name, name), hash])));
+    else result[entry.name] = sha256(fs.readFileSync(file));
+  }
+  return result;
+}
 
-test('audit accepts only named failed run with no completed acts, locks, ledger, provider events, audio, or live process', t => {
-  const f = fixture(t);
-  const report = auditFailedRun({ episodeRoot: f.episodeRoot, processAlive: inactive });
-  assert.equal(report.runId, TARGET.runId);
-  assert.equal(report.state, 'FAILURE');
-  assert.deepEqual(report.completedActs, []);
-  assert.equal(report.checks.noRequestLedger, true);
-  assert.equal(report.checks.noProviderEvents, true);
-  assert.equal(report.checks.noAudioOrPartial, true);
-  assert.match(report.evidence.runStatus.sha256, /^[a-f0-9]{64}$/);
-  assert.match(report.evidence.generationJournal.sha256, /^[a-f0-9]{64}$/);
+test('--help prints usage and exits successfully without mutating or inspecting a run', () => {
+  const result = spawnSync(process.execPath, [path.join(__dirname, '..', 'scripts', 'phase2.3b-sg-recover-zero-call-run.cjs'), '--help'], { encoding: 'utf8', env: { ...process.env, EO_SG_RECOVERY_RUN_ID: '' } });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Usage: node .*--run-id <id> \[--dry-run\]/);
+  assert.match(result.stdout, /--dry-run verifies/);
+  assert.equal(result.stderr, '');
 });
 
-test('audit refuses wrong run identity, non-failure state, or completed acts', t => {
-  const f = fixture(t);
-  assert.throws(() => auditFailedRun({ episodeRoot: f.episodeRoot, runId: 'different-run', processAlive: inactive }), /RUN_ID_MISMATCH/);
-  const success = fixture(t, { status: { state: 'SUCCESS' } });
-  assert.throws(() => auditFailedRun({ episodeRoot: success.episodeRoot, processAlive: inactive }), /RUN_NOT_CONFIRMED_FAILURE/);
-  const g = fixture(t, { status: { completedActs: ['act3b'] } });
-  assert.throws(() => auditFailedRun({ episodeRoot: g.episodeRoot, processAlive: inactive }), /RUN_HAS_COMPLETED_ACTS/);
+test('explicit run ID is required and environment fallback is documented', () => {
+  assert.throws(() => parseArgs([], {}), /RUN_ID_REQUIRED/);
+  assert.equal(parseArgs(['--run-id', TARGET.runId], {}).runId, TARGET.runId);
+  assert.equal(parseArgs([], { EO_SG_RECOVERY_RUN_ID: TARGET.runId }).runId, TARGET.runId);
+  assert.match(USAGE, /EO_SG_RECOVERY_RUN_ID/);
+  assert.throws(() => parseArgs(['--run-id', 'another-run'], {}), /RUN_ID_MISMATCH/);
 });
 
-test('audit fails closed on provider event, request ledger, lock, active PID, and audio partial evidence', t => {
-  const event = fixture(t, { journal: '{"type":"provider-attempt-reserved"}\n' });
-  assert.throws(() => auditFailedRun({ episodeRoot: event.episodeRoot, processAlive: inactive }), /PROVIDER_EVENT_EVIDENCE_PRESENT/);
-  const ledger = fixture(t);
-  const sharedLedger = path.join(ledger.episodeRoot, '.review', 'phase2.3b-sg-request-ledger.json');
-  fs.writeFileSync(sharedLedger, '{"attempts":[]}');
-  assert.throws(() => auditFailedRun({ episodeRoot: ledger.episodeRoot, processAlive: inactive }), /REQUEST_LEDGER_PRESENT/);
+test('legacy Stage A attemptsByAct is reported separately and exact zero-call failure passes dry-run', t => {
+  const f = fixture(t);
+  const before = treeHashes(f.runDir);
+  const report = executeRecovery({ runId: TARGET.runId, dryRun: true, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier });
+  assert.equal(report.status, 'DRY_RUN_PASS');
+  assert.equal(report.legacyInvocationCounters.act3b, 1);
+  assert.equal(report.checks.noProviderLedgerReservations, true);
+  assert.equal(report.checks.lockedEpisodeHashesMatch, true);
+  assert.deepEqual(treeHashes(f.runDir), before);
+  assert.equal(fs.existsSync(path.join(f.review, 'failed-run-archive')), false);
+});
+
+test('a real request-ledger reservation is refused regardless of the legacy counter', t => {
+  const f = fixture(t, { ledger: { attempts: [{ channel: 'EmpireOmitted', episodeId: TARGET.episodeId, actKey: 'act3b', status: 'RESERVED' }] } });
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier }), /PROVIDER_REQUEST_LEDGER_ENTRY_FOUND/);
+});
+
+test('reservation, request, and response events are refused', t => {
+  for (const event of ['provider-attempt-reserved', 'HTTP request sent', 'ElevenLabs response received']) {
+    const f = fixture(t, { journal: `${JSON.stringify({ type: event })}\n` });
+    assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier }), /PROVIDER_EVENT_EVIDENCE_PRESENT/);
+  }
+});
+
+test('both partial and completed generated audio are refused', t => {
+  for (const audio of ['audio/VO_Act3B.mp3.partial', 'audio/VO_Act3B.mp3']) {
+    const f = fixture(t, { extras: [[audio, 'audio bytes']] });
+    assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier }), /AUDIO_OR_PARTIAL_PRESENT/);
+  }
+});
+
+test('active lock, live process, and completed-act state are refused', t => {
   const lock = fixture(t);
-  fs.writeFileSync(path.join(lock.episodeRoot, '.review', 'phase2.3b-sg-active.lock'), 'active');
-  assert.throws(() => auditFailedRun({ episodeRoot: lock.episodeRoot, processAlive: inactive }), /LOCK_REQUIRES_INSPECTION/);
+  fs.writeFileSync(path.join(lock.review, 'phase2.3b-sg-active.lock'), 'active');
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: lock.episodeRoot, processAlive: inactive, verifyEpisodeHashes: lock.hashVerifier }), /LOCK_REQUIRES_INSPECTION/);
   const active = fixture(t);
-  assert.throws(() => auditFailedRun({ episodeRoot: active.episodeRoot, processAlive: pid => pid === 99999999 }), /RUN_PROCESS_STILL_ACTIVE/);
-  const audio = fixture(t, { extras: [['audio/VO_Act3B.mp3.partial', 'partial']] });
-  assert.throws(() => auditFailedRun({ episodeRoot: audio.episodeRoot, processAlive: inactive }), /AUDIO_OR_PARTIAL_PRESENT/);
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: active.episodeRoot, processAlive: pid => pid === 99999999, verifyEpisodeHashes: active.hashVerifier }), /RUN_PROCESS_STILL_ACTIVE/);
+  const done = fixture(t, { status: { completedActs: ['act3b'] } });
+  assert.throws(() => auditFailedRun({ runId: TARGET.runId, episodeRoot: done.episodeRoot, processAlive: inactive, verifyEpisodeHashes: done.hashVerifier }), /RUN_HAS_COMPLETED_ACTS/);
 });
 
-test('recovery utility is hard-bound to the approved Railway target and is not executed in local tests', () => {
-  assert.deepEqual(TARGET, {
-    projectId: '98a75a00-ce8e-4a7a-833e-ff76d3bdefea',
-    environmentId: '6fa50efc-d4bc-4ea1-9c6e-c9daa9336b34',
-    serviceId: 'd965705e-d5e7-4f4e-ac58-fc6b1959c81f',
-    episodeRoot: '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO',
-    runId: 'eo-v3-sg-20260924-1738z-5cdf5b5',
-  });
+test('locked episode hash mismatch prevents dry-run and archival', t => {
+  const f = fixture(t);
+  const mismatch = () => { throw new Error('LOCKED_EPISODE_HASH_MISMATCH:script.json'); };
+  assert.throws(() => executeRecovery({ runId: TARGET.runId, dryRun: true, episodeRoot: f.episodeRoot, processAlive: inactive, verifyEpisodeHashes: mismatch }), /LOCKED_EPISODE_HASH_MISMATCH/);
+  assert.equal(fs.existsSync(path.join(f.review, 'failed-run-archive')), false);
+});
+
+test('archive preserves every failed-run file byte-for-byte at the versioned location', t => {
+  const f = fixture(t, { extras: [['diagnostics/raw.log', 'original diagnostic bytes'], ['nested/state.json', '{"unchanged":true}\n']] });
+  const before = treeHashes(f.runDir);
+  const result = executeRecovery({ runId: TARGET.runId, episodeRoot: f.episodeRoot, env: railwayEnv, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier });
+  const archivedRun = path.join(f.review, 'failed-run-archive', ARCHIVE_VERSION, TARGET.runId);
+  assert.equal(result.archivedPath, archivedRun);
+  assert.deepEqual(treeHashes(archivedRun), before);
+  assert.equal(fs.existsSync(f.runDir), false);
+  assert.equal(fs.existsSync(result.recoveryRecordPath), true);
+  assert.equal(JSON.parse(fs.readFileSync(result.recoveryRecordPath, 'utf8')).classification, 'FAILED_BEFORE_PROVIDER_RESERVATION_ZERO_PAID_REQUESTS');
+});
+
+test('archive requires the approved staging target', t => {
+  const f = fixture(t);
+  assert.throws(() => executeRecovery({ runId: TARGET.runId, episodeRoot: f.episodeRoot, env: {}, processAlive: inactive, verifyEpisodeHashes: f.hashVerifier }), /WRONG_RAILWAY_TARGET/);
 });
