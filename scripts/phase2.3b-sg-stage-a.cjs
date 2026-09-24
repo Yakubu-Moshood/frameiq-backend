@@ -9,6 +9,7 @@ const { generateActVoice, MODEL, OUTPUT_FORMAT, APPROVED_VOICE_SETTINGS, sha256 
 
 const EPISODE = '/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO';
 const CANDIDATE = '/app/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate';
+const GLOBAL_LEDGER = path.join(EPISODE, '.review', 'phase2.3b-sg-request-ledger.json');
 const EXPECTED = {
   'script.json': 'b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8',
   'edit-plan.json': '33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337',
@@ -94,10 +95,20 @@ async function main() {
   if (process.env.RAILWAY_SERVICE_ID && process.env.RAILWAY_SERVICE_ID !== 'd965705e-d5e7-4f4e-ac58-fc6b1959c81f') throw new Error('WRONG_RAILWAY_SERVICE');
   const root = path.join(EPISODE, '.review', `phase2.3b-sg-${runId}`);
   const lock = path.join(root, 'stage-a.lock');
+  const globalLock = path.join(EPISODE, '.review', 'phase2.3b-sg-active.lock');
   fs.mkdirSync(root, { recursive: true });
-  let fd;
-  try { fd = fs.openSync(lock, 'wx', 0o600); fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, createdAt: now() })); }
-  catch (error) { if (error?.code === 'EEXIST') throw new Error('RUN_LOCK_EXISTS: inspect run status before resuming.'); throw error; }
+  let fd; let globalFd;
+  try {
+    globalFd = fs.openSync(globalLock, 'wx', 0o600);
+    fd = fs.openSync(lock, 'wx', 0o600);
+    fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, createdAt: now() }));
+    fs.writeFileSync(globalFd, JSON.stringify({ runId, pid: process.pid, createdAt: now() }));
+  } catch (error) {
+    try { if (fd !== undefined) { fs.closeSync(fd); fs.rmSync(lock, { force: true }); } } catch (_) {}
+    try { if (globalFd !== undefined) { fs.closeSync(globalFd); fs.rmSync(globalLock, { force: true }); } } catch (_) {}
+    if (error?.code === 'EEXIST') throw new Error('RUN_LOCK_EXISTS: inspect process state before proceeding.');
+    throw error;
+  }
   const logPath = path.join(root, 'generation.jsonl');
   const statusPath = path.join(root, 'run-status.json');
   const status = { schemaVersion: 'phase2.3b-sg-run/1.0.0', runId, pid: process.pid, startedAt: now(), updatedAt: now(), state: 'PREPARING', currentAct: null, completedActs: [], attemptsByAct: { act3b: 0, act4: 0 }, maximumProviderRequests: 2, totalCharacters: 2457 };
@@ -110,7 +121,7 @@ async function main() {
     status.liveHashes = live; status.updatedAt = now();
     createBackups(root, backupTargets());
     const narration = JSON.parse(fs.readFileSync(path.join(CANDIDATE, 'narration-texts.json'), 'utf8'));
-    const ledgerPath = path.join(root, 'request-ledger.json');
+    const ledgerPath = GLOBAL_LEDGER;
     status.state = 'GENERATING'; atomicJson(statusPath, status); appendLog(logPath, { type: 'run-start', runId, liveHashes: live });
     for (const actKey of ['act3b', 'act4']) {
       const spec = TEXT[actKey]; const text = narration[actKey]?.next;
@@ -131,6 +142,7 @@ async function main() {
         expectedTextSha256: spec.sha256, outputPath, ledgerPath, model: MODEL, outputFormat: OUTPUT_FORMAT,
         voiceSettings: { ...APPROVED_VOICE_SETTINGS }, maximumCharacters: 2600, maximumRequests: 2, allowOverwrite: false,
       });
+      atomicJson(path.join(root, 'request-ledger.json'), JSON.parse(fs.readFileSync(ledgerPath, 'utf8')));
       status.completedActs.push(actKey); status.currentAct = null; status.updatedAt = now(); atomicJson(statusPath, status);
       appendLog(logPath, { type: 'act-complete', ...report });
     }
@@ -138,6 +150,7 @@ async function main() {
     atomicJson(path.join(root, 'stage-a-report.json'), { ...status, requestLedger: JSON.parse(fs.readFileSync(ledgerPath, 'utf8')) });
     console.log(JSON.stringify({ status: 'SUCCESS', runId, completedActs: status.completedActs, totalCharacters: 2457, maximumProviderRequests: 2, outputDirectory: path.join(root, 'audio') }, null, 2));
   } catch (error) {
+    try { if (fs.existsSync(GLOBAL_LEDGER)) atomicJson(path.join(root, 'request-ledger.json'), JSON.parse(fs.readFileSync(GLOBAL_LEDGER, 'utf8'))); } catch (_) {}
     status.state = 'FAILURE'; status.errorCode = String(error.message || 'STAGE_A_FAILED').split(':')[0]; status.updatedAt = now(); status.finishedAt = now();
     try { atomicJson(statusPath, status); appendLog(logPath, { type: 'failure', errorCode: status.errorCode, message: error.message }); } catch (_) {}
     console.error(JSON.stringify({ status: 'FAILURE', runId, completedActs: status.completedActs, attemptsByAct: status.attemptsByAct, errorCode: status.errorCode, reviewDirectory: root }, null, 2));
@@ -147,6 +160,8 @@ async function main() {
     console.log = oldLog;
     try { fs.closeSync(fd); } catch (_) {}
     try { fs.rmSync(lock, { force: true }); } catch (_) {}
+    try { fs.closeSync(globalFd); } catch (_) {}
+    try { fs.rmSync(globalLock, { force: true }); } catch (_) {}
   }
 }
 main().catch(error => { console.error(`STAGE_A_FATAL:${String(error.message || 'failure').split(':')[0]}`); process.exitCode = 1; });
