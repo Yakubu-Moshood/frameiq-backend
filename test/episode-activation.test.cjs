@@ -936,10 +936,13 @@ test('approved boundary ranges fail closed on missing or altered policy and line
   const value = approvedRevisionFixture();
   const valid = () => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 });
   assert.equal(valid().allocations.length, 6);
+  const missingRange = structuredClone(value.policy); missingRange.allocations.pop();
+  assert.throws(() => verifyApprovedBoundaryPolicy({ policy: missingRange, policyBytes: value.policyBytes, script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /ACTIVATION_APPROVED_BOUNDARY_SET_INVALID/u);
   assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: Buffer.from(`${value.policyBytes} `), script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /POLICY_HASH_MISMATCH/u);
   assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: '0'.repeat(64) }), /BINDING_MISMATCH/u);
   const altered = structuredClone(value.script); altered.acts.act3b.voScript = altered.acts.act3b.voScript.replace('5,300', '5,301');
   assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: altered, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /RANGE_MISMATCH/u);
+  assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010'], retirementRecords: [] }), /RETIREMENT_APPROVAL_MISSING/u);
   assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010', 'ACT3B_B010'] }), /RETIREMENT_NOT_APPROVED/u);
 });
 
