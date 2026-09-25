@@ -10,7 +10,7 @@ const {
   assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, reserveWhisperAttempt,
   analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
-  chooseTimingTranscript, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
+  chooseTimingTranscript, classifyReviewMismatch, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
 } = require('../pipeline-updates/episode-activation.cjs');
 const activationCli = require('../scripts/phase2.3b-p-activate.cjs');
 
@@ -153,6 +153,55 @@ test('review approval is exact, hash-bound and refuses every unlisted mismatch',
   assert.equal(reviewed.acts[0].unapprovedExceptions.length, 1);
   assert.equal(reviewed.explicitRefusalOfUnlistedMismatches, true);
   assert.throws(() => applyAlignmentReviewApproval({ alignment: report, approvalArtifact: artifact, expectedBindings: { ...bindings, transcriptFileSha256: 'changed' } }), /ALIGNMENT_REVIEW_BINDING_MISMATCH/u);
+});
+
+test('split decimal plus omitted USD unit is proposed generically with deterministic exact-range IDs', () => {
+  for (const [scriptText, transcriptText, amount] of [
+    ['The $3.7 billion dollars remain.', 'The 3 7 billion remain.', 'money:USD:3700000000'],
+    ['The $17.5 million dollars remain.', 'The 17 5 million remain.', 'money:USD:17500000'],
+  ]) {
+    const actReport = alignment(scriptText, transcriptText);
+    const report = { status: actReport.status, acts: [actReport] };
+    assert.equal(actReport.status, 'FAIL', 'currency omission remains non-deterministic and review-gated');
+    assert.equal(actReport.substitutions.length, 1);
+    assert.equal(actReport.substitutions[0].scriptNormalizedToken, amount);
+    assert.equal(actReport.substitutions[0].transcriptNormalizedToken, `number:${amount.split(':').at(-1)}`);
+    assert.equal(classifyReviewMismatch(actReport.substitutions[0]), 'ASR_CURRENCY_UNIT_OMISSION');
+    const bindings = { runId: 'run-123456', episodeId: 'episode-1', channelKey: 'EmpireOmitted', alignmentReportSha256: 'a'.repeat(64) };
+    const first = buildAlignmentReviewProposal({ runId: bindings.runId, bindings, alignment: report });
+    const second = buildAlignmentReviewProposal({ runId: bindings.runId, bindings, alignment: report });
+    assert.equal(first.proposedExceptions[0].classification, 'ASR_CURRENCY_UNIT_OMISSION');
+    assert.equal(first.proposedExceptions[0].scriptTokenIndex, actReport.substitutions[0].scriptTokenIndex);
+    assert.equal(first.proposedExceptions[0].scriptTokenEndIndex, actReport.substitutions[0].scriptTokenEndIndex);
+    assert.equal(first.proposedExceptions[0].transcriptTokenIndex, actReport.substitutions[0].transcriptTokenIndex);
+    assert.equal(first.proposedExceptions[0].transcriptTokenEndIndex, actReport.substitutions[0].transcriptTokenEndIndex);
+    assert.equal(first.proposedExceptions[0].exceptionId, second.proposedExceptions[0].exceptionId);
+  }
+});
+
+test('stale 17-entry approval cannot pass the corrected 18-entry proposal; exact 18-entry approval can', () => {
+  const scriptText = [...Array(12).fill('The $3.7 billion dollars remain.'), 'Stumpf and Eight Reckard Tolstedt Stumpf.'].join(' ');
+  const transcriptText = [...Array(12).fill('The 3 7 billion remain.'), 'stump an aid record tolstead stump.'].join(' ');
+  const report = analyzeScriptTimestampAlignment({ acts: { act1: { voScript: scriptText } } }, timedWords('VO_Act1', transcriptText), { act1: 'VO_Act1' });
+  const bindings = { runId: 'run-123456', episodeId: 'episode-1', channelKey: 'EmpireOmitted', alignmentReportSha256: 'a'.repeat(64) };
+  const proposal = buildAlignmentReviewProposal({ runId: bindings.runId, bindings, alignment: report });
+  assert.equal(proposal.proposedExceptions.length, 18);
+  assert.equal(proposal.proposedExceptions.filter(item => item.classification === 'ASR_CURRENCY_UNIT_OMISSION').length, 12);
+  assert.equal(proposal.proposedExceptions.filter(item => item.classification === 'ASR_PHONETIC_VARIANT').length, 6);
+  const humanApproval = { approvedBy: 'CTO', approvalRef: 'review-123', approvedAt: '2026-09-25T00:00:00Z', sourceProposalSha256: 'b'.repeat(64) };
+  const approval17 = { ...proposal, schemaVersion: 'phase2.3b-p-alignment-review-approval/1.0.0', status: 'USER_APPROVED', approvedExceptions: proposal.proposedExceptions.slice(0, 17), humanApproval };
+  const stale = applyAlignmentReviewApproval({ alignment: report, approvalArtifact: approval17, expectedBindings: bindings });
+  assert.equal(stale.status, 'FAIL');
+  assert.equal(stale.acts[0].unapprovedExceptions.length, 1);
+  const approval18 = { ...approval17, approvedExceptions: proposal.proposedExceptions };
+  const complete = applyAlignmentReviewApproval({ alignment: report, approvalArtifact: approval18, expectedBindings: bindings });
+  assert.equal(complete.status, 'PASS');
+  assert.deepEqual(complete.acts.map(act => act.uncoveredScriptTokenIndices), [[]]);
+  const altered = structuredClone(report);
+  altered.acts[0].substitutions[0].scriptContext.text += ' altered';
+  const alteredReview = applyAlignmentReviewApproval({ alignment: altered, approvalArtifact: approval18, expectedBindings: bindings });
+  assert.equal(alteredReview.status, 'FAIL');
+  assert.equal(alteredReview.acts[0].unapprovedExceptions.length, 1);
 });
 
 test('alignment rejects a real missing narration word and reports exact context and deletion', () => {

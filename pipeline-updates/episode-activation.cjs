@@ -299,7 +299,6 @@ function assertScriptTimestampParity(script, wordTimestamps, actBindings) {
   return true;
 }
 
-const APPROVED_CURRENCY_OMISSION_AMOUNTS = new Set([300000000000, 3000000000, 185000000, 69000000, 125000000, 67000000, 17500000, 17000000, 5000000]);
 const KNOWN_PHONETIC_VARIANTS = new Set(['word:stumpf>word:stump', 'number:8>word:aid', 'word:and>word:an', 'word:reckard>word:record', 'word:tolstedt>word:tolstead']);
 
 function classifyReviewMismatch(mismatch) {
@@ -310,7 +309,10 @@ function classifyReviewMismatch(mismatch) {
   const number = /^number:(\d+(?:\.\d+)?)$/u.exec(mismatch.transcriptNormalizedToken || '');
   const sourceMentionsUsd = /\$|\bdollars?\b/iu.test(mismatch.scriptContext?.text || '');
   const transcriptOmitsUsd = !/\$|\bdollars?\b/iu.test(mismatch.transcriptContext?.text || '');
-  if (money && number && Number(money[1]) === Number(number[1]) && APPROVED_CURRENCY_OMISSION_AMOUNTS.has(Number(money[1])) && sourceMentionsUsd && transcriptOmitsUsd) return 'ASR_CURRENCY_UNIT_OMISSION';
+  // Classification is generic across amounts. The exact source/transcript
+  // spans remain a proposal and still require a hash-bound human approval;
+  // classification alone never changes alignment eligibility.
+  if (money && number && Number(money[1]) === Number(number[1]) && sourceMentionsUsd && transcriptOmitsUsd) return 'ASR_CURRENCY_UNIT_OMISSION';
   return 'UNAPPROVED_MISMATCH';
 }
 
