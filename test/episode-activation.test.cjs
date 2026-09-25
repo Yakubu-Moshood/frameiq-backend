@@ -23,8 +23,8 @@ function fixture() {
       { actKey: 'act2', voKey: bindings.act2, wordCount: 2, startSec: 4, endSec: 8, durationSec: 4 },
     ] },
     sequences: [
-      { sequenceId: 's1', actKey: 'act1', beats: [{ beatId: 'b1', sequenceId: 's1', actKey: 'act1', startWordIndex: 0, endWordIndex: 1, startSec: 0, endSec: 4, durationSec: 4, narrationExcerpt: 'OLD', visual: { type: 'STOCK', description: 'same' } }] },
-      { sequenceId: 's2', actKey: 'act2', beats: [{ beatId: 'b2', sequenceId: 's2', actKey: 'act2', startWordIndex: 0, endWordIndex: 1, startSec: 4, endSec: 8, durationSec: 4, narrationExcerpt: 'OLD', visual: { type: 'STOCK', description: 'same' } }] },
+      { sequenceId: 's1', actKey: 'act1', beats: [{ beatId: 'b1', sequenceId: 's1', actKey: 'act1', startWordIndex: 0, endWordIndex: 1, startSec: 0, endSec: 4, durationSec: 4, narrationExcerpt: 'Hello world.', visual: { type: 'STOCK', description: 'same' } }] },
+      { sequenceId: 's2', actKey: 'act2', beats: [{ beatId: 'b2', sequenceId: 's2', actKey: 'act2', startWordIndex: 0, endWordIndex: 1, startSec: 4, endSec: 8, durationSec: 4, narrationExcerpt: 'Second act.', visual: { type: 'STOCK', description: 'same' } }] },
     ],
   };
   const words = [
@@ -33,7 +33,8 @@ function fixture() {
     { vo_file: bindings.act2, word: 'Second', start_seconds: 0.1, end_seconds: 0.4 },
     { vo_file: bindings.act2, word: 'act.', start_seconds: 0.8, end_seconds: 1.2 },
   ];
-  return { bindings, plan, words };
+  const script = { acts: { act1: { voScript: 'Hello world.' }, act2: { voScript: 'Second act.' } } };
+  return { bindings, plan, words, script };
 }
 
 test('groups finished word timing by VO while preserving legacy word shape', () => {
@@ -44,8 +45,9 @@ test('groups finished word timing by VO while preserving legacy word shape', () 
 });
 
 test('deterministically retimes all beats on episode-absolute timing and preserves creative fields', () => {
-  const { bindings, plan, words } = fixture();
-  const result = retimeEditPlan({ plan, wordTimestamps: words, actOrder: ['act1', 'act2'], actBindings: bindings, actDurationsSec: { act1: 3, act2: 2 } });
+  const { bindings, plan, words, script } = fixture();
+  const reviewedAlignment = reviewedFor(script, words, bindings);
+  const result = retimeEditPlan({ plan, wordTimestamps: words, actOrder: ['act1', 'act2'], actBindings: bindings, actDurationsSec: { act1: 3, act2: 2 }, script, reviewedAlignment });
   assert.equal(result.plan.timing.totalDurationSec, 5);
   assert.deepEqual(result.plan.timing.acts.map(({ startSec, endSec, durationSec }) => [startSec, endSec, durationSec]), [[0, 3, 3], [3, 5, 2]]);
   assert.deepEqual(result.plan.sequences.map(({ beats }) => [beats[0].startSec, beats[0].endSec, beats[0].durationSec, beats[0].narrationExcerpt]), [[0, 3, 3, 'Hello world.'], [3, 5, 2, 'Second act.']]);
@@ -58,7 +60,8 @@ test('rejects missing, unordered and duplicate-act timing structures', () => {
   const { bindings, words } = fixture();
   assert.throws(() => groupWordTimestamps([], bindings), /ACTIVATION_TIMESTAMPS_EMPTY/);
   assert.throws(() => groupWordTimestamps([words[1], words[0], ...words.slice(2)], bindings), /ACTIVATION_TIMESTAMP_ORDER/);
-  assert.throws(() => retimeEditPlan({ plan: fixture().plan, wordTimestamps: words, actOrder: ['act1', 'act1'], actBindings: bindings, actDurationsSec: { act1: 3 } }), /ACTIVATION_DUPLICATE_ACT/);
+  const { script } = fixture();
+  assert.throws(() => retimeEditPlan({ plan: fixture().plan, wordTimestamps: words, actOrder: ['act1', 'act1'], actBindings: bindings, actDurationsSec: { act1: 3 }, script, reviewedAlignment: reviewedFor(script, words, bindings) }), /ACTIVATION_DUPLICATE_ACT/);
 });
 
 test('only approved narration fields may differ in candidate script', () => {
@@ -83,6 +86,160 @@ function alignment(scriptText, transcriptText) {
   const voKey = 'VO_Act1';
   return analyzeScriptTimestampAlignment({ acts: { act1: { voScript: scriptText } } }, timedWords(voKey, transcriptText), { act1: voKey }).acts[0];
 }
+
+function reviewedFor(script, words, bindings, approved = false) {
+  const deterministic = analyzeScriptTimestampAlignment(script, words, bindings);
+  if (deterministic.status === 'PASS') return {
+    status: 'PASS', unusedApprovalExceptionIds: [], explicitRefusalOfUnlistedMismatches: true,
+    acts: deterministic.acts.map(act => ({ ...act, status: 'PASS', approvedExceptions: [], unapprovedExceptions: [], uncoveredScriptTokenIndices: [] })),
+  };
+  if (!approved) return { ...deterministic, status: 'FAIL' };
+  const reviewBindings = { runId: 'run-123456', episodeId: 'episode-test', channelKey: 'EmpireOmitted' };
+  const proposal = buildAlignmentReviewProposal({ runId: reviewBindings.runId, bindings: reviewBindings, alignment: deterministic });
+  const approval = {
+    ...proposal, schemaVersion: 'phase2.3b-p-alignment-review-approval/1.0.0', status: 'USER_APPROVED',
+    approvedExceptions: proposal.proposedExceptions,
+    humanApproval: { approvedBy: 'CTO', approvalRef: 'test-review', approvedAt: '2026-01-01T00:00:00Z', sourceProposalSha256: 'a'.repeat(64) },
+  };
+  return applyAlignmentReviewApproval({ alignment: deterministic, approvalArtifact: approval, expectedBindings: reviewBindings });
+}
+
+function makeRetimingFixture({ sourceTexts, transcriptTexts, beatRanges } = {}) {
+  const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const bindings = Object.fromEntries(actKeys.map(key => [key, `VO_${key}`]));
+  const script = { acts: Object.fromEntries(actKeys.map(key => [key, { voScript: sourceTexts?.[key] || `Approved ${key} narration.` }])) };
+  const words = [], sequences = [], acts = [];
+  let episodeCursor = 0;
+  for (const actKey of actKeys) {
+    const sourceWords = script.acts[actKey].voScript.trim().split(/\s+/u);
+    const transcriptWords = (transcriptTexts?.[actKey] || script.acts[actKey].voScript).trim().split(/\s+/u);
+    const localWords = transcriptWords.map((word, index) => ({ vo_file: bindings[actKey], word, start_seconds: index * 0.5, end_seconds: index * 0.5 + 0.2 }));
+    words.push(...localWords);
+    const durationSec = Math.max(10, localWords.at(-1).end_seconds + 1);
+    acts.push({ actKey, voKey: bindings[actKey], startSec: episodeCursor, endSec: episodeCursor + 10, durationSec: 10, wordCount: sourceWords.length });
+    const ranges = beatRanges?.[actKey] || [[0, sourceWords.length - 1]];
+    sequences.push({ sequenceId: `sequence-${actKey}`, actKey, beats: ranges.map(([first, last], index) => ({
+      beatId: `beat-${actKey}-${index + 1}`, sequenceId: `sequence-${actKey}`, actKey,
+      startWordIndex: first, endWordIndex: last, startSec: episodeCursor, endSec: episodeCursor + 10,
+      durationSec: 10, narrationExcerpt: sourceWords.slice(first, last + 1).join(' '), visual: { type: 'CLIP', description: 'preserved' },
+    })) });
+    episodeCursor += 10;
+  }
+  const plan = { episodeId: 'episode-test', title: 'Locked', schemaVersion: '3.0.0', timing: { basis: 'finished_vo_word_timestamps', totalDurationSec: 60, acts }, sequences };
+  return { actKeys, bindings, script, words, wordTimestamps: words, plan };
+}
+
+function retimeFixture(options = {}) {
+  const value = makeRetimingFixture(options);
+  const reviewedAlignment = reviewedFor(value.script, value.words, value.bindings, true);
+  const actDurationsSec = Object.fromEntries(value.actKeys.map(key => [key, 10]));
+  return { ...value, reviewedAlignment, result: retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec, reviewedAlignment }) };
+}
+
+test('reviewed alignment remaps Act 2 o’clock tokenization and shifts every later boundary by one', () => {
+  const { plan, result } = retimeFixture({
+    sourceTexts: { act2: "An 8 o'clock signal arrived." },
+    transcriptTexts: { act2: 'An 8 o clock signal arrived.' },
+    beatRanges: { act2: [[0, 2], [3, 4]] },
+  });
+  const beats = result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(beats.map(beat => [beat.startWordIndex, beat.endWordIndex, beat.narrationExcerpt]), [
+    [0, 3, 'An 8 o clock'], [4, 5, 'signal arrived.'],
+  ]);
+  assert.equal(result.plan.timing.acts[1].wordCount, 6);
+  assertCreativePlanFieldsFrozen(plan, result.plan);
+});
+
+test('reviewed alignment remaps split decimals and comma-formatted numbers by normalized units', () => {
+  const decimal = retimeFixture({
+    sourceTexts: { act2: 'The order required 3.7 billion dollars.' },
+    transcriptTexts: { act2: 'The order required 3 7 billion dollars.' },
+  });
+  const decimalBeat = decimal.result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0];
+  assert.equal(decimalBeat.endWordIndex, 6);
+  assert.equal(decimalBeat.narrationExcerpt, 'The order required 3 7 billion dollars.');
+  const comma = retimeFixture({
+    sourceTexts: { act2: 'More than 5,300 workers left.' },
+    transcriptTexts: { act2: 'More than 5 300 workers left.' },
+  });
+  const commaBeat = comma.result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0];
+  assert.equal(commaBeat.endWordIndex, 5);
+  assert.match(commaBeat.narrationExcerpt, /5 300/u);
+});
+
+test('approved multi-token currency omission maps the whole boundary range', () => {
+  const { result } = retimeFixture({
+    sourceTexts: { act2: 'The bank refunded $3.7 billion dollars today.' },
+    transcriptTexts: { act2: 'The bank refunded 3 7 billion today.' },
+  });
+  const beat = result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0];
+  assert.equal(beat.endWordIndex, 6);
+  assert.equal(beat.narrationExcerpt, 'The bank refunded 3 7 billion today.');
+});
+
+test('approved one-to-one phonetic variant maps through the exact reviewed occurrence', () => {
+  const { result } = retimeFixture({
+    sourceTexts: { act2: 'Stumpf presented a statement.' },
+    transcriptTexts: { act2: 'Stump presented a statement.' },
+  });
+  const beat = result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0];
+  assert.equal(beat.narrationExcerpt, 'Stump presented a statement.');
+  assert.equal(beat.endWordIndex, 3);
+});
+
+test('exact-count alignment retains the same word ranges and seconds', () => {
+  const { result } = retimeFixture();
+  for (const sequence of result.plan.sequences) {
+    assert.equal(sequence.beats[0].startWordIndex, 0);
+    assert.equal(sequence.beats[0].endWordIndex, 2);
+  }
+});
+
+test('unapproved substitutions and incomplete reviewed mappings fail closed before candidate output', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-retime-no-output-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const value = makeRetimingFixture({ sourceTexts: { act2: 'The order stands.' }, transcriptTexts: { act2: 'The settlement stands.' } });
+  const failed = reviewedFor(value.script, value.words, value.bindings);
+  assert.throws(() => retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment: failed }), /ACTIVATION_REVIEWED_ALIGNMENT_NOT_PASS/u);
+  assert.deepEqual(fs.readdirSync(root), []);
+  const altered = reviewedFor({ acts: Object.fromEntries(value.actKeys.map(key => [key, { voScript: key === 'act2' ? 'The order stands.' : `Approved ${key} narration.` }])) }, value.words, value.bindings, true);
+  altered.status = 'PASS';
+  const alteredAct = altered.acts.find(act => act.actKey === 'act2');
+  alteredAct.status = 'PASS'; alteredAct.unapprovedExceptions = []; alteredAct.uncoveredScriptTokenIndices = []; alteredAct.matchedTokens = [];
+  assert.throws(() => retimeEditPlan({ ...value, script: { ...value.script, acts: { ...value.script.acts, act2: { voScript: 'The order stands.' } } }, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment: altered }), /ACTIVATION_REVIEWED_ALIGNMENT_COVERAGE:act2/u);
+});
+
+test('ambiguous, non-monotonic, overlapping and uncovered boundary maps are rejected', () => {
+  const ambiguous = makeRetimingFixture({ sourceTexts: { act2: 'The.' } });
+  ambiguous.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].narrationExcerpt = 'The The.';
+  ambiguous.plan.timing.acts.find(act => act.actKey === 'act2').wordCount = 2;
+  ambiguous.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].endWordIndex = 1;
+  assert.throws(() => retimeEditPlan({ ...ambiguous, actOrder: ambiguous.actKeys, actBindings: ambiguous.bindings, actDurationsSec: Object.fromEntries(ambiguous.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(ambiguous.script, ambiguous.words, ambiguous.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
+
+  const nonMonotonic = makeRetimingFixture();
+  const reviewed = reviewedFor(nonMonotonic.script, nonMonotonic.words, nonMonotonic.bindings);
+  const act = reviewed.acts.find(item => item.actKey === 'act2');
+  [act.matchedTokens[0].transcriptTokenIndex, act.matchedTokens[1].transcriptTokenIndex] = [act.matchedTokens[1].transcriptTokenIndex, act.matchedTokens[0].transcriptTokenIndex];
+  assert.throws(() => retimeEditPlan({ ...nonMonotonic, actOrder: nonMonotonic.actKeys, actBindings: nonMonotonic.bindings, actDurationsSec: Object.fromEntries(nonMonotonic.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }), /ACTIVATION_REVIEWED_ALIGNMENT_RANGE_INVALID|ACTIVATION_REVIEWED_ALIGNMENT_NON_MONOTONIC/u);
+
+  const split = makeRetimingFixture({ sourceTexts: { act2: "Say o'clock now." }, transcriptTexts: { act2: 'Say o clock now.' }, beatRanges: { act2: [[0, 1], [2, 3]] } });
+  split.plan.timing.acts.find(act => act.actKey === 'act2').wordCount = 4;
+  const splitBeats = split.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  splitBeats[0].narrationExcerpt = 'Say o'; splitBeats[0].endWordIndex = 1;
+  splitBeats[1].narrationExcerpt = 'clock now.'; splitBeats[1].startWordIndex = 2;
+  assert.throws(() => retimeEditPlan({ ...split, actOrder: split.actKeys, actBindings: split.bindings, actDurationsSec: Object.fromEntries(split.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(split.script, split.words, split.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_COVERAGE:act2/u);
+
+  const uncovered = makeRetimingFixture();
+  uncovered.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].startWordIndex = 1;
+  assert.throws(() => retimeEditPlan({ ...uncovered, actOrder: uncovered.actKeys, actBindings: uncovered.bindings, actDurationsSec: Object.fromEntries(uncovered.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(uncovered.script, uncovered.words, uncovered.bindings) }), /ACTIVATION_PLAN_SOURCE_WORD_COVERAGE:act2/u);
+});
+
+test('six-act candidate retiming succeeds with Act 2 split-token timing and no external provider', () => {
+  const { result } = retimeFixture({ sourceTexts: { act2: "An 8 o'clock signal arrived." }, transcriptTexts: { act2: 'An 8 o clock signal arrived.' } });
+  assert.equal(result.plan.timing.acts.length, 6);
+  assert.equal(result.plan.timing.acts[1].wordCount, 6);
+  assert.equal(result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].endWordIndex, 5);
+});
 
 test('alignment accepts punctuation, case, apostrophe, contractions, possessives and hyphenation forms', () => {
   for (const [scriptText, transcriptText] of [
@@ -291,6 +448,36 @@ test('resume-only transcript selection reuses completed data and forbids Whisper
   assert.equal(providerCalls, 0);
   await assert.rejects(chooseTimingTranscript({ resumeOnly: true, readExisting: async () => null, transcribe: async () => { providerCalls++; return []; } }), /COMPLETED_TRANSCRIPT_MISSING/u);
   assert.equal(providerCalls, 0);
+});
+
+test('alignment resume accepts only the exact Act 2 boundary-mismatch failure after all transcripts completed', () => {
+  const runId = 'phase2-3b-p-act-20260925';
+  const completedActs = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const status = { runId, state: 'FAILURE', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs };
+  const fakeFs = { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify(status)) };
+  assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: fakeFs, runId }), status);
+  for (const change of [
+    { error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act3' },
+    { state: 'SUCCESS' },
+    { completedActs: completedActs.slice(0, -1) },
+    { runId: 'other-run' },
+  ]) {
+    assert.throws(() => activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify({ ...status, ...change })) }, runId }), /RESUME_RUN_STATE_MISMATCH/u);
+  }
+  assert.throws(() => activationCli.assertNoActivationLocks({ fs: { existsSync: () => true }, runId }), /ACTIVATION_RUN_ALREADY_LOCKED/u);
+  assert.equal(activationCli.assertOwnedActivationLocks({ fs: { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify({ runId, pid: process.pid })) }, runId }), true);
+  assert.throws(() => activationCli.assertOwnedActivationLocks({ fs: { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify({ runId, pid: process.pid + 1 })) }, runId }), /ACTIVATION_RUN_ALREADY_LOCKED/u);
+});
+
+test('resume immutable-input guard refuses altered proposal, approval, transcript, ledger, audio and locked hashes', () => {
+  const assertChanged = (name, expected, actual) => assert.throws(
+    () => activationCli.assertResumeImmutableBinding(name, expected, actual),
+    new RegExp(`RESUME_IMMUTABLE_INPUT_CHANGED:${name}`, 'u'),
+  );
+  for (const name of ['alignment-proposal', 'alignment-approval', 'transcript', 'request-ledger', 'audio-hash', 'locked-episode']) {
+    assertChanged(name, 'a'.repeat(64), 'b'.repeat(64));
+  }
+  assert.equal(activationCli.assertResumeImmutableBinding('request-ledger', 'same-ledger-hash', 'same-ledger-hash'), true);
 });
 
 test('approved and copied audio bytes must both match the immutable hashes', t => {

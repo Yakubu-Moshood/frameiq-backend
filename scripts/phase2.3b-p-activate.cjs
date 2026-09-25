@@ -21,6 +21,7 @@ const RUNTIME_SYNC_FILES = [
   'production-method-manifest.cjs', 'evidence-source-validator.cjs', 'proof-section-planner.cjs', 'act-voice-generator.cjs',
 ];
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
+const RESUMABLE_ALIGNMENT_FAILURE = 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2';
 const ACT_ORDER = spec.actOrder;
 const VO_BINDINGS = Object.fromEntries(ACT_ORDER.map(key => [key, spec.voFilenames[key].replace(/\.mp3$/iu, '')]));
 const CANDIDATE_FILES = {
@@ -43,6 +44,10 @@ function writeImmutableJson(fsImpl, file, value) {
   return sha(bytes);
 }
 function assert(value, code) { if (!value) throw new Error(code); }
+function assertResumeImmutableBinding(name, expected, actual) {
+  if (JSON.stringify(expected) !== JSON.stringify(actual)) throw new Error(`RESUME_IMMUTABLE_INPUT_CHANGED:${name}`);
+  return true;
+}
 function hashFile(file) { return sha(fs.readFileSync(file)); }
 function reviewPath(runId) { return path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`); }
 function approvedAudioPath(runId, filename) { return path.join(ROOT, '.review', `phase2.3b-p-narration-${runId}`, 'audio', filename); }
@@ -175,16 +180,31 @@ function assertNoActivationLocks({ fs: fsImpl = fs, runId } = {}) {
   return true;
 }
 
+function verifyResumableAlignmentFailure({ fs: fsImpl = fs, runId, statusPath = path.join(reviewPath(runId), 'run-status.json'), expectedState = 'FAILURE', expectedStage } = {}) {
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  assert(fsImpl.existsSync(statusPath), 'FAILED_RUN_STATUS_MISSING');
+  const status = JSON.parse(fsImpl.readFileSync(statusPath, 'utf8'));
+  assert(status.runId === runId && status.state === expectedState && status.error === RESUMABLE_ALIGNMENT_FAILURE
+    && JSON.stringify(status.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
+  if (expectedStage) assert(status.currentStage === expectedStage, 'RESUME_RUN_STATE_MISMATCH');
+  return status;
+}
+
+function assertOwnedActivationLocks({ fs: fsImpl = fs, runId } = {}) {
+  for (const file of [path.join(reviewPath(runId), 'activation.lock'), GLOBAL_LOCK_PATH]) {
+    assert(fsImpl.existsSync(file), 'ACTIVATION_RUN_ALREADY_LOCKED');
+    const lock = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
+    assert(lock.runId === runId && lock.pid === process.pid, 'ACTIVATION_RUN_ALREADY_LOCKED');
+  }
+  return true;
+}
+
 function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   ensureRailwayTarget();
   const preflight = requireCurrentPreflight(runId);
   verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ fs: fsImpl, runId });
-  const statusPath = path.join(reviewPath(runId), 'run-status.json');
-  assert(fsImpl.existsSync(statusPath), 'FAILED_RUN_STATUS_MISSING');
-  const priorStatus = JSON.parse(fsImpl.readFileSync(statusPath, 'utf8'));
-  assert(priorStatus.runId === runId && priorStatus.state === 'FAILURE', 'RESUME_REQUIRES_FAILED_RUN');
-  assert(JSON.stringify(priorStatus.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_TRANSCRIPTION_NOT_COMPLETE');
+  const priorStatus = verifyResumableAlignmentFailure({ fs: fsImpl, runId });
   assert(fsImpl.existsSync(GLOBAL_STATE_PATH), 'ACTIVATION_GLOBAL_STATE_MISSING');
   const globalState = JSON.parse(fsImpl.readFileSync(GLOBAL_STATE_PATH, 'utf8'));
   const audioFingerprint = sha(Buffer.from(JSON.stringify(approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes })))));
@@ -282,32 +302,50 @@ function recordAlignmentReviewApproval({ runId, exceptionIds, approvedBy, approv
   return { path: target, sha256: digest, approvedExceptionCount: artifact.approvedExceptions.length };
 }
 
-function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true } = {}) {
+function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, ownedRun = false } = {}) {
+  verifyResumableAlignmentFailure({ fs: fsImpl, runId, expectedState: ownedRun ? 'RUNNING' : 'FAILURE', expectedStage: ownedRun ? 'RESUMING_FROM_VERIFIED_TRANSCRIPT' : undefined });
+  if (ownedRun) assertOwnedActivationLocks({ fs: fsImpl, runId });
+  assert(!fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')), 'RESUME_CANDIDATE_ALREADY_EXISTS');
   const file = path.join(reviewPath(runId), 'resume-preflight.json');
   assert(fsImpl.existsSync(file), 'RESUME_PREFLIGHT_MISSING');
   const record = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
   assert(record.status === 'RESUME_READY' && record.runId === runId, 'RESUME_PREFLIGHT_NOT_PASS');
   const current = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
+  assertResumeImmutableBinding('transcript', [record.transcript.wordCount, record.transcript.semanticSha256, record.transcript.fileSha256, record.transcript.sourceReceiptSha256, record.transcript.partialFileSha256], [current.timestamps.length, current.verification.wordTimestampsSha256, current.timestampFileSha256, current.receiptFileSha256, current.partialFileSha256]);
   assert(current.timestampFileSha256 === record.transcript.fileSha256 && current.receiptFileSha256 === record.transcript.sourceReceiptSha256 && current.verification.wordTimestampsSha256 === record.transcript.semanticSha256 && current.partialFileSha256 === record.transcript.partialFileSha256, 'RESUME_TRANSCRIPT_CHANGED');
+  assertResumeImmutableBinding('request-ledger', record.requestLedgerSha256, fsImpl.existsSync(GLOBAL_LEDGER_PATH) ? hashFile(GLOBAL_LEDGER_PATH) : null);
   assert((fsImpl.existsSync(GLOBAL_LEDGER_PATH) ? hashFile(GLOBAL_LEDGER_PATH) : null) === record.requestLedgerSha256, 'RESUME_REQUEST_LEDGER_CHANGED');
+  assertResumeImmutableBinding('preflight', record.preflightSha256, hashFile(path.join(reviewPath(runId), 'preflight.json')));
   assert(hashFile(path.join(reviewPath(runId), 'preflight.json')) === record.preflightSha256, 'RESUME_PREFLIGHT_SOURCE_CHANGED');
+  assertResumeImmutableBinding('alignment-report', record.deterministicAlignmentReport.sha256, hashFile(path.join(reviewPath(runId), record.deterministicAlignmentReport.file)));
   assert(hashFile(path.join(reviewPath(runId), record.deterministicAlignmentReport.file)) === record.deterministicAlignmentReport.sha256, 'RESUME_ALIGNMENT_REPORT_CHANGED');
-  if (record.alignmentReviewApproval?.file) assert(hashFile(path.join(reviewPath(runId), record.alignmentReviewApproval.file)) === record.alignmentReviewApproval.sha256, 'RESUME_ALIGNMENT_APPROVAL_CHANGED');
+  if (record.alignmentReviewApproval?.file) {
+    assertResumeImmutableBinding('alignment-approval', record.alignmentReviewApproval.sha256, hashFile(path.join(reviewPath(runId), record.alignmentReviewApproval.file)));
+    assert(hashFile(path.join(reviewPath(runId), record.alignmentReviewApproval.file)) === record.alignmentReviewApproval.sha256, 'RESUME_ALIGNMENT_APPROVAL_CHANGED');
+  }
   else assert(record.alignment.deterministicStatus === 'PASS', 'RESUME_ALIGNMENT_APPROVAL_MISSING');
+  assertResumeImmutableBinding('reviewed-alignment', record.reviewedAlignmentReport.sha256, hashFile(path.join(reviewPath(runId), record.reviewedAlignmentReport.file)));
   assert(record.reviewedAlignmentReport?.file && hashFile(path.join(reviewPath(runId), record.reviewedAlignmentReport.file)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_CHANGED');
+  assertResumeImmutableBinding('locked-episode', record.lockedHashes, verifyLockedEpisode());
   assert(JSON.stringify(verifyLockedEpisode()) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
   if (checkLocks) assertNoActivationLocks({ fs: fsImpl, runId });
   const preflight = requireCurrentPreflight(runId), candidateScript = verifyApprovedScript().candidate;
+  assertResumeImmutableBinding('candidate-script', preflight.candidateScriptSha256, sha(jsonBytes(candidateScript)));
   assert(sha(jsonBytes(candidateScript)) === preflight.candidateScriptSha256, 'RESUME_CANDIDATE_SCRIPT_CHANGED');
   const originalAlignmentPath = path.join(reviewPath(runId), 'alignment-report.json');
+  assertResumeImmutableBinding('source-alignment', record.sourceAlignmentReportSha256, fsImpl.existsSync(originalAlignmentPath) ? hashFile(originalAlignmentPath) : null);
   assert(fsImpl.existsSync(originalAlignmentPath) && hashFile(originalAlignmentPath) === record.sourceAlignmentReportSha256, 'RESUME_SOURCE_ALIGNMENT_REPORT_CHANGED');
   const proposalPath = path.join(reviewPath(runId), record.alignmentReviewProposal.file);
+  assertResumeImmutableBinding('alignment-proposal', record.alignmentReviewProposal.sha256, hashFile(proposalPath));
   assert(hashFile(proposalPath) === record.alignmentReviewProposal.sha256, 'RESUME_ALIGNMENT_PROPOSAL_CHANGED');
   const pacingPlan = readJson(path.join(approval.approvedReviewDirectory, 'generation-plan.json'));
+  assertResumeImmutableBinding('pacing-plan', preflight.pacingRun.planSha256, pacingPlan.planSha256);
   assert(pacingPlan.planSha256 === preflight.pacingRun.planSha256 && pacingPlan.planSha256 === approval.approvedPacingPlanSha256, 'RESUME_PACING_PLAN_CHANGED');
+  assertResumeImmutableBinding('user-approval', preflight.userApprovalArtifactSha256, hashFile(APPROVAL_PATH));
   assert(hashFile(APPROVAL_PATH) === preflight.userApprovalArtifactSha256, 'RESUME_HUMAN_APPROVAL_CHANGED');
   const currentAlignment = activation.analyzeScriptTimestampAlignment(candidateScript, current.timestamps, VO_BINDINGS);
   const currentAlignmentPath = path.join(reviewPath(runId), record.deterministicAlignmentReport.file);
+  assertResumeImmutableBinding('recomputed-alignment', hashFile(currentAlignmentPath), sha(jsonBytes(currentAlignment)));
   assert(sha(jsonBytes(currentAlignment)) === hashFile(currentAlignmentPath), 'RESUME_ALIGNMENT_RECOMPUTE_MISMATCH');
   const expectedBindings = {
     runId, episodeId: approval.episodeId, channelKey: approval.channelKey,
@@ -367,7 +405,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
     receipt = { schemaVersion: 'phase2.3b-p-timing-source/1.0.0', runId, createdAt: new Date().toISOString(), audio: audioManifest, state: 'TRANSCRIPTION_IN_PROGRESS' };
     atomicJson(receiptPath, receipt);
   }
-  const resumeReview = resumeOnly ? requireResumePreflight(runId, { checkLocks: false }) : null;
+  const resumeReview = resumeOnly ? requireResumePreflight(runId, { checkLocks: false, ownedRun: true }) : null;
   const timestamps = await activation.chooseTimingTranscript({
     resumeOnly,
     readExisting: () => fs.existsSync(timestampsPath) ? readJson(timestampsPath) : null,
@@ -381,7 +419,8 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   });
   assert(Array.isArray(timestamps) && timestamps.length > 0, 'WHISPER_OUTPUT_EMPTY');
   const verifiedTiming = readAndVerifyCompletedTranscript({ runId });
-  const alignment = resumeOnly ? resumeReview.alignment : activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
+  const candidateScript = verifyApprovedScript().candidate;
+  const alignment = resumeOnly ? resumeReview.alignment : activation.analyzeScriptTimestampAlignment(candidateScript, timestamps, VO_BINDINGS);
   if (!resumeOnly) {
     const alignmentPath = path.join(review, 'alignment-report.json');
     atomicJson(alignmentPath, alignment);
@@ -392,13 +431,18 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
       throw error;
     }
   }
+  const reviewedAlignment = resumeOnly ? resumeReview.alignment : {
+    schemaVersion: 'phase2.3b-p-script-audio-reviewed-alignment/1.0.0', status: 'PASS',
+    acts: alignment.acts.map(act => ({ ...act, status: 'PASS', approvedExceptions: [], unapprovedExceptions: [], uncoveredScriptTokenIndices: [] })),
+    unusedApprovalExceptionIds: [], explicitRefusalOfUnlistedMismatches: true,
+  };
   assert(verifiedTiming.verification.wordTimestampsSha256 === activation.jsonHash(timestamps), 'TIMING_TRANSCRIPT_VERIFICATION_FAILED');
   const durations = {};
   for (const contract of approval.approvedAudio) durations[contract.actKey] = Number((await probeAudio(path.join(audioDir, contract.file))).durationSec);
   const candidate = path.join(review, 'candidate');
   assert(!fs.existsSync(candidate), 'ACTIVATION_CANDIDATE_ALREADY_EXISTS');
   const basePlan = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan));
-  const retimed = activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations }).plan;
+  const retimed = activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment }).plan;
   const editValidation = require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
   assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
   activation.assertCreativePlanFieldsFrozen(basePlan, retimed);
@@ -453,8 +497,7 @@ async function transcribeAndBuild(options = {}) {
   if (options.resumeOnly) requireResumePreflight(runId);
   const review = reviewPath(runId); fs.mkdirSync(review, { recursive: true });
   const statusPath = path.join(review, 'run-status.json');
-  const priorStatus = options.resumeOnly && fs.existsSync(statusPath) ? readJson(statusPath) : null;
-  if (options.resumeOnly) assert(priorStatus?.runId === runId && priorStatus.state === 'FAILURE' && JSON.stringify(priorStatus.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
+  const priorStatus = options.resumeOnly ? verifyResumableAlignmentFailure({ runId }) : null;
   const lockPath = path.join(review, 'activation.lock');
   let fd, globalFd;
   try { fd = fs.openSync(lockPath, 'wx', 0o600); }
@@ -614,4 +657,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

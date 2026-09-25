@@ -4,7 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const PLAN_DYNAMIC_FIELDS = new Set(['startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
+const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
@@ -66,7 +66,171 @@ function groupWordTimestamps(wordTimestamps, actBindings) {
   return byVo;
 }
 
-function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec }) {
+function lcsTables(left, right) {
+  const n = left.length, m = right.length, width = m + 1;
+  const prefix = new Uint16Array((n + 1) * width);
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+    const at = i * width + j;
+    prefix[at] = left[i - 1].canonical === right[j - 1].canonical
+      ? prefix[(i - 1) * width + j - 1] + 1
+      : Math.max(prefix[(i - 1) * width + j], prefix[i * width + j - 1]);
+  }
+  const suffix = new Uint16Array((n + 1) * width);
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) {
+    const at = i * width + j;
+    suffix[at] = left[i].canonical === right[j].canonical
+      ? suffix[(i + 1) * width + j + 1] + 1
+      : Math.max(suffix[(i + 1) * width + j], suffix[i * width + j + 1]);
+  }
+  return { prefix, suffix, width, length: prefix[n * width + m] };
+}
+
+function lcsLengthSkipping(left, right, skippedIndex) {
+  const filtered = left.filter((_, index) => index !== skippedIndex);
+  return lcsTables(filtered, right).length;
+}
+
+function uniqueExactUnitPairs(left, right, actKey, requiredIndexes = new Set(left.map((_, index) => index))) {
+  const table = lcsTables(left, right), pairs = new Map();
+  for (let i = 0; i < left.length; i++) {
+    if (!requiredIndexes.has(i)) continue;
+    const targetPositions = [];
+    for (let j = 0; j < right.length; j++) {
+      if (left[i].canonical === right[j].canonical
+          && table.prefix[i * table.width + j] + 1 + table.suffix[(i + 1) * table.width + j + 1] === table.length) targetPositions.push(j);
+    }
+    if (!targetPositions.length) continue;
+    if (targetPositions.length !== 1 || lcsLengthSkipping(left, right, i) === table.length) {
+      throw new Error(`ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:${actKey}`);
+    }
+    pairs.set(i, targetPositions[0]);
+  }
+  return pairs;
+}
+
+function sourceWordSpans(words) {
+  const spans = [];
+  let offset = 0;
+  for (let index = 0; index < words.length; index++) {
+    const word = String(words[index]);
+    spans.push({ start: offset, end: offset + word.length, wordIndex: index });
+    offset += word.length + 1;
+  }
+  return spans;
+}
+
+function lexicalSourceWordIndexes(text, spans) {
+  return lexicalTokens(text).map(token => {
+    const span = spans.find(item => token.offset >= item.start && token.offset < item.end);
+    if (!span) throw new Error('ACTIVATION_BOUNDARY_SOURCE_TOKEN_INVALID');
+    return span.wordIndex;
+  });
+}
+
+function reconstructPlanSourceWords({ plan, actKey, priorTiming }) {
+  const sequences = plan.sequences.filter(sequence => sequence.actKey === actKey);
+  const beats = sequences.flatMap(sequence => sequence.beats).sort((a, b) => a.startWordIndex - b.startWordIndex);
+  const words = Array(priorTiming.wordCount);
+  let cursor = 0;
+  for (const beat of beats) {
+    const { startWordIndex: first, endWordIndex: last } = beat;
+    if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last) || first !== cursor || last < first || last >= words.length) {
+      throw new Error(`ACTIVATION_PLAN_SOURCE_WORD_COVERAGE:${actKey}`);
+    }
+    const excerptWords = typeof beat.narrationExcerpt === 'string' ? beat.narrationExcerpt.trim().split(/\s+/u).filter(Boolean) : [];
+    if (excerptWords.length !== last - first + 1) throw new Error(`ACTIVATION_PLAN_SOURCE_EXCERPT_MISMATCH:${beat.beatId}`);
+    excerptWords.forEach((word, offset) => { words[first + offset] = word; });
+    cursor = last + 1;
+  }
+  if (!beats.length || cursor !== words.length || words.some(word => typeof word !== 'string')) throw new Error(`ACTIVATION_PLAN_SOURCE_WORD_COVERAGE:${actKey}`);
+  return { beats, words };
+}
+
+function mapPlanSourceWordsToScript({ sourceWords, scriptText, boundaryIndexes, actKey }) {
+  const sourceText = sourceWords.join(' '), sourceLex = lexicalTokens(sourceText), scriptUnits = normalizedUnits(scriptText).units;
+  const sourceWordByLexical = lexicalSourceWordIndexes(sourceText, sourceWordSpans(sourceWords));
+  const sourceUnits = normalizedUnits(sourceText).units;
+  const required = new Set();
+  for (const index of boundaryIndexes) {
+    const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
+    if (!lexicalIndexes.length) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${index}`);
+    for (const [unitIndex, unit] of sourceUnits.entries()) {
+      if (lexicalIndexes.some(lexicalIndex => lexicalIndex >= unit.tokenStart && lexicalIndex <= unit.tokenEnd)) required.add(unitIndex);
+    }
+  }
+  const pairs = uniqueExactUnitPairs(sourceUnits, scriptUnits, actKey, required);
+  const mapping = new Map();
+  for (const index of boundaryIndexes) {
+    const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
+    const targetRanges = [];
+    for (const [unitIndex, unit] of sourceUnits.entries()) {
+      if (!lexicalIndexes.some(lexicalIndex => lexicalIndex >= unit.tokenStart && lexicalIndex <= unit.tokenEnd)) continue;
+      const targetIndex = pairs.get(unitIndex);
+      if (targetIndex === undefined) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${index}`);
+      const target = scriptUnits[targetIndex];
+      targetRanges.push([target.tokenStart, target.tokenEnd]);
+    }
+    targetRanges.sort((a, b) => a[0] - b[0]);
+    for (let i = 1; i < targetRanges.length; i++) if (targetRanges[i][0] > targetRanges[i - 1][1] + 1) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_NON_MONOTONIC:${actKey}:${index}`);
+    if (!targetRanges.length) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${index}`);
+    mapping.set(index, { start: Math.min(...targetRanges.map(range => range[0])), end: Math.max(...targetRanges.map(range => range[1])) });
+  }
+  return mapping;
+}
+
+function transcriptLexicalWordIndexes(words) {
+  const text = words.map(item => item.word).join(' ');
+  const spans = sourceWordSpans(words.map(item => item.word));
+  const indexes = lexicalSourceWordIndexes(text, spans);
+  if (new Set(indexes).size === 0 || words.some((_, index) => !indexes.includes(index))) throw new Error('ACTIVATION_TRANSCRIPT_TOKEN_MAPPING_INCOMPLETE');
+  return indexes;
+}
+
+function mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey }) {
+  if (!reviewedAct || reviewedAct.status !== 'PASS' || (reviewedAct.unapprovedExceptions || []).length
+      || (reviewedAct.uncoveredScriptTokenIndices || []).length) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_NOT_PASS:${actKey}`);
+  const scriptTokenCount = lexicalTokens(scriptText).length;
+  const lexicalToWord = transcriptLexicalWordIndexes(words);
+  const relations = [...(reviewedAct.matchedTokens || []), ...(reviewedAct.approvedExceptions || [])]
+    .map(item => ({ scriptStart: item.scriptTokenIndex, scriptEnd: item.scriptTokenEndIndex, transcriptStart: item.transcriptTokenIndex, transcriptEnd: item.transcriptTokenEndIndex }))
+    .sort((a, b) => a.scriptStart - b.scriptStart || a.transcriptStart - b.transcriptStart);
+  const perScript = Array.from({ length: scriptTokenCount }, () => []), transcriptLexicalCounts = new Uint8Array(lexicalToWord.length);
+  let previousScript = -1, previousTranscript = -1;
+  for (const relation of relations) {
+    if (![relation.scriptStart, relation.scriptEnd, relation.transcriptStart, relation.transcriptEnd].every(Number.isSafeInteger)
+        || relation.scriptStart < 0 || relation.scriptEnd < relation.scriptStart || relation.scriptEnd >= scriptTokenCount
+        || relation.transcriptStart < 0 || relation.transcriptEnd < relation.transcriptStart || relation.transcriptEnd >= lexicalToWord.length
+        || relation.scriptStart < previousScript || relation.transcriptStart < previousTranscript) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_RANGE_INVALID:${actKey}`);
+    previousScript = relation.scriptStart; previousTranscript = relation.transcriptStart;
+    const wordStart = lexicalToWord[relation.transcriptStart], wordEnd = lexicalToWord[relation.transcriptEnd];
+    if (wordEnd < wordStart) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_NON_MONOTONIC:${actKey}`);
+    for (let index = relation.transcriptStart; index <= relation.transcriptEnd; index++) transcriptLexicalCounts[index]++;
+    for (let index = relation.scriptStart; index <= relation.scriptEnd; index++) perScript[index].push([wordStart, wordEnd]);
+  }
+  if (transcriptLexicalCounts.some(count => count !== 1) || perScript.some(ranges => ranges.length === 0)) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_COVERAGE:${actKey}`);
+  const mapping = perScript.map(ranges => {
+    ranges.sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    for (const range of ranges) {
+      const last = merged.at(-1);
+      if (!last || range[0] > last[1] + 1) merged.push([...range]);
+      else if (range[0] <= last[1] && range[1] > last[1]) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_OVERLAP:${actKey}`);
+      else last[1] = Math.max(last[1], range[1]);
+    }
+    if (merged.length !== 1) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_AMBIGUOUS:${actKey}`);
+    return { start: merged[0][0], end: merged[0][1] };
+  });
+  return mapping;
+}
+
+function reviewedActFor(reviewedAlignment, actKey) {
+  if (!reviewedAlignment || reviewedAlignment.status !== 'PASS' || reviewedAlignment.explicitRefusalOfUnlistedMismatches !== true || reviewedAlignment.unusedApprovalExceptionIds?.length) throw new Error('ACTIVATION_REVIEWED_ALIGNMENT_NOT_PASS');
+  const matches = (reviewedAlignment.acts || []).filter(act => act.actKey === actKey);
+  if (matches.length !== 1) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_ACT_MISSING:${actKey}`);
+  return matches[0];
+}
+
+function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment }) {
   if (!Array.isArray(actOrder) || !actOrder.length || !actBindings || !actDurationsSec) throw new Error('ACTIVATION_TIMING_CONFIG_INVALID');
   if (new Set(actOrder).size !== actOrder.length) throw new Error('ACTIVATION_DUPLICATE_ACT');
   if (!plan || !Array.isArray(plan.sequences) || !plan.sequences.length) throw new Error('ACTIVATION_PLAN_INVALID');
@@ -87,15 +251,40 @@ function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurati
     const durationSec = actDurationsSec[actKey];
     if (!words?.length || !Number.isFinite(durationSec) || durationSec <= 0 || durationSec + 0.001 < words.at(-1).end_seconds) throw new Error(`ACTIVATION_DURATION_INVALID:${actKey}`);
     const oldTiming = priorTiming.get(actKey);
-    if (!oldTiming || oldTiming.voKey !== voKey || oldTiming.wordCount !== words.length) throw new Error(`ACTIVATION_WORD_ALIGNMENT_MISMATCH:${actKey}`);
+    if (!oldTiming || oldTiming.voKey !== voKey || !Number.isSafeInteger(oldTiming.wordCount) || oldTiming.wordCount < 1) throw new Error(`ACTIVATION_WORD_ALIGNMENT_MISMATCH:${actKey}`);
+    const scriptText = script?.acts?.[actKey]?.voScript;
+    if (typeof scriptText !== 'string' || !scriptText.trim()) throw new Error(`ACTIVATION_SCRIPT_MISSING:${actKey}`);
+    const reviewedAct = reviewedActFor(reviewedAlignment, actKey);
+    const source = reconstructPlanSourceWords({ plan, actKey, priorTiming: oldTiming });
+    const boundaryIndexes = source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex]);
+    const sourceToScript = mapPlanSourceWordsToScript({ sourceWords: source.words, scriptText, boundaryIndexes, actKey });
+    const scriptToTranscript = mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey });
+    const mappedBeats = [];
+    for (const beat of source.beats) {
+      const mappedStart = sourceToScript.get(beat.startWordIndex), mappedEnd = sourceToScript.get(beat.endWordIndex);
+      if (!mappedStart || !mappedEnd || mappedStart.start > mappedEnd.end) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_INVALID:${beat.beatId}`);
+      const transcriptStart = scriptToTranscript[mappedStart.start]?.start;
+      const transcriptEnd = scriptToTranscript[mappedEnd.end]?.end;
+      if (!Number.isSafeInteger(transcriptStart) || !Number.isSafeInteger(transcriptEnd) || transcriptStart > transcriptEnd) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_INVALID:${beat.beatId}`);
+      mappedBeats.push({ beat, transcriptStart, transcriptEnd });
+    }
+    let mappedCursor = 0;
+    for (const item of mappedBeats) {
+      if (item.transcriptStart !== mappedCursor) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
+      mappedCursor = item.transcriptEnd + 1;
+    }
+    if (mappedCursor !== words.length) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
     const startSec = episodeCursor;
     const endSec = startSec + durationSec;
     timingActs.push({ actKey, voKey, startSec, endSec, durationSec, wordCount: words.length });
     const sequences = next.sequences.filter(sequence => sequence.actKey === actKey);
     if (!sequences.length) throw new Error(`ACTIVATION_PLAN_ACT_MISSING:${actKey}`);
+    const mappedByBeat = new Map(mappedBeats.map(item => [item.beat.beatId, item]));
     for (const sequence of sequences) for (const beat of sequence.beats) {
-      const first = beat.startWordIndex, last = beat.endWordIndex;
-      if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last) || first < 0 || last < first || last >= words.length) throw new Error(`ACTIVATION_BEAT_RANGE_INVALID:${beat.beatId}`);
+      const mapped = mappedByBeat.get(beat.beatId);
+      if (!mapped) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${beat.beatId}`);
+      const first = mapped.transcriptStart, last = mapped.transcriptEnd;
+      beat.startWordIndex = first; beat.endWordIndex = last;
       beat.startSec = first === 0 ? startSec : startSec + words[first].start_seconds;
       beat.endSec = last === words.length - 1 ? endSec : startSec + words[last + 1].start_seconds;
       beat.durationSec = beat.endSec - beat.startSec;
