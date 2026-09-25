@@ -188,13 +188,58 @@ function assertNoActivationLocks({ fs: fsImpl = fs, runId } = {}) {
   return true;
 }
 
+function readProcessStartIdentity(pid, { readFileSync = fs.readFileSync } = {}) {
+  try {
+    const stat = readFileSync(`/proc/${pid}/stat`, 'utf8');
+    const commandEnd = stat.lastIndexOf(')');
+    if (commandEnd < 0) return null;
+    // /proc/<pid>/stat field 22 is starttime; the first field after comm is field 3.
+    const startTime = stat.slice(commandEnd + 1).trim().split(/\s+/u)[19];
+    return /^\d+$/u.test(startTime || '') ? startTime : null;
+  } catch (error) {
+    if (error?.code === 'ENOENT' || error?.code === 'ESRCH') return null;
+    throw error;
+  }
+}
+
+function isCompleteResumableFailure(status) {
+  return status?.state === 'FAILURE'
+    && status?.currentStage === 'FAILED'
+    && Number.isFinite(Date.parse(status?.completedAt || ''))
+    && RESUMABLE_ALIGNMENT_FAILURES.has(status?.error)
+    && JSON.stringify(status?.completedActs) === JSON.stringify(ACT_ORDER);
+}
+
 function assertFailedRunProcessInactive(status, { isProcessAlive = pid => {
   try { process.kill(pid, 0); return true; }
   catch (error) { return error?.code !== 'ESRCH'; }
-} } = {}) {
+}, currentPid = process.pid, getProcessStartIdentity = pid => readProcessStartIdentity(pid), eligibility = {} } = {}) {
   assert(Number.isSafeInteger(status?.pid) && status.pid > 0, 'RESUME_RUN_PID_INVALID');
-  assert(!isProcessAlive(status.pid), 'RESUME_RUN_PROCESS_ACTIVE');
-  return true;
+  if (!isProcessAlive(status.pid)) return true;
+
+  const verified = eligibility.terminalFailure === true
+    && eligibility.locksAbsent === true
+    && eligibility.candidateAbsent === true
+    && eligibility.immutableInputsVerified === true;
+  const recordedIdentity = status.processStartIdentity;
+  if (recordedIdentity !== undefined && recordedIdentity !== null) {
+    assert(typeof recordedIdentity === 'string' && /^\d+$/u.test(recordedIdentity), 'RESUME_RUN_PROCESS_IDENTITY_INVALID');
+    const liveIdentity = getProcessStartIdentity(status.pid);
+    assert(typeof liveIdentity === 'string' && /^\d+$/u.test(liveIdentity), 'RESUME_RUN_PROCESS_IDENTITY_UNVERIFIABLE');
+    if (liveIdentity !== recordedIdentity) {
+      assert(verified && isCompleteResumableFailure(status), 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+      return true;
+    }
+    throw new Error('RESUME_RUN_PROCESS_ACTIVE');
+  }
+
+  // Legacy terminal records have no OS start identity. Same-PID equality can
+  // therefore only be a reused PID/current resume process after all gates pass.
+  if (status.pid === currentPid) {
+    assert(verified && isCompleteResumableFailure(status), 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+    return true;
+  }
+  throw new Error('RESUME_RUN_PROCESS_ACTIVE');
 }
 
 function verifyResumableAlignmentFailure({ fs: fsImpl = fs, runId, statusPath = path.join(reviewPath(runId), 'run-status.json'), expectedState = 'FAILURE', expectedStage } = {}) {
@@ -203,6 +248,7 @@ function verifyResumableAlignmentFailure({ fs: fsImpl = fs, runId, statusPath = 
   const status = JSON.parse(fsImpl.readFileSync(statusPath, 'utf8'));
   assert(status.runId === runId && status.state === expectedState && RESUMABLE_ALIGNMENT_FAILURES.has(status.error)
     && JSON.stringify(status.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
+  if (expectedState === 'FAILURE') assert(isCompleteResumableFailure(status), 'RESUME_RUN_STATE_MISMATCH');
   if (expectedStage) assert(status.currentStage === expectedStage, 'RESUME_RUN_STATE_MISMATCH');
   return status;
 }
@@ -212,6 +258,9 @@ function assertOwnedActivationLocks({ fs: fsImpl = fs, runId } = {}) {
     assert(fsImpl.existsSync(file), 'ACTIVATION_RUN_ALREADY_LOCKED');
     const lock = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
     assert(lock.runId === runId && lock.pid === process.pid, 'ACTIVATION_RUN_ALREADY_LOCKED');
+    if (lock.processStartIdentity !== undefined && lock.processStartIdentity !== null) {
+      assert(lock.processStartIdentity === readProcessStartIdentity(process.pid), 'ACTIVATION_RUN_ALREADY_LOCKED');
+    }
   }
   return true;
 }
@@ -222,7 +271,6 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   const preflight = requireCurrentPreflight(runId);
   verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ fs: fsImpl, runId });
   const priorStatus = verifyResumableAlignmentFailure({ fs: fsImpl, runId });
-  assertFailedRunProcessInactive(priorStatus);
   assert(fsImpl.existsSync(GLOBAL_STATE_PATH), 'ACTIVATION_GLOBAL_STATE_MISSING');
   const globalState = JSON.parse(fsImpl.readFileSync(GLOBAL_STATE_PATH, 'utf8'));
   const audioFingerprint = sha(Buffer.from(JSON.stringify(approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes })))));
@@ -277,6 +325,7 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
       unusedApprovalExceptionIds: [], explicitRefusalOfUnlistedMismatches: true,
     };
   }
+  assertFailedRunProcessInactive(priorStatus, { eligibility: { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true } });
   const reviewedPath = reviewedAlignment ? path.join(reviewPath(runId), 'alignment-report.reviewed.v1.json') : null;
   const reviewedAlignmentSha256 = reviewedPath ? writeImmutableJson(fsImpl, reviewedPath, reviewedAlignment) : null;
   const report = {
@@ -323,7 +372,6 @@ function recordAlignmentReviewApproval({ runId, exceptionIds, approvedBy, approv
 function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, ownedRun = false } = {}) {
   const status = verifyResumableAlignmentFailure({ fs: fsImpl, runId, expectedState: ownedRun ? 'RUNNING' : 'FAILURE', expectedStage: ownedRun ? 'RESUMING_FROM_VERIFIED_TRANSCRIPT' : undefined });
   if (ownedRun) assertOwnedActivationLocks({ fs: fsImpl, runId });
-  else assertFailedRunProcessInactive(status);
   assert(!fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')), 'RESUME_CANDIDATE_ALREADY_EXISTS');
   const file = path.join(reviewPath(runId), 'resume-preflight.json');
   assert(fsImpl.existsSync(file), 'RESUME_PREFLIGHT_MISSING');
@@ -393,6 +441,7 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
   }
   assert(sha(jsonBytes(alignment)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_RECOMPUTE_MISMATCH');
   assert(alignment.status === 'PASS', 'RESUME_REVIEWED_ALIGNMENT_NOT_PASS');
+  if (!ownedRun) assertFailedRunProcessInactive(status, { eligibility: { terminalFailure: true, locksAbsent: checkLocks, candidateAbsent: true, immutableInputsVerified: true } });
   return { completed: current, alignment, record };
 }
 
@@ -531,7 +580,7 @@ async function transcribeAndBuild(options = {}) {
       const previous = readJson(GLOBAL_STATE_PATH);
       assert(previous.runId === runId && previous.audioFingerprint === fingerprint, 'ACTIVATION_PRIOR_RUN_REQUIRES_REVIEW');
     } else atomicJson(GLOBAL_STATE_PATH, { schemaVersion: 'phase2.3b-p-activation-state/1.0.0', runId, audioFingerprint: fingerprint, state: 'RUNNING', startedAt: new Date().toISOString() });
-    fs.writeFileSync(globalFd, JSON.stringify({ runId, pid: process.pid, startedAt: new Date().toISOString(), audioFingerprint: fingerprint }), 'utf8');
+    fs.writeFileSync(globalFd, JSON.stringify({ runId, pid: process.pid, processStartIdentity: readProcessStartIdentity(process.pid), startedAt: new Date().toISOString(), audioFingerprint: fingerprint }), 'utf8');
   } catch (error) {
     try { if (globalFd !== undefined) fs.closeSync(globalFd); } catch (_) {}
     if (globalFd !== undefined) { try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {} }
@@ -540,8 +589,8 @@ async function transcribeAndBuild(options = {}) {
     throw error;
   }
   const status = priorStatus
-    ? { ...priorStatus, pid: process.pid, heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'RESUMING_FROM_VERIFIED_TRANSCRIPT', resumeStartedAt: new Date().toISOString() }
-    : { schemaVersion: 'phase2.3b-p-activation-run-status/1.0.0', runId, pid: process.pid, startedAt: new Date().toISOString(), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'STARTING', completedActs: [], attemptsByAct: Object.fromEntries(ACT_ORDER.map(act => [act, null])) };
+    ? { ...priorStatus, pid: process.pid, processStartIdentity: readProcessStartIdentity(process.pid), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'RESUMING_FROM_VERIFIED_TRANSCRIPT', resumeStartedAt: new Date().toISOString() }
+    : { schemaVersion: 'phase2.3b-p-activation-run-status/1.0.0', runId, pid: process.pid, processStartIdentity: readProcessStartIdentity(process.pid), startedAt: new Date().toISOString(), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'STARTING', completedActs: [], attemptsByAct: Object.fromEntries(ACT_ORDER.map(act => [act, null])) };
   fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, startedAt: status.startedAt, mode: 'TRANSCRIBE_AND_BUILD' }), 'utf8');
   atomicJson(statusPath, status);
   const heartbeat = setInterval(() => { status.heartbeatAt = new Date().toISOString(); status.currentStage = 'TRANSCRIBING_OR_VALIDATING'; atomicJson(statusPath, status); }, 15000);

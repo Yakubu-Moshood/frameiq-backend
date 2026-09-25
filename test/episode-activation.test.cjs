@@ -515,11 +515,57 @@ test('resume-only transcript selection reuses completed data and forbids Whisper
 test('alignment resume accepts only the two exact approved deterministic alignment failures after all transcripts completed', () => {
   const runId = 'phase2-3b-p-act-20260925';
   const completedActs = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
-  const status = { runId, state: 'FAILURE', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs };
+  const status = { runId, state: 'FAILURE', currentStage: 'FAILED', completedAt: '2026-09-25T16:23:14.453Z', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs, pid: 26 };
   const fakeFs = { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify(status)) };
   assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: fakeFs, runId }), status);
-  assert.equal(activationCli.assertFailedRunProcessInactive({ pid: 987654321 }, { isProcessAlive: () => false }), true);
-  assert.throws(() => activationCli.assertFailedRunProcessInactive({ pid: 1234 }, { isProcessAlive: () => true }), /RESUME_RUN_PROCESS_ACTIVE/u);
+  const eligibility = { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true };
+  assert.equal(activationCli.assertFailedRunProcessInactive({ ...status, pid: 987654321 }, { isProcessAlive: () => false }), true);
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, pid: 1234 }, { isProcessAlive: () => true, currentPid: 26 }), /RESUME_RUN_PROCESS_ACTIVE/u);
+
+  // Legacy status has no process-start identity. Same PID is accepted only
+  // after both diagnosis and resume have completed their strict eligibility gates.
+  assert.equal(activationCli.assertFailedRunProcessInactive(status, { isProcessAlive: () => true, currentPid: status.pid, eligibility }), true);
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, completedAt: null }, { isProcessAlive: () => true, currentPid: status.pid, eligibility }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u);
+  for (const failedGate of ['locksAbsent', 'candidateAbsent', 'immutableInputsVerified']) {
+    assert.throws(() => activationCli.assertFailedRunProcessInactive(status, {
+      isProcessAlive: () => true, currentPid: status.pid,
+      eligibility: { ...eligibility, [failedGate]: false },
+    }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u, `${failedGate} must block PID-reuse acceptance`);
+  }
+  for (const lockPath of [
+    path.join(activationCli.ROOT, '.review', `phase2.3b-p-activation-${runId}`, 'activation.lock'),
+    path.join(activationCli.ROOT, '.review', 'phase2.3b-p-activation-active.lock'),
+  ]) {
+    assert.throws(() => {
+      activationCli.assertNoActivationLocks({ fs: { existsSync: file => file === lockPath }, runId });
+      activationCli.assertFailedRunProcessInactive(status, { isProcessAlive: () => true, currentPid: status.pid, eligibility });
+    }, /ACTIVATION_(?:RUN|GLOBAL_RUN)_ALREADY_LOCKED/u, `active lock ${path.basename(lockPath)} must block PID-reuse acceptance`);
+  }
+
+  const processIdentityStatus = { ...status, processStartIdentity: '12345' };
+  assert.throws(() => activationCli.assertFailedRunProcessInactive(processIdentityStatus, {
+    isProcessAlive: () => true, currentPid: status.pid,
+    getProcessStartIdentity: () => '12345', eligibility,
+  }), /RESUME_RUN_PROCESS_ACTIVE/u, 'matching process-start identity proves the prior process is still alive');
+  assert.equal(activationCli.assertFailedRunProcessInactive(processIdentityStatus, {
+    isProcessAlive: () => true, currentPid: status.pid,
+    getProcessStartIdentity: () => '67890', eligibility,
+  }), true, 'different process-start identity proves PID reuse');
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, pid: '26' }, { isProcessAlive: () => false }), /RESUME_RUN_PID_INVALID/u);
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...processIdentityStatus, processStartIdentity: 'bad' }, {
+    isProcessAlive: () => true, currentPid: status.pid,
+  }), /RESUME_RUN_PROCESS_IDENTITY_INVALID/u);
+  assert.throws(() => activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify({ ...status, completedAt: 'not-a-date' })) }, runId }), /RESUME_RUN_STATE_MISMATCH/u);
+
+  // Diagnosis and resume use the same process-identity decision helper; its
+  // pure checks perform no provider, candidate, or episode-root writes.
+  let providerCalls = 0, candidateWrites = 0, rootWrites = 0;
+  const sharedOptions = { isProcessAlive: () => true, currentPid: status.pid, eligibility };
+  const diagnosisDecision = activationCli.assertFailedRunProcessInactive(status, sharedOptions);
+  const resumeDecision = activationCli.assertFailedRunProcessInactive(status, sharedOptions);
+  assert.equal(diagnosisDecision, resumeDecision);
+  assert.deepEqual([providerCalls, candidateWrites, rootWrites], [0, 0, 0]);
+
   const liveBoundaryFailure = { ...status, error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11' };
   assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify(liveBoundaryFailure)) }, runId }), liveBoundaryFailure);
   for (const change of [
