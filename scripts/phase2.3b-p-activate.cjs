@@ -21,7 +21,10 @@ const RUNTIME_SYNC_FILES = [
   'production-method-manifest.cjs', 'evidence-source-validator.cjs', 'proof-section-planner.cjs', 'act-voice-generator.cjs',
 ];
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
-const RESUMABLE_ALIGNMENT_FAILURE = 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2';
+const RESUMABLE_ALIGNMENT_FAILURES = new Set([
+  'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2',
+  'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11',
+]);
 const ACT_ORDER = spec.actOrder;
 const VO_BINDINGS = Object.fromEntries(ACT_ORDER.map(key => [key, spec.voFilenames[key].replace(/\.mp3$/iu, '')]));
 const CANDIDATE_FILES = {
@@ -47,6 +50,11 @@ function assert(value, code) { if (!value) throw new Error(code); }
 function assertResumeImmutableBinding(name, expected, actual) {
   if (JSON.stringify(expected) !== JSON.stringify(actual)) throw new Error(`RESUME_IMMUTABLE_INPUT_CHANGED:${name}`);
   return true;
+}
+function retimeBeforeCandidateOutput({ candidateDirectory, retime } = {}) {
+  assert(typeof candidateDirectory === 'string' && typeof retime === 'function', 'ACTIVATION_CANDIDATE_BUILD_INPUT_INVALID');
+  assert(!fs.existsSync(candidateDirectory), 'ACTIVATION_CANDIDATE_ALREADY_EXISTS');
+  return retime();
 }
 function hashFile(file) { return sha(fs.readFileSync(file)); }
 function reviewPath(runId) { return path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`); }
@@ -180,11 +188,20 @@ function assertNoActivationLocks({ fs: fsImpl = fs, runId } = {}) {
   return true;
 }
 
+function assertFailedRunProcessInactive(status, { isProcessAlive = pid => {
+  try { process.kill(pid, 0); return true; }
+  catch (error) { return error?.code !== 'ESRCH'; }
+} } = {}) {
+  assert(Number.isSafeInteger(status?.pid) && status.pid > 0, 'RESUME_RUN_PID_INVALID');
+  assert(!isProcessAlive(status.pid), 'RESUME_RUN_PROCESS_ACTIVE');
+  return true;
+}
+
 function verifyResumableAlignmentFailure({ fs: fsImpl = fs, runId, statusPath = path.join(reviewPath(runId), 'run-status.json'), expectedState = 'FAILURE', expectedStage } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   assert(fsImpl.existsSync(statusPath), 'FAILED_RUN_STATUS_MISSING');
   const status = JSON.parse(fsImpl.readFileSync(statusPath, 'utf8'));
-  assert(status.runId === runId && status.state === expectedState && status.error === RESUMABLE_ALIGNMENT_FAILURE
+  assert(status.runId === runId && status.state === expectedState && RESUMABLE_ALIGNMENT_FAILURES.has(status.error)
     && JSON.stringify(status.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
   if (expectedStage) assert(status.currentStage === expectedStage, 'RESUME_RUN_STATE_MISMATCH');
   return status;
@@ -205,6 +222,7 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   const preflight = requireCurrentPreflight(runId);
   verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ fs: fsImpl, runId });
   const priorStatus = verifyResumableAlignmentFailure({ fs: fsImpl, runId });
+  assertFailedRunProcessInactive(priorStatus);
   assert(fsImpl.existsSync(GLOBAL_STATE_PATH), 'ACTIVATION_GLOBAL_STATE_MISSING');
   const globalState = JSON.parse(fsImpl.readFileSync(GLOBAL_STATE_PATH, 'utf8'));
   const audioFingerprint = sha(Buffer.from(JSON.stringify(approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes })))));
@@ -303,8 +321,9 @@ function recordAlignmentReviewApproval({ runId, exceptionIds, approvedBy, approv
 }
 
 function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, ownedRun = false } = {}) {
-  verifyResumableAlignmentFailure({ fs: fsImpl, runId, expectedState: ownedRun ? 'RUNNING' : 'FAILURE', expectedStage: ownedRun ? 'RESUMING_FROM_VERIFIED_TRANSCRIPT' : undefined });
+  const status = verifyResumableAlignmentFailure({ fs: fsImpl, runId, expectedState: ownedRun ? 'RUNNING' : 'FAILURE', expectedStage: ownedRun ? 'RESUMING_FROM_VERIFIED_TRANSCRIPT' : undefined });
   if (ownedRun) assertOwnedActivationLocks({ fs: fsImpl, runId });
+  else assertFailedRunProcessInactive(status);
   assert(!fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')), 'RESUME_CANDIDATE_ALREADY_EXISTS');
   const file = path.join(reviewPath(runId), 'resume-preflight.json');
   assert(fsImpl.existsSync(file), 'RESUME_PREFLIGHT_MISSING');
@@ -442,7 +461,10 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   const candidate = path.join(review, 'candidate');
   assert(!fs.existsSync(candidate), 'ACTIVATION_CANDIDATE_ALREADY_EXISTS');
   const basePlan = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan));
-  const retimed = activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment }).plan;
+  const retimed = retimeBeforeCandidateOutput({
+    candidateDirectory: candidate,
+    retime: () => activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment }),
+  }).plan;
   const editValidation = require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
   assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
   activation.assertCreativePlanFieldsFrozen(basePlan, retimed);
@@ -657,4 +679,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

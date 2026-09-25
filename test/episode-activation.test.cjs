@@ -104,7 +104,7 @@ function reviewedFor(script, words, bindings, approved = false) {
   return applyAlignmentReviewApproval({ alignment: deterministic, approvalArtifact: approval, expectedBindings: reviewBindings });
 }
 
-function makeRetimingFixture({ sourceTexts, transcriptTexts, beatRanges } = {}) {
+function makeRetimingFixture({ sourceTexts, planTexts, transcriptTexts, beatRanges } = {}) {
   const actKeys = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const bindings = Object.fromEntries(actKeys.map(key => [key, `VO_${key}`]));
   const script = { acts: Object.fromEntries(actKeys.map(key => [key, { voScript: sourceTexts?.[key] || `Approved ${key} narration.` }])) };
@@ -112,16 +112,17 @@ function makeRetimingFixture({ sourceTexts, transcriptTexts, beatRanges } = {}) 
   let episodeCursor = 0;
   for (const actKey of actKeys) {
     const sourceWords = script.acts[actKey].voScript.trim().split(/\s+/u);
+    const planWords = (planTexts?.[actKey] || script.acts[actKey].voScript).trim().split(/\s+/u);
     const transcriptWords = (transcriptTexts?.[actKey] || script.acts[actKey].voScript).trim().split(/\s+/u);
     const localWords = transcriptWords.map((word, index) => ({ vo_file: bindings[actKey], word, start_seconds: index * 0.5, end_seconds: index * 0.5 + 0.2 }));
     words.push(...localWords);
     const durationSec = Math.max(10, localWords.at(-1).end_seconds + 1);
-    acts.push({ actKey, voKey: bindings[actKey], startSec: episodeCursor, endSec: episodeCursor + 10, durationSec: 10, wordCount: sourceWords.length });
-    const ranges = beatRanges?.[actKey] || [[0, sourceWords.length - 1]];
+    acts.push({ actKey, voKey: bindings[actKey], startSec: episodeCursor, endSec: episodeCursor + 10, durationSec: 10, wordCount: planWords.length });
+    const ranges = beatRanges?.[actKey] || [[0, planWords.length - 1]];
     sequences.push({ sequenceId: `sequence-${actKey}`, actKey, beats: ranges.map(([first, last], index) => ({
       beatId: `beat-${actKey}-${index + 1}`, sequenceId: `sequence-${actKey}`, actKey,
       startWordIndex: first, endWordIndex: last, startSec: episodeCursor, endSec: episodeCursor + 10,
-      durationSec: 10, narrationExcerpt: sourceWords.slice(first, last + 1).join(' '), visual: { type: 'CLIP', description: 'preserved' },
+      durationSec: 10, narrationExcerpt: planWords.slice(first, last + 1).join(' '), visual: { type: 'CLIP', description: 'preserved' },
     })) });
     episodeCursor += 10;
   }
@@ -132,7 +133,10 @@ function makeRetimingFixture({ sourceTexts, transcriptTexts, beatRanges } = {}) 
 function retimeFixture(options = {}) {
   const value = makeRetimingFixture(options);
   const reviewedAlignment = reviewedFor(value.script, value.words, value.bindings, true);
-  const actDurationsSec = Object.fromEntries(value.actKeys.map(key => [key, 10]));
+  const actDurationsSec = Object.fromEntries(value.actKeys.map(key => {
+    const actWords = value.words.filter(word => word.vo_file === value.bindings[key]);
+    return [key, Math.max(10, actWords.at(-1).end_seconds + 1)];
+  }));
   return { ...value, reviewedAlignment, result: retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec, reviewedAlignment }) };
 }
 
@@ -165,6 +169,60 @@ test('reviewed alignment remaps split decimals and comma-formatted numbers by no
   const commaBeat = comma.result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0];
   assert.equal(commaBeat.endWordIndex, 5);
   assert.match(commaBeat.narrationExcerpt, /5 300/u);
+});
+
+test('live Act 1 boundary 11 maps through the approved omitted-currency relation without shifting the next beat', () => {
+  const planText = "in 2015 wells fargo was america's most valuable bank worth 300 billion by 2020 the bank had agreed to a 3 billion federal resolution";
+  const scriptText = "in 2015 wells fargo was america's most valuable bank worth 300 billion dollars by 2020 the bank had agreed to a 3 billion federal resolution";
+  const { result } = retimeFixture({
+    sourceTexts: { act1: scriptText },
+    planTexts: { act1: planText },
+    transcriptTexts: { act1: planText },
+    beatRanges: { act1: [[0, 8], [9, 11], [12, 23]] },
+  });
+  const beats = result.plan.sequences.find(sequence => sequence.actKey === 'act1').beats;
+  assert.deepEqual(beats.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 8], [9, 11], [12, 23]]);
+  assert.equal(beats[1].narrationExcerpt, 'worth 300 billion');
+  assert.equal(beats[1].endWordIndex, 11);
+  assert.equal(beats[2].startWordIndex, 12);
+  assert.equal(beats[2].narrationExcerpt.startsWith('by '), true);
+});
+
+test('an unprovable reviewed boundary does not create candidate output', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-retime-no-candidate-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const value = makeRetimingFixture({
+    sourceTexts: { act2: 'The The.' },
+    planTexts: { act2: 'The.' },
+    transcriptTexts: { act2: 'The The.' },
+  });
+  const reviewed = reviewedFor(value.script, value.words, value.bindings, true);
+  const candidate = path.join(root, 'candidate');
+  assert.throws(() => activationCli.retimeBeforeCandidateOutput({
+    candidateDirectory: candidate,
+    retime: () => retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }),
+  }), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
+  assert.equal(fs.existsSync(candidate), false);
+});
+
+test('reviewed multi-token spans map boundaries before and after while an interior indivisible boundary fails closed', () => {
+  const good = retimeFixture({
+    sourceTexts: { act2: 'Before 300 billion dollars after.' },
+    planTexts: { act2: 'Before 300 billion after.' },
+    transcriptTexts: { act2: 'Before 300 billion after.' },
+    beatRanges: { act2: [[0, 0], [1, 3]] },
+  });
+  const goodBeats = good.result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(goodBeats.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 0], [1, 3]]);
+
+  const inside = makeRetimingFixture({
+    sourceTexts: { act2: 'Before 3.7 billion dollars after.' },
+    planTexts: { act2: 'Before 3 7 billion after.' },
+    transcriptTexts: { act2: 'Before 3 7 billion after.' },
+    beatRanges: { act2: [[0, 1], [2, 4]] },
+  });
+  const reviewed = reviewedFor(inside.script, inside.words, inside.bindings, true);
+  assert.throws(() => retimeEditPlan({ ...inside, actOrder: inside.actKeys, actBindings: inside.bindings, actDurationsSec: Object.fromEntries(inside.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }), /ACTIVATION_BOUNDARY_(?:MAPPING_COVERAGE|REVIEW_RELATION_AMBIGUOUS):act2/u);
 });
 
 test('approved multi-token currency omission maps the whole boundary range', () => {
@@ -210,10 +268,7 @@ test('unapproved substitutions and incomplete reviewed mappings fail closed befo
 });
 
 test('ambiguous, non-monotonic, overlapping and uncovered boundary maps are rejected', () => {
-  const ambiguous = makeRetimingFixture({ sourceTexts: { act2: 'The.' } });
-  ambiguous.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].narrationExcerpt = 'The The.';
-  ambiguous.plan.timing.acts.find(act => act.actKey === 'act2').wordCount = 2;
-  ambiguous.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].endWordIndex = 1;
+  const ambiguous = makeRetimingFixture({ sourceTexts: { act2: 'The The.' }, planTexts: { act2: 'The.' }, transcriptTexts: { act2: 'The The.' } });
   assert.throws(() => retimeEditPlan({ ...ambiguous, actOrder: ambiguous.actKeys, actBindings: ambiguous.bindings, actDurationsSec: Object.fromEntries(ambiguous.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(ambiguous.script, ambiguous.words, ambiguous.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
 
   const nonMonotonic = makeRetimingFixture();
@@ -221,13 +276,20 @@ test('ambiguous, non-monotonic, overlapping and uncovered boundary maps are reje
   const act = reviewed.acts.find(item => item.actKey === 'act2');
   [act.matchedTokens[0].transcriptTokenIndex, act.matchedTokens[1].transcriptTokenIndex] = [act.matchedTokens[1].transcriptTokenIndex, act.matchedTokens[0].transcriptTokenIndex];
   assert.throws(() => retimeEditPlan({ ...nonMonotonic, actOrder: nonMonotonic.actKeys, actBindings: nonMonotonic.bindings, actDurationsSec: Object.fromEntries(nonMonotonic.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }), /ACTIVATION_REVIEWED_ALIGNMENT_RANGE_INVALID|ACTIVATION_REVIEWED_ALIGNMENT_NON_MONOTONIC/u);
+  const duplicateRelation = makeRetimingFixture({ sourceTexts: { act2: "Wells Fargo's report." } });
+  const duplicateReviewed = reviewedFor(duplicateRelation.script, duplicateRelation.words, duplicateRelation.bindings);
+  const duplicateAct = duplicateReviewed.acts.find(item => item.actKey === 'act2');
+  const overlappingRelation = structuredClone(duplicateAct.matchedTokens[0]);
+  overlappingRelation.transcriptTokenIndex = 1; overlappingRelation.transcriptTokenEndIndex = 1;
+  duplicateAct.matchedTokens.push(overlappingRelation);
+  assert.throws(() => retimeEditPlan({ ...duplicateRelation, actOrder: duplicateRelation.actKeys, actBindings: duplicateRelation.bindings, actDurationsSec: Object.fromEntries(duplicateRelation.actKeys.map(key => [key, 10])), reviewedAlignment: duplicateReviewed }), /ACTIVATION_REVIEWED_ALIGNMENT_COVERAGE:act2/u);
 
   const split = makeRetimingFixture({ sourceTexts: { act2: "Say o'clock now." }, transcriptTexts: { act2: 'Say o clock now.' }, beatRanges: { act2: [[0, 1], [2, 3]] } });
   split.plan.timing.acts.find(act => act.actKey === 'act2').wordCount = 4;
   const splitBeats = split.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
   splitBeats[0].narrationExcerpt = 'Say o'; splitBeats[0].endWordIndex = 1;
   splitBeats[1].narrationExcerpt = 'clock now.'; splitBeats[1].startWordIndex = 2;
-  assert.throws(() => retimeEditPlan({ ...split, actOrder: split.actKeys, actBindings: split.bindings, actDurationsSec: Object.fromEntries(split.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(split.script, split.words, split.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_COVERAGE:act2/u);
+  assert.throws(() => retimeEditPlan({ ...split, actOrder: split.actKeys, actBindings: split.bindings, actDurationsSec: Object.fromEntries(split.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(split.script, split.words, split.bindings) }), /ACTIVATION_BOUNDARY_(?:MAPPING_COVERAGE|REVIEW_RELATION_AMBIGUOUS):act2/u);
 
   const uncovered = makeRetimingFixture();
   uncovered.plan.sequences.find(sequence => sequence.actKey === 'act2').beats[0].startWordIndex = 1;
@@ -450,14 +512,19 @@ test('resume-only transcript selection reuses completed data and forbids Whisper
   assert.equal(providerCalls, 0);
 });
 
-test('alignment resume accepts only the exact Act 2 boundary-mismatch failure after all transcripts completed', () => {
+test('alignment resume accepts only the two exact approved deterministic alignment failures after all transcripts completed', () => {
   const runId = 'phase2-3b-p-act-20260925';
   const completedActs = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const status = { runId, state: 'FAILURE', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs };
   const fakeFs = { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify(status)) };
   assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: fakeFs, runId }), status);
+  assert.equal(activationCli.assertFailedRunProcessInactive({ pid: 987654321 }, { isProcessAlive: () => false }), true);
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ pid: 1234 }, { isProcessAlive: () => true }), /RESUME_RUN_PROCESS_ACTIVE/u);
+  const liveBoundaryFailure = { ...status, error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11' };
+  assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify(liveBoundaryFailure)) }, runId }), liveBoundaryFailure);
   for (const change of [
     { error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act3' },
+    { error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:12' },
     { state: 'SUCCESS' },
     { completedActs: completedActs.slice(0, -1) },
     { runId: 'other-run' },
