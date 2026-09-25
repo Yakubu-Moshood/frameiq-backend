@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const {
-  TARGET_FILES, sha256, groupWordTimestamps, retimeEditPlan,
+  TARGET_FILES, sha256, groupWordTimestamps, auditEditPlanBoundaries, retimeEditPlan,
   assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, reserveWhisperAttempt,
   analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
@@ -140,6 +140,98 @@ function retimeFixture(options = {}) {
   return { ...value, reviewedAlignment, result: retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec, reviewedAlignment }) };
 }
 
+test('Act 2 opening boundaries map to locked transcript indices zero and nine with the reviewed next beat at ten', () => {
+  const opening = 'Wells Fargo was founded in 1852 during the California Gold Rush For over 150 years it built a reputation as'.split(/\s+/u);
+  const narration = [...opening, ...Array.from({ length: 200 }, (_, index) => `segmentword${index}`), 'Wells', 'Fargo'].join(' ');
+  const { result } = retimeFixture({ sourceTexts: { act2: narration }, transcriptTexts: { act2: narration }, beatRanges: { act2: [[0, 9], [10, 19], [20, 221]] } });
+  const beats = result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(beats.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 9], [10, 19], [20, 221]]);
+  assert.equal(beats[0].narrationExcerpt, 'Wells Fargo was founded in 1852 during the California Gold');
+  assert.equal(beats[1].narrationExcerpt, 'Rush For over 150 years it built a reputation as');
+});
+
+test('repeated words resolve through their complete ordered surrounding sequence', () => {
+  const { result } = retimeFixture({
+    sourceTexts: { act2: 'Wells Fargo opened after Wells Fargo closed.' },
+    planTexts: { act2: 'Wells opened after Wells closed.' },
+    transcriptTexts: { act2: 'Wells Fargo opened after Wells Fargo closed.' },
+    beatRanges: { act2: [[0, 2], [3, 4]] },
+  });
+  const beats = result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(beats.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 3], [4, 6]]);
+});
+
+test('repeated word alignments that permit different complete beat boundaries remain ambiguous', () => {
+  const value = makeRetimingFixture({
+    sourceTexts: { act2: 'A The The B.' },
+    planTexts: { act2: 'A The B.' },
+    transcriptTexts: { act2: 'A The The B.' },
+    beatRanges: { act2: [[0, 1], [2, 2]] },
+  });
+  const reviewedAlignment = reviewedFor(value.script, value.words, value.bindings);
+  const input = { ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment };
+  const audit = auditEditPlanBoundaries(input);
+  assert.equal(audit.status, 'BOUNDARY_AUDIT_FAIL');
+  assert.ok(audit.acts.find(act => act.actKey === 'act2').ambiguousMappings.length > 0);
+  assert.throws(() => retimeEditPlan(input), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
+});
+
+test('six-act CLI boundary audit shares candidate mappings, reports full coverage, and performs no writes or provider calls', async () => {
+  const value = makeRetimingFixture();
+  const reviewedAlignment = reviewedFor(value.script, value.words, value.bindings);
+  const input = { ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment };
+  const before = structuredClone(input);
+  const orchestration = { targetChecks: 0, packageChecks: 0, runtimeChecks: 0, preflightChecks: 0, scriptReads: 0, planReads: 0, audioProbes: 0, providerCalls: 0, writes: 0 };
+  const audioContracts = value.actKeys.map(actKey => ({ actKey, file: `${actKey}.mp3` }));
+  const audit = await activationCli.auditResumeBoundaries({
+    runId: 'audit-run-123',
+    ensureTarget: () => { orchestration.targetChecks++; },
+    verifyPackageFn: () => { orchestration.packageChecks++; },
+    verifyRuntimeSyncFn: () => { orchestration.runtimeChecks++; },
+    resumePreflight: runId => { orchestration.preflightChecks++; assert.equal(runId, 'audit-run-123'); return { completed: { timestamps: value.words }, alignment: reviewedAlignment }; },
+    getApprovedScript: () => { orchestration.scriptReads++; return value.script; },
+    loadPlan: () => { orchestration.planReads++; return value.plan; },
+    audioContracts,
+    actOrder: value.actKeys,
+    actBindings: value.bindings,
+    probeAudio: file => { orchestration.audioProbes++; assert.match(file, /fresh-whisper[\\/]audio/u); return { durationSec: 10 }; },
+  });
+  const candidate = retimeEditPlan(input).plan;
+  assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
+  assert.deepEqual(audit.acts.map(act => act.actKey), value.actKeys);
+  for (const act of audit.acts) {
+    assert.equal(act.mappedBoundaryCount, act.boundaryCount);
+    assert.equal(act.firstMappedTranscriptIndex, 0);
+    assert.equal(act.lastMappedTranscriptIndex, act.transcriptWordCount - 1);
+    assert.deepEqual(act.gaps, []);
+    assert.deepEqual(act.overlaps, []);
+    const candidateBeats = candidate.sequences.filter(sequence => sequence.actKey === act.actKey).flatMap(sequence => sequence.beats);
+    assert.equal(candidateBeats[0].startWordIndex, act.firstMappedTranscriptIndex);
+    assert.equal(candidateBeats.at(-1).endWordIndex, act.lastMappedTranscriptIndex);
+  }
+  assert.equal(audit.providerRequestsMade, 0);
+  assert.equal(audit.candidateWrites, 0);
+  assert.equal(audit.episodeRootWrites, 0);
+  assert.deepEqual(orchestration, { targetChecks: 1, packageChecks: 1, runtimeChecks: 1, preflightChecks: 1, scriptReads: 1, planReads: 1, audioProbes: 6, providerCalls: 0, writes: 0 });
+  assert.deepEqual(input, before);
+});
+
+test('six-act boundary audit accumulates failures in every affected act', () => {
+  const value = makeRetimingFixture({
+    sourceTexts: { act2: 'The The.', act4: 'The The.' },
+    planTexts: { act2: 'The.', act4: 'The.' },
+    transcriptTexts: { act2: 'The The.', act4: 'The The.' },
+  });
+  const audit = auditEditPlanBoundaries({
+    ...value, actOrder: value.actKeys, actBindings: value.bindings,
+    actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])),
+    reviewedAlignment: reviewedFor(value.script, value.words, value.bindings),
+  });
+  assert.equal(audit.status, 'BOUNDARY_AUDIT_FAIL');
+  assert.deepEqual([...new Set(audit.errors.map(error => error.actKey))], ['act2', 'act4']);
+  assert.equal(audit.acts.length, 6);
+});
+
 test('reviewed alignment remaps Act 2 o’clock tokenization and shifts every later boundary by one', () => {
   const { plan, result } = retimeFixture({
     sourceTexts: { act2: "An 8 o'clock signal arrived." },
@@ -201,7 +293,7 @@ test('an unprovable reviewed boundary does not create candidate output', t => {
   assert.throws(() => activationCli.retimeBeforeCandidateOutput({
     candidateDirectory: candidate,
     retime: () => retimeEditPlan({ ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }),
-  }), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
+  }), /ACTIVATION_BOUNDARY_MAPPING_(?:AMBIGUOUS|COVERAGE):act2/u);
   assert.equal(fs.existsSync(candidate), false);
 });
 
@@ -269,7 +361,7 @@ test('unapproved substitutions and incomplete reviewed mappings fail closed befo
 
 test('ambiguous, non-monotonic, overlapping and uncovered boundary maps are rejected', () => {
   const ambiguous = makeRetimingFixture({ sourceTexts: { act2: 'The The.' }, planTexts: { act2: 'The.' }, transcriptTexts: { act2: 'The The.' } });
-  assert.throws(() => retimeEditPlan({ ...ambiguous, actOrder: ambiguous.actKeys, actBindings: ambiguous.bindings, actDurationsSec: Object.fromEntries(ambiguous.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(ambiguous.script, ambiguous.words, ambiguous.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:act2/u);
+  assert.throws(() => retimeEditPlan({ ...ambiguous, actOrder: ambiguous.actKeys, actBindings: ambiguous.bindings, actDurationsSec: Object.fromEntries(ambiguous.actKeys.map(key => [key, 10])), reviewedAlignment: reviewedFor(ambiguous.script, ambiguous.words, ambiguous.bindings) }), /ACTIVATION_BOUNDARY_MAPPING_(?:AMBIGUOUS|COVERAGE):act2/u);
 
   const nonMonotonic = makeRetimingFixture();
   const reviewed = reviewedFor(nonMonotonic.script, nonMonotonic.words, nonMonotonic.bindings);
@@ -512,7 +604,7 @@ test('resume-only transcript selection reuses completed data and forbids Whisper
   assert.equal(providerCalls, 0);
 });
 
-test('alignment resume accepts only the two exact approved deterministic alignment failures after all transcripts completed', () => {
+test('alignment resume accepts only exact approved deterministic alignment failures after all transcripts completed', () => {
   const runId = 'phase2-3b-p-act-20260925';
   const completedActs = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const status = { runId, state: 'FAILURE', currentStage: 'FAILED', completedAt: '2026-09-25T16:23:14.453Z', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs, pid: 26 };
@@ -568,6 +660,8 @@ test('alignment resume accepts only the two exact approved deterministic alignme
 
   const liveBoundaryFailure = { ...status, error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11' };
   assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify(liveBoundaryFailure)) }, runId }), liveBoundaryFailure);
+  const liveAct2OpeningBoundaryFailure = { ...status, error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act2:0' };
+  assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify(liveAct2OpeningBoundaryFailure)) }, runId }), liveAct2OpeningBoundaryFailure);
   for (const change of [
     { error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act3' },
     { error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:12' },

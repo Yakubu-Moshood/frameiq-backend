@@ -85,12 +85,7 @@ function lcsTables(left, right) {
   return { prefix, suffix, width, length: prefix[n * width + m] };
 }
 
-function lcsLengthSkipping(left, right, skippedIndex) {
-  const filtered = left.filter((_, index) => index !== skippedIndex);
-  return lcsTables(filtered, right).length;
-}
-
-function uniqueExactUnitPairs(left, right, actKey, requiredIndexes = new Set(left.map((_, index) => index))) {
+function uniqueExactUnitPairs(left, right, actKey, requiredIndexes = new Set(left.map((_, index) => index)), forcedTargetIndexes = new Map()) {
   const table = lcsTables(left, right), pairs = new Map();
   for (let i = 0; i < left.length; i++) {
     if (!requiredIndexes.has(i)) continue;
@@ -100,7 +95,13 @@ function uniqueExactUnitPairs(left, right, actKey, requiredIndexes = new Set(lef
           && table.prefix[i * table.width + j] + 1 + table.suffix[(i + 1) * table.width + j + 1] === table.length) targetPositions.push(j);
     }
     if (!targetPositions.length) continue;
-    if (targetPositions.length !== 1 || lcsLengthSkipping(left, right, i) === table.length) {
+    const forcedTarget = forcedTargetIndexes.get(i);
+    if (forcedTarget !== undefined) {
+      if (!targetPositions.includes(forcedTarget)) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}`);
+      pairs.set(i, forcedTarget);
+      continue;
+    }
+    if (targetPositions.length !== 1) {
       throw new Error(`ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:${actKey}`);
     }
     pairs.set(i, targetPositions[0]);
@@ -146,7 +147,7 @@ function reconstructPlanSourceWords({ plan, actKey, priorTiming }) {
   return { beats, words };
 }
 
-function mapPlanSourceWordsToScript({ sourceWords, scriptText, boundaryIndexes, actKey }) {
+function mapPlanSourceWordsToScript({ sourceWords, scriptText, boundaryIndexes, actKey, structuralStartVerified = false, structuralEndVerified = false }) {
   const sourceText = sourceWords.join(' '), sourceLex = lexicalTokens(sourceText), scriptUnits = normalizedUnits(scriptText).units;
   const sourceWordByLexical = lexicalSourceWordIndexes(sourceText, sourceWordSpans(sourceWords));
   const sourceUnits = normalizedUnits(sourceText).units;
@@ -158,7 +159,18 @@ function mapPlanSourceWordsToScript({ sourceWords, scriptText, boundaryIndexes, 
       if (lexicalIndexes.some(lexicalIndex => lexicalIndex >= unit.tokenStart && lexicalIndex <= unit.tokenEnd)) required.add(unitIndex);
     }
   }
-  const pairs = uniqueExactUnitPairs(sourceUnits, scriptUnits, actKey, required);
+  const forced = new Map();
+  const setForced = (unitIndex, targetIndex) => {
+    if (forced.has(unitIndex) && forced.get(unitIndex) !== targetIndex) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:${actKey}`);
+    forced.set(unitIndex, targetIndex);
+  };
+  for (const index of boundaryIndexes) {
+    const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
+    const relevant = [...required].filter(unitIndex => lexicalIndexes.some(lexicalIndex => lexicalIndex >= sourceUnits[unitIndex].tokenStart && lexicalIndex <= sourceUnits[unitIndex].tokenEnd));
+    if (index === 0 && structuralStartVerified && relevant.length && scriptUnits[0]?.tokenStart === 0) setForced(relevant[0], 0);
+    if (index === sourceWords.length - 1 && structuralEndVerified && relevant.length && scriptUnits.at(-1)?.tokenEnd === sourceLex.length - 1) setForced(relevant.at(-1), scriptUnits.length - 1);
+  }
+  const pairs = uniqueExactUnitPairs(sourceUnits, scriptUnits, actKey, required, forced);
   const mapping = new Map();
   for (const index of boundaryIndexes) {
     const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
@@ -178,7 +190,7 @@ function mapPlanSourceWordsToScript({ sourceWords, scriptText, boundaryIndexes, 
   return mapping;
 }
 
-function mapPlanSourceWordsToTranscript({ sourceWords, words, boundaryIndexes, actKey }) {
+function mapPlanSourceWordsToTranscript({ sourceWords, words, boundaryIndexes, actKey, structuralStartVerified = false, structuralEndVerified = false }) {
   const sourceText = sourceWords.join(' '), sourceUnits = normalizedUnits(sourceText).units;
   const sourceWordByLexical = lexicalSourceWordIndexes(sourceText, sourceWordSpans(sourceWords));
   const transcriptText = words.map(item => item.word).join(' '), transcriptUnits = normalizedUnits(transcriptText).units;
@@ -191,7 +203,18 @@ function mapPlanSourceWordsToTranscript({ sourceWords, words, boundaryIndexes, a
       if (lexicalIndexes.some(lexicalIndex => lexicalIndex >= unit.tokenStart && lexicalIndex <= unit.tokenEnd)) required.add(unitIndex);
     }
   }
-  const pairs = uniqueExactUnitPairs(sourceUnits, transcriptUnits, actKey, required), mapping = new Map();
+  const forced = new Map();
+  const setForced = (unitIndex, targetIndex) => {
+    if (forced.has(unitIndex) && forced.get(unitIndex) !== targetIndex) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:${actKey}`);
+    forced.set(unitIndex, targetIndex);
+  };
+  for (const index of boundaryIndexes) {
+    const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
+    const relevant = [...required].filter(unitIndex => lexicalIndexes.some(lexicalIndex => lexicalIndex >= sourceUnits[unitIndex].tokenStart && lexicalIndex <= sourceUnits[unitIndex].tokenEnd));
+    if (index === 0 && structuralStartVerified && relevant.length && transcriptUnits[0]?.tokenStart === 0) setForced(relevant[0], 0);
+    if (index === sourceWords.length - 1 && structuralEndVerified && relevant.length && transcriptUnits.at(-1)?.tokenEnd === lexicalToWord.length - 1) setForced(relevant.at(-1), transcriptUnits.length - 1);
+  }
+  const pairs = uniqueExactUnitPairs(sourceUnits, transcriptUnits, actKey, required, forced), mapping = new Map();
   for (const index of boundaryIndexes) {
     const lexicalIndexes = sourceWordByLexical.flatMap((wordIndex, lexicalIndex) => wordIndex === index ? [lexicalIndex] : []);
     const targetRanges = [];
@@ -225,6 +248,83 @@ function verifyReviewedTranscriptRange(range, scriptToTranscript, actKey, bounda
     if (!covered.has(index)) throw new Error(`ACTIVATION_BOUNDARY_REVIEW_RELATION_MISSING:${actKey}:${boundaryIndex}`);
   }
   if ([...covered].some(index => index < range.start || index > range.end)) throw new Error(`ACTIVATION_BOUNDARY_REVIEW_RELATION_AMBIGUOUS:${actKey}:${boundaryIndex}`);
+}
+
+function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey }) {
+  const boundaryIndexes = [...new Set(source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex]))];
+  const scriptTokenCount = lexicalTokens(scriptText).length;
+  let scriptToTranscript;
+  try { scriptToTranscript = mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey }); }
+  catch (error) {
+    const code = String(error.message || error);
+    return { scriptToTranscript: null, mappedBoundaries: new Map(), mappedBeats: [], errors: [
+      { code }, ...boundaryIndexes.map(boundaryIndex => ({ code: `ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${boundaryIndex}`, boundaryIndex })),
+    ] };
+  }
+  const structuralStartVerified = source.beats[0]?.startWordIndex === 0
+    && scriptToTranscript[0]?.start === 0
+    && reviewedAct.matchedTokens?.some(item => item.scriptTokenIndex === 0 && item.transcriptTokenIndex === 0)
+      || source.beats[0]?.startWordIndex === 0 && scriptToTranscript[0]?.start === 0
+        && reviewedAct.approvedExceptions?.some(item => item.scriptTokenIndex === 0 && item.transcriptTokenIndex === 0);
+  const structuralEndVerified = source.beats.at(-1)?.endWordIndex === source.words.length - 1
+    && scriptToTranscript.at(-1)?.end === words.length - 1
+    && ([...(reviewedAct.matchedTokens || []), ...(reviewedAct.approvedExceptions || [])]
+      .some(item => item.scriptTokenEndIndex === scriptTokenCount - 1 && item.transcriptTokenEndIndex === transcriptLexicalWordIndexes(words).length - 1));
+  const mappedBoundaries = new Map(), errors = [];
+  for (const index of boundaryIndexes) {
+    let sourceToScript = null, sourceToTranscript = null, sourceToScriptError = null, sourceToTranscriptError = null;
+    try {
+      sourceToScript = mapPlanSourceWordsToScript({ sourceWords: source.words, scriptText, boundaryIndexes: [index], actKey, structuralStartVerified, structuralEndVerified }).get(index) || null;
+    } catch (error) { sourceToScriptError = error; }
+    try {
+      sourceToTranscript = mapPlanSourceWordsToTranscript({ sourceWords: source.words, words, boundaryIndexes: [index], actKey, structuralStartVerified, structuralEndVerified }).get(index) || null;
+    } catch (error) { sourceToTranscriptError = error; }
+    let throughScript = null;
+    if (sourceToScript) {
+      throughScript = { start: scriptToTranscript[sourceToScript.start]?.start, end: scriptToTranscript[sourceToScript.end]?.end };
+      if (!Number.isSafeInteger(throughScript.start) || !Number.isSafeInteger(throughScript.end) || throughScript.start > throughScript.end) {
+        errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_INVALID:${actKey}:${index}`, boundaryIndex: index });
+        continue;
+      }
+    }
+    if (sourceToTranscript) {
+      try { verifyReviewedTranscriptRange(sourceToTranscript, scriptToTranscript, actKey, index); }
+      catch (error) {
+        errors.push({ code: String(error.message || error), boundaryIndex: index });
+        continue;
+      }
+    }
+    if (sourceToTranscript && throughScript && (sourceToTranscript.start !== throughScript.start || sourceToTranscript.end !== throughScript.end)) {
+      errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_CONFLICT:${actKey}:${index}`, boundaryIndex: index });
+      continue;
+    }
+    const mapped = sourceToTranscript || throughScript;
+    if (!mapped) {
+      const ambiguous = [sourceToScriptError, sourceToTranscriptError].find(error => /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:/u.test(String(error?.message || error)));
+      errors.push({ code: ambiguous ? `ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:${actKey}:${index}` : `ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${index}`, boundaryIndex: index });
+      continue;
+    }
+    mappedBoundaries.set(index, mapped);
+  }
+  const mappedBeats = [], gaps = [], overlaps = [];
+  let cursor = 0;
+  for (const beat of source.beats) {
+    const mappedStart = mappedBoundaries.get(beat.startWordIndex), mappedEnd = mappedBoundaries.get(beat.endWordIndex);
+    if (!mappedStart || !mappedEnd) continue;
+    if (mappedStart.start > cursor) gaps.push({ beatId: beat.beatId, start: cursor, end: mappedStart.start - 1 });
+    else if (mappedStart.start < cursor) overlaps.push({ beatId: beat.beatId, start: mappedStart.start, end: Math.min(cursor - 1, mappedEnd.end) });
+    if (mappedStart.start > mappedEnd.end) {
+      errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_INVALID:${actKey}:${beat.startWordIndex}`, boundaryIndex: beat.startWordIndex });
+      continue;
+    }
+    mappedBeats.push({ beat, transcriptStart: mappedStart.start, transcriptEnd: mappedEnd.end });
+    cursor = mappedEnd.end + 1;
+  }
+  if (mappedBoundaries.size === boundaryIndexes.length && cursor < words.length) gaps.push({ start: cursor, end: words.length - 1 });
+  if (gaps.length || overlaps.length) errors.unshift({ code: `ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}` });
+  for (const gap of gaps) errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_GAP:${actKey}`, ...gap });
+  for (const overlap of overlaps) errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_OVERLAP:${actKey}`, ...overlap });
+  return { scriptToTranscript, mappedBoundaries, mappedBeats, errors, gaps, overlaps, boundaryIndexes };
 }
 
 function isBoundaryMappingUnavailable(error) {
@@ -290,7 +390,7 @@ function reviewedActFor(reviewedAlignment, actKey) {
   return matches[0];
 }
 
-function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment }) {
+function retimeEditPlanCore({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment }) {
   if (!Array.isArray(actOrder) || !actOrder.length || !actBindings || !actDurationsSec) throw new Error('ACTIVATION_TIMING_CONFIG_INVALID');
   if (new Set(actOrder).size !== actOrder.length) throw new Error('ACTIVATION_DUPLICATE_ACT');
   if (!plan || !Array.isArray(plan.sequences) || !plan.sequences.length) throw new Error('ACTIVATION_PLAN_INVALID');
@@ -316,45 +416,10 @@ function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurati
     if (typeof scriptText !== 'string' || !scriptText.trim()) throw new Error(`ACTIVATION_SCRIPT_MISSING:${actKey}`);
     const reviewedAct = reviewedActFor(reviewedAlignment, actKey);
     const source = reconstructPlanSourceWords({ plan, actKey, priorTiming: oldTiming });
-    const boundaryIndexes = source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex]);
-    const scriptToTranscript = mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey });
-    let sourceToScript = null, sourceToTranscript = null, sourceToScriptError = null, sourceToTranscriptError = null;
-    try { sourceToScript = mapPlanSourceWordsToScript({ sourceWords: source.words, scriptText, boundaryIndexes, actKey }); }
-    catch (error) { if (!isBoundaryMappingUnavailable(error)) throw error; sourceToScriptError = error; }
-    try { sourceToTranscript = mapPlanSourceWordsToTranscript({ sourceWords: source.words, words, boundaryIndexes, actKey }); }
-    catch (error) { if (!isBoundaryMappingUnavailable(error)) throw error; sourceToTranscriptError = error; }
-    const mappedBoundaries = new Map();
-    for (const index of boundaryIndexes) {
-      const scriptRange = sourceToScript?.get(index);
-      let throughScript = null;
-      if (scriptRange) {
-        throughScript = {
-          start: scriptToTranscript[scriptRange.start]?.start,
-          end: scriptToTranscript[scriptRange.end]?.end,
-        };
-        if (!Number.isSafeInteger(throughScript.start) || !Number.isSafeInteger(throughScript.end) || throughScript.start > throughScript.end) {
-          throw new Error(`ACTIVATION_BOUNDARY_MAPPING_INVALID:${actKey}:${index}`);
-        }
-      }
-      const direct = sourceToTranscript?.get(index) || null;
-      if (direct) verifyReviewedTranscriptRange(direct, scriptToTranscript, actKey, index);
-      if (direct && throughScript && (direct.start !== throughScript.start || direct.end !== throughScript.end)) {
-        throw new Error(`ACTIVATION_BOUNDARY_MAPPING_CONFLICT:${actKey}:${index}`);
-      }
-      const mapped = direct || throughScript;
-      if (!mapped) {
-        const ambiguous = [sourceToScriptError, sourceToTranscriptError].find(error => /ACTIVATION_BOUNDARY_MAPPING_AMBIGUOUS:/u.test(String(error?.message || error)));
-        if (ambiguous) throw ambiguous;
-        throw new Error(`ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${index}`);
-      }
-      mappedBoundaries.set(index, mapped);
-    }
-    const mappedBeats = [];
-    for (const beat of source.beats) {
-      const mappedStart = mappedBoundaries.get(beat.startWordIndex), mappedEnd = mappedBoundaries.get(beat.endWordIndex);
-      if (!mappedStart || !mappedEnd || mappedStart.start > mappedEnd.end) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_INVALID:${beat.beatId}`);
-      mappedBeats.push({ beat, transcriptStart: mappedStart.start, transcriptEnd: mappedEnd.end });
-    }
+    const boundaryAudit = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey });
+    if (boundaryAudit.errors.length) throw new Error(boundaryAudit.errors[0].code);
+    const mappedBeats = boundaryAudit.mappedBeats;
+    if (mappedBeats.length !== source.beats.length || mappedBeats[0]?.transcriptStart !== 0 || mappedBeats.at(-1)?.transcriptEnd !== words.length - 1) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
     let mappedCursor = 0;
     for (const item of mappedBeats) {
       if (item.transcriptStart !== mappedCursor) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
@@ -382,6 +447,75 @@ function retimeEditPlan({ plan, wordTimestamps, actOrder, actBindings, actDurati
   if (next.sequences.some(sequence => !actOrder.includes(sequence.actKey))) throw new Error('ACTIVATION_PLAN_HAS_UNKNOWN_ACT');
   next.timing = { basis: 'finished_vo_word_timestamps', totalDurationSec: episodeCursor, acts: timingActs };
   return { plan: next, grouped };
+}
+
+function auditEditPlanBoundaries({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment } = {}) {
+  const errors = [], acts = [];
+  let grouped;
+  try {
+    if (!Array.isArray(actOrder) || !actOrder.length || !actBindings || !actDurationsSec) throw new Error('ACTIVATION_TIMING_CONFIG_INVALID');
+    if (new Set(actOrder).size !== actOrder.length) throw new Error('ACTIVATION_DUPLICATE_ACT');
+    if (!plan || !Array.isArray(plan.sequences) || !plan.sequences.length) throw new Error('ACTIVATION_PLAN_INVALID');
+    grouped = groupWordTimestamps(wordTimestamps, actBindings);
+    const planActKeys = new Set(plan.sequences.map(sequence => sequence.actKey));
+    if (planActKeys.size !== actOrder.length || actOrder.some(actKey => !planActKeys.has(actKey))) throw new Error('ACTIVATION_PLAN_ACT_SET_MISMATCH');
+  } catch (error) {
+    const code = String(error.message || error);
+    return { schemaVersion: 'phase2.3b-p-boundary-audit/1.0.0', status: 'BOUNDARY_AUDIT_FAIL', acts, errors: [{ code }], providerRequestsMade: 0, candidateWrites: 0, episodeRootWrites: 0 };
+  }
+  const priorTiming = new Map((plan.timing?.acts || []).map(act => [act.actKey, act]));
+  for (const actKey of actOrder) {
+    const voKey = actBindings[actKey], words = grouped.get(voKey);
+    const sequences = plan.sequences.filter(sequence => sequence.actKey === actKey);
+    const sourceBeatCount = sequences.reduce((sum, sequence) => sum + (Array.isArray(sequence.beats) ? sequence.beats.length : 0), 0);
+    const entry = {
+      actKey, beatCount: sourceBeatCount, sourceWordCount: 0, transcriptWordCount: words?.length || 0,
+      mappedBoundaryCount: 0, boundaryCount: 0, firstMappedTranscriptIndex: null, lastMappedTranscriptIndex: null,
+      gaps: [], overlaps: [], ambiguousMappings: [], unmappedBoundaries: [], errors: [],
+    };
+    try {
+      const durationSec = actDurationsSec[actKey], oldTiming = priorTiming.get(actKey);
+      if (!words?.length || !Number.isFinite(durationSec) || durationSec <= 0 || durationSec + 0.001 < words.at(-1).end_seconds) throw new Error(`ACTIVATION_DURATION_INVALID:${actKey}`);
+      if (!oldTiming || oldTiming.voKey !== voKey || !Number.isSafeInteger(oldTiming.wordCount) || oldTiming.wordCount < 1) throw new Error(`ACTIVATION_WORD_ALIGNMENT_MISMATCH:${actKey}`);
+      const scriptText = script?.acts?.[actKey]?.voScript;
+      if (typeof scriptText !== 'string' || !scriptText.trim()) throw new Error(`ACTIVATION_SCRIPT_MISSING:${actKey}`);
+      const reviewedAct = reviewedActFor(reviewedAlignment, actKey);
+      const source = reconstructPlanSourceWords({ plan, actKey, priorTiming: oldTiming });
+      entry.sourceWordCount = source.words.length;
+      entry.boundaryCount = new Set(source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex])).size;
+      const mapped = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey });
+      entry.mappedBoundaryCount = mapped.mappedBoundaries.size;
+      entry.firstMappedTranscriptIndex = mapped.mappedBeats[0]?.transcriptStart ?? null;
+      entry.lastMappedTranscriptIndex = mapped.mappedBeats.at(-1)?.transcriptEnd ?? null;
+      entry.gaps = mapped.gaps || [];
+      entry.overlaps = mapped.overlaps || [];
+      entry.errors = mapped.errors;
+      entry.ambiguousMappings = mapped.errors.filter(item => /BOUNDARY_MAPPING_AMBIGUOUS/u.test(item.code));
+      entry.unmappedBoundaries = mapped.errors.filter(item => /BOUNDARY_MAPPING_MISSING|BOUNDARY_MAPPING_INVALID/u.test(item.code));
+      if (!mapped.errors.length && (mapped.mappedBeats.length !== source.beats.length || mapped.mappedBeats[0]?.transcriptStart !== 0 || mapped.mappedBeats.at(-1)?.transcriptEnd !== words.length - 1)) {
+        entry.errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}` });
+        entry.gaps.push({ start: mapped.mappedBeats.at(-1)?.transcriptEnd + 1 || 0, end: words.length - 1 });
+      }
+    } catch (error) {
+      entry.errors.push({ code: String(error.message || error) });
+    }
+    acts.push(entry);
+    for (const error of entry.errors) errors.push({ actKey, ...error });
+  }
+  return {
+    schemaVersion: 'phase2.3b-p-boundary-audit/1.0.0',
+    status: errors.length ? 'BOUNDARY_AUDIT_FAIL' : 'BOUNDARY_AUDIT_PASS',
+    acts, errors, providerRequestsMade: 0, candidateWrites: 0, episodeRootWrites: 0,
+  };
+}
+
+function retimeEditPlan(input) {
+  const audit = auditEditPlanBoundaries(input);
+  if (audit.status !== 'BOUNDARY_AUDIT_PASS') {
+    const preferred = audit.errors.find(item => /MAPPING_AMBIGUOUS|REVIEW_RELATION_AMBIGUOUS/u.test(item.code));
+    throw new Error(preferred?.code || audit.errors[0]?.code || 'ACTIVATION_BOUNDARY_AUDIT_FAILED');
+  }
+  return retimeEditPlanCore(input);
 }
 
 function assertOnlyApprovedActTextChanges(originalScript, candidateScript, correctedActKeys) {
@@ -784,7 +918,7 @@ function restoreBackup({ fs: fsImpl = fs, episodeDirectory, backupDirectory, man
 
 module.exports = {
   PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, sha256, jsonHash, tokens, reserveWhisperAttempt,
-  groupWordTimestamps, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
+  groupWordTimestamps, auditEditPlanBoundaries, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   alignActNarration, analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
   classifyReviewMismatch, exactReviewException, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
   chooseTimingTranscript,

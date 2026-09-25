@@ -24,6 +24,7 @@ const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
 const RESUMABLE_ALIGNMENT_FAILURES = new Set([
   'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2',
   'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11',
+  'ACTIVATION_BOUNDARY_MAPPING_MISSING:act2:0',
 ]);
 const ACT_ORDER = spec.actOrder;
 const VO_BINDINGS = Object.fromEntries(ACT_ORDER.map(key => [key, spec.voFilenames[key].replace(/\.mp3$/iu, '')]));
@@ -445,6 +446,39 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
   return { completed: current, alignment, record };
 }
 
+async function auditResumeBoundaries({
+  runId,
+  probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file),
+  ensureTarget = ensureRailwayTarget,
+  verifyPackageFn = verifyPackage,
+  verifyRuntimeSyncFn = verifyRuntimeSync,
+  resumePreflight = requireResumePreflight,
+  getApprovedScript = () => verifyApprovedScript().candidate,
+  loadPlan = () => readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan)),
+  audioContracts = approval.approvedAudio,
+  actOrder = ACT_ORDER,
+  actBindings = VO_BINDINGS,
+} = {}) {
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  ensureTarget();
+  verifyPackageFn(); verifyRuntimeSyncFn();
+  const resumed = resumePreflight(runId);
+  const candidateScript = getApprovedScript();
+  const plan = loadPlan();
+  const timingAudioDir = path.join(reviewPath(runId), 'fresh-whisper', 'audio');
+  const durations = {};
+  for (const contract of audioContracts) {
+    const actKey = contract.actKey;
+    durations[actKey] = Number((await probeAudio(path.join(timingAudioDir, contract.file))).durationSec);
+  }
+  const audit = activation.auditEditPlanBoundaries({
+    plan, wordTimestamps: resumed.completed.timestamps, actOrder,
+    actBindings, actDurationsSec: durations, script: candidateScript,
+    reviewedAlignment: resumed.alignment,
+  });
+  return { ...audit, runId, source: 'VERIFIED_RETAINED_TRANSCRIPT', candidateCreated: false, episodeRootWrites: 0, providerRequestsMade: 0 };
+}
+
 async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = false, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
   requireCurrentPreflight(runId); verifyPackage(); verifyRuntimeSync();
   require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
@@ -707,7 +741,7 @@ function rollbackLocked(runId) {
   return record;
 }
 function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
-function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
+function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --audit-resume-boundaries --run-id <id> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
 async function main(argv = process.argv.slice(2)) {
   const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
   if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
@@ -716,6 +750,7 @@ async function main(argv = process.argv.slice(2)) {
   if (mode === '--preflight') result = await preflight({ runId });
   else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
   else if (mode === '--diagnose-resume') result = diagnoseResume({ runId });
+  else if (mode === '--audit-resume-boundaries') result = await auditResumeBoundaries({ runId });
   else if (mode === '--approve-alignment-review') {
     const readOption = name => { const at = argv.indexOf(name); return at >= 0 ? argv[at + 1] : null; };
     result = recordAlignmentReviewApproval({ runId, approvedBy: readOption('--approved-by'), approvalRef: readOption('--approval-ref'), exceptionIds: argv.flatMap((item, index) => item === '--exception-id' && argv[index + 1] ? [argv[index + 1]] : []) });
@@ -728,4 +763,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
