@@ -125,7 +125,97 @@ function requireCurrentPreflight(runId) {
   assert(JSON.stringify(hashes) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
   return record;
 }
-async function transcribeAndBuildInternal({ runId, onProgress, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
+
+function expectedTimingAudioManifest({ fs: fsImpl = fs, runId, timingAudioDir = path.join(reviewPath(runId), 'fresh-whisper', 'audio'), contracts = approval.approvedAudio, approvedRunId = approval.approvedRunId, approvedPathFor = approvedAudioPath } = {}) {
+  const manifest = [];
+  for (const contract of contracts) {
+    const approvedPath = approvedPathFor(approvedRunId, contract.file);
+    const timingPath = path.join(timingAudioDir, contract.file);
+    for (const [file, code] of [[approvedPath, 'APPROVED_AUDIO_HASH_MISMATCH'], [timingPath, 'TIMING_SOURCE_COPY_MISMATCH']]) {
+      assert(fsImpl.existsSync(file), `TIMING_SOURCE_AUDIO_MISSING:${contract.file}`);
+      const bytes = fsImpl.readFileSync(file);
+      assert(bytes.length === contract.bytes && sha(bytes) === contract.sha256, `${code}:${contract.file}`);
+    }
+    manifest.push({ file: contract.file, bytes: contract.bytes, sha256: contract.sha256 });
+  }
+  return manifest;
+}
+
+function readAndVerifyCompletedTranscript({ fs: fsImpl = fs, runId, reviewDirectory = reviewPath(runId), actBindings = VO_BINDINGS, contracts = approval.approvedAudio, approvedRunId = approval.approvedRunId, approvedPathFor = approvedAudioPath } = {}) {
+  const timingDir = path.join(reviewDirectory, 'fresh-whisper');
+  const timestampsPath = path.join(timingDir, 'word-timestamps.json');
+  const receiptPath = path.join(timingDir, 'timing-source-receipt.json');
+  const partialPath = path.join(timingDir, 'word-timestamps.partial.json');
+  assert(fsImpl.existsSync(timestampsPath), 'COMPLETED_TRANSCRIPT_MISSING');
+  assert(fsImpl.existsSync(receiptPath), 'TIMING_SOURCE_RECEIPT_MISSING');
+  const timestampsBytes = fsImpl.readFileSync(timestampsPath);
+  const timestamps = JSON.parse(timestampsBytes.toString('utf8'));
+  const receipt = JSON.parse(fsImpl.readFileSync(receiptPath, 'utf8'));
+  const expectedAudio = expectedTimingAudioManifest({ fs: fsImpl, runId, timingAudioDir: path.join(timingDir, 'audio'), contracts, approvedRunId, approvedPathFor });
+  const partial = fsImpl.existsSync(partialPath) ? JSON.parse(fsImpl.readFileSync(partialPath, 'utf8')) : null;
+  const verification = activation.verifyCompletedTimingArtifacts({ timestamps, receipt, runId, expectedAudio, partial, actBindings });
+  const receiptBytes = fsImpl.readFileSync(receiptPath);
+  const partialBytes = partial === null ? null : fsImpl.readFileSync(partialPath);
+  return { timestamps, receipt, partial, timestampsPath, receiptPath, partialPath, timestampFileSha256: sha(timestampsBytes), receiptFileSha256: sha(receiptBytes), partialFileSha256: partialBytes === null ? null : sha(partialBytes), verification, expectedAudio };
+}
+
+function assertNoActivationLocks({ fs: fsImpl = fs, runId } = {}) {
+  const runLock = path.join(reviewPath(runId), 'activation.lock');
+  assert(!fsImpl.existsSync(runLock), 'ACTIVATION_RUN_ALREADY_LOCKED');
+  assert(!fsImpl.existsSync(GLOBAL_LOCK_PATH), 'ACTIVATION_GLOBAL_RUN_ALREADY_LOCKED');
+  return true;
+}
+
+function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  ensureRailwayTarget();
+  const preflight = requireCurrentPreflight(runId);
+  verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ fs: fsImpl, runId });
+  const statusPath = path.join(reviewPath(runId), 'run-status.json');
+  assert(fsImpl.existsSync(statusPath), 'FAILED_RUN_STATUS_MISSING');
+  const priorStatus = JSON.parse(fsImpl.readFileSync(statusPath, 'utf8'));
+  assert(priorStatus.runId === runId && priorStatus.state === 'FAILURE', 'RESUME_REQUIRES_FAILED_RUN');
+  assert(JSON.stringify(priorStatus.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_TRANSCRIPTION_NOT_COMPLETE');
+  assert(fsImpl.existsSync(GLOBAL_STATE_PATH), 'ACTIVATION_GLOBAL_STATE_MISSING');
+  const globalState = JSON.parse(fsImpl.readFileSync(GLOBAL_STATE_PATH, 'utf8'));
+  const audioFingerprint = sha(Buffer.from(JSON.stringify(approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes })))));
+  assert(globalState.runId === runId && globalState.audioFingerprint === audioFingerprint && globalState.state === 'FAILURE', 'ACTIVATION_GLOBAL_STATE_MISMATCH');
+  assert(!fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')), 'RESUME_CANDIDATE_ALREADY_EXISTS');
+  const completed = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
+  const alignment = activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, completed.timestamps, VO_BINDINGS);
+  const reportPath = path.join(reviewPath(runId), 'alignment-report.json');
+  atomicJson(reportPath, alignment);
+  const ledgerPath = GLOBAL_LEDGER_PATH;
+  const ledgerSha256 = fsImpl.existsSync(ledgerPath) ? hashFile(ledgerPath) : null;
+  const report = {
+    schemaVersion: 'phase2.3b-p-resume-preflight/1.0.0', status: alignment.status === 'PASS' ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
+    runId, checkedAt: new Date().toISOString(), preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
+    lockedHashes: verifyLockedEpisode(), approvedAudio: completed.expectedAudio,
+    transcript: { file: path.relative(reviewPath(runId), completed.timestampsPath).split(path.sep).join('/'), wordCount: completed.timestamps.length, semanticSha256: completed.verification.wordTimestampsSha256, fileSha256: completed.timestampFileSha256, sourceReceiptSha256: completed.receiptFileSha256, partialFileSha256: completed.partialFileSha256 },
+    alignmentReportSha256: hashFile(reportPath), requestLedgerSha256: ledgerSha256,
+    preservedRunMetadata: { completedActs: priorStatus.completedActs, attemptsByAct: priorStatus.attemptsByAct },
+    providerRequestsMade: 0, rootArtifactWrites: 0,
+  };
+  atomicJson(path.join(reviewPath(runId), 'resume-preflight.json'), report);
+  return { ...report, alignment };
+}
+
+function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true } = {}) {
+  const file = path.join(reviewPath(runId), 'resume-preflight.json');
+  assert(fsImpl.existsSync(file), 'RESUME_PREFLIGHT_MISSING');
+  const record = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
+  assert(record.status === 'RESUME_READY' && record.runId === runId, 'RESUME_PREFLIGHT_NOT_PASS');
+  const current = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
+  assert(current.timestampFileSha256 === record.transcript.fileSha256 && current.receiptFileSha256 === record.transcript.sourceReceiptSha256 && current.verification.wordTimestampsSha256 === record.transcript.semanticSha256, 'RESUME_TRANSCRIPT_CHANGED');
+  assert((fsImpl.existsSync(GLOBAL_LEDGER_PATH) ? hashFile(GLOBAL_LEDGER_PATH) : null) === record.requestLedgerSha256, 'RESUME_REQUEST_LEDGER_CHANGED');
+  assert(hashFile(path.join(reviewPath(runId), 'alignment-report.json')) === record.alignmentReportSha256, 'RESUME_ALIGNMENT_REPORT_CHANGED');
+  assert(JSON.stringify(verifyLockedEpisode()) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
+  if (checkLocks) assertNoActivationLocks({ fs: fsImpl, runId });
+  const alignment = activation.assertScriptTimestampParity(verifyApprovedScript().candidate, current.timestamps, VO_BINDINGS);
+  return { completed: current, alignment, record };
+}
+
+async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = false, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
   requireCurrentPreflight(runId); verifyPackage(); verifyRuntimeSync();
   require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
   const review = reviewPath(runId); const timingDir = path.join(review, 'fresh-whisper'); const audioDir = path.join(timingDir, 'audio');
@@ -153,15 +243,30 @@ async function transcribeAndBuildInternal({ runId, onProgress, runWhisper = requ
     receipt = { schemaVersion: 'phase2.3b-p-timing-source/1.0.0', runId, createdAt: new Date().toISOString(), audio: audioManifest, state: 'TRANSCRIPTION_IN_PROGRESS' };
     atomicJson(receiptPath, receipt);
   }
-  const timestamps = fs.existsSync(timestampsPath) ? readJson(timestampsPath) : await runWhisper({
-    audioDir, episodeDir: timingDir,
-    onProgress(event) {
-      if (event.type === 'attempt-start') activation.reserveWhisperAttempt({ ledgerPath: requestLedgerPath, actKey: event.voKey.replace(/^VO_/u, '').toLowerCase(), attempt: event.attempt });
-      if (typeof onProgress === 'function') onProgress(event);
-    },
+  if (resumeOnly) requireResumePreflight(runId, { checkLocks: false });
+  const timestamps = await activation.chooseTimingTranscript({
+    resumeOnly,
+    readExisting: () => fs.existsSync(timestampsPath) ? readJson(timestampsPath) : null,
+    transcribe: () => runWhisper({
+      audioDir, episodeDir: timingDir,
+      onProgress(event) {
+        if (event.type === 'attempt-start') activation.reserveWhisperAttempt({ ledgerPath: requestLedgerPath, actKey: event.voKey.replace(/^VO_/u, '').toLowerCase(), attempt: event.attempt });
+        if (typeof onProgress === 'function') onProgress(event);
+      },
+    }),
   });
   assert(Array.isArray(timestamps) && timestamps.length > 0, 'WHISPER_OUTPUT_EMPTY');
-  activation.assertScriptTimestampParity(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
+  const verifiedTiming = readAndVerifyCompletedTranscript({ runId });
+  const alignment = activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
+  const alignmentPath = path.join(review, 'alignment-report.json');
+  atomicJson(alignmentPath, alignment);
+  const failedAlignment = alignment.acts.find(act => act.status !== 'PASS');
+  if (failedAlignment) {
+    const error = new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${failedAlignment.actKey}`);
+    error.alignmentReport = alignment;
+    throw error;
+  }
+  assert(verifiedTiming.verification.wordTimestampsSha256 === activation.jsonHash(timestamps), 'TIMING_TRANSCRIPT_VERIFICATION_FAILED');
   const durations = {};
   for (const contract of approval.approvedAudio) durations[contract.actKey] = Number((await probeAudio(path.join(audioDir, contract.file))).durationSec);
   const candidate = path.join(review, 'candidate');
@@ -219,7 +324,11 @@ async function transcribeAndBuildInternal({ runId, onProgress, runWhisper = requ
 async function transcribeAndBuild(options = {}) {
   const { runId } = options;
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  if (options.resumeOnly) requireResumePreflight(runId);
   const review = reviewPath(runId); fs.mkdirSync(review, { recursive: true });
+  const statusPath = path.join(review, 'run-status.json');
+  const priorStatus = options.resumeOnly && fs.existsSync(statusPath) ? readJson(statusPath) : null;
+  if (options.resumeOnly) assert(priorStatus?.runId === runId && priorStatus.state === 'FAILURE' && JSON.stringify(priorStatus.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
   const lockPath = path.join(review, 'activation.lock');
   let fd, globalFd;
   try { fd = fs.openSync(lockPath, 'wx', 0o600); }
@@ -239,8 +348,9 @@ async function transcribeAndBuild(options = {}) {
     try { fs.rmSync(lockPath, { force: true }); } catch (_) {}
     throw error;
   }
-  const statusPath = path.join(review, 'run-status.json');
-  const status = { schemaVersion: 'phase2.3b-p-activation-run-status/1.0.0', runId, pid: process.pid, startedAt: new Date().toISOString(), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'STARTING', completedActs: [], attemptsByAct: Object.fromEntries(ACT_ORDER.map(act => [act, null])) };
+  const status = priorStatus
+    ? { ...priorStatus, pid: process.pid, heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'RESUMING_FROM_VERIFIED_TRANSCRIPT', resumeStartedAt: new Date().toISOString() }
+    : { schemaVersion: 'phase2.3b-p-activation-run-status/1.0.0', runId, pid: process.pid, startedAt: new Date().toISOString(), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'STARTING', completedActs: [], attemptsByAct: Object.fromEntries(ACT_ORDER.map(act => [act, null])) };
   fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, startedAt: status.startedAt, mode: 'TRANSCRIBE_AND_BUILD' }), 'utf8');
   atomicJson(statusPath, status);
   const heartbeat = setInterval(() => { status.heartbeatAt = new Date().toISOString(); status.currentStage = 'TRANSCRIBING_OR_VALIDATING'; atomicJson(statusPath, status); }, 15000);
@@ -277,6 +387,10 @@ async function transcribeAndBuild(options = {}) {
     try { fs.closeSync(globalFd); } catch (_) {}
     try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {}
   }
+}
+async function resumeAndBuild({ runId } = {}) {
+  requireResumePreflight(runId);
+  return transcribeAndBuild({ runId, resumeOnly: true, runWhisper: async () => { throw new Error('RESUME_WHISPER_CALL_FORBIDDEN'); } });
 }
 function verifyCandidate(runId) {
   requireCurrentPreflight(runId);
@@ -353,7 +467,7 @@ function rollbackLocked(runId) {
   return record;
 }
 function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
-function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
+function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
 async function main(argv = process.argv.slice(2)) {
   const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
   if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
@@ -361,6 +475,8 @@ async function main(argv = process.argv.slice(2)) {
   let result;
   if (mode === '--preflight') result = await preflight({ runId });
   else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
+  else if (mode === '--diagnose-resume') result = diagnoseResume({ runId });
+  else if (mode === '--resume-build') result = await resumeAndBuild({ runId });
   else if (mode === '--status') result = { globalState: fs.existsSync(GLOBAL_STATE_PATH) ? readJson(GLOBAL_STATE_PATH) : null, runStatus: fs.existsSync(path.join(reviewPath(runId), 'run-status.json')) ? readJson(path.join(reviewPath(runId), 'run-status.json')) : null, activeLock: fs.existsSync(GLOBAL_LOCK_PATH) ? readJson(GLOBAL_LOCK_PATH) : null };
   else if (mode === '--promote') result = promote(runId);
   else if (mode === '--rollback') result = rollback(runId);
@@ -368,4 +484,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, preflight, transcribeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

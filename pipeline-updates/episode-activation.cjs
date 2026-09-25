@@ -122,14 +122,187 @@ function assertOnlyApprovedActTextChanges(originalScript, candidateScript, corre
   return true;
 }
 
-function assertScriptTimestampParity(script, wordTimestamps, actBindings) {
-  const grouped = groupWordTimestamps(wordTimestamps, actBindings);
-  for (const [actKey, voKey] of Object.entries(actBindings)) {
-    const expected = tokens(script.acts?.[actKey]?.voScript);
-    const actual = grouped.get(voKey).flatMap(item => tokens(item.word));
-    if (expected.length !== actual.length || expected.some((value, index) => value !== actual[index])) throw new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${actKey}`);
+const CONTRACTIONS = Object.freeze({
+  "can't": ['can', 'not'], "cannot": ['can', 'not'], "won't": ['will', 'not'], "couldn't": ['could', 'not'], "shouldn't": ['should', 'not'], "wouldn't": ['would', 'not'], "mustn't": ['must', 'not'],
+  "don't": ['do', 'not'], "doesn't": ['does', 'not'], "didn't": ['did', 'not'],
+  "isn't": ['is', 'not'], "aren't": ['are', 'not'], "wasn't": ['was', 'not'], "weren't": ['were', 'not'],
+  "hasn't": ['has', 'not'], "haven't": ['have', 'not'], "hadn't": ['had', 'not'],
+  "i'm": ['i', 'am'], "you're": ['you', 'are'], "we're": ['we', 'are'], "they're": ['they', 'are'],
+  "it's": ['it', 'is'], "that's": ['that', 'is'], "there's": ['there', 'is'], "what's": ['what', 'is'],
+  "i've": ['i', 'have'], "you've": ['you', 'have'], "we've": ['we', 'have'], "they've": ['they', 'have'],
+  "i'll": ['i', 'will'], "you'll": ['you', 'will'], "we'll": ['we', 'will'], "they'll": ['they', 'will'],
+  "i'd": ['i', 'would'], "you'd": ['you', 'would'], "we'd": ['we', 'would'], "they'd": ['they', 'would'],
+  "he's": ['he', 'is'], "she's": ['she', 'is'], "who's": ['who', 'is'], "let's": ['let', 'us'],
+});
+const SMALL_NUMBERS = Object.freeze({ zero: 0, oh: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19 });
+const TENS = Object.freeze({ twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 });
+const MAGNITUDES = Object.freeze({ thousand: 1e3, million: 1e6, billion: 1e9 });
+const CURRENCY = Object.freeze({ '$': 'USD', 'dollar': 'USD', 'dollars': 'USD', '£': 'GBP', 'pound': 'GBP', 'pounds': 'GBP', '€': 'EUR', 'euro': 'EUR', 'euros': 'EUR' });
+
+function lexicalTokens(value) {
+  const text = String(value ?? '').normalize('NFKC').replace(/[’‘`]/gu, "'").replace(/[‐‑‒–—−]/gu, '-');
+  const pattern = /\$|£|€|\b\d[\d,]*(?:\.\d+)?\b|[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*|-/gu;
+  const out = [];
+  for (const match of text.matchAll(pattern)) {
+    if (match[0] === '-') continue;
+    out.push({ text: match[0].toLowerCase(), surface: match[0], offset: match.index });
   }
+  return out;
+}
+
+function parseNumberWords(items, start) {
+  let index = start, total = 0, current = 0, consumed = 0, sawNumber = false, decimal = null;
+  while (index < items.length) {
+    const word = items[index].text;
+    if (word === 'and' && sawNumber) { index++; consumed++; continue; }
+    if (word === 'point' && sawNumber && decimal === null) {
+      decimal = ''; index++; consumed++;
+      while (index < items.length && (Object.hasOwn(SMALL_NUMBERS, items[index].text) || /^\d$/u.test(items[index].text))) {
+        const digit = Object.hasOwn(SMALL_NUMBERS, items[index].text) ? SMALL_NUMBERS[items[index].text] : Number(items[index].text);
+        if (digit > 9) break;
+        decimal += String(digit); index++; consumed++;
+      }
+      if (!decimal) return null;
+      break;
+    }
+    if (Object.hasOwn(SMALL_NUMBERS, word)) { current += SMALL_NUMBERS[word]; sawNumber = true; }
+    else if (Object.hasOwn(TENS, word)) { current += TENS[word]; sawNumber = true; }
+    else if (word === 'hundred' && sawNumber) current = Math.max(1, current) * 100;
+    else if (MAGNITUDES[word] && sawNumber) { total += Math.max(1, current) * MAGNITUDES[word]; current = 0; }
+    else break;
+    index++; consumed++;
+  }
+  if (!sawNumber) return null;
+  const value = total + current;
+  return { value: decimal === null ? value : Number(`${value}.${decimal}`), consumed };
+}
+
+function normalizedUnits(value) {
+  const source = lexicalTokens(value), units = [];
+  const push = (canonical, tokenStart, tokenEnd, surface) => units.push({ canonical, tokenStart, tokenEnd, surface });
+  for (let i = 0; i < source.length;) {
+    const item = source[i];
+    if (Object.hasOwn(CURRENCY, item.text)) { push(`currency:${CURRENCY[item.text]}`, i, i, item.surface); i++; continue; }
+    const contraction = CONTRACTIONS[item.text];
+    if (contraction) { for (const part of contraction) push(`word:${part}`, i, i, item.surface); i++; continue; }
+    const possessive = item.text.match(/^(.+)'s$/u);
+    if (possessive) { push(`word:${possessive[1]}`, i, i, item.surface); push('word:s', i, i, item.surface); i++; continue; }
+    let numeric = null;
+    if (/^\d[\d,]*(?:\.\d+)?$/u.test(item.text)) {
+      const raw = item.text.replace(/,/gu, ''); numeric = { value: Number(raw), consumed: 1 };
+    } else numeric = parseNumberWords(source, i);
+    if (numeric) {
+      let consumed = numeric.consumed, amount = numeric.value;
+      const magnitude = source[i + consumed]?.text;
+      if (MAGNITUDES[magnitude]) { amount *= MAGNITUDES[magnitude]; consumed++; }
+      const prefixCurrency = i > 0 && Object.hasOwn(CURRENCY, source[i - 1].text) ? CURRENCY[source[i - 1].text] : null;
+      const suffixCurrency = source[i + consumed] && Object.hasOwn(CURRENCY, source[i + consumed].text) ? CURRENCY[source[i + consumed].text] : null;
+      const currency = prefixCurrency || suffixCurrency;
+      const last = i + consumed - 1;
+      if (currency) {
+        if (prefixCurrency && units.at(-1)?.canonical === `currency:${prefixCurrency}`) units.pop();
+        consumed += suffixCurrency ? 1 : 0;
+        push(`money:${currency}:${Number(amount.toPrecision(12))}`, i, i + consumed - 1, source.slice(i, i + consumed).map(part => part.surface).join(' '));
+      } else push(`number:${Number(amount.toPrecision(12))}`, i, last, source.slice(i, last + 1).map(part => part.surface).join(' '));
+      i += consumed; continue;
+    }
+    push(`word:${item.text}`, i, i, item.surface); i++;
+  }
+  return { source, units };
+}
+
+function alignmentContext(tokensList, index, radius = 4) {
+  const from = Math.max(0, index - radius), to = Math.min(tokensList.length, index + radius + 1);
+  return { fromToken: from, toTokenExclusive: to, text: tokensList.slice(from, to).map(token => token.surface).join(' ') };
+}
+
+function alignActNarration(scriptText, transcriptWords, actKey, voKey) {
+  const left = normalizedUnits(scriptText), right = normalizedUnits(transcriptWords.map(item => item.word).join(' '));
+  const n = left.units.length, m = right.units.length, width = m + 1;
+  const costs = new Uint32Array((n + 1) * width), ops = new Uint8Array((n + 1) * width);
+  for (let i = 1; i <= n; i++) { costs[i * width] = i; ops[i * width] = 2; }
+  for (let j = 1; j <= m; j++) { costs[j] = j; ops[j] = 3; }
+  for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+    const at = i * width + j, same = left.units[i - 1].canonical === right.units[j - 1].canonical;
+    const match = costs[(i - 1) * width + j - 1] + (same ? 0 : 1), deletion = costs[(i - 1) * width + j] + 1, insertion = costs[i * width + j - 1] + 1;
+    if (match <= deletion && match <= insertion) { costs[at] = match; ops[at] = same ? 1 : 4; }
+    else if (deletion <= insertion) { costs[at] = deletion; ops[at] = 2; }
+    else { costs[at] = insertion; ops[at] = 3; }
+  }
+  const raw = []; let i = n, j = m;
+  while (i || j) {
+    const op = ops[i * width + j];
+    if (op === 1 || op === 4) { raw.push({ type: op === 1 ? 'match' : 'substitution', left: left.units[i - 1], right: right.units[j - 1] }); i--; j--; }
+    else if (op === 2) { raw.push({ type: 'deletion', left: left.units[i - 1] }); i--; }
+    else { raw.push({ type: 'insertion', right: right.units[j - 1] }); j--; }
+  }
+  raw.reverse();
+  const matchedScriptUnitIndexes = new Set(), matchedTranscriptUnitIndexes = new Set();
+  const matches = [], normalizedEquivalents = [], substitutions = [], transcriptInsertions = [], scriptDeletions = [];
+  let li = 0, ri = 0;
+  for (const item of raw) {
+    if (item.type === 'match') {
+      matchedScriptUnitIndexes.add(li); matchedTranscriptUnitIndexes.add(ri);
+      const record = { scriptToken: item.left.surface, transcriptToken: item.right.surface, normalizedToken: item.left.canonical };
+      matches.push(record);
+      if (item.left.surface.toLocaleLowerCase() !== item.right.surface.toLocaleLowerCase() || item.left.canonical !== `word:${item.left.surface.toLowerCase()}`) normalizedEquivalents.push(record);
+      li++; ri++;
+    } else if (item.type === 'substitution') {
+      substitutions.push({ scriptToken: item.left.surface, transcriptToken: item.right.surface, scriptTokenIndex: item.left.tokenStart, transcriptTokenIndex: item.right.tokenStart, scriptContext: alignmentContext(left.source, item.left.tokenStart), transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); li++; ri++;
+    } else if (item.type === 'deletion') {
+      scriptDeletions.push({ scriptToken: item.left.surface, scriptTokenIndex: item.left.tokenStart, scriptContext: alignmentContext(left.source, item.left.tokenStart) }); li++;
+    } else {
+      transcriptInsertions.push({ transcriptToken: item.right.surface, transcriptTokenIndex: item.right.tokenStart, transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); ri++;
+    }
+  }
+  const sourceUnitCounts = new Map(), sourceMatchedUnitCounts = new Map();
+  left.units.forEach((unit, unitIndex) => {
+    for (let sourceIndex = unit.tokenStart; sourceIndex <= unit.tokenEnd; sourceIndex++) {
+      sourceUnitCounts.set(sourceIndex, (sourceUnitCounts.get(sourceIndex) || 0) + 1);
+      if (matchedScriptUnitIndexes.has(unitIndex)) sourceMatchedUnitCounts.set(sourceIndex, (sourceMatchedUnitCounts.get(sourceIndex) || 0) + 1);
+    }
+  });
+  const sourceMatchCount = [...sourceUnitCounts.keys()].filter(index => sourceMatchedUnitCounts.get(index) === sourceUnitCounts.get(index)).length;
+  const scriptTokenCount = left.source.length, transcriptTokenCount = right.source.length;
+  const passed = substitutions.length === 0 && transcriptInsertions.length === 0 && scriptDeletions.length === 0;
+  return { actKey, voKey, status: passed ? 'PASS' : 'FAIL', scriptTokenCount, transcriptTokenCount, matchedTokens: matches, matchedTokenCount: matches.length, normalizedEquivalents, substitutions, transcriptInsertions, scriptDeletions, alignmentCoverage: scriptTokenCount ? Number((sourceMatchCount / scriptTokenCount * 100).toFixed(3)) : 100, alignmentCoverageMatchedScriptTokens: sourceMatchCount, alignmentUnitCount: n, transcriptAlignmentUnitCount: m };
+}
+
+function analyzeScriptTimestampAlignment(script, wordTimestamps, actBindings) {
+  const grouped = groupWordTimestamps(wordTimestamps, actBindings), acts = [];
+  for (const [actKey, voKey] of Object.entries(actBindings)) acts.push(alignActNarration(script.acts?.[actKey]?.voScript, grouped.get(voKey), actKey, voKey));
+  return { schemaVersion: 'phase2.3b-p-script-audio-alignment/1.0.0', status: acts.every(act => act.status === 'PASS') ? 'PASS' : 'FAIL', actOrder: Object.keys(actBindings), acts };
+}
+
+function assertScriptTimestampParity(script, wordTimestamps, actBindings) {
+  const report = analyzeScriptTimestampAlignment(script, wordTimestamps, actBindings);
+  const failed = report.acts.find(act => act.status !== 'PASS');
+  if (failed) { const error = new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${failed.actKey}`); error.alignmentReport = report; throw error; }
   return true;
+}
+
+function verifyCompletedTimingArtifacts({ timestamps, receipt, runId, expectedAudio, partial, actBindings }) {
+  if (!receipt || receipt.schemaVersion !== 'phase2.3b-p-timing-source/1.0.0' || receipt.runId !== runId || !['TRANSCRIPTION_IN_PROGRESS', 'COMPLETE'].includes(receipt.state) || !Array.isArray(receipt.audio) || !equal(receipt.audio, expectedAudio)) throw new Error('TIMING_SOURCE_RECEIPT_MISMATCH');
+  const grouped = groupWordTimestamps(timestamps, actBindings);
+  if (receipt.wordTimestampsSha256 && receipt.wordTimestampsSha256 !== jsonHash(timestamps)) throw new Error('TIMING_SOURCE_TRANSCRIPT_HASH_MISMATCH');
+  const partialActKeys = Object.keys(partial || {});
+  const normalizedPartialKeys = partialActKeys.map(key => key.replace(/^VO_/u, '').replace(/\.mp3$/iu, '').toLowerCase());
+  if (normalizedPartialKeys.some(key => !Object.hasOwn(actBindings, key)) || new Set(normalizedPartialKeys).size !== normalizedPartialKeys.length) throw new Error('TIMING_PARTIAL_UNKNOWN_ACT');
+  if (partial && (normalizedPartialKeys.length !== Object.keys(actBindings).length || Object.keys(actBindings).some(key => !normalizedPartialKeys.includes(key)))) throw new Error('TIMING_PARTIAL_INCOMPLETE');
+  for (const [actKey, voKey] of Object.entries(actBindings)) {
+    const expectedWords = grouped.get(voKey);
+    if (partial && Object.hasOwn(partial, voKey) && !equal(partial[voKey], expectedWords)) throw new Error(`TIMING_PARTIAL_MISMATCH:${actKey}`);
+    if (partial && Object.hasOwn(partial, actKey) && !equal(partial[actKey], expectedWords)) throw new Error(`TIMING_PARTIAL_MISMATCH:${actKey}`);
+  }
+  return { status: 'VERIFIED', runId, wordCount: timestamps.length, wordTimestampsSha256: jsonHash(timestamps), acts: Object.fromEntries(Object.entries(actBindings).map(([actKey, voKey]) => [actKey, grouped.get(voKey).length])) };
+}
+
+async function chooseTimingTranscript({ resumeOnly = false, readExisting, transcribe } = {}) {
+  if (typeof readExisting !== 'function' || typeof transcribe !== 'function') throw new Error('TIMING_TRANSCRIPT_SOURCE_INVALID');
+  const existing = await readExisting();
+  if (existing !== null && existing !== undefined) return existing;
+  if (resumeOnly) throw new Error('COMPLETED_TRANSCRIPT_MISSING');
+  return transcribe();
 }
 
 function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId }) {
@@ -246,5 +419,7 @@ function restoreBackup({ fs: fsImpl = fs, episodeDirectory, backupDirectory, man
 module.exports = {
   PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, sha256, jsonHash, tokens, reserveWhisperAttempt,
   groupWordTimestamps, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
+  alignActNarration, analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
+  chooseTimingTranscript,
   updateShotDefinitions, assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, atomicWrite,
 };
