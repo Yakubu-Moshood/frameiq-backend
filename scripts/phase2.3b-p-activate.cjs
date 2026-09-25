@@ -1,0 +1,371 @@
+'use strict';
+
+// Phase 2.3B-P activation. Candidate construction is review-only; promotion is
+// a separately requested operation and uses a full-directory atomic exchange.
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
+const spec = require('./phase2.3b-p-run.cjs').SPEC;
+const activation = require('../pipeline-updates/episode-activation.cjs');
+const APPROVAL_PATH = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase2.3b-p-review', 'activation-approval.v1.json');
+const approval = JSON.parse(fs.readFileSync(APPROVAL_PATH, 'utf8'));
+const ROOT = spec.episodeDirectory;
+const CANDIDATE_PACKAGE = process.env.EO_P_CANDIDATE_PACKAGE || path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase2.3b-sv-candidate');
+const GLOBAL_LOCK_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-active.lock');
+const GLOBAL_STATE_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-state.json');
+const GLOBAL_LEDGER_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+const RUNTIME_SYNC_FILES = [
+  'episode-activation.cjs', 'vo-timing.cjs', 'edit-plan-validator.cjs', 'edit-plan.schema.json',
+  'shot-definitions-validator.cjs', 'shot-definitions-production-contract.cjs', 'revision-lineage.cjs',
+  'production-method-manifest.cjs', 'evidence-source-validator.cjs', 'proof-section-planner.cjs', 'act-voice-generator.cjs',
+];
+const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
+const ACT_ORDER = spec.actOrder;
+const VO_BINDINGS = Object.fromEntries(ACT_ORDER.map(key => [key, spec.voFilenames[key].replace(/\.mp3$/iu, '')]));
+const CANDIDATE_FILES = {
+  script: 'candidate-script.json', plan: 'candidate-edit-plan-pretiming.json',
+  shots: 'candidate-shot-definitions-pretiming.json', manifest: 'candidate-production-manifest-pretiming.json',
+  history: 'revision-ledger.phase2.2d-lineage.v1.json', amendment: 'revision-ledger.phase2.3b-sv-amendment.v1.json',
+  sourceManifest: 'source-hash-manifest.json', narration: 'narration-texts.json',
+};
+const sha = activation.sha256;
+const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
+const jsonBytes = value => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
+const atomicJson = (file, value) => activation.atomicWrite(fs, file, jsonBytes(value));
+function assert(value, code) { if (!value) throw new Error(code); }
+function hashFile(file) { return sha(fs.readFileSync(file)); }
+function reviewPath(runId) { return path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`); }
+function approvedAudioPath(runId, filename) { return path.join(ROOT, '.review', `phase2.3b-p-narration-${runId}`, 'audio', filename); }
+function ensureRailwayTarget(env = process.env) {
+  const target = { RAILWAY_PROJECT_ID: '98a75a00-ce8e-4a7a-833e-ff76d3bdefea', RAILWAY_ENVIRONMENT_ID: '6fa50efc-d4bc-4ea1-9c6e-c9daa9336b34', RAILWAY_SERVICE_ID: 'd965705e-d5e7-4f4e-ac58-fc6b1959c81f' };
+  for (const [key, value] of Object.entries(target)) if (env[key] !== value) throw new Error(`WRONG_OR_UNVERIFIED_RAILWAY_TARGET:${key}`);
+  return target;
+}
+async function verifyApprovalAudio(runId, probe = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file)) {
+  assert(approval.approvalStatus === 'USER_APPROVED' && approval.userConfirmedListeningApproval === true, 'AUDIO_APPROVAL_MISSING');
+  const actual = [];
+  for (const contract of approval.approvedAudio) {
+    const file = approvedAudioPath(approval.approvedRunId, contract.file);
+    assert(fs.existsSync(file), `APPROVED_AUDIO_MISSING:${contract.file}`);
+    const bytes = fs.readFileSync(file);
+    assert(bytes.length === contract.bytes && sha(bytes) === contract.sha256, `APPROVED_AUDIO_HASH_MISMATCH:${contract.file}`);
+    const media = await probe(file);
+    assert(Number(media?.durationSec) > 0 && Math.abs(Number(media.durationSec) - contract.durationSec) <= 0.1, `APPROVED_AUDIO_DURATION_MISMATCH:${contract.file}`);
+    actual.push({ actKey: contract.actKey, file: contract.file, sha256: sha(bytes), bytes: bytes.length, durationSec: Number(media.durationSec) });
+  }
+  assert(runId === undefined || SAFE_ID.test(runId), 'RUN_ID_INVALID');
+  return actual;
+}
+function verifyPackage() {
+  require('./phase2.3b-sg-stage-a.cjs').verifyCandidatePackage(CANDIDATE_PACKAGE);
+  return true;
+}
+function verifyRuntimeSync({ appPipeline = path.join(__dirname, '..', 'pipeline-updates'), activePipeline = '/data/pipeline' } = {}) {
+  const hashes = {};
+  for (const name of RUNTIME_SYNC_FILES) {
+    const source = path.join(appPipeline, name); const active = path.join(activePipeline, name);
+    assert(fs.existsSync(source) && fs.existsSync(active), `PIPELINE_SYNC_FILE_MISSING:${name}`);
+    const sourceHash = hashFile(source), activeHash = hashFile(active);
+    assert(sourceHash === activeHash, `PIPELINE_SYNC_HASH_MISMATCH:${name}`);
+    hashes[name] = sourceHash;
+  }
+  return hashes;
+}
+function verifyLockedEpisode() {
+  return require('./phase2.3b-p-run.cjs').verifyLockedFiles({ episodeDirectory: ROOT, spec });
+}
+function verifyApprovedScript() {
+  const current = readJson(path.join(ROOT, 'script.json'));
+  const candidate = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.script));
+  activation.assertOnlyApprovedActTextChanges(current, candidate, ['act3b', 'act4']);
+  return { current, candidate };
+}
+async function preflight({ runId, probeAudio, inspectActivity } = {}) {
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  assert(!fs.existsSync(GLOBAL_LOCK_PATH), 'ACTIVATION_GLOBAL_RUN_ALREADY_LOCKED');
+  assert(!fs.existsSync(GLOBAL_STATE_PATH) && !fs.existsSync(GLOBAL_LEDGER_PATH), 'ACTIVATION_PRIOR_RUN_REQUIRES_REVIEW');
+  ensureRailwayTarget(); verifyPackage();
+  const runtimeSyncHashes = verifyRuntimeSync();
+  const lockedHashes = verifyLockedEpisode();
+  const scripts = verifyApprovedScript();
+  const run = await require('./phase2.3b-p-run.cjs').verifyReviewOutputs({ episodeDirectory: ROOT, runId: approval.approvedRunId, fs, probeAudio });
+  const pacingPlan = readJson(path.join(run.reviewDirectory, 'generation-plan.json'));
+  assert(run.status === 'VERIFIED_SUCCESS' && run.providerRequestCount === pacingPlan.totalSegments && run.completedSegmentCount === pacingPlan.totalSegments, 'PACING_RUN_NOT_COMPLETE');
+  assert(pacingPlan.planSha256 === approval.approvedPacingPlanSha256, 'PACING_PLAN_HASH_MISMATCH');
+  assert(run.lockedHashes['script.json'] === approval.lockedEpisodeHashesBeforeActivation['script.json'], 'PACED_SOURCE_SCRIPT_CHANGED');
+  assert(run.plannedCharacters <= require('./phase2.3b-p-run.cjs').SPEC.maximumCharacters, 'PACING_CHARACTER_CEILING');
+  const approvedAudio = await verifyApprovalAudio(runId, probeAudio);
+  const activity = await (inspectActivity
+    ? inspectActivity()
+    : require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs }));
+  const outDir = reviewPath(runId);
+  assert(!fs.existsSync(path.join(outDir, 'preflight.json')), 'ACTIVATION_PREFLIGHT_ALREADY_EXISTS');
+  fs.mkdirSync(outDir, { recursive: true });
+  const totalSeconds = approvedAudio.reduce((sum, item) => sum + item.durationSec, 0);
+  const whisperCostPerMinute = 0.006;
+  const record = {
+    schemaVersion: 'phase2.3b-p-activation-preflight/1.0.0', status: 'PREFLIGHT_PASS', runId,
+    createdAt: new Date().toISOString(), railwayTarget: { ...ensureRailwayTarget(), environmentName: 'staging', serviceName: 'giving-success' }, episodeId: approval.episodeId,
+    lockedHashes, pacingRun: { runId: approval.approvedRunId, planSha256: pacingPlan.planSha256, providerRequestCount: run.providerRequestCount, plannedCharacters: run.plannedCharacters, completedActs: ACT_ORDER },
+    approvedAudio, candidateScriptSha256: sha(jsonBytes(scripts.candidate)), activity, runtimeSyncHashes,
+    userApprovalArtifactSha256: hashFile(APPROVAL_PATH),
+    costs: { paidRequestsMade: 0, whisperRequestsPlanned: 6, maximumWhisperAttempts: 18, expectedAudioSeconds: totalSeconds, expectedAudioMinutes: totalSeconds / 60, estimatedWhisperCostUsd: (totalSeconds / 60) * whisperCostPerMinute, conservativeMaximumAudioMinutes: (totalSeconds * 3) / 60, conservativeMaximumCostUsd: ((totalSeconds * 3) / 60) * whisperCostPerMinute, priceUsdPerMinute: whisperCostPerMinute, automaticRetriesPerAct: 2, ttsRequestsPlanned: 0, anthropicRequestsPlanned: 0, imageRequestsPlanned: 0, videoRequestsPlanned: 0, renderRequestsPlanned: 0 },
+    outputs: { reviewDirectory: outDir, freshWhisperDirectory: path.join(outDir, 'fresh-whisper'), wordTimestamps: path.join(outDir, 'fresh-whisper', 'word-timestamps.json'), partialCheckpoint: path.join(outDir, 'fresh-whisper', 'word-timestamps.partial.json'), durableRequestLedger: GLOBAL_LEDGER_PATH, candidateDirectory: path.join(outDir, 'candidate') },
+  };
+  atomicJson(path.join(outDir, 'user-approval.json'), approval);
+  atomicJson(path.join(outDir, 'preflight.json'), record);
+  return record;
+}
+function requireCurrentPreflight(runId) {
+  ensureRailwayTarget();
+  const record = readJson(path.join(reviewPath(runId), 'preflight.json'));
+  assert(record.status === 'PREFLIGHT_PASS' && record.runId === runId, 'ACTIVATION_PREFLIGHT_NOT_CURRENT');
+  const hashes = verifyLockedEpisode();
+  assert(JSON.stringify(hashes) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
+  return record;
+}
+async function transcribeAndBuildInternal({ runId, onProgress, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
+  requireCurrentPreflight(runId); verifyPackage(); verifyRuntimeSync();
+  require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
+  const review = reviewPath(runId); const timingDir = path.join(review, 'fresh-whisper'); const audioDir = path.join(timingDir, 'audio');
+  const receiptPath = path.join(timingDir, 'timing-source-receipt.json');
+  const requestLedgerPath = GLOBAL_LEDGER_PATH;
+  const timestampsPath = path.join(timingDir, 'word-timestamps.json');
+  fs.mkdirSync(audioDir, { recursive: true });
+  const audioManifest = [];
+  for (const contract of approval.approvedAudio) {
+    const source = approvedAudioPath(approval.approvedRunId, contract.file); const target = path.join(audioDir, contract.file);
+    const bytes = fs.readFileSync(source);
+    assert(bytes.length === contract.bytes && sha(bytes) === contract.sha256, `APPROVED_AUDIO_HASH_MISMATCH:${contract.file}`);
+    if (fs.existsSync(target)) {
+      const existing = fs.readFileSync(target);
+      assert(existing.length === bytes.length && sha(existing) === sha(bytes), `TIMING_SOURCE_COPY_MISMATCH:${contract.file}`);
+    } else fs.copyFileSync(source, target, fs.constants.COPYFILE_EXCL);
+    audioManifest.push({ file: contract.file, bytes: bytes.length, sha256: sha(bytes) });
+  }
+  let receipt;
+  if (fs.existsSync(receiptPath)) {
+    receipt = readJson(receiptPath);
+    assert(receipt.runId === runId && JSON.stringify(receipt.audio) === JSON.stringify(audioManifest), 'TIMING_SOURCE_RECEIPT_MISMATCH');
+  } else {
+    assert(!fs.existsSync(timestampsPath), 'UNRECEIPTED_TIMING_OUTPUT_EXISTS');
+    receipt = { schemaVersion: 'phase2.3b-p-timing-source/1.0.0', runId, createdAt: new Date().toISOString(), audio: audioManifest, state: 'TRANSCRIPTION_IN_PROGRESS' };
+    atomicJson(receiptPath, receipt);
+  }
+  const timestamps = fs.existsSync(timestampsPath) ? readJson(timestampsPath) : await runWhisper({
+    audioDir, episodeDir: timingDir,
+    onProgress(event) {
+      if (event.type === 'attempt-start') activation.reserveWhisperAttempt({ ledgerPath: requestLedgerPath, actKey: event.voKey.replace(/^VO_/u, '').toLowerCase(), attempt: event.attempt });
+      if (typeof onProgress === 'function') onProgress(event);
+    },
+  });
+  assert(Array.isArray(timestamps) && timestamps.length > 0, 'WHISPER_OUTPUT_EMPTY');
+  activation.assertScriptTimestampParity(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
+  const durations = {};
+  for (const contract of approval.approvedAudio) durations[contract.actKey] = Number((await probeAudio(path.join(audioDir, contract.file))).durationSec);
+  const candidate = path.join(review, 'candidate');
+  assert(!fs.existsSync(candidate), 'ACTIVATION_CANDIDATE_ALREADY_EXISTS');
+  const basePlan = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan));
+  const retimed = activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations }).plan;
+  const editValidation = require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
+  assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
+  activation.assertCreativePlanFieldsFrozen(basePlan, retimed);
+  const originalShots = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.shots));
+  const lineage = [readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.history)), readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment))];
+  const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}` });
+  const shotValidation = require('/data/pipeline/shot-definitions-validator.cjs').validateShotDefinitions({ plan: retimed, shotDefs: shotResult.shotDefs, revisionChain: shotResult.revisionChain });
+  assert(shotValidation.status === 'PASS', `SHOT_VALIDATION:${shotValidation.errors?.[0]?.code || 'FAIL'}`);
+  const manifest = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.manifest));
+  const planFingerprint = require('/data/pipeline/shot-definitions-validator.cjs').planFingerprint(retimed);
+  manifest.sourceEditPlanSha256 = planFingerprint; manifest.candidateSha256 = sha(jsonBytes(shotResult.shotDefs));
+  const manifestValidation = require('/data/pipeline/production-method-manifest.cjs').validateProductionMethodManifest({ manifest, shotDefs: shotResult.shotDefs, candidateSha256: manifest.candidateSha256 });
+  assert(manifestValidation.status === 'PASS', `PRODUCTION_MANIFEST_VALIDATION:${manifestValidation.errors?.[0]?.code || 'FAIL'}`);
+  const evidence = readJson(path.join(ROOT, 'evidence-source-manifest.json'));
+  evidence.shotDefinitionsSha256 = sha(jsonBytes(shotResult.shotDefs));
+  const shotById = new Map(shotResult.shotDefs.allShots.map(shot => [shot.shotId, shot]));
+  for (const entry of evidence.entries || []) if (shotById.has(entry.shotId)) entry.exactSourceRequirement = shotById.get(entry.shotId).evidenceRequirement?.description;
+  const evidenceValidation = require('/data/pipeline/evidence-source-validator.cjs').validateEvidenceSourceManifest({ manifest: evidence, shotDefs: shotResult.shotDefs, evidenceAssetDir: path.join(ROOT, 'assets', 'evidence') });
+  assert(evidenceValidation.status === 'PASS', `EVIDENCE_VALIDATION:${evidenceValidation.errors?.[0]?.code || 'FAIL'}`);
+  const proofPlan = require('/data/pipeline/proof-section-planner.cjs').planProofSection({ shotDefs: shotResult.shotDefs, productionManifest: manifest });
+  const timingLedgerPath = path.join(review, `revision-ledger.phase2.3b-p-retiming-${runId}.json`);
+  atomicJson(timingLedgerPath, shotResult.revisionLedger);
+  const activeStatus = readJson(path.join(ROOT, 'edit-plan-shadow-status.json'));
+  activeStatus.status = 'complete'; activeStatus.editPlanStatus = 'PASS';
+  const timingRelative = `.v3-shadow/timing/phase2.3b-p-activation-${runId}`; activeStatus.timingCache = timingRelative;
+  const files = {
+    'script.json': jsonBytes(verifyApprovedScript().candidate),
+    'edit-plan.json': jsonBytes(retimed),
+    'edit-plan-validation.json': jsonBytes(editValidation),
+    'shot-definitions.json': jsonBytes(shotResult.shotDefs),
+    'production-manifest.json': jsonBytes(manifest),
+    'evidence-source-manifest.json': jsonBytes(evidence),
+    'proof-section-plan.json': jsonBytes(proofPlan),
+    'edit-plan-shadow-status.json': jsonBytes(activeStatus),
+    [`${timingRelative}/word-timestamps.json`]: jsonBytes(timestamps),
+  };
+  for (const contract of approval.approvedAudio) files[`assets/audio/${contract.file}`] = fs.readFileSync(path.join(audioDir, contract.file));
+  // Timing propagation must not rewrite creative/production/evidence decisions.
+  fs.mkdirSync(candidate, { recursive: true });
+  for (const [relative, bytes] of Object.entries(files)) {
+    const target = path.join(candidate, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); activation.atomicWrite(fs, target, bytes);
+  }
+  const fileManifest = Object.entries(files).map(([relative, bytes]) => ({ path: relative, bytes: bytes.length, sha256: sha(bytes) }));
+  const report = { schemaVersion: 'phase2.3b-p-activation-candidate/1.0.0', status: 'VALIDATED_NOT_PROMOTED', runId, createdAt: new Date().toISOString(), actOrder: ACT_ORDER, freshTimingWords: timestamps.length, audio: approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes, durationSec: durations[actKey] })), lineageLedger: { path: path.basename(timingLedgerPath), sha256: hashFile(timingLedgerPath) }, validation: { scriptAudioParity: 'PASS', editPlan: editValidation.status, shotDefinitions: shotValidation.status, productionManifest: manifestValidation.status, evidenceManifest: evidenceValidation.status }, candidateFiles: fileManifest };
+  atomicJson(path.join(candidate, 'candidate-report.json'), report);
+  receipt = readJson(receiptPath); receipt.state = 'COMPLETE'; receipt.wordTimestampsSha256 = sha(jsonBytes(timestamps)); receipt.completedAt = new Date().toISOString(); atomicJson(receiptPath, receipt);
+  return report;
+}
+async function transcribeAndBuild(options = {}) {
+  const { runId } = options;
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  const review = reviewPath(runId); fs.mkdirSync(review, { recursive: true });
+  const lockPath = path.join(review, 'activation.lock');
+  let fd, globalFd;
+  try { fd = fs.openSync(lockPath, 'wx', 0o600); }
+  catch (error) { if (error?.code === 'EEXIST') throw new Error('ACTIVATION_RUN_ALREADY_LOCKED'); throw error; }
+  try {
+    globalFd = fs.openSync(GLOBAL_LOCK_PATH, 'wx', 0o600);
+    const fingerprint = sha(Buffer.from(JSON.stringify(approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes })))));
+    if (fs.existsSync(GLOBAL_STATE_PATH)) {
+      const previous = readJson(GLOBAL_STATE_PATH);
+      assert(previous.runId === runId && previous.audioFingerprint === fingerprint, 'ACTIVATION_PRIOR_RUN_REQUIRES_REVIEW');
+    } else atomicJson(GLOBAL_STATE_PATH, { schemaVersion: 'phase2.3b-p-activation-state/1.0.0', runId, audioFingerprint: fingerprint, state: 'RUNNING', startedAt: new Date().toISOString() });
+    fs.writeFileSync(globalFd, JSON.stringify({ runId, pid: process.pid, startedAt: new Date().toISOString(), audioFingerprint: fingerprint }), 'utf8');
+  } catch (error) {
+    try { if (globalFd !== undefined) fs.closeSync(globalFd); } catch (_) {}
+    if (globalFd !== undefined) { try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {} }
+    try { fs.closeSync(fd); } catch (_) {}
+    try { fs.rmSync(lockPath, { force: true }); } catch (_) {}
+    throw error;
+  }
+  const statusPath = path.join(review, 'run-status.json');
+  const status = { schemaVersion: 'phase2.3b-p-activation-run-status/1.0.0', runId, pid: process.pid, startedAt: new Date().toISOString(), heartbeatAt: new Date().toISOString(), state: 'RUNNING', currentStage: 'STARTING', completedActs: [], attemptsByAct: Object.fromEntries(ACT_ORDER.map(act => [act, null])) };
+  fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, startedAt: status.startedAt, mode: 'TRANSCRIBE_AND_BUILD' }), 'utf8');
+  atomicJson(statusPath, status);
+  const heartbeat = setInterval(() => { status.heartbeatAt = new Date().toISOString(); status.currentStage = 'TRANSCRIBING_OR_VALIDATING'; atomicJson(statusPath, status); }, 15000);
+  try {
+    const report = await transcribeAndBuildInternal({ ...options, onProgress(event) {
+      status.currentStage = event.type === 'attempt-start' ? 'WHISPER_REQUEST_RESERVED' : event.type.toUpperCase().replace(/-/gu, '_');
+      status.currentAct = event.actKey?.replace(/^VO_/u, '').toLowerCase() || null;
+      status.heartbeatAt = new Date().toISOString();
+      const ledgerPath = GLOBAL_LEDGER_PATH;
+      if (fs.existsSync(ledgerPath)) {
+        const reservations = fs.readFileSync(ledgerPath, 'utf8').split(/\r?\n/u).filter(Boolean).map(line => JSON.parse(line));
+        for (const act of ACT_ORDER) status.attemptsByAct[act] = reservations.filter(item => item.actKey === act).length;
+      }
+      const partialPath = path.join(review, 'fresh-whisper', 'word-timestamps.partial.json');
+      if (event.type === 'file-complete' && fs.existsSync(partialPath)) {
+        const partial = readJson(partialPath);
+        status.completedActs = Object.keys(partial).map(key => key.replace(/^VO_/u, '').toLowerCase()).filter(act => ACT_ORDER.includes(act));
+      }
+      atomicJson(statusPath, status);
+    } });
+    status.state = 'SUCCESS'; status.currentStage = 'CANDIDATE_VALIDATED'; status.completedActs = [...ACT_ORDER]; status.heartbeatAt = new Date().toISOString(); status.completedAt = status.heartbeatAt; status.candidatePath = path.join(review, 'candidate');
+    atomicJson(statusPath, status);
+    const globalState = readJson(GLOBAL_STATE_PATH); globalState.state = 'CANDIDATE_VALIDATED'; globalState.completedAt = status.completedAt; atomicJson(GLOBAL_STATE_PATH, globalState);
+    return report;
+  } catch (error) {
+    status.state = 'FAILURE'; status.currentStage = 'FAILED'; status.error = String(error.message || error).slice(0, 500); status.heartbeatAt = new Date().toISOString(); status.completedAt = status.heartbeatAt;
+    atomicJson(statusPath, status);
+    try { const globalState = readJson(GLOBAL_STATE_PATH); globalState.state = 'FAILURE'; globalState.lastError = status.error; globalState.updatedAt = status.heartbeatAt; atomicJson(GLOBAL_STATE_PATH, globalState); } catch (_) {}
+    throw error;
+  } finally {
+    clearInterval(heartbeat);
+    try { fs.closeSync(fd); } catch (_) {}
+    try { fs.rmSync(lockPath, { force: true }); } catch (_) {}
+    try { fs.closeSync(globalFd); } catch (_) {}
+    try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {}
+  }
+}
+function verifyCandidate(runId) {
+  requireCurrentPreflight(runId);
+  const candidateDir = path.join(reviewPath(runId), 'candidate'); const report = readJson(path.join(candidateDir, 'candidate-report.json'));
+  assert(report.status === 'VALIDATED_NOT_PROMOTED' && report.runId === runId, 'ACTIVATION_CANDIDATE_INVALID');
+  for (const item of report.candidateFiles) {
+    const file = path.resolve(candidateDir, item.path); assert(file.startsWith(`${path.resolve(candidateDir)}${path.sep}`) && fs.existsSync(file), `CANDIDATE_MISSING:${item.path}`);
+    const bytes = fs.readFileSync(file); assert(bytes.length === item.bytes && sha(bytes) === item.sha256, `CANDIDATE_HASH_MISMATCH:${item.path}`);
+  }
+  return report;
+}
+function promoteLocked(runId) {
+  ensureRailwayTarget(); requireCurrentPreflight(runId); verifyCandidate(runId); verifyLockedEpisode(); verifyRuntimeSync();
+  require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
+  const review = reviewPath(runId); const candidateDir = path.join(review, 'candidate');
+  const report = readJson(path.join(candidateDir, 'candidate-report.json'));
+  const backupDir = path.join(review, 'backup');
+  assert(!fs.existsSync(backupDir), 'ACTIVATION_BACKUP_ALREADY_EXISTS');
+  const backupManifest = activation.makeBackup({ episodeDirectory: ROOT, backupDirectory: backupDir, targets: report.candidateFiles.map(item => item.path) });
+  atomicJson(path.join(backupDir, 'backup-manifest.json'), backupManifest);
+  const parent = path.dirname(ROOT); const stage = path.join(parent, `.eo-v3-activation-${runId}`);
+  assert(!fs.existsSync(stage), 'ACTIVATION_STAGE_ALREADY_EXISTS');
+  execFileSync('cp', ['-al', ROOT, stage], { stdio: 'ignore' });
+  let exchanged = false;
+  try {
+    for (const item of report.candidateFiles) {
+      const target = path.join(stage, item.path); fs.mkdirSync(path.dirname(target), { recursive: true });
+      const bytes = fs.readFileSync(path.join(candidateDir, item.path)); activation.atomicWrite(fs, target, bytes);
+    }
+    verifyPromotedTree(stage, report);
+    const activationRecord = { schemaVersion: 'phase2.3b-p-activation-record/1.0.0', status: 'READY_TO_EXCHANGE', runId, createdAt: new Date().toISOString(), priorHashes: verifyLockedEpisode(), candidateFiles: report.candidateFiles, backupManifestSha256: hashFile(path.join(backupDir, 'backup-manifest.json')) };
+    atomicJson(path.join(review, 'activation-record.json'), activationRecord);
+    execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' });
+    exchanged = true;
+    try { verifyPromotedTree(ROOT, report); }
+    catch (error) { execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' }); throw error; }
+    activationRecord.status = 'PROMOTED'; activationRecord.promotedAt = new Date().toISOString(); atomicJson(path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`, 'activation-record.json'), activationRecord);
+    return activationRecord;
+  } catch (error) {
+    if (exchanged && fs.existsSync(stage)) {
+      try { execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' }); exchanged = false; }
+      catch (_) { console.error(`ACTIVATION_RECOVERY_REQUIRED: preserve active=${ROOT} prior=${stage}`); throw error; }
+    }
+    if (!exchanged && fs.existsSync(stage)) fs.rmSync(stage, { recursive: true, force: true });
+    throw error;
+  }
+}
+function withGlobalActivationLock(runId, mode, fn) {
+  fs.mkdirSync(GLOBAL_REVIEW, { recursive: true });
+  let fd;
+  try { fd = fs.openSync(GLOBAL_LOCK_PATH, 'wx', 0o600); }
+  catch (error) { if (error?.code === 'EEXIST') throw new Error('ACTIVATION_GLOBAL_RUN_ALREADY_LOCKED'); throw error; }
+  try { fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, startedAt: new Date().toISOString(), mode }), 'utf8'); return fn(); }
+  finally { try { fs.closeSync(fd); } catch (_) {} try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {} }
+}
+function promote(runId) { return withGlobalActivationLock(runId, 'PROMOTE', () => promoteLocked(runId)); }
+function verifyPromotedTree(root, report) {
+  for (const item of report.candidateFiles) {
+    const file = path.resolve(root, item.path); assert(file.startsWith(`${path.resolve(root)}${path.sep}`) && fs.existsSync(file), `PROMOTED_FILE_MISSING:${item.path}`);
+    const bytes = fs.readFileSync(file); assert(bytes.length === item.bytes && sha(bytes) === item.sha256, `PROMOTED_HASH_MISMATCH:${item.path}`);
+  }
+  return true;
+}
+function rollbackLocked(runId) {
+  const review = reviewPath(runId); const record = readJson(path.join(review, 'activation-record.json'));
+  assert(record.status === 'PROMOTED', 'ACTIVATION_NOT_PROMOTED');
+  const backupDir = path.join(review, 'backup'); const backup = readJson(path.join(backupDir, 'backup-manifest.json'));
+  activation.verifyBackup({ backupDirectory: backupDir, manifest: backup });
+  const restored = path.join(path.dirname(ROOT), `.eo-v3-rollback-${runId}`);
+  assert(!fs.existsSync(restored), 'ROLLBACK_STAGE_EXISTS'); execFileSync('cp', ['-al', ROOT, restored], { stdio: 'ignore' });
+  activation.restoreBackup({ episodeDirectory: restored, backupDirectory: backupDir, manifest: backup });
+  execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, restored], { stdio: 'ignore' });
+  record.status = 'ROLLED_BACK'; record.rolledBackAt = new Date().toISOString(); atomicJson(path.join(review, 'activation-record.json'), record);
+  return record;
+}
+function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
+function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
+async function main(argv = process.argv.slice(2)) {
+  const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
+  if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  let result;
+  if (mode === '--preflight') result = await preflight({ runId });
+  else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
+  else if (mode === '--status') result = { globalState: fs.existsSync(GLOBAL_STATE_PATH) ? readJson(GLOBAL_STATE_PATH) : null, runStatus: fs.existsSync(path.join(reviewPath(runId), 'run-status.json')) ? readJson(path.join(reviewPath(runId), 'run-status.json')) : null, activeLock: fs.existsSync(GLOBAL_LOCK_PATH) ? readJson(GLOBAL_LOCK_PATH) : null };
+  else if (mode === '--promote') result = promote(runId);
+  else if (mode === '--rollback') result = rollback(runId);
+  else throw new Error('MODE_REQUIRED');
+  console.log(JSON.stringify(result, null, 2));
+}
+if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, preflight, transcribeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

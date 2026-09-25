@@ -16,7 +16,8 @@ const ACT_VO_FILES = ['VO_Act1.mp3', 'VO_Act2.mp3', 'VO_Act3.mp3', 'VO_Act3B.mp3
 // third, keyed by voKey so a retry can skip whatever already succeeded.
 const WHISPER_TIMEOUT_MS   = 2 * 60 * 1000; // 2 min per file -- generous for one VO segment
 const WHISPER_MAX_RETRIES  = 2;
-async function runWhisper({ audioDir, episodeDir }) {
+async function runWhisper({ audioDir, episodeDir, onProgress }) {
+  const progress = event => { if (typeof onProgress === 'function') onProgress(event); };
   const tsFile      = path.join(episodeDir, 'word-timestamps.json');
   const partialFile = path.join(episodeDir, 'word-timestamps.partial.json');
   if (fs.existsSync(tsFile)) {
@@ -40,6 +41,7 @@ async function runWhisper({ audioDir, episodeDir }) {
     const voKey = filename.replace('.mp3', '');
     if (partial[voKey]) {
       log(`[whisper] SKIP ${filename} — already transcribed (checkpoint)`);
+      progress({ type: 'checkpoint-reused', voKey, filename, words: partial[voKey].length });
       continue;
     }
     const voPath = path.join(audioDir, filename);
@@ -48,10 +50,12 @@ async function runWhisper({ audioDir, episodeDir }) {
       continue;
     }
     log(`[whisper] Transcribing ${filename}...`);
-    const words = await whisperTranscribeFileWithRetry(voPath, apiKey, voKey);
+    progress({ type: 'file-start', voKey, filename });
+    const words = await whisperTranscribeFileWithRetry(voPath, apiKey, voKey, attempt => progress({ type: 'attempt-start', voKey, filename, attempt }));
     partial[voKey] = words;
     fs.writeFileSync(partialFile, JSON.stringify(partial, null, 2), 'utf8');
     log(`[whisper] ${filename} → ${words.length} words (checkpoint saved)`);
+    progress({ type: 'file-complete', voKey, filename, words: words.length });
   }
   const allWords = ACT_VO_FILES
     .map(f => f.replace('.mp3', ''))
@@ -65,10 +69,11 @@ async function runWhisper({ audioDir, episodeDir }) {
   try { fs.rmSync(partialFile, { force: true }); } catch (_) {}
   return allWords;
 }
-async function whisperTranscribeFileWithRetry(filePath, apiKey, voKey) {
+async function whisperTranscribeFileWithRetry(filePath, apiKey, voKey, onAttempt) {
   let lastErr;
   for (let attempt = 1; attempt <= WHISPER_MAX_RETRIES + 1; attempt++) {
     try {
+      if (typeof onAttempt === 'function') onAttempt(attempt);
       return await whisperTranscribeFile(filePath, apiKey, voKey);
     } catch (err) {
       lastErr = err;

@@ -138,6 +138,17 @@ test('request timeout rejects and retries without hanging', async t => {
   assert.deepEqual(f.timeouts, [120000, 120000]);
 });
 
+test('optional progress events identify each Whisper attempt and completed checkpoint without changing output', async t => {
+  const f = fixture(t, [{ status: 500 }, { body: { words: [{ word: 'Progress', start: 0.2, end: 0.6 }] } }]);
+  f.audio('VO_Act1');
+  const events = [];
+  const result = await f.timing().runWhisper({ ...f, onProgress: event => events.push(event) });
+  assert.deepEqual(plain(result), [word('VO_Act1', 'progress', 0.2, 0.6)]);
+  assert.deepEqual(events.filter(event => event.type === 'attempt-start').map(event => [event.voKey, event.attempt]), [['VO_Act1', 1], ['VO_Act1', 2]]);
+  assert.deepEqual(events.filter(event => event.type === 'file-complete').map(event => event.voKey), ['VO_Act1']);
+  assert.equal(f.calls.length, 2, 'all provider I/O is handled by the fake HTTP client');
+});
+
 for (const channel of ['EmpireOmitted', 'MoneyExplained']) {
   test(`renderer consumes cached timestamps unchanged for ${channel}`, async t => {
     const f = fixture(t, [], {});

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "phase2.3b-p-activation-approval/1.0.0",
+  "approvalStatus": "USER_APPROVED",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "channelKey": "EmpireOmitted",
+  "approvedRunId": "phase2-3b-p-20260925-7ed8cd3-r2",
+  "approvedReviewDirectory": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/.review/phase2.3b-p-narration-phase2-3b-p-20260925-7ed8cd3-r2",
+  "approvedPacingPlanSha256": "25fb60687137e2117cc27432edc32377123b1388145cf14e0652aabcbccddc46",
+  "userConfirmedListeningApproval": true,
+  "approvedAudio": [
+    { "actKey": "act1", "file": "VO_Act1.mp3", "sha256": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986", "bytes": 1825271, "durationSec": 114.050612 },
+    { "actKey": "act2", "file": "VO_Act2.mp3", "sha256": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32", "bytes": 1582019, "durationSec": 98.847347 },
+    { "actKey": "act3", "file": "VO_Act3.mp3", "sha256": "f1929546ee1ba9de3d3facbb1e1604f03987f79a98968c1018fcd2fecb8336ac", "bytes": 1593304, "durationSec": 99.552653 },
+    { "actKey": "act3b", "file": "VO_Act3B.mp3", "sha256": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e", "bytes": 1104710, "durationSec": 69.015510 },
+    { "actKey": "act4", "file": "VO_Act4.mp3", "sha256": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0", "bytes": 1787237, "durationSec": 111.673469 },
+    { "actKey": "act5", "file": "VO_Act5.mp3", "sha256": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db", "bytes": 2175103, "durationSec": 135.915102 }
+  ],
+  "lockedEpisodeHashesBeforeActivation": {
+    "script.json": "b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8",
+    "edit-plan.json": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "edit-plan-validation.json": "b4c37ca8e5c24115e21f218a654bcc2de21368d947f62e159067aedb09616fac",
+    "shot-definitions.json": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+    "production-manifest.json": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca",
+    "assets/audio/VO_Act3B.mp3": "05f9f48849f2ac94e88ed7b368c1da8a6cb3f833497ef913886cce8300a70d06",
+    ".v3-shadow/timing/350bc59988d2f291583282f6ace4b1f3523e4ed7bcc362d11d4932a4cf71c1f7/word-timestamps.json": "68234536e839e1ac07f5a92d32cc6a2c9bfbe1a87974af1626c320333330212c"
+  },
+  "phase2_3b_svCandidatePackage": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate",
+  "limits": { "whisperRequests": 6, "ttsRequests": 0, "anthropicRequests": 0, "imageRequests": 0, "videoRequests": 0, "voiceGenerationRequests": 0, "renderRequests": 0 },
+  "recordedAt": "2026-09-25",
+  "recordingBasis": "User instruction in Phase 2.3B-P activation request. Audio file bytes must be reverified on staging before use."
+}
