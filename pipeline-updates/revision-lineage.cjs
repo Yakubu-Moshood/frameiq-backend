@@ -78,6 +78,20 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
     ]) if (!predicate(ledger[field])) error('REVISION_LEDGER_METADATA', `${location}/${field}`, description);
     if (priorResultHash && ledger.parentArtifactSha256 !== priorResultHash) error('REVISION_CHAIN_LINK', `${location}/parentArtifactSha256`, 'Each ledger parent must equal the previous ledger result hash.');
     if (!Array.isArray(ledger.entries)) { error('REVISION_ENTRIES_INVALID', `${location}/entries`, 'entries must be an array.'); continue; }
+    if (ledger.retirements !== undefined && !Array.isArray(ledger.retirements)) error('REVISION_RETIREMENTS_INVALID', `${location}/retirements`, 'retirements must be an array when supplied.');
+    for (const [retirementIndex, retirement] of (Array.isArray(ledger.retirements) ? ledger.retirements : []).entries()) {
+      const retirementPath = `${location}/retirements/${retirementIndex}`;
+      if (!object(retirement) || retirement.approvalStatus !== 'APPROVED' || !['ACT3B_B010'].includes(retirement.beatId)
+          || retirement.shotId !== retirement.beatId || retirement.actKey !== 'act3b'
+          || !Number.isSafeInteger(retirement.allShotsIndex) || retirement.allShotsIndex < 0
+          || !Number.isSafeInteger(retirement.actShotsIndex) || retirement.actShotsIndex < 0
+          || !object(retirement.shot) || retirement.shot.beatId !== retirement.beatId || retirement.shot.shotId !== retirement.shotId
+          || retirement.shot.actKey !== retirement.actKey || typeof retirement.reason !== 'string' || !retirement.reason.trim()) {
+        error('REVISION_RETIREMENT_INVALID', retirementPath, 'Only the approved ACT3B_B010 retirement with its exact shot snapshot and positions is allowed.');
+      }
+      if (retirement.actShot !== undefined && (!object(retirement.actShot) || retirement.actShot.beatId !== retirement.beatId || retirement.actShot.shotId !== retirement.shotId || retirement.actShot.actKey !== retirement.actKey)) error('REVISION_RETIREMENT_ACT_SNAPSHOT_INVALID', retirementPath, 'Optional per-act snapshot must preserve the retired shot identity.');
+      if (retirement.revisionLineageEntry !== `approved-retirement:act3b:${retirement.beatId}`) error('REVISION_RETIREMENT_LINEAGE_ENTRY', retirementPath, 'Retirement must cite its exact approved lineage entry.');
+    }
     if (ledger.bindings !== undefined && !Array.isArray(ledger.bindings)) error('REVISION_BINDINGS_INVALID', `${location}/bindings`, 'bindings must be an array when supplied.');
     const bindings = Array.isArray(ledger.bindings) ? ledger.bindings : [];
     for (let bindingIndex = 0; bindingIndex < bindings.length; bindingIndex++) {
@@ -101,7 +115,10 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
       const key = `${entry.shotId}\0${entry.fieldPath}`;
       if (seen.has(key)) error('REVISION_ENTRY_DUPLICATE', entryPath, 'A ledger cannot revise the same shot field twice.');
       seen.add(key);
-      const copies = targetShots.get(entry.shotId);
+      const approvedRetirement = entry.shotId === 'ACT3B_B010'
+        ? chain.flatMap(item => Array.isArray(item?.retirements) ? item.retirements : []).find(item => item?.shotId === entry.shotId && item?.beatId === entry.beatId && item?.actKey === 'act3b' && item?.approvalStatus === 'APPROVED' && item?.shot?.shotId === entry.shotId && item?.shot?.beatId === entry.beatId)
+        : null;
+      const copies = targetShots.get(entry.shotId) || (approvedRetirement ? [approvedRetirement.shot] : null);
       if (!copies?.length) error('REVISION_SHOT_UNKNOWN', `${entryPath}/shotId`, 'Ledger references a shot absent from the artifact.');
       else if (entry.beatId !== copies[0].beatId) error('REVISION_BEAT_MISMATCH', `${entryPath}/beatId`, 'beatId must identify the supplied shot.');
       if (!Array.isArray(ledger.permittedImmutablePaths)) error('REVISION_PERMISSIONS_INVALID', `${location}/permittedImmutablePaths`, 'permittedImmutablePaths must be an explicit array.');
@@ -144,6 +161,17 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
       if (!same(current.sourceEditPlanSha256, binding.afterValue)) {
         error('REVISION_BINDING_AFTER_VALUE', `${location}/bindings`, 'Active source edit-plan binding does not match the exact approved afterValue.');
       } else current.sourceEditPlanSha256 = binding.beforeValue;
+    }
+    for (const retirement of [...(ledger.retirements || [])].reverse()) {
+      if (shotsById(current).has(retirement.shotId)) {
+        error('REVISION_RETIREMENT_STILL_ACTIVE', `${location}/retirements`, 'A retired shot must be absent from the active artifact.');
+        continue;
+      }
+      current.allShots.splice(retirement.allShotsIndex, 0, structuredClone(retirement.shot));
+      const actShots = current.acts?.[retirement.actKey];
+      if (!Array.isArray(actShots)) error('REVISION_RETIREMENT_ACT_MISSING', `${location}/retirements`, 'Retired shot act collection is missing.');
+      else actShots.splice(retirement.actShotsIndex, 0, structuredClone(retirement.actShot || retirement.shot));
+      if (current.totalShots !== undefined) current.totalShots++;
     }
     const parentHash = artifactSha256(current);
     if (parentHash !== ledger.parentArtifactSha256) error('REVISION_PARENT_HASH', `${location}/parentArtifactSha256`, `Reconstructed parent hash ${parentHash} does not match the declared parent.`);

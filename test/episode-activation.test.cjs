@@ -11,7 +11,9 @@ const {
   assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, reserveWhisperAttempt,
   analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
   chooseTimingTranscript, classifyReviewMismatch, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
+  verifyApprovedBoundaryPolicy, updateProductionManifestForRetirements, updateShotDefinitions,
 } = require('../pipeline-updates/episode-activation.cjs');
+const { artifactSha256: revisionArtifactSha256, validateRevisionChain } = require('../pipeline-updates/revision-lineage.cjs');
 const activationCli = require('../scripts/phase2.3b-p-activate.cjs');
 
 function fixture() {
@@ -177,12 +179,12 @@ test('repeated word alignments that permit different complete beat boundaries re
 });
 
 test('six-act CLI boundary audit shares candidate mappings, reports full coverage, and performs no writes or provider calls', async () => {
-  const value = makeRetimingFixture();
-  const reviewedAlignment = reviewedFor(value.script, value.words, value.bindings);
-  const input = { ...value, actOrder: value.actKeys, actBindings: value.bindings, actDurationsSec: Object.fromEntries(value.actKeys.map(key => [key, 10])), reviewedAlignment };
+  const value = approvedRevisionFixture();
+  const reviewedAlignment = value.reviewedAlignment;
+  const input = { plan: value.plan, wordTimestamps: value.words, actOrder: value.actOrder, actBindings: value.bindings, actDurationsSec: value.durations, script: value.script, reviewedAlignment, approvedBoundaryPolicy: value.approvedBoundaryPolicy };
   const before = structuredClone(input);
   const orchestration = { targetChecks: 0, packageChecks: 0, runtimeChecks: 0, preflightChecks: 0, scriptReads: 0, planReads: 0, audioProbes: 0, providerCalls: 0, writes: 0 };
-  const audioContracts = value.actKeys.map(actKey => ({ actKey, file: `${actKey}.mp3` }));
+  const audioContracts = value.actOrder.map(actKey => ({ actKey, file: `${actKey}.mp3` }));
   const audit = await activationCli.auditResumeBoundaries({
     runId: 'audit-run-123',
     ensureTarget: () => { orchestration.targetChecks++; },
@@ -190,15 +192,28 @@ test('six-act CLI boundary audit shares candidate mappings, reports full coverag
     verifyRuntimeSyncFn: () => { orchestration.runtimeChecks++; },
     resumePreflight: runId => { orchestration.preflightChecks++; assert.equal(runId, 'audit-run-123'); return { completed: { timestamps: value.words }, alignment: reviewedAlignment }; },
     getApprovedScript: () => { orchestration.scriptReads++; return value.script; },
+    loadBoundaryPolicy: ({ script: loadedScript }) => {
+      assert.deepEqual(loadedScript, value.script, 'the approved script is supplied to the lineage loader');
+      const policy = JSON.parse(value.policyBytes.toString('utf8'));
+      const verified = verifyApprovedBoundaryPolicy({ policy, policyBytes: value.policyBytes, script: loadedScript, scriptSha256: policy.scriptSha256, amendmentSha256: policy.revisionLineage.amendmentSha256 });
+      assert.equal(verified.allocations.length, 6, 'the CLI test double validates and supplies every lineage-bound range');
+      assert.deepEqual(verified.retirements.map(item => item.revisionLineageEntry), ['approved-retirement:act3b:ACT3B_B010']);
+      return verified;
+    },
     loadPlan: () => { orchestration.planReads++; return value.plan; },
     audioContracts,
-    actOrder: value.actKeys,
+    actOrder: value.actOrder,
     actBindings: value.bindings,
-    probeAudio: file => { orchestration.audioProbes++; assert.match(file, /fresh-whisper[\\/]audio/u); return { durationSec: 10 }; },
+    probeAudio: file => {
+      orchestration.audioProbes++;
+      assert.match(file, /fresh-whisper[\\/]audio/u);
+      const contract = audioContracts.find(item => file.endsWith(item.file));
+      return { durationSec: value.durations[contract.actKey] };
+    },
   });
   const candidate = retimeEditPlan(input).plan;
   assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
-  assert.deepEqual(audit.acts.map(act => act.actKey), value.actKeys);
+  assert.deepEqual(audit.acts.map(act => act.actKey), value.actOrder);
   for (const act of audit.acts) {
     assert.equal(act.mappedBoundaryCount, act.boundaryCount);
     assert.equal(act.firstMappedTranscriptIndex, 0);
@@ -297,7 +312,7 @@ test('an unprovable reviewed boundary does not create candidate output', t => {
   assert.equal(fs.existsSync(candidate), false);
 });
 
-test('reviewed multi-token spans map boundaries before and after while an interior indivisible boundary fails closed', () => {
+test('reviewed multi-token spans map outer boundaries and assign a split indivisible span consistently', () => {
   const good = retimeFixture({
     sourceTexts: { act2: 'Before 300 billion dollars after.' },
     planTexts: { act2: 'Before 300 billion after.' },
@@ -314,7 +329,9 @@ test('reviewed multi-token spans map boundaries before and after while an interi
     beatRanges: { act2: [[0, 1], [2, 4]] },
   });
   const reviewed = reviewedFor(inside.script, inside.words, inside.bindings, true);
-  assert.throws(() => retimeEditPlan({ ...inside, actOrder: inside.actKeys, actBindings: inside.bindings, actDurationsSec: Object.fromEntries(inside.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }), /ACTIVATION_BOUNDARY_(?:MAPPING_COVERAGE|REVIEW_RELATION_AMBIGUOUS):act2/u);
+  const mapped = retimeEditPlan({ ...inside, actOrder: inside.actKeys, actBindings: inside.bindings, actDurationsSec: Object.fromEntries(inside.actKeys.map(key => [key, 10])), reviewedAlignment: reviewed }).plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(mapped.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 3], [4, 4]]);
+  assert.deepEqual(mapped.map(beat => beat.narrationExcerpt), ['Before 3 7 billion', 'after.']);
 });
 
 test('approved multi-token currency omission maps the whole boundary range', () => {
@@ -788,4 +805,153 @@ test('verified backup restores replaced bytes and removes paths that did not pre
   assert.equal(fs.existsSync(path.join(episode, 'new.json')), false);
   fs.writeFileSync(path.join(backup, 'locked.json'), 'tampered');
   assert.throws(() => verifyBackup({ backupDirectory: backup, manifest }), /ACTIVATION_BACKUP_HASH_MISMATCH/);
+});
+
+test('Act 2 deleted-word approval maps the beat edge monotonically without losing transcript coverage', () => {
+  const value = retimeFixture({
+    sourceTexts: { act2: 'The bank and customers were convinced.' },
+    transcriptTexts: { act2: 'The bank customers were convinced.' },
+    beatRanges: { act2: [[0, 2], [3, 5]] },
+  });
+  const beats = value.result.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
+  assert.deepEqual(beats.map(beat => [beat.startWordIndex, beat.endWordIndex]), [[0, 1], [2, 4]]);
+  assert.equal(beats[0].endWordIndex + 1, beats[1].startWordIndex);
+  assert.equal(beats.map(beat => beat.narrationExcerpt).join(' '), 'The bank customers were convinced.');
+  const unapproved = makeRetimingFixture({ sourceTexts: { act2: 'The bank and customers were convinced.' }, transcriptTexts: { act2: 'The bank customers were convinced.' }, beatRanges: { act2: [[0, 2], [3, 5]] } });
+  const rejected = reviewedFor(unapproved.script, unapproved.words, unapproved.bindings, false);
+  assert.equal(rejected.status, 'FAIL');
+  assert.throws(() => retimeEditPlan({ ...unapproved, actOrder: unapproved.actKeys, actBindings: unapproved.bindings, actDurationsSec: Object.fromEntries(unapproved.actKeys.map(key => [key, 10])), reviewedAlignment: rejected }), /ACTIVATION_REVIEWED_ALIGNMENT_NOT_PASS/u);
+});
+
+test('Act 4 normalized money-span edge remains shared and Act 5 decimal-currency span maps around its whole unit', () => {
+  const act4 = retimeFixture({
+    sourceTexts: { act4: 'The board clawed back roughly 69 million dollars from the executive.' },
+    transcriptTexts: { act4: 'The board clawed back roughly 69 million from the executive.' },
+    beatRanges: { act4: [[0, 6], [7, 10]] },
+  });
+  const beats4 = act4.result.plan.sequences.find(sequence => sequence.actKey === 'act4').beats;
+  assert.equal(beats4[0].endWordIndex + 1, beats4[1].startWordIndex);
+  assert.equal(beats4[0].narrationExcerpt, 'The board clawed back roughly 69 million');
+
+  const act5 = retimeFixture({
+    sourceTexts: { act5: 'She received 17.5 million dollars from the bank.' },
+    transcriptTexts: { act5: 'She received 17 5 million from the bank.' },
+    beatRanges: { act5: [[0, 3], [4, 7]] },
+  });
+  const beats5 = act5.result.plan.sequences.find(sequence => sequence.actKey === 'act5').beats;
+  assert.equal(beats5[0].endWordIndex + 1, beats5[1].startWordIndex);
+  assert.equal(beats5[0].narrationExcerpt, 'She received 17 5 million');
+  assert.match(beats5[1].narrationExcerpt, /^from/u);
+});
+
+function approvedRevisionFixture() {
+  const fs = require('node:fs');
+  const policyBytes = fs.readFileSync(require('node:path').join(__dirname, '../pipeline-updates/phase2.3b-p-approved-boundary-ranges.json'));
+  const policy = JSON.parse(policyBytes);
+  const actTexts = Object.fromEntries(['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'].map(key => [key, key === 'act3b' ? Array(153).fill(0).map((_, i) => `c${i}`) : key === 'act4' ? Array(232).fill(0).map((_, i) => `d${i}`) : ['Ordinary', `${key}.`]]));
+  for (const item of policy.allocations) {
+    const tokens = actTexts[item.actKey], replacement = item.excerpt.split(/\s+/u);
+    tokens.splice(item.startTokenIndex, item.endTokenIndex - item.startTokenIndex + 1, ...replacement);
+  }
+  const script = { acts: Object.fromEntries(Object.entries(actTexts).map(([key, tokens]) => [key, { voScript: tokens.join(' ') }])) };
+  const bindings = Object.fromEntries(Object.keys(actTexts).map(key => [key, `VO_${key}`]));
+  const sourceWords = {};
+  const priorRanges = {
+    act3b: [[0,3],[4,8],[9,16],[17,25],[26,35],[36,47],[48,58],[59,69],[70,76],[77,83],[84,89],[90,101],[102,107],[108,119],[120,124],[125,133],[134,143],[144,157]],
+    act4: [[0,8],[9,21],[22,30],[31,39],[40,48],[49,60],[61,66],[67,71],[72,81],[82,92],[93,101],[102,111],[112,120],[121,131],[132,140],[141,149],[150,159],[160,171],[172,180],[181,189],[190,197],[198,207],[208,217],[218,231]],
+  };
+  const words = [], sequences = [], timingActs = [];
+  for (const [actKey, tokens] of Object.entries(actTexts)) {
+    const voKey = bindings[actKey];
+    let oldWords = tokens;
+    let ranges = [[0, tokens.length - 1]];
+    if (actKey === 'act3b') {
+      oldWords = Array.from({ length: 158 }, (_, i) => `legacy${i}`);
+      for (let i = 0; i < 58; i++) oldWords[i] = tokens[i];
+      for (let i = 102; i < 107; i++) oldWords[i] = tokens[i - 4];
+      for (let i = 107; i < 158; i++) oldWords[i] = tokens[i - 5];
+      ranges = priorRanges.act3b;
+    } else if (actKey === 'act4') {
+      oldWords = Array.from({ length: 232 }, (_, i) => `legacy${i}`);
+      for (let i = 22; i < 231; i++) oldWords[i] = tokens[i - 3];
+      oldWords[231] = tokens[231];
+      ranges = priorRanges.act4;
+    }
+    sourceWords[actKey] = oldWords;
+    const local = tokens.map((word, i) => ({ vo_file: voKey, word, start_seconds: i * 0.1, end_seconds: i * 0.1 + 0.05 }));
+    words.push(...local);
+    timingActs.push({ actKey, voKey, wordCount: oldWords.length, startSec: 0, endSec: 100, durationSec: 100 });
+    sequences.push({ sequenceId: `sequence-${actKey}`, actKey, beats: ranges.map(([startWordIndex, endWordIndex], index) => ({
+      beatId: actKey === 'act3b' ? `ACT3B_B${String(index + 1).padStart(3, '0')}` : actKey === 'act4' ? `ACT4_B${String(index + 1).padStart(3, '0')}` : `beat-${actKey}`,
+      sequenceId: `sequence-${actKey}`, actKey, startWordIndex, endWordIndex,
+      startSec: 0, endSec: 100, durationSec: 100, narrationExcerpt: oldWords.slice(startWordIndex, endWordIndex + 1).join(' '),
+      visual: { type: 'STOCK', description: 'frozen' },
+    })) });
+  }
+  const plan = { schemaVersion: '3.0.0', episodeId: 'episode-revision', title: 'Locked', timing: { basis: 'previous', totalDurationSec: 600, acts: timingActs }, sequences };
+  const durations = Object.fromEntries(Object.keys(actTexts).map(key => [key, Math.max(100, words.filter(item => item.vo_file === bindings[key]).at(-1).end_seconds + 1)]));
+  const reviewedAlignment = reviewedFor(script, words, bindings);
+  const approvedBoundaryPolicy = verifyApprovedBoundaryPolicy({ policy, policyBytes, script, scriptSha256: policy.scriptSha256, amendmentSha256: policy.revisionLineage.amendmentSha256 });
+  return { plan, script, words, bindings, actOrder: Object.keys(actTexts), durations, reviewedAlignment, approvedBoundaryPolicy, policy, policyBytes };
+}
+
+test('approved hash-bound revised ranges share six-act audit and retiming; retirement leaves no plan, shot, manifest or narration orphan', () => {
+  const value = approvedRevisionFixture();
+  const input = { plan: value.plan, wordTimestamps: value.words, actOrder: value.actOrder, actBindings: value.bindings, actDurationsSec: value.durations, script: value.script, reviewedAlignment: value.reviewedAlignment, approvedBoundaryPolicy: value.approvedBoundaryPolicy };
+  const audit = auditEditPlanBoundaries(input);
+  assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
+  assert.equal(audit.acts.length, 6);
+  assert.equal(audit.providerRequestsMade, 0);
+  assert.equal(audit.candidateWrites, 0);
+  assert.equal(audit.episodeRootWrites, 0);
+  assert.deepEqual(audit.acts.find(item => item.actKey === 'act1').errors, []);
+  assert.deepEqual(audit.acts.find(item => item.actKey === 'act3').errors, []);
+  const retimed = retimeEditPlan(input).plan;
+  const act3b = retimed.sequences.filter(item => item.actKey === 'act3b').flatMap(item => item.beats);
+  const act4 = retimed.sequences.filter(item => item.actKey === 'act4').flatMap(item => item.beats);
+  assert.equal(act3b.some(item => item.beatId === 'ACT3B_B010'), false);
+  for (const [beatId, excerpt] of [['ACT3B_B008', value.policy.allocations[0].excerpt], ['ACT3B_B009', value.policy.allocations[1].excerpt], ['ACT3B_B011', value.policy.allocations[2].excerpt], ['ACT3B_B012', value.policy.allocations[3].excerpt]]) assert.equal(act3b.find(item => item.beatId === beatId).narrationExcerpt, excerpt);
+  assert.equal(act3b.find(item => item.beatId === 'ACT3B_B011').endWordIndex + 1, act3b.find(item => item.beatId === 'ACT3B_B012').startWordIndex);
+  assert.equal(act4.find(item => item.beatId === 'ACT4_B001').narrationExcerpt, value.policy.allocations[4].excerpt);
+  assert.equal(act4.find(item => item.beatId === 'ACT4_B002').narrationExcerpt, value.policy.allocations[5].excerpt);
+  assert.equal(act4.find(item => item.beatId === 'ACT4_B001').endWordIndex + 1, act4.find(item => item.beatId === 'ACT4_B002').startWordIndex);
+  assert.deepEqual(act3b.flatMap(item => item.narrationExcerpt.split(/\s+/u)), value.script.acts.act3b.voScript.trim().split(/\s+/u));
+  assertCreativePlanFieldsFrozen(value.plan, retimed, { retiredBeatIds: ['ACT3B_B010'] });
+
+  const originalShots = { mode: 'empire-omitted-v3', episodeId: value.plan.episodeId, sourceEditPlanSha256: 'b'.repeat(64), totalShots: value.plan.sequences.flatMap(s => s.beats).length, acts: {}, allShots: [] };
+  for (const sequence of value.plan.sequences) {
+    originalShots.acts[sequence.actKey] = sequence.beats.map(beat => structuredClone(beat));
+    originalShots.allShots.push(...sequence.beats.map(beat => ({ ...structuredClone(beat), shotId: beat.beatId })));
+  }
+  const shotResult = updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: [{ resultArtifactSha256: 'a'.repeat(64) }], revisionId: 'test-retirement', retiredBeatIds: ['ACT3B_B010'], retirementRecords: value.policy.retirements });
+  assert.equal(shotResult.shotDefs.allShots.some(item => item.beatId === 'ACT3B_B010'), false);
+  assert.equal(shotResult.shotDefs.acts.act3b.some(item => item.beatId === 'ACT3B_B010'), false);
+  assert.equal(shotResult.revisionLedger.retirements[0].reason.includes('removed as unsupported'), true);
+  const manifest = updateProductionManifestForRetirements({ totalShots: 1, shots: [{ shotId: 'ACT3B_B010', productionMethod: 'EVIDENCE_REFERENCE', overlayGraphicRequirement: false, graphicObjectCount: 0 }] }, ['ACT3B_B010']);
+  assert.deepEqual(manifest.shots, []);
+  assert.equal(manifest.totalShots, 0);
+});
+
+test('approved boundary ranges fail closed on missing or altered policy and lineage binding', () => {
+  const value = approvedRevisionFixture();
+  const valid = () => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 });
+  assert.equal(valid().allocations.length, 6);
+  assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: Buffer.from(`${value.policyBytes} `), script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /POLICY_HASH_MISMATCH/u);
+  assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: value.script, scriptSha256: value.policy.scriptSha256, amendmentSha256: '0'.repeat(64) }), /BINDING_MISMATCH/u);
+  const altered = structuredClone(value.script); altered.acts.act3b.voScript = altered.acts.act3b.voScript.replace('5,300', '5,301');
+  assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: altered, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /RANGE_MISMATCH/u);
+  assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010', 'ACT3B_B010'] }), /RETIREMENT_NOT_APPROVED/u);
+});
+
+test('revision lineage restores an approved retired shot before validating its parent hash', () => {
+  const shot = { shotId: 'ACT3B_B010', beatId: 'ACT3B_B010', actKey: 'act3b', visual: { description: 'before' } };
+  const amendedShot = structuredClone(shot); amendedShot.visual.description = 'approved';
+  const parent = { sourceEditPlanSha256: 'b'.repeat(64), totalShots: 1, allShots: [shot], acts: { act3b: [shot] } };
+  const amended = { ...structuredClone(parent), allShots: [amendedShot], acts: { act3b: [shot] } };
+  const result = { ...structuredClone(parent), totalShots: 0, allShots: [], acts: { act3b: [] } };
+  const amendment = { ledgerVersion: '1.0.0', revisionId: 'prior-shot-amendment', revisionVersion: '2.3B-SV', lineageRole: 'current', approvalStatus: 'APPROVED', approval: { status: 'APPROVED', basis: 'Earlier approved visual amendment.' }, parentArtifactSha256: revisionArtifactSha256(parent), resultArtifactSha256: revisionArtifactSha256(amended), entries: [{ shotId: shot.shotId, beatId: shot.beatId, fieldPath: 'visual.description', beforeValue: 'before', afterValue: 'approved', reason: 'Previously approved correction.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-SV' }], permittedImmutablePaths: [] };
+  const retirement = { ledgerVersion: '1.0.0', revisionId: 'retire-b010', revisionVersion: '2.3B-P-ACTIVATION', lineageRole: 'current', approvalStatus: 'APPROVED', approval: { status: 'APPROVED', basis: 'Explicit approved beat retirement.' }, parentArtifactSha256: revisionArtifactSha256(amended), resultArtifactSha256: revisionArtifactSha256(result), entries: [], permittedImmutablePaths: [], retirements: [{ beatId: shot.beatId, shotId: shot.shotId, actKey: shot.actKey, allShotsIndex: 0, actShotsIndex: 0, shot: amendedShot, actShot: shot, reason: 'Approved unsupported narration retirement.', revisionLineageEntry: 'approved-retirement:act3b:ACT3B_B010', approvalStatus: 'APPROVED' }] };
+  assert.equal(validateRevisionChain({ shotDefs: result, revisionChain: [amendment, retirement] }).status, 'PASS');
+  const tampered = structuredClone(retirement); tampered.retirements[0].shot.visual.description = 'tampered';
+  assert.equal(validateRevisionChain({ shotDefs: result, revisionChain: [amendment, tampered] }).status, 'FAIL');
 });

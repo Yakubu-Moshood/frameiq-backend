@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "phase2.3b-p-approved-boundary-ranges/1.0.0",
+  "scriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+  "tokenization": {
+    "rangeTokenization": "js-trim-split-whitespace/1.0.0",
+    "mappingTokenization": "phase2.3b-p-lexical-tokenization/1.0.0",
+    "indexConvention": "zero-based-inclusive"
+  },
+  "revisionLineage": {
+    "revisionId": "phase2.3b-s-approved-factual-correction",
+    "amendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+    "candidateScriptArtifact": "candidate-script.json",
+    "candidateScriptPackageSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955"
+  },
+  "allocations": [
+    { "actKey": "act3b", "beatId": "ACT3B_B008", "startTokenIndex": 58, "endTokenIndex": 74, "excerpt": "Wells Fargo says it refunded about $2.6 million in fees tied to accounts flagged by its review.", "revisionLineageEntry": "approved-range:act3b:ACT3B_B008" },
+    { "actKey": "act3b", "beatId": "ACT3B_B009", "startTokenIndex": 75, "endTokenIndex": 80, "excerpt": "That is the bank’s own figure.", "revisionLineageEntry": "approved-range:act3b:ACT3B_B009" },
+    { "actKey": "act3b", "beatId": "ACT3B_B011", "startTokenIndex": 81, "endTokenIndex": 85, "excerpt": "Meanwhile, between 2011 and 2016,", "revisionLineageEntry": "approved-range:act3b:ACT3B_B011" },
+    { "actKey": "act3b", "beatId": "ACT3B_B012", "startTokenIndex": 86, "endTokenIndex": 97, "excerpt": "Wells Fargo said it fired more than 5,300 employees for sales-practice violations.", "revisionLineageEntry": "approved-range:act3b:ACT3B_B012" },
+    { "actKey": "act4", "beatId": "ACT4_B001", "startTokenIndex": 0, "endTokenIndex": 8, "excerpt": "In 2013, Los Angeles Times reporter E. Scott Reckard", "revisionLineageEntry": "approved-range:act4:ACT4_B001" },
+    { "actKey": "act4", "beatId": "ACT4_B002", "startTokenIndex": 9, "endTokenIndex": 18, "excerpt": "documented Wells Fargo’s sales pressure, unauthorized accounts and employee firings.", "revisionLineageEntry": "approved-range:act4:ACT4_B002" }
+  ],
+  "retirements": [
+    { "actKey": "act3b", "beatId": "ACT3B_B010", "reason": "Its former narration, “the real number is almost certainly higher,” was removed as unsupported. Its replacement visual merely repeats B009’s bank-attributed refund figure; no replacement narration or zero-duration beat is authorized.", "revisionLineageEntry": "approved-retirement:act3b:ACT3B_B010" }
+  ]
+}

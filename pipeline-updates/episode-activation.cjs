@@ -6,6 +6,7 @@ const path = require('node:path');
 
 const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
+const APPROVED_BOUNDARY_POLICY_SHA256 = '95a816be1e8ddb76d70d916a98d3d689ab74b6d4b17b07cbf1d5e30f19f5b58d';
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
   'assets/audio/VO_Act3B.mp3', 'assets/audio/VO_Act4.mp3', 'assets/audio/VO_Act5.mp3',
@@ -250,8 +251,68 @@ function verifyReviewedTranscriptRange(range, scriptToTranscript, actKey, bounda
   if ([...covered].some(index => index < range.start || index > range.end)) throw new Error(`ACTIVATION_BOUNDARY_REVIEW_RELATION_AMBIGUOUS:${actKey}:${boundaryIndex}`);
 }
 
-function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey }) {
-  const boundaryIndexes = [...new Set(source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex]))];
+function verifyApprovedBoundaryPolicy({ policy, policyBytes, script, scriptSha256, amendmentSha256 }) {
+  if (!Buffer.isBuffer(policyBytes) || sha256(policyBytes) !== APPROVED_BOUNDARY_POLICY_SHA256) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_HASH_MISMATCH');
+  if (policy?.schemaVersion !== 'phase2.3b-p-approved-boundary-ranges/1.0.0'
+      || policy.scriptSha256 !== scriptSha256
+      || scriptSha256 !== '319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955'
+      || amendmentSha256 !== policy.revisionLineage?.amendmentSha256
+      || policy.revisionLineage?.revisionId !== 'phase2.3b-s-approved-factual-correction'
+      || policy.revisionLineage?.candidateScriptArtifact !== 'candidate-script.json'
+      || policy.revisionLineage?.candidateScriptPackageSha256 !== scriptSha256
+      || policy.tokenization?.rangeTokenization !== 'js-trim-split-whitespace/1.0.0'
+      || policy.tokenization?.mappingTokenization !== 'phase2.3b-p-lexical-tokenization/1.0.0'
+      || policy.tokenization?.indexConvention !== 'zero-based-inclusive') throw new Error('ACTIVATION_APPROVED_BOUNDARY_BINDING_MISMATCH');
+  const expected = new Map(policy.allocations.map(item => [`${item.actKey}:${item.beatId}`, item]));
+  const retired = new Map(policy.retirements.map(item => [`${item.actKey}:${item.beatId}`, item]));
+  const lineageEntries = [...policy.allocations.map(item => [item.revisionLineageEntry, `approved-range:${item.actKey}:${item.beatId}`]), ...policy.retirements.map(item => [item.revisionLineageEntry, `approved-retirement:${item.actKey}:${item.beatId}`])];
+  if (lineageEntries.some(([actual, expectedEntry]) => actual !== expectedEntry) || new Set(lineageEntries.map(([actual]) => actual)).size !== lineageEntries.length) throw new Error('ACTIVATION_APPROVED_BOUNDARY_LINEAGE_ENTRY_INVALID');
+  for (const [key, item] of expected) {
+    const text = script?.acts?.[item.actKey]?.voScript;
+    const tokens = typeof text === 'string' ? text.trim().split(/\s+/u) : [];
+    if (!Number.isSafeInteger(item.startTokenIndex) || !Number.isSafeInteger(item.endTokenIndex) || item.startTokenIndex < 0 || item.endTokenIndex < item.startTokenIndex
+        || tokens.slice(item.startTokenIndex, item.endTokenIndex + 1).join(' ') !== item.excerpt) throw new Error(`ACTIVATION_APPROVED_BOUNDARY_RANGE_MISMATCH:${key}`);
+  }
+  if (expected.size !== 6 || retired.size !== 1 || !retired.has('act3b:ACT3B_B010')) throw new Error('ACTIVATION_APPROVED_BOUNDARY_SET_INVALID');
+  return { verified: true, policySha256: APPROVED_BOUNDARY_POLICY_SHA256, allocations: [...expected.values()], retirements: [...retired.values()], byBeat: expected, retiredByBeat: retired };
+}
+
+function sourceBoundarySharesNormalizedUnit(sourceWords, leftWordIndex, rightWordIndex) {
+  const text = sourceWords.join(' '), spans = sourceWordSpans(sourceWords);
+  const lexicalToWord = lexicalSourceWordIndexes(text, spans);
+  return normalizedUnits(text).units.some(unit => {
+    const wordIndexes = new Set(lexicalToWord.slice(unit.tokenStart, unit.tokenEnd + 1));
+    return wordIndexes.has(leftWordIndex) && wordIndexes.has(rightWordIndex);
+  });
+}
+
+function updateProductionManifestForRetirements(manifest, retiredBeatIds) {
+  const next = deepClone(manifest), retired = new Set(retiredBeatIds);
+  if ([...retired].some(id => id !== 'ACT3B_B010') || retired.size !== retiredBeatIds.length) throw new Error('ACTIVATION_MANIFEST_RETIREMENT_NOT_APPROVED');
+  for (const id of retired) if (!next.shots.some(item => item.shotId === id)) throw new Error(`ACTIVATION_MANIFEST_RETIREMENT_SOURCE_MISSING:${id}`);
+  next.shots = next.shots.filter(item => !retired.has(item.shotId));
+  next.totalShots = next.shots.length;
+  next.methodCounts = Object.fromEntries(['ESSENTIAL_ANIMATION', 'CONTROLLED_STILL', 'GENERATED_STILL', 'EVIDENCE_REFERENCE', 'GRAPHIC_COMPILATION'].map(method => [method, next.shots.filter(item => item.productionMethod === method).length]));
+  next.graphicSummary = {
+    primaryGraphicAssetShots: next.shots.filter(item => item.productionMethod === 'GRAPHIC_COMPILATION').length,
+    overlayGraphicShots: next.shots.filter(item => item.overlayGraphicRequirement === true).length,
+    graphicBearingBeats: next.shots.filter(item => item.graphicObjectCount > 0).length,
+    graphicObjectCount: next.shots.reduce((sum, item) => sum + (Number.isInteger(item.graphicObjectCount) ? item.graphicObjectCount : 0), 0),
+    multiObjectBeatCount: next.shots.filter(item => item.graphicObjectCount > 1).length,
+  };
+  next.baseImageCount = next.shots.filter(item => ['ESSENTIAL_ANIMATION', 'CONTROLLED_STILL', 'GENERATED_STILL'].includes(item.productionMethod)).length;
+  next.animationCallCount = next.shots.filter(item => item.productionMethod === 'ESSENTIAL_ANIMATION').length;
+  return next;
+}
+
+function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey, approvedBoundaryPolicy }) {
+  if (approvedBoundaryPolicy && (approvedBoundaryPolicy.verified !== true || approvedBoundaryPolicy.policySha256 !== APPROVED_BOUNDARY_POLICY_SHA256)) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_UNVERIFIED');
+  const retirements = approvedBoundaryPolicy?.retirements.filter(item => item.actKey === actKey) || [];
+  const retiredIds = new Set(retirements.map(item => item.beatId));
+  const sourceBeats = source.beats.filter(beat => !retiredIds.has(beat.beatId));
+  const allocations = approvedBoundaryPolicy?.allocations.filter(item => item.actKey === actKey) || [];
+  const byBeat = new Map(allocations.map(item => [item.beatId, item]));
+  const boundaryIndexes = [...new Set(sourceBeats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex]))];
   const scriptTokenCount = lexicalTokens(scriptText).length;
   let scriptToTranscript;
   try { scriptToTranscript = mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey }); }
@@ -271,14 +332,39 @@ function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey
     && ([...(reviewedAct.matchedTokens || []), ...(reviewedAct.approvedExceptions || [])]
       .some(item => item.scriptTokenEndIndex === scriptTokenCount - 1 && item.transcriptTokenEndIndex === transcriptLexicalWordIndexes(words).length - 1));
   const mappedBoundaries = new Map(), errors = [];
+  const scriptLexical = lexicalTokens(scriptText);
+  const whitespaceSpans = [];
+  const whitespacePattern = /\S+/gu;
+  for (const match of scriptText.matchAll(whitespacePattern)) whitespaceSpans.push({ start: match.index, end: match.index + match[0].length - 1 });
+  const directAllocation = new Map();
+  for (const allocation of allocations) {
+    const startSpan = whitespaceSpans[allocation.startTokenIndex], endSpan = whitespaceSpans[allocation.endTokenIndex];
+    const indexes = scriptLexical.flatMap((item, index) => item.offset >= startSpan.start && item.offset <= endSpan.end ? [index] : []);
+    if (!indexes.length) { errors.push({ code: `ACTIVATION_APPROVED_BOUNDARY_RANGE_EMPTY:${actKey}:${allocation.beatId}` }); continue; }
+    const mapped = indexes.map(index => scriptToTranscript[index]);
+    if (mapped.some(item => !item)) { errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${allocation.beatId}` }); continue; }
+    directAllocation.set(allocation.beatId, { start: mapped[0].start, end: mapped.at(-1).end });
+  }
+  const skippedIndexes = new Set();
+  for (const allocation of allocations) {
+    const position = sourceBeats.findIndex(beat => beat.beatId === allocation.beatId);
+    const previous = sourceBeats[position - 1], allocated = sourceBeats[position], next = sourceBeats[position + 1];
+    if (!allocated) throw new Error(`ACTIVATION_APPROVED_BOUNDARY_BEAT_MISSING:${actKey}:${allocation.beatId}`);
+    skippedIndexes.add(allocated.startWordIndex); skippedIndexes.add(allocated.endWordIndex);
+    if (previous) skippedIndexes.add(previous.endWordIndex);
+    if (next) skippedIndexes.add(next.startWordIndex);
+  }
   for (const index of boundaryIndexes) {
+    if (skippedIndexes.has(index)) continue;
     let sourceToScript = null, sourceToTranscript = null, sourceToScriptError = null, sourceToTranscriptError = null;
     try {
       sourceToScript = mapPlanSourceWordsToScript({ sourceWords: source.words, scriptText, boundaryIndexes: [index], actKey, structuralStartVerified, structuralEndVerified }).get(index) || null;
     } catch (error) { sourceToScriptError = error; }
-    try {
-      sourceToTranscript = mapPlanSourceWordsToTranscript({ sourceWords: source.words, words, boundaryIndexes: [index], actKey, structuralStartVerified, structuralEndVerified }).get(index) || null;
-    } catch (error) { sourceToTranscriptError = error; }
+    if (!skippedIndexes.has(index)) {
+      try {
+        sourceToTranscript = mapPlanSourceWordsToTranscript({ sourceWords: source.words, words, boundaryIndexes: [index], actKey, structuralStartVerified, structuralEndVerified }).get(index) || null;
+      } catch (error) { sourceToTranscriptError = error; }
+    }
     let throughScript = null;
     if (sourceToScript) {
       throughScript = { start: scriptToTranscript[sourceToScript.start]?.start, end: scriptToTranscript[sourceToScript.end]?.end };
@@ -308,23 +394,40 @@ function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey
   }
   const mappedBeats = [], gaps = [], overlaps = [];
   let cursor = 0;
-  for (const beat of source.beats) {
-    const mappedStart = mappedBoundaries.get(beat.startWordIndex), mappedEnd = mappedBoundaries.get(beat.endWordIndex);
-    if (!mappedStart || !mappedEnd) continue;
-    if (mappedStart.start > cursor) gaps.push({ beatId: beat.beatId, start: cursor, end: mappedStart.start - 1 });
-    else if (mappedStart.start < cursor) overlaps.push({ beatId: beat.beatId, start: mappedStart.start, end: Math.min(cursor - 1, mappedEnd.end) });
-    if (mappedStart.start > mappedEnd.end) {
+  for (let beatIndex = 0; beatIndex < sourceBeats.length; beatIndex++) {
+    const beat = sourceBeats[beatIndex], allocation = byBeat.get(beat.beatId);
+    let first, last;
+    if (allocation) ({ start: first, end: last } = directAllocation.get(beat.beatId) || {});
+    else {
+      const precedingAllocation = byBeat.has(sourceBeats[beatIndex - 1]?.beatId) ? directAllocation.get(sourceBeats[beatIndex - 1].beatId) : null;
+      const followingAllocation = byBeat.has(sourceBeats[beatIndex + 1]?.beatId) ? directAllocation.get(sourceBeats[beatIndex + 1].beatId) : null;
+      const mappedStart = precedingAllocation ? { start: precedingAllocation.end + 1 } : mappedBoundaries.get(beat.startWordIndex);
+      const mappedEnd = followingAllocation ? { end: followingAllocation.start - 1 } : mappedBoundaries.get(beat.endWordIndex);
+      first = mappedStart?.start; last = mappedEnd?.end;
+    }
+    if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last)) {
+      errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_MISSING:${actKey}:${allocation?.startTokenIndex ?? beat.startWordIndex}`, boundaryIndex: beat.startWordIndex });
+      continue;
+    }
+    const previousBeat = sourceBeats[beatIndex - 1];
+    if (first < cursor && previousBeat && previousBeat.endWordIndex + 1 === beat.startWordIndex
+        && sourceBoundarySharesNormalizedUnit(source.words, previousBeat.endWordIndex, beat.startWordIndex) && last >= cursor) first = cursor;
+    if (first > cursor) gaps.push({ beatId: beat.beatId, start: cursor, end: first - 1 });
+    else if (first < cursor) overlaps.push({ beatId: beat.beatId, start: first, end: Math.min(cursor - 1, last) });
+    if (first > last) {
       errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_INVALID:${actKey}:${beat.startWordIndex}`, boundaryIndex: beat.startWordIndex });
       continue;
     }
-    mappedBeats.push({ beat, transcriptStart: mappedStart.start, transcriptEnd: mappedEnd.end });
-    cursor = mappedEnd.end + 1;
+    mappedBeats.push({ beat, transcriptStart: first, transcriptEnd: last });
+    mappedBoundaries.set(beat.startWordIndex, { start: first, end: first });
+    mappedBoundaries.set(beat.endWordIndex, { start: last, end: last });
+    cursor = last + 1;
   }
-  if (mappedBoundaries.size === boundaryIndexes.length && cursor < words.length) gaps.push({ start: cursor, end: words.length - 1 });
+  if (mappedBeats.length === sourceBeats.length && cursor < words.length) gaps.push({ start: cursor, end: words.length - 1 });
   if (gaps.length || overlaps.length) errors.unshift({ code: `ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}` });
   for (const gap of gaps) errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_GAP:${actKey}`, ...gap });
   for (const overlap of overlaps) errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_OVERLAP:${actKey}`, ...overlap });
-  return { scriptToTranscript, mappedBoundaries, mappedBeats, errors, gaps, overlaps, boundaryIndexes };
+  return { scriptToTranscript, mappedBoundaries, mappedBeats, errors, gaps, overlaps, boundaryIndexes, retiredBeatIds: [...retiredIds] };
 }
 
 function isBoundaryMappingUnavailable(error) {
@@ -345,7 +448,8 @@ function mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey }) 
   const scriptTokenCount = lexicalTokens(scriptText).length;
   const lexicalToWord = transcriptLexicalWordIndexes(words);
   const relationKeys = new Set();
-  const relations = [...(reviewedAct.matchedTokens || []), ...(reviewedAct.approvedExceptions || [])]
+  const deletionExceptions = (reviewedAct.approvedExceptions || []).filter(item => item?.type === 'SCRIPT_DELETION');
+  const relations = [...(reviewedAct.matchedTokens || []), ...(reviewedAct.approvedExceptions || []).filter(item => item?.type !== 'SCRIPT_DELETION')]
     .map(item => ({ scriptStart: item.scriptTokenIndex, scriptEnd: item.scriptTokenEndIndex, transcriptStart: item.transcriptTokenIndex, transcriptEnd: item.transcriptTokenEndIndex }))
     .sort((a, b) => a.scriptStart - b.scriptStart || a.transcriptStart - b.transcriptStart)
     .filter(relation => {
@@ -366,6 +470,16 @@ function mapScriptToTranscriptWords({ scriptText, words, reviewedAct, actKey }) 
     if (wordEnd < wordStart) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_NON_MONOTONIC:${actKey}`);
     for (let index = relation.transcriptStart; index <= relation.transcriptEnd; index++) transcriptLexicalCounts[index]++;
     for (let index = relation.scriptStart; index <= relation.scriptEnd; index++) perScript[index].push([wordStart, wordEnd]);
+  }
+  for (const deletion of deletionExceptions) {
+    if (![deletion.scriptTokenIndex, deletion.scriptTokenEndIndex, deletion.transcriptTokenBoundaryIndex].every(Number.isSafeInteger)
+        || deletion.scriptTokenIndex < 0 || deletion.scriptTokenEndIndex < deletion.scriptTokenIndex || deletion.scriptTokenEndIndex >= scriptTokenCount
+        || deletion.transcriptTokenBoundaryIndex < 0 || deletion.transcriptTokenBoundaryIndex > lexicalToWord.length) throw new Error(`ACTIVATION_REVIEWED_DELETION_RANGE_INVALID:${actKey}`);
+    const anchor = deletion.transcriptTokenBoundaryIndex > 0 ? lexicalToWord[deletion.transcriptTokenBoundaryIndex - 1] : lexicalToWord[0];
+    for (let index = deletion.scriptTokenIndex; index <= deletion.scriptTokenEndIndex; index++) {
+      if (perScript[index].length) throw new Error(`ACTIVATION_REVIEWED_DELETION_CONFLICT:${actKey}`);
+      perScript[index].push([anchor, anchor]);
+    }
   }
   if (transcriptLexicalCounts.some(count => count !== 1) || perScript.some(ranges => ranges.length === 0)) throw new Error(`ACTIVATION_REVIEWED_ALIGNMENT_COVERAGE:${actKey}`);
   const mapping = perScript.map(ranges => {
@@ -390,11 +504,14 @@ function reviewedActFor(reviewedAlignment, actKey) {
   return matches[0];
 }
 
-function retimeEditPlanCore({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment }) {
+function retimeEditPlanCore({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment, approvedBoundaryPolicy }) {
   if (!Array.isArray(actOrder) || !actOrder.length || !actBindings || !actDurationsSec) throw new Error('ACTIVATION_TIMING_CONFIG_INVALID');
   if (new Set(actOrder).size !== actOrder.length) throw new Error('ACTIVATION_DUPLICATE_ACT');
   if (!plan || !Array.isArray(plan.sequences) || !plan.sequences.length) throw new Error('ACTIVATION_PLAN_INVALID');
   const next = deepClone(plan);
+  const retiredBeatIds = new Set(approvedBoundaryPolicy?.retirements.map(item => item.beatId) || []);
+  for (const sequence of next.sequences) sequence.beats = sequence.beats.filter(beat => !retiredBeatIds.has(beat.beatId));
+  next.sequences = next.sequences.filter(sequence => sequence.beats.length > 0);
   const grouped = groupWordTimestamps(wordTimestamps, actBindings);
   const priorActs = plan.timing?.acts || [];
   if (!Array.isArray(priorActs) || new Set(priorActs.map(act => act.actKey)).size !== priorActs.length) throw new Error('ACTIVATION_PRIOR_TIMING_INVALID');
@@ -416,10 +533,10 @@ function retimeEditPlanCore({ plan, wordTimestamps, actOrder, actBindings, actDu
     if (typeof scriptText !== 'string' || !scriptText.trim()) throw new Error(`ACTIVATION_SCRIPT_MISSING:${actKey}`);
     const reviewedAct = reviewedActFor(reviewedAlignment, actKey);
     const source = reconstructPlanSourceWords({ plan, actKey, priorTiming: oldTiming });
-    const boundaryAudit = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey });
+    const boundaryAudit = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey, approvedBoundaryPolicy });
     if (boundaryAudit.errors.length) throw new Error(boundaryAudit.errors[0].code);
     const mappedBeats = boundaryAudit.mappedBeats;
-    if (mappedBeats.length !== source.beats.length || mappedBeats[0]?.transcriptStart !== 0 || mappedBeats.at(-1)?.transcriptEnd !== words.length - 1) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
+    if (mappedBeats.length !== source.beats.filter(beat => !retiredBeatIds.has(beat.beatId)).length || mappedBeats[0]?.transcriptStart !== 0 || mappedBeats.at(-1)?.transcriptEnd !== words.length - 1) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
     let mappedCursor = 0;
     for (const item of mappedBeats) {
       if (item.transcriptStart !== mappedCursor) throw new Error(`ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}`);
@@ -449,7 +566,7 @@ function retimeEditPlanCore({ plan, wordTimestamps, actOrder, actBindings, actDu
   return { plan: next, grouped };
 }
 
-function auditEditPlanBoundaries({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment } = {}) {
+function auditEditPlanBoundaries({ plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment, approvedBoundaryPolicy } = {}) {
   const errors = [], acts = [];
   let grouped;
   try {
@@ -481,9 +598,12 @@ function auditEditPlanBoundaries({ plan, wordTimestamps, actOrder, actBindings, 
       if (typeof scriptText !== 'string' || !scriptText.trim()) throw new Error(`ACTIVATION_SCRIPT_MISSING:${actKey}`);
       const reviewedAct = reviewedActFor(reviewedAlignment, actKey);
       const source = reconstructPlanSourceWords({ plan, actKey, priorTiming: oldTiming });
+      const retiredIds = new Set(approvedBoundaryPolicy?.retirements.filter(item => item.actKey === actKey).map(item => item.beatId) || []);
+      const activeSourceBeats = source.beats.filter(beat => !retiredIds.has(beat.beatId));
       entry.sourceWordCount = source.words.length;
-      entry.boundaryCount = new Set(source.beats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex])).size;
-      const mapped = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey });
+      entry.beatCount = activeSourceBeats.length;
+      entry.boundaryCount = new Set(activeSourceBeats.flatMap(beat => [beat.startWordIndex, beat.endWordIndex])).size;
+      const mapped = mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey, approvedBoundaryPolicy });
       entry.mappedBoundaryCount = mapped.mappedBoundaries.size;
       entry.firstMappedTranscriptIndex = mapped.mappedBeats[0]?.transcriptStart ?? null;
       entry.lastMappedTranscriptIndex = mapped.mappedBeats.at(-1)?.transcriptEnd ?? null;
@@ -492,7 +612,7 @@ function auditEditPlanBoundaries({ plan, wordTimestamps, actOrder, actBindings, 
       entry.errors = mapped.errors;
       entry.ambiguousMappings = mapped.errors.filter(item => /BOUNDARY_MAPPING_AMBIGUOUS/u.test(item.code));
       entry.unmappedBoundaries = mapped.errors.filter(item => /BOUNDARY_MAPPING_MISSING|BOUNDARY_MAPPING_INVALID/u.test(item.code));
-      if (!mapped.errors.length && (mapped.mappedBeats.length !== source.beats.length || mapped.mappedBeats[0]?.transcriptStart !== 0 || mapped.mappedBeats.at(-1)?.transcriptEnd !== words.length - 1)) {
+      if (!mapped.errors.length && (mapped.mappedBeats.length !== activeSourceBeats.length || mapped.mappedBeats[0]?.transcriptStart !== 0 || mapped.mappedBeats.at(-1)?.transcriptEnd !== words.length - 1)) {
         entry.errors.push({ code: `ACTIVATION_BOUNDARY_MAPPING_COVERAGE:${actKey}` });
         entry.gaps.push({ start: mapped.mappedBeats.at(-1)?.transcriptEnd + 1 || 0, end: words.length - 1 });
       }
@@ -678,7 +798,7 @@ function alignActNarration(scriptText, transcriptWords, actKey, voKey) {
     } else if (item.type === 'substitution') {
       substitutions.push({ scriptToken: item.left.surface, transcriptToken: item.right.surface, scriptNormalizedToken: item.left.canonical, transcriptNormalizedToken: item.right.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, transcriptTokenIndex: item.right.tokenStart, transcriptTokenEndIndex: item.right.tokenEnd, scriptContext: alignmentContext(left.source, item.left.tokenStart), transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); li++; ri++;
     } else if (item.type === 'deletion') {
-      scriptDeletions.push({ scriptToken: item.left.surface, scriptNormalizedToken: item.left.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, scriptContext: alignmentContext(left.source, item.left.tokenStart) }); li++;
+      scriptDeletions.push({ scriptToken: item.left.surface, scriptNormalizedToken: item.left.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, transcriptTokenBoundaryIndex: ri < right.units.length ? right.units[ri].tokenStart : right.source.length, scriptContext: alignmentContext(left.source, item.left.tokenStart), transcriptBoundaryContext: alignmentContext(right.source, ri < right.units.length ? right.units[ri].tokenStart : right.source.length) }); li++;
     } else {
       transcriptInsertions.push({ transcriptToken: item.right.surface, transcriptNormalizedToken: item.right.canonical, transcriptTokenIndex: item.right.tokenStart, transcriptTokenEndIndex: item.right.tokenEnd, transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); ri++;
     }
@@ -738,6 +858,17 @@ function exactReviewException(actKey, classification, mismatch) {
   return { ...record, exceptionId: sha256(Buffer.from(JSON.stringify(record))) };
 }
 
+function exactReviewDeletionException(actKey, mismatch) {
+  const record = {
+    actKey, classification: 'SCRIPT_DELETION', type: 'SCRIPT_DELETION',
+    scriptToken: mismatch.scriptToken, scriptNormalizedToken: mismatch.scriptNormalizedToken,
+    scriptTokenIndex: mismatch.scriptTokenIndex, scriptTokenEndIndex: mismatch.scriptTokenEndIndex,
+    transcriptTokenBoundaryIndex: mismatch.transcriptTokenBoundaryIndex,
+    scriptContext: mismatch.scriptContext, transcriptBoundaryContext: mismatch.transcriptBoundaryContext,
+  };
+  return { ...record, exceptionId: sha256(Buffer.from(JSON.stringify(record))) };
+}
+
 function buildAlignmentReviewProposal({ runId, bindings, alignment } = {}) {
   if (!runId || !bindings || !alignment?.acts) throw new Error('ALIGNMENT_REVIEW_INPUT_INVALID');
   const proposedExceptions = [];
@@ -745,6 +876,7 @@ function buildAlignmentReviewProposal({ runId, bindings, alignment } = {}) {
     const classification = classifyReviewMismatch(mismatch);
     if (classification !== 'UNAPPROVED_MISMATCH') proposedExceptions.push(exactReviewException(act.actKey, classification, mismatch));
   }
+  for (const act of alignment.acts) for (const mismatch of act.scriptDeletions || []) proposedExceptions.push(exactReviewDeletionException(act.actKey, mismatch));
   return {
     schemaVersion: 'phase2.3b-p-alignment-review-proposal/1.0.0', status: 'PENDING_HUMAN_REVIEW', runId,
     episodeId: bindings.episodeId, channelKey: bindings.channelKey, bindings: structuredClone(bindings),
@@ -770,7 +902,13 @@ function applyAlignmentReviewApproval({ alignment, approvalArtifact, expectedBin
         for (let index = mismatch.scriptTokenIndex; index <= mismatch.scriptTokenEndIndex; index++) matchedScriptIndices.add(index);
       } else unapprovedExceptions.push({ classification: entry.classification, ...mismatch });
     }
-    for (const item of act.scriptDeletions || []) unapprovedExceptions.push({ classification: 'SCRIPT_DELETION', ...item });
+    for (const mismatch of act.scriptDeletions || []) {
+      const entry = exactReviewDeletionException(act.actKey, mismatch), approved = entries.get(entry.exceptionId);
+      if (approved && JSON.stringify(approved) === JSON.stringify(entry)) {
+        used.add(entry.exceptionId); approvedExceptions.push(approved);
+        for (let index = mismatch.scriptTokenIndex; index <= mismatch.scriptTokenEndIndex; index++) matchedScriptIndices.add(index);
+      } else unapprovedExceptions.push({ classification: 'SCRIPT_DELETION', ...mismatch });
+    }
     for (const item of act.transcriptInsertions || []) unapprovedExceptions.push({ classification: 'TRANSCRIPT_INSERTION', ...item });
     const uncoveredScriptTokenIndices = Array.from({ length: act.scriptTokenCount }, (_, index) => index).filter(index => !matchedScriptIndices.has(index));
     const status = unapprovedExceptions.length === 0 && uncoveredScriptTokenIndices.length === 0 ? 'PASS' : 'FAIL';
@@ -805,11 +943,31 @@ async function chooseTimingTranscript({ resumeOnly = false, readExisting, transc
   return transcribe();
 }
 
-function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId }) {
+function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [] }) {
   const shotDefs = deepClone(originalShotDefs);
+  const retireSet = new Set(retiredBeatIds);
+  if (retireSet.size !== retiredBeatIds.length || [...retireSet].some(id => id !== 'ACT3B_B010')) throw new Error('ACTIVATION_SHOT_RETIREMENT_NOT_APPROVED');
+  const retirementById = new Map(retirementRecords.map(item => [item.beatId, item]));
+  if (retireSet.size !== retirementById.size || [...retireSet].some(id => retirementById.get(id)?.actKey !== 'act3b' || retirementById.get(id)?.revisionLineageEntry !== `approved-retirement:act3b:${id}` || typeof retirementById.get(id)?.reason !== 'string' || !retirementById.get(id).reason.trim())) throw new Error('ACTIVATION_SHOT_RETIREMENT_APPROVAL_MISSING');
   const beatEntries = plan.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat]));
   const planBeats = new Map(beatEntries);
   if (planBeats.size !== beatEntries.length) throw new Error('ACTIVATION_PLAN_BEAT_IDS_INVALID');
+  const retiredShots = [];
+  if (retireSet.size) {
+    const originalShots = shotDefs.allShots;
+    for (const beatId of retireSet) {
+      const index = originalShots.findIndex(shot => shot.beatId === beatId);
+      const shot = originalShots[index];
+      const actKey = shot?.actKey;
+      const actShots = shotDefs.acts?.[actKey];
+      const actIndex = Array.isArray(actShots) ? actShots.findIndex(item => item.beatId === beatId) : -1;
+      if (index < 0 || actIndex < 0 || !shot || !actShots[actIndex]) throw new Error(`ACTIVATION_RETIREMENT_SOURCE_MISSING:${beatId}`);
+      retiredShots.push({ beatId, shotId: shot.shotId, actKey, allShotsIndex: index, actShotsIndex: actIndex, shot: deepClone(shot), actShot: deepClone(actShots[actIndex]), reason: retirementById.get(beatId).reason, revisionLineageEntry: retirementById.get(beatId).revisionLineageEntry, approvalStatus: 'APPROVED' });
+      actShots.splice(actIndex, 1);
+    }
+    shotDefs.allShots = originalShots.filter(shot => !retireSet.has(shot.beatId));
+    shotDefs.totalShots = shotDefs.allShots.length;
+  }
   if (!Array.isArray(shotDefs.allShots) || shotDefs.allShots.length !== planBeats.size) throw new Error('ACTIVATION_SHOT_SET_MISMATCH');
   if (new Set(shotDefs.allShots.map(shot => shot.shotId)).size !== shotDefs.allShots.length || new Set(shotDefs.allShots.map(shot => shot.beatId)).size !== shotDefs.allShots.length) throw new Error('ACTIVATION_SHOT_IDS_INVALID');
   if (!Array.isArray(revisionChain) || revisionChain.length === 0 || !revisionChain.at(-1)?.resultArtifactSha256) throw new Error('ACTIVATION_REVISION_CHAIN_INVALID');
@@ -834,25 +992,27 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
     approval: { status: 'APPROVED', basis: 'User-approved six-act narration and deterministic finished-VO retiming; creative fields remain frozen.' },
     parentArtifactSha256: revisionChain.at(-1).resultArtifactSha256,
     resultArtifactSha256: require('./revision-lineage.cjs').artifactSha256(shotDefs),
-    permittedImmutablePaths, entries,
+    permittedImmutablePaths, entries, ...(retiredShots.length ? { retirements: retiredShots } : {}),
     bindings: [{ fieldPath: 'sourceEditPlanSha256', beforeValue: beforePlanSha, afterValue: planSha256, reason: 'Bind shot definitions to the deterministically retimed approved edit plan.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' }],
   };
   return { shotDefs, revisionLedger: ledger, revisionChain: [...revisionChain, ledger] };
 }
 
-function assertCreativePlanFieldsFrozen(before, after) {
+function assertCreativePlanFieldsFrozen(before, after, { retiredBeatIds = [] } = {}) {
   if (!equal(Object.keys(before), Object.keys(after))) throw new Error('ACTIVATION_PLAN_TOP_LEVEL_KEYS_CHANGED');
   const beforeBeats = new Map(before.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
   const afterBeats = new Map(after.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
-  if (!equal([...beforeBeats.keys()], [...afterBeats.keys()])) throw new Error('ACTIVATION_BEAT_SET_CHANGED');
+  const retired = new Set(retiredBeatIds);
+  if (!equal([...beforeBeats.keys()].filter(id => !retired.has(id)), [...afterBeats.keys()])) throw new Error('ACTIVATION_BEAT_SET_CHANGED');
   for (const [beatId, oldBeat] of beforeBeats) {
+    if (retired.has(beatId)) continue;
     const newBeat = afterBeats.get(beatId);
     const a = deepClone(oldBeat), b = deepClone(newBeat);
     for (const field of PLAN_DYNAMIC_FIELDS) { delete a[field]; delete b[field]; }
     if (!equal(a, b)) throw new Error(`ACTIVATION_CREATIVE_BEAT_FIELD_CHANGED:${beatId}`);
   }
-  const beforeSequences = before.sequences.map(sequence => ({ ...sequence, beats: sequence.beats.map(({ startWordIndex, endWordIndex, startSec, endSec, durationSec, narrationExcerpt, ...beat }) => beat) }));
-  const afterSequences = after.sequences.map(sequence => ({ ...sequence, beats: sequence.beats.map(({ startWordIndex, endWordIndex, startSec, endSec, durationSec, narrationExcerpt, ...beat }) => beat) }));
+  const beforeSequences = before.sequences.map(sequence => ({ ...sequence, beats: sequence.beats.filter(beat => !retired.has(beat.beatId)).map(({ startWordIndex, endWordIndex, startSec, endSec, durationSec, narrationExcerpt, ...beat }) => beat) })).filter(sequence => sequence.beats.length);
+  const afterSequences = after.sequences.map(sequence => ({ ...sequence, beats: sequence.beats.map(({ startWordIndex, endWordIndex, startSec, endSec, durationSec, narrationExcerpt, ...beat }) => beat) })).filter(sequence => sequence.beats.length);
   if (!equal(beforeSequences, afterSequences)) throw new Error('ACTIVATION_SEQUENCE_OR_CREATIVE_FIELD_CHANGED');
   return true;
 }
@@ -918,6 +1078,7 @@ function restoreBackup({ fs: fsImpl = fs, episodeDirectory, backupDirectory, man
 
 module.exports = {
   PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, sha256, jsonHash, tokens, reserveWhisperAttempt,
+  verifyApprovedBoundaryPolicy, updateProductionManifestForRetirements,
   groupWordTimestamps, auditEditPlanBoundaries, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   alignActNarration, analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
   classifyReviewMismatch, exactReviewException, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
