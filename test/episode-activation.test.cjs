@@ -10,7 +10,7 @@ const {
   assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, reserveWhisperAttempt,
   analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
-  chooseTimingTranscript,
+  chooseTimingTranscript, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
 } = require('../pipeline-updates/episode-activation.cjs');
 const activationCli = require('../scripts/phase2.3b-p-activate.cjs');
 
@@ -104,6 +104,57 @@ test('alignment normalizes written and numeric currency expressions without coun
   ]) assert.equal(alignment(scriptText, transcriptText).status, 'PASS', `${scriptText} ↔ ${transcriptText}`);
 });
 
+test('alignment rejoins split numeric tokens and safely normalizes spelling forms', () => {
+  for (const [scriptText, transcriptText] of [
+    ['3.5 million dollars were reported.', '3 5 million dollars were reported'],
+    ['2.6 million dollars were reported.', '2 6 million dollars were reported'],
+    ['17.5 million dollars were reported.', '17 5 million dollars were reported'],
+    ['3.7 billion dollars were reported.', '3 7 billion dollars were reported'],
+    ['5,300 accounts were reviewed.', '5 300 accounts were reviewed'],
+    ['The accounts were cancelled at eight o’clock.', 'The accounts were canceled at eight o clock'],
+  ]) {
+    const result = alignment(scriptText, transcriptText);
+    assert.equal(result.status, 'PASS', `${scriptText} ↔ ${transcriptText}: ${JSON.stringify(result)}`);
+    assert.equal(result.alignmentCoverage, 100);
+    if (/\d[.,]?\d/u.test(scriptText) || /\d,\d{3}/u.test(scriptText)) assert.ok(result.normalizedEquivalents.some(item => item.normalizationClass === 'NUMERIC_TOKENIZATION'));
+  }
+});
+
+test('currency omissions and listed phonetic variants are proposed with exact contexts but never auto-approved', () => {
+  const voKey = 'VO_Act1';
+  const report = analyzeScriptTimestampAlignment(
+    { acts: { act1: { voScript: 'The $185 million dollars and Stumpf said eight.' } } },
+    timedWords(voKey, 'The 185 million and stump said aid.'), { act1: voKey },
+  );
+  assert.equal(report.status, 'FAIL');
+  const bindings = { runId: 'run-123456', episodeId: 'episode-1', channelKey: 'EmpireOmitted', candidateScriptSha256: 'a'.repeat(64), approvedAudio: [{ file: 'one.mp3', sha256: 'b'.repeat(64) }], pacingPlanSha256: 'c'.repeat(64), transcriptSemanticSha256: 'd'.repeat(64), transcriptFileSha256: 'e'.repeat(64), sourceReceiptSha256: 'f'.repeat(64), sourceAlignmentReportSha256: '1'.repeat(64), alignmentReportSha256: '2'.repeat(64), requestLedgerSha256: '3'.repeat(64), humanNarrationApprovalSha256: '4'.repeat(64), lockedHashes: {} };
+  const proposal = buildAlignmentReviewProposal({ runId: bindings.runId, bindings, alignment: report });
+  assert.deepEqual(proposal.proposedExceptions.map(item => item.classification).sort(), ['ASR_CURRENCY_UNIT_OMISSION', 'ASR_PHONETIC_VARIANT', 'ASR_PHONETIC_VARIANT']);
+  assert.ok(proposal.proposedExceptions.every(item => Number.isInteger(item.scriptTokenIndex) && item.scriptContext.text && item.transcriptContext.text));
+  assert.equal(proposal.status, 'PENDING_HUMAN_REVIEW');
+  assert.throws(() => applyAlignmentReviewApproval({ alignment: report, approvalArtifact: proposal, expectedBindings: bindings }), /ALIGNMENT_REVIEW_APPROVAL_INVALID/u);
+  const artifact = { ...proposal, schemaVersion: 'phase2.3b-p-alignment-review-approval/1.0.0', status: 'USER_APPROVED', approvedExceptions: proposal.proposedExceptions, humanApproval: { approvedBy: 'CTO', approvalRef: 'review-123', approvedAt: '2026-09-25T00:00:00Z', sourceProposalSha256: '5'.repeat(64) } };
+  assert.equal(applyAlignmentReviewApproval({ alignment: report, approvalArtifact: artifact, expectedBindings: bindings }).status, 'PASS');
+  for (const key of Object.keys(bindings)) assert.throws(() => applyAlignmentReviewApproval({ alignment: report, approvalArtifact: artifact, expectedBindings: { ...bindings, [key]: 'changed' } }), /ALIGNMENT_REVIEW_BINDING_MISMATCH/u, `changed binding ${key} must be refused`);
+});
+
+test('review approval is exact, hash-bound and refuses every unlisted mismatch', () => {
+  const voKey = 'VO_Act1';
+  const report = analyzeScriptTimestampAlignment(
+    { acts: { act1: { voScript: 'Stumpf and order.' } } },
+    timedWords(voKey, 'stump an settlement.'), { act1: voKey },
+  );
+  const bindings = { runId: 'run-123456', episodeId: 'episode-1', channelKey: 'EmpireOmitted', candidateScriptSha256: 'a'.repeat(64) };
+  const proposal = buildAlignmentReviewProposal({ runId: bindings.runId, bindings, alignment: report });
+  const artifact = { ...proposal, schemaVersion: 'phase2.3b-p-alignment-review-approval/1.0.0', status: 'USER_APPROVED', approvedExceptions: proposal.proposedExceptions, humanApproval: { approvedBy: 'CTO', approvalRef: 'review-123', approvedAt: '2026-09-25T00:00:00Z', sourceProposalSha256: '5'.repeat(64) } };
+  const reviewed = applyAlignmentReviewApproval({ alignment: report, approvalArtifact: artifact, expectedBindings: bindings });
+  assert.equal(reviewed.status, 'FAIL');
+  assert.equal(reviewed.acts[0].approvedExceptions.length, 2);
+  assert.equal(reviewed.acts[0].unapprovedExceptions.length, 1);
+  assert.equal(reviewed.explicitRefusalOfUnlistedMismatches, true);
+  assert.throws(() => applyAlignmentReviewApproval({ alignment: report, approvalArtifact: artifact, expectedBindings: { ...bindings, transcriptFileSha256: 'changed' } }), /ALIGNMENT_REVIEW_BINDING_MISMATCH/u);
+});
+
 test('alignment rejects a real missing narration word and reports exact context and deletion', () => {
   const result = alignment('The bank opened unauthorized customer accounts.', 'The bank opened customer accounts.');
   assert.equal(result.status, 'FAIL');
@@ -180,8 +231,14 @@ test('completed transcript reuse refuses altered transcript hashes and partial c
 test('resume-only transcript selection reuses completed data and forbids Whisper fallback', async () => {
   const cached = [{ vo_file: 'VO_Act1', word: 'approved', start_seconds: 0, end_seconds: 0.4 }];
   let providerCalls = 0;
-  const reused = await chooseTimingTranscript({ resumeOnly: true, readExisting: async () => cached, transcribe: async () => { providerCalls++; return []; } });
-  assert.deepEqual(reused, cached);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-resume-ledger-'));
+  try {
+    const ledger = path.join(root, 'request-ledger.jsonl'), originalLedger = Buffer.from('{"actKey":"act1","attempt":1}\n');
+    fs.writeFileSync(ledger, originalLedger);
+    const reused = await chooseTimingTranscript({ resumeOnly: true, readExisting: async () => cached, transcribe: async () => { providerCalls++; return []; } });
+    assert.deepEqual(reused, cached);
+    assert.deepEqual(fs.readFileSync(ledger), originalLedger, 'resume reuse leaves request history byte-for-byte unchanged');
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
   assert.equal(providerCalls, 0);
   await assert.rejects(chooseTimingTranscript({ resumeOnly: true, readExisting: async () => null, transcribe: async () => { providerCalls++; return []; } }), /COMPLETED_TRANSCRIPT_MISSING/u);
   assert.equal(providerCalls, 0);

@@ -33,6 +33,15 @@ const sha = activation.sha256;
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const jsonBytes = value => Buffer.from(`${JSON.stringify(value, null, 2)}\n`);
 const atomicJson = (file, value) => activation.atomicWrite(fs, file, jsonBytes(value));
+function writeImmutableJson(fsImpl, file, value) {
+  const bytes = jsonBytes(value);
+  if (fsImpl.existsSync(file)) {
+    assert(sha(fsImpl.readFileSync(file)) === sha(bytes), `IMMUTABLE_REVIEW_ARTIFACT_CONFLICT:${path.basename(file)}`);
+    return sha(bytes);
+  }
+  fsImpl.writeFileSync(file, bytes, { flag: 'wx' });
+  return sha(bytes);
+}
 function assert(value, code) { if (!value) throw new Error(code); }
 function hashFile(file) { return sha(fs.readFileSync(file)); }
 function reviewPath(runId) { return path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`); }
@@ -183,21 +192,94 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   assert(!fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')), 'RESUME_CANDIDATE_ALREADY_EXISTS');
   const completed = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
   const alignment = activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, completed.timestamps, VO_BINDINGS);
-  const reportPath = path.join(reviewPath(runId), 'alignment-report.json');
-  atomicJson(reportPath, alignment);
   const ledgerPath = GLOBAL_LEDGER_PATH;
-  const ledgerSha256 = fsImpl.existsSync(ledgerPath) ? hashFile(ledgerPath) : null;
+  assert(fsImpl.existsSync(ledgerPath), 'RESUME_REQUEST_LEDGER_MISSING');
+  const ledgerSha256 = hashFile(ledgerPath);
+  const originalAlignmentPath = path.join(reviewPath(runId), 'alignment-report.json');
+  assert(fsImpl.existsSync(originalAlignmentPath), 'SOURCE_ALIGNMENT_REPORT_MISSING');
+  const deterministicBytes = jsonBytes(alignment), deterministicSha256 = sha(deterministicBytes);
+  const deterministicPath = path.join(reviewPath(runId), 'alignment-report.deterministic.v2.json');
+  const deterministicReportSha256 = writeImmutableJson(fsImpl, deterministicPath, alignment);
+  assert(deterministicReportSha256 === deterministicSha256, 'DETERMINISTIC_ALIGNMENT_REPORT_HASH_MISMATCH');
+  const lockedHashes = verifyLockedEpisode();
+  const bindings = {
+    runId, episodeId: approval.episodeId, channelKey: approval.channelKey,
+    candidateScriptSha256: preflight.candidateScriptSha256,
+    approvedAudio: completed.expectedAudio.map(({ file, bytes, sha256: digest }) => ({ file, bytes, sha256: digest })),
+    pacingPlanSha256: preflight.pacingRun.planSha256,
+    transcriptSemanticSha256: completed.verification.wordTimestampsSha256,
+    transcriptFileSha256: completed.timestampFileSha256,
+    sourceReceiptSha256: completed.receiptFileSha256,
+    sourceAlignmentReportSha256: hashFile(originalAlignmentPath),
+    alignmentReportSha256: deterministicReportSha256,
+    requestLedgerSha256: ledgerSha256,
+    humanNarrationApprovalSha256: hashFile(APPROVAL_PATH),
+    lockedHashes,
+  };
+  const proposal = activation.buildAlignmentReviewProposal({ runId, bindings, alignment });
+  const proposalPath = path.join(reviewPath(runId), 'alignment-review-proposal.v1.json');
+  const proposalSha256 = writeImmutableJson(fsImpl, proposalPath, proposal);
+  const approvalPath = path.join(reviewPath(runId), 'alignment-review-approval.v1.json');
+  let reviewedAlignment = null, approvedExceptions = [], unapprovedExceptions = [];
+  if (fsImpl.existsSync(approvalPath)) {
+    const approvalArtifact = JSON.parse(fsImpl.readFileSync(approvalPath, 'utf8'));
+    assert(approvalArtifact.humanApproval?.sourceProposalSha256 === proposalSha256 && approvalArtifact.humanApproval?.approvalRef, 'ALIGNMENT_APPROVAL_AUTHORITY_MISMATCH');
+    reviewedAlignment = activation.applyAlignmentReviewApproval({ alignment, approvalArtifact, expectedBindings: bindings });
+    approvedExceptions = reviewedAlignment.acts.flatMap(act => act.approvedExceptions);
+    unapprovedExceptions = reviewedAlignment.acts.flatMap(act => act.unapprovedExceptions);
+  } else {
+    unapprovedExceptions = alignment.acts.flatMap(act => [
+      ...act.substitutions.map(item => ({ actKey: act.actKey, classification: activation.classifyReviewMismatch(item), ...item })),
+      ...act.scriptDeletions.map(item => ({ actKey: act.actKey, classification: 'SCRIPT_DELETION', ...item })),
+      ...act.transcriptInsertions.map(item => ({ actKey: act.actKey, classification: 'TRANSCRIPT_INSERTION', ...item })),
+    ]);
+    if (alignment.status === 'PASS') reviewedAlignment = {
+      schemaVersion: 'phase2.3b-p-script-audio-reviewed-alignment/1.0.0', status: 'PASS', baseStatus: 'PASS',
+      acts: alignment.acts.map(act => ({ ...act, deterministicStatus: act.status, status: 'PASS', approvedExceptions: [], unapprovedExceptions: [], uncoveredScriptTokenIndices: [] })),
+      unusedApprovalExceptionIds: [], explicitRefusalOfUnlistedMismatches: true,
+    };
+  }
+  const reviewedPath = reviewedAlignment ? path.join(reviewPath(runId), 'alignment-report.reviewed.v1.json') : null;
+  const reviewedAlignmentSha256 = reviewedPath ? writeImmutableJson(fsImpl, reviewedPath, reviewedAlignment) : null;
   const report = {
-    schemaVersion: 'phase2.3b-p-resume-preflight/1.0.0', status: alignment.status === 'PASS' ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
-    runId, checkedAt: new Date().toISOString(), preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
-    lockedHashes: verifyLockedEpisode(), approvedAudio: completed.expectedAudio,
+    schemaVersion: 'phase2.3b-p-resume-preflight/2.0.0', status: reviewedAlignment?.status === 'PASS' ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
+    runId, preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
+    lockedHashes, approvedAudio: completed.expectedAudio,
     transcript: { file: path.relative(reviewPath(runId), completed.timestampsPath).split(path.sep).join('/'), wordCount: completed.timestamps.length, semanticSha256: completed.verification.wordTimestampsSha256, fileSha256: completed.timestampFileSha256, sourceReceiptSha256: completed.receiptFileSha256, partialFileSha256: completed.partialFileSha256 },
-    alignmentReportSha256: hashFile(reportPath), requestLedgerSha256: ledgerSha256,
+    sourceAlignmentReportSha256: bindings.sourceAlignmentReportSha256,
+    deterministicAlignmentReport: { file: path.basename(deterministicPath), sha256: deterministicReportSha256 },
+    alignmentReviewProposal: { file: path.basename(proposalPath), sha256: proposalSha256 },
+    alignmentReviewApproval: fsImpl.existsSync(approvalPath) ? { file: path.basename(approvalPath), sha256: hashFile(approvalPath) } : null,
+    reviewedAlignmentReport: reviewedPath ? { file: path.basename(reviewedPath), sha256: reviewedAlignmentSha256 } : null,
+    alignment: { deterministicStatus: alignment.status, reviewedStatus: reviewedAlignment?.status || null, deterministicMatches: alignment.acts.map(act => ({ actKey: act.actKey, matchedTokenCount: act.matchedTokenCount, normalizedEquivalents: act.normalizedEquivalents })), approvedExceptions, unapprovedExceptions },
+    requestLedgerSha256: ledgerSha256,
     preservedRunMetadata: { completedActs: priorStatus.completedActs, attemptsByAct: priorStatus.attemptsByAct },
     providerRequestsMade: 0, rootArtifactWrites: 0,
   };
   atomicJson(path.join(reviewPath(runId), 'resume-preflight.json'), report);
   return { ...report, alignment };
+}
+
+function recordAlignmentReviewApproval({ runId, exceptionIds, approvedBy, approvalRef, fs: fsImpl = fs } = {}) {
+  assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  assert(typeof approvedBy === 'string' && approvedBy.trim(), 'ALIGNMENT_APPROVER_REQUIRED');
+  assert(typeof approvalRef === 'string' && approvalRef.trim(), 'ALIGNMENT_APPROVAL_REFERENCE_REQUIRED');
+  assert(Array.isArray(exceptionIds) && new Set(exceptionIds).size === exceptionIds.length, 'ALIGNMENT_EXCEPTION_IDS_REQUIRED');
+  const review = reviewPath(runId), proposalPath = path.join(review, 'alignment-review-proposal.v1.json');
+  assert(fsImpl.existsSync(proposalPath), 'ALIGNMENT_REVIEW_PROPOSAL_MISSING');
+  const proposal = JSON.parse(fsImpl.readFileSync(proposalPath, 'utf8'));
+  assert(proposal.schemaVersion === 'phase2.3b-p-alignment-review-proposal/1.0.0' && proposal.status === 'PENDING_HUMAN_REVIEW' && proposal.runId === runId, 'ALIGNMENT_REVIEW_PROPOSAL_INVALID');
+  const available = new Map(proposal.proposedExceptions.map(item => [item.exceptionId, item]));
+  for (const id of exceptionIds) assert(available.has(id), `ALIGNMENT_EXCEPTION_NOT_IN_PROPOSAL:${id}`);
+  const artifact = {
+    schemaVersion: 'phase2.3b-p-alignment-review-approval/1.0.0', status: 'USER_APPROVED',
+    runId, episodeId: proposal.episodeId, channelKey: proposal.channelKey, bindings: proposal.bindings,
+    approvedExceptions: exceptionIds.map(id => available.get(id)), unlistedMismatchPolicy: 'REFUSE',
+    humanApproval: { approvedBy: approvedBy.trim(), approvalRef: approvalRef.trim(), approvedAt: new Date().toISOString(), sourceProposalSha256: hashFile(proposalPath) },
+  };
+  const target = path.join(review, 'alignment-review-approval.v1.json');
+  const digest = writeImmutableJson(fsImpl, target, artifact);
+  return { path: target, sha256: digest, approvedExceptionCount: artifact.approvedExceptions.length };
 }
 
 function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true } = {}) {
@@ -206,12 +288,54 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true } = 
   const record = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
   assert(record.status === 'RESUME_READY' && record.runId === runId, 'RESUME_PREFLIGHT_NOT_PASS');
   const current = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
-  assert(current.timestampFileSha256 === record.transcript.fileSha256 && current.receiptFileSha256 === record.transcript.sourceReceiptSha256 && current.verification.wordTimestampsSha256 === record.transcript.semanticSha256, 'RESUME_TRANSCRIPT_CHANGED');
+  assert(current.timestampFileSha256 === record.transcript.fileSha256 && current.receiptFileSha256 === record.transcript.sourceReceiptSha256 && current.verification.wordTimestampsSha256 === record.transcript.semanticSha256 && current.partialFileSha256 === record.transcript.partialFileSha256, 'RESUME_TRANSCRIPT_CHANGED');
   assert((fsImpl.existsSync(GLOBAL_LEDGER_PATH) ? hashFile(GLOBAL_LEDGER_PATH) : null) === record.requestLedgerSha256, 'RESUME_REQUEST_LEDGER_CHANGED');
-  assert(hashFile(path.join(reviewPath(runId), 'alignment-report.json')) === record.alignmentReportSha256, 'RESUME_ALIGNMENT_REPORT_CHANGED');
+  assert(hashFile(path.join(reviewPath(runId), 'preflight.json')) === record.preflightSha256, 'RESUME_PREFLIGHT_SOURCE_CHANGED');
+  assert(hashFile(path.join(reviewPath(runId), record.deterministicAlignmentReport.file)) === record.deterministicAlignmentReport.sha256, 'RESUME_ALIGNMENT_REPORT_CHANGED');
+  if (record.alignmentReviewApproval?.file) assert(hashFile(path.join(reviewPath(runId), record.alignmentReviewApproval.file)) === record.alignmentReviewApproval.sha256, 'RESUME_ALIGNMENT_APPROVAL_CHANGED');
+  else assert(record.alignment.deterministicStatus === 'PASS', 'RESUME_ALIGNMENT_APPROVAL_MISSING');
+  assert(record.reviewedAlignmentReport?.file && hashFile(path.join(reviewPath(runId), record.reviewedAlignmentReport.file)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_CHANGED');
   assert(JSON.stringify(verifyLockedEpisode()) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
   if (checkLocks) assertNoActivationLocks({ fs: fsImpl, runId });
-  const alignment = activation.assertScriptTimestampParity(verifyApprovedScript().candidate, current.timestamps, VO_BINDINGS);
+  const preflight = requireCurrentPreflight(runId), candidateScript = verifyApprovedScript().candidate;
+  assert(sha(jsonBytes(candidateScript)) === preflight.candidateScriptSha256, 'RESUME_CANDIDATE_SCRIPT_CHANGED');
+  const originalAlignmentPath = path.join(reviewPath(runId), 'alignment-report.json');
+  assert(fsImpl.existsSync(originalAlignmentPath) && hashFile(originalAlignmentPath) === record.sourceAlignmentReportSha256, 'RESUME_SOURCE_ALIGNMENT_REPORT_CHANGED');
+  const proposalPath = path.join(reviewPath(runId), record.alignmentReviewProposal.file);
+  assert(hashFile(proposalPath) === record.alignmentReviewProposal.sha256, 'RESUME_ALIGNMENT_PROPOSAL_CHANGED');
+  const pacingPlan = readJson(path.join(approval.approvedReviewDirectory, 'generation-plan.json'));
+  assert(pacingPlan.planSha256 === preflight.pacingRun.planSha256 && pacingPlan.planSha256 === approval.approvedPacingPlanSha256, 'RESUME_PACING_PLAN_CHANGED');
+  assert(hashFile(APPROVAL_PATH) === preflight.userApprovalArtifactSha256, 'RESUME_HUMAN_APPROVAL_CHANGED');
+  const currentAlignment = activation.analyzeScriptTimestampAlignment(candidateScript, current.timestamps, VO_BINDINGS);
+  const currentAlignmentPath = path.join(reviewPath(runId), record.deterministicAlignmentReport.file);
+  assert(sha(jsonBytes(currentAlignment)) === hashFile(currentAlignmentPath), 'RESUME_ALIGNMENT_RECOMPUTE_MISMATCH');
+  const expectedBindings = {
+    runId, episodeId: approval.episodeId, channelKey: approval.channelKey,
+    candidateScriptSha256: preflight.candidateScriptSha256,
+    approvedAudio: current.expectedAudio.map(({ file, bytes, sha256: digest }) => ({ file, bytes, sha256: digest })),
+    pacingPlanSha256: preflight.pacingRun.planSha256,
+    transcriptSemanticSha256: current.verification.wordTimestampsSha256,
+    transcriptFileSha256: current.timestampFileSha256,
+    sourceReceiptSha256: current.receiptFileSha256,
+    sourceAlignmentReportSha256: record.sourceAlignmentReportSha256,
+    alignmentReportSha256: record.deterministicAlignmentReport.sha256,
+    requestLedgerSha256: record.requestLedgerSha256,
+    humanNarrationApprovalSha256: preflight.userApprovalArtifactSha256,
+    lockedHashes: record.lockedHashes,
+  };
+  const proposal = JSON.parse(fsImpl.readFileSync(proposalPath, 'utf8'));
+  assert(JSON.stringify(proposal.bindings) === JSON.stringify(expectedBindings), 'RESUME_ALIGNMENT_PROPOSAL_BINDING_CHANGED');
+  let alignment;
+  if (record.alignmentReviewApproval?.file) {
+    const approvalArtifact = JSON.parse(fsImpl.readFileSync(path.join(reviewPath(runId), record.alignmentReviewApproval.file), 'utf8'));
+    assert(approvalArtifact.humanApproval?.sourceProposalSha256 === record.alignmentReviewProposal.sha256 && approvalArtifact.humanApproval?.approvalRef, 'RESUME_ALIGNMENT_APPROVAL_AUTHORITY_CHANGED');
+    alignment = activation.applyAlignmentReviewApproval({ alignment: currentAlignment, approvalArtifact, expectedBindings });
+  } else {
+    assert(currentAlignment.status === 'PASS', 'RESUME_ALIGNMENT_APPROVAL_MISSING');
+    alignment = { schemaVersion: 'phase2.3b-p-script-audio-reviewed-alignment/1.0.0', status: 'PASS', baseStatus: 'PASS', acts: currentAlignment.acts.map(act => ({ ...act, deterministicStatus: act.status, status: 'PASS', approvedExceptions: [], unapprovedExceptions: [], uncoveredScriptTokenIndices: [] })), unusedApprovalExceptionIds: [], explicitRefusalOfUnlistedMismatches: true };
+  }
+  assert(sha(jsonBytes(alignment)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_RECOMPUTE_MISMATCH');
+  assert(alignment.status === 'PASS', 'RESUME_REVIEWED_ALIGNMENT_NOT_PASS');
   return { completed: current, alignment, record };
 }
 
@@ -243,7 +367,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
     receipt = { schemaVersion: 'phase2.3b-p-timing-source/1.0.0', runId, createdAt: new Date().toISOString(), audio: audioManifest, state: 'TRANSCRIPTION_IN_PROGRESS' };
     atomicJson(receiptPath, receipt);
   }
-  if (resumeOnly) requireResumePreflight(runId, { checkLocks: false });
+  const resumeReview = resumeOnly ? requireResumePreflight(runId, { checkLocks: false }) : null;
   const timestamps = await activation.chooseTimingTranscript({
     resumeOnly,
     readExisting: () => fs.existsSync(timestampsPath) ? readJson(timestampsPath) : null,
@@ -257,14 +381,16 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   });
   assert(Array.isArray(timestamps) && timestamps.length > 0, 'WHISPER_OUTPUT_EMPTY');
   const verifiedTiming = readAndVerifyCompletedTranscript({ runId });
-  const alignment = activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
-  const alignmentPath = path.join(review, 'alignment-report.json');
-  atomicJson(alignmentPath, alignment);
-  const failedAlignment = alignment.acts.find(act => act.status !== 'PASS');
-  if (failedAlignment) {
-    const error = new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${failedAlignment.actKey}`);
-    error.alignmentReport = alignment;
-    throw error;
+  const alignment = resumeOnly ? resumeReview.alignment : activation.analyzeScriptTimestampAlignment(verifyApprovedScript().candidate, timestamps, VO_BINDINGS);
+  if (!resumeOnly) {
+    const alignmentPath = path.join(review, 'alignment-report.json');
+    atomicJson(alignmentPath, alignment);
+    const failedAlignment = alignment.acts.find(act => act.status !== 'PASS');
+    if (failedAlignment) {
+      const error = new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${failedAlignment.actKey}`);
+      error.alignmentReport = alignment;
+      throw error;
+    }
   }
   assert(verifiedTiming.verification.wordTimestampsSha256 === activation.jsonHash(timestamps), 'TIMING_TRANSCRIPT_VERIFICATION_FAILED');
   const durations = {};
@@ -467,7 +593,7 @@ function rollbackLocked(runId) {
   return record;
 }
 function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
-function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
+function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
 async function main(argv = process.argv.slice(2)) {
   const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
   if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
@@ -476,6 +602,10 @@ async function main(argv = process.argv.slice(2)) {
   if (mode === '--preflight') result = await preflight({ runId });
   else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
   else if (mode === '--diagnose-resume') result = diagnoseResume({ runId });
+  else if (mode === '--approve-alignment-review') {
+    const readOption = name => { const at = argv.indexOf(name); return at >= 0 ? argv[at + 1] : null; };
+    result = recordAlignmentReviewApproval({ runId, approvedBy: readOption('--approved-by'), approvalRef: readOption('--approval-ref'), exceptionIds: argv.flatMap((item, index) => item === '--exception-id' && argv[index + 1] ? [argv[index + 1]] : []) });
+  }
   else if (mode === '--resume-build') result = await resumeAndBuild({ runId });
   else if (mode === '--status') result = { globalState: fs.existsSync(GLOBAL_STATE_PATH) ? readJson(GLOBAL_STATE_PATH) : null, runStatus: fs.existsSync(path.join(reviewPath(runId), 'run-status.json')) ? readJson(path.join(reviewPath(runId), 'run-status.json')) : null, activeLock: fs.existsSync(GLOBAL_LOCK_PATH) ? readJson(GLOBAL_LOCK_PATH) : null };
   else if (mode === '--promote') result = promote(runId);
@@ -484,4 +614,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyLockedEpisode, verifyApprovedScript, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, recordAlignmentReviewApproval, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

@@ -138,6 +138,7 @@ const SMALL_NUMBERS = Object.freeze({ zero: 0, oh: 0, one: 1, two: 2, three: 3, 
 const TENS = Object.freeze({ twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 });
 const MAGNITUDES = Object.freeze({ thousand: 1e3, million: 1e6, billion: 1e9 });
 const CURRENCY = Object.freeze({ '$': 'USD', 'dollar': 'USD', 'dollars': 'USD', '£': 'GBP', 'pound': 'GBP', 'pounds': 'GBP', '€': 'EUR', 'euro': 'EUR', 'euros': 'EUR' });
+const ORTHOGRAPHIC_EQUIVALENTS = Object.freeze({ cancelled: 'canceled' });
 
 function lexicalTokens(value) {
   const text = String(value ?? '').normalize('NFKC').replace(/[’‘`]/gu, "'").replace(/[‐‑‒–—−]/gu, '-');
@@ -185,12 +186,22 @@ function normalizedUnits(value) {
     if (Object.hasOwn(CURRENCY, item.text)) { push(`currency:${CURRENCY[item.text]}`, i, i, item.surface); i++; continue; }
     const contraction = CONTRACTIONS[item.text];
     if (contraction) { for (const part of contraction) push(`word:${part}`, i, i, item.surface); i++; continue; }
+    if (item.text === "o'clock") { push('word:o', i, i, item.surface); push('word:clock', i, i, item.surface); i++; continue; }
     const possessive = item.text.match(/^(.+)'s$/u);
     if (possessive) { push(`word:${possessive[1]}`, i, i, item.surface); push('word:s', i, i, item.surface); i++; continue; }
     let numeric = null;
     if (/^\d[\d,]*(?:\.\d+)?$/u.test(item.text)) {
       const raw = item.text.replace(/,/gu, ''); numeric = { value: Number(raw), consumed: 1 };
     } else numeric = parseNumberWords(source, i);
+    // Whisper may emit punctuation-separated numeric pieces as distinct
+    // tokens. Rejoin only recognizable decimal-before-magnitude and
+    // three-digit thousands groups; this is numeric normalization, not a
+    // general token-count allowance.
+    if (numeric?.consumed === 1 && /^\d{1,3}$/u.test(item.text) && /^\d$/u.test(source[i + 1]?.text || '') && MAGNITUDES[source[i + 2]?.text]) {
+      numeric = { value: Number(`${item.text}.${source[i + 1].text}`), consumed: 2 };
+    } else if (numeric?.consumed === 1 && /^\d{1,3}$/u.test(item.text) && /^\d{3}$/u.test(source[i + 1]?.text)) {
+      numeric = { value: Number(`${item.text}${source[i + 1].text}`), consumed: 2 };
+    }
     if (numeric) {
       let consumed = numeric.consumed, amount = numeric.value;
       const magnitude = source[i + consumed]?.text;
@@ -198,15 +209,16 @@ function normalizedUnits(value) {
       const prefixCurrency = i > 0 && Object.hasOwn(CURRENCY, source[i - 1].text) ? CURRENCY[source[i - 1].text] : null;
       const suffixCurrency = source[i + consumed] && Object.hasOwn(CURRENCY, source[i + consumed].text) ? CURRENCY[source[i + consumed].text] : null;
       const currency = prefixCurrency || suffixCurrency;
+      const first = prefixCurrency ? i - 1 : i;
       const last = i + consumed - 1;
       if (currency) {
         if (prefixCurrency && units.at(-1)?.canonical === `currency:${prefixCurrency}`) units.pop();
         consumed += suffixCurrency ? 1 : 0;
-        push(`money:${currency}:${Number(amount.toPrecision(12))}`, i, i + consumed - 1, source.slice(i, i + consumed).map(part => part.surface).join(' '));
+        push(`money:${currency}:${Number(amount.toPrecision(12))}`, first, i + consumed - 1, source.slice(first, i + consumed).map(part => part.surface).join(' '));
       } else push(`number:${Number(amount.toPrecision(12))}`, i, last, source.slice(i, last + 1).map(part => part.surface).join(' '));
       i += consumed; continue;
     }
-    push(`word:${item.text}`, i, i, item.surface); i++;
+    push(`word:${ORTHOGRAPHIC_EQUIVALENTS[item.text] || item.text}`, i, i, item.surface); i++;
   }
   return { source, units };
 }
@@ -243,16 +255,22 @@ function alignActNarration(scriptText, transcriptWords, actKey, voKey) {
   for (const item of raw) {
     if (item.type === 'match') {
       matchedScriptUnitIndexes.add(li); matchedTranscriptUnitIndexes.add(ri);
-      const record = { scriptToken: item.left.surface, transcriptToken: item.right.surface, normalizedToken: item.left.canonical };
+      const record = { scriptToken: item.left.surface, transcriptToken: item.right.surface, normalizedToken: item.left.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, transcriptTokenIndex: item.right.tokenStart, transcriptTokenEndIndex: item.right.tokenEnd };
       matches.push(record);
-      if (item.left.surface.toLocaleLowerCase() !== item.right.surface.toLocaleLowerCase() || item.left.canonical !== `word:${item.left.surface.toLowerCase()}`) normalizedEquivalents.push(record);
+      if (item.left.surface.toLocaleLowerCase() !== item.right.surface.toLocaleLowerCase() || item.left.canonical !== `word:${item.left.surface.toLowerCase()}`) {
+        record.normalizationClass = /^(?:number|money):/u.test(item.left.canonical)
+          ? 'NUMERIC_TOKENIZATION'
+          : (ORTHOGRAPHIC_EQUIVALENTS[item.left.surface.toLowerCase()] || item.left.surface.toLowerCase() === "o'clock" || item.right.surface.toLowerCase() === "o'clock")
+            ? 'ORTHOGRAPHIC_VARIANT' : 'NORMALIZED_EQUIVALENT';
+        normalizedEquivalents.push(record);
+      }
       li++; ri++;
     } else if (item.type === 'substitution') {
-      substitutions.push({ scriptToken: item.left.surface, transcriptToken: item.right.surface, scriptTokenIndex: item.left.tokenStart, transcriptTokenIndex: item.right.tokenStart, scriptContext: alignmentContext(left.source, item.left.tokenStart), transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); li++; ri++;
+      substitutions.push({ scriptToken: item.left.surface, transcriptToken: item.right.surface, scriptNormalizedToken: item.left.canonical, transcriptNormalizedToken: item.right.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, transcriptTokenIndex: item.right.tokenStart, transcriptTokenEndIndex: item.right.tokenEnd, scriptContext: alignmentContext(left.source, item.left.tokenStart), transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); li++; ri++;
     } else if (item.type === 'deletion') {
-      scriptDeletions.push({ scriptToken: item.left.surface, scriptTokenIndex: item.left.tokenStart, scriptContext: alignmentContext(left.source, item.left.tokenStart) }); li++;
+      scriptDeletions.push({ scriptToken: item.left.surface, scriptNormalizedToken: item.left.canonical, scriptTokenIndex: item.left.tokenStart, scriptTokenEndIndex: item.left.tokenEnd, scriptContext: alignmentContext(left.source, item.left.tokenStart) }); li++;
     } else {
-      transcriptInsertions.push({ transcriptToken: item.right.surface, transcriptTokenIndex: item.right.tokenStart, transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); ri++;
+      transcriptInsertions.push({ transcriptToken: item.right.surface, transcriptNormalizedToken: item.right.canonical, transcriptTokenIndex: item.right.tokenStart, transcriptTokenEndIndex: item.right.tokenEnd, transcriptContext: alignmentContext(right.source, item.right.tokenStart) }); ri++;
     }
   }
   const sourceUnitCounts = new Map(), sourceMatchedUnitCounts = new Map();
@@ -279,6 +297,76 @@ function assertScriptTimestampParity(script, wordTimestamps, actBindings) {
   const failed = report.acts.find(act => act.status !== 'PASS');
   if (failed) { const error = new Error(`ACTIVATION_SCRIPT_AUDIO_WORD_PARITY:${failed.actKey}`); error.alignmentReport = report; throw error; }
   return true;
+}
+
+const APPROVED_CURRENCY_OMISSION_AMOUNTS = new Set([300000000000, 3000000000, 185000000, 69000000, 125000000, 67000000, 17500000, 17000000, 5000000]);
+const KNOWN_PHONETIC_VARIANTS = new Set(['word:stumpf>word:stump', 'number:8>word:aid', 'word:and>word:an', 'word:reckard>word:record', 'word:tolstedt>word:tolstead']);
+
+function classifyReviewMismatch(mismatch) {
+  if (!mismatch || !Number.isInteger(mismatch.scriptTokenIndex) || !Number.isInteger(mismatch.transcriptTokenIndex)) return 'UNAPPROVED_MISMATCH';
+  const pair = `${mismatch.scriptNormalizedToken}>${mismatch.transcriptNormalizedToken}`;
+  if (KNOWN_PHONETIC_VARIANTS.has(pair)) return 'ASR_PHONETIC_VARIANT';
+  const money = /^money:USD:(\d+(?:\.\d+)?)$/u.exec(mismatch.scriptNormalizedToken || '');
+  const number = /^number:(\d+(?:\.\d+)?)$/u.exec(mismatch.transcriptNormalizedToken || '');
+  const sourceMentionsUsd = /\$|\bdollars?\b/iu.test(mismatch.scriptContext?.text || '');
+  const transcriptOmitsUsd = !/\$|\bdollars?\b/iu.test(mismatch.transcriptContext?.text || '');
+  if (money && number && Number(money[1]) === Number(number[1]) && APPROVED_CURRENCY_OMISSION_AMOUNTS.has(Number(money[1])) && sourceMentionsUsd && transcriptOmitsUsd) return 'ASR_CURRENCY_UNIT_OMISSION';
+  return 'UNAPPROVED_MISMATCH';
+}
+
+function exactReviewException(actKey, classification, mismatch) {
+  const record = {
+    actKey, classification,
+    scriptToken: mismatch.scriptToken, transcriptToken: mismatch.transcriptToken,
+    scriptNormalizedToken: mismatch.scriptNormalizedToken, transcriptNormalizedToken: mismatch.transcriptNormalizedToken,
+    scriptTokenIndex: mismatch.scriptTokenIndex, scriptTokenEndIndex: mismatch.scriptTokenEndIndex,
+    transcriptTokenIndex: mismatch.transcriptTokenIndex, transcriptTokenEndIndex: mismatch.transcriptTokenEndIndex,
+    scriptContext: mismatch.scriptContext, transcriptContext: mismatch.transcriptContext,
+  };
+  return { ...record, exceptionId: sha256(Buffer.from(JSON.stringify(record))) };
+}
+
+function buildAlignmentReviewProposal({ runId, bindings, alignment } = {}) {
+  if (!runId || !bindings || !alignment?.acts) throw new Error('ALIGNMENT_REVIEW_INPUT_INVALID');
+  const proposedExceptions = [];
+  for (const act of alignment.acts) for (const mismatch of act.substitutions || []) {
+    const classification = classifyReviewMismatch(mismatch);
+    if (classification !== 'UNAPPROVED_MISMATCH') proposedExceptions.push(exactReviewException(act.actKey, classification, mismatch));
+  }
+  return {
+    schemaVersion: 'phase2.3b-p-alignment-review-proposal/1.0.0', status: 'PENDING_HUMAN_REVIEW', runId,
+    episodeId: bindings.episodeId, channelKey: bindings.channelKey, bindings: structuredClone(bindings),
+    proposedExceptions, unlistedMismatchPolicy: 'REFUSE',
+  };
+}
+
+function applyAlignmentReviewApproval({ alignment, approvalArtifact, expectedBindings } = {}) {
+  if (!alignment?.acts || !approvalArtifact || approvalArtifact.schemaVersion !== 'phase2.3b-p-alignment-review-approval/1.0.0' || approvalArtifact.status !== 'USER_APPROVED') throw new Error('ALIGNMENT_REVIEW_APPROVAL_INVALID');
+  if (approvalArtifact.unlistedMismatchPolicy !== 'REFUSE' || JSON.stringify(approvalArtifact.bindings) !== JSON.stringify(expectedBindings) || approvalArtifact.runId !== expectedBindings?.runId || approvalArtifact.episodeId !== expectedBindings?.episodeId || approvalArtifact.channelKey !== expectedBindings?.channelKey || !approvalArtifact.humanApproval?.approvedBy || !approvalArtifact.humanApproval?.approvedAt || !approvalArtifact.humanApproval?.approvalRef || !/^[a-f0-9]{64}$/u.test(approvalArtifact.humanApproval?.sourceProposalSha256 || '')) throw new Error('ALIGNMENT_REVIEW_BINDING_MISMATCH');
+  const entries = new Map((approvalArtifact.approvedExceptions || []).map(entry => [entry.exceptionId, entry]));
+  if (entries.size !== (approvalArtifact.approvedExceptions || []).length) throw new Error('ALIGNMENT_REVIEW_DUPLICATE_EXCEPTION');
+  const used = new Set(), acts = [];
+  for (const act of alignment.acts) {
+    const approvedExceptions = [], unapprovedExceptions = [], matchedScriptIndices = new Set();
+    for (const match of act.matchedTokens || []) for (let index = match.scriptTokenIndex; index <= match.scriptTokenEndIndex; index++) matchedScriptIndices.add(index);
+    for (const mismatch of act.substitutions || []) {
+      const classification = classifyReviewMismatch(mismatch);
+      const entry = exactReviewException(act.actKey, classification, mismatch);
+      const approved = entries.get(entry.exceptionId);
+      if (classification !== 'UNAPPROVED_MISMATCH' && approved && JSON.stringify(approved) === JSON.stringify(entry)) {
+        used.add(entry.exceptionId); approvedExceptions.push(approved);
+        for (let index = mismatch.scriptTokenIndex; index <= mismatch.scriptTokenEndIndex; index++) matchedScriptIndices.add(index);
+      } else unapprovedExceptions.push({ classification: entry.classification, ...mismatch });
+    }
+    for (const item of act.scriptDeletions || []) unapprovedExceptions.push({ classification: 'SCRIPT_DELETION', ...item });
+    for (const item of act.transcriptInsertions || []) unapprovedExceptions.push({ classification: 'TRANSCRIPT_INSERTION', ...item });
+    const uncoveredScriptTokenIndices = Array.from({ length: act.scriptTokenCount }, (_, index) => index).filter(index => !matchedScriptIndices.has(index));
+    const status = unapprovedExceptions.length === 0 && uncoveredScriptTokenIndices.length === 0 ? 'PASS' : 'FAIL';
+    acts.push({ ...act, deterministicStatus: act.status, status, approvedExceptions, unapprovedExceptions, uncoveredScriptTokenIndices });
+  }
+  const unusedApprovalExceptionIds = [...entries.keys()].filter(id => !used.has(id));
+  const status = acts.every(act => act.status === 'PASS') && unusedApprovalExceptionIds.length === 0 ? 'PASS' : 'FAIL';
+  return { schemaVersion: 'phase2.3b-p-script-audio-reviewed-alignment/1.0.0', status, baseStatus: alignment.status, acts, unusedApprovalExceptionIds, explicitRefusalOfUnlistedMismatches: true };
 }
 
 function verifyCompletedTimingArtifacts({ timestamps, receipt, runId, expectedAudio, partial, actBindings }) {
@@ -420,6 +508,7 @@ module.exports = {
   PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, sha256, jsonHash, tokens, reserveWhisperAttempt,
   groupWordTimestamps, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   alignActNarration, analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
+  classifyReviewMismatch, exactReviewException, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
   chooseTimingTranscript,
   updateShotDefinitions, assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, atomicWrite,
 };
