@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const {
   TARGET_FILES, sha256, groupWordTimestamps, auditEditPlanBoundaries, retimeEditPlan,
   assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
@@ -187,6 +188,8 @@ test('six-act CLI boundary audit shares candidate mappings, reports full coverag
   const before = structuredClone(input);
   const orchestration = { targetChecks: 0, packageChecks: 0, runtimeChecks: 0, preflightChecks: 0, scriptReads: 0, planReads: 0, audioProbes: 0, providerCalls: 0, writes: 0 };
   const audioContracts = value.actOrder.map(actKey => ({ actKey, file: `${actKey}.mp3` }));
+  const runnerPath = require.resolve('../scripts/phase2.3b-p-activate.cjs');
+  const expectedRunnerSha256 = crypto.createHash('sha256').update(fs.readFileSync(runnerPath)).digest('hex');
   const auditStatus = { runId: 'audit-run-123', state: 'FAILURE', currentStage: 'FAILED',
     completedAt: '2026-09-25T16:23:14.453Z', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2',
     completedActs: ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'], pid: 2147483647 };
@@ -195,10 +198,19 @@ test('six-act CLI boundary audit shares candidate mappings, reports full coverag
     immutableInputsVerified: true, requestLedgerVerified: true });
   const audit = await activationCli.auditResumeBoundaries({
     runId: 'audit-run-123',
+    expectedRunnerSha256,
+    runnerPath,
     ensureTarget: () => { orchestration.targetChecks++; },
     verifyPackageFn: () => { orchestration.packageChecks++; },
     verifyRuntimeSyncFn: () => { orchestration.runtimeChecks++; },
-    resumePreflight: runId => { orchestration.preflightChecks++; assert.equal(runId, 'audit-run-123'); return { status: auditStatus, eligibility: auditEligibility, completed: { timestamps: value.words }, alignment: reviewedAlignment }; },
+    resumePreflight: (runId, options) => {
+      orchestration.preflightChecks++;
+      assert.equal(runId, 'audit-run-123');
+      assert.equal(options.expectedRunnerSha256, expectedRunnerSha256);
+      activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256, runnerPath,
+        proof: { runnerPath, expectedRunnerSha256, actualRunnerSha256: expectedRunnerSha256, verificationStatus: 'PASS' } });
+      return { status: auditStatus, eligibility: auditEligibility, completed: { timestamps: value.words }, alignment: reviewedAlignment };
+    },
     getApprovedScript: () => { orchestration.scriptReads++; return value.script; },
     loadBoundaryPolicy: ({ script: loadedScript }) => {
       assert.deepEqual(loadedScript, value.script, 'the approved script is supplied to the lineage loader');
@@ -238,6 +250,106 @@ test('six-act CLI boundary audit shares candidate mappings, reports full coverag
   assert.equal(audit.episodeRootWrites, 0);
   assert.deepEqual(orchestration, { targetChecks: 1, packageChecks: 1, runtimeChecks: 1, preflightChecks: 1, scriptReads: 1, planReads: 1, audioProbes: 6, providerCalls: 0, writes: 0 });
   assert.deepEqual(input, before);
+});
+
+test('runner integrity requires a lowercase operator hash and binds proof to exact running bytes', async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-runner-integrity-'));
+  const runnerPath = path.join(directory, 'runner.cjs');
+  const runnerBytes = Buffer.from('canonical runner bytes\n');
+  fs.writeFileSync(runnerPath, runnerBytes);
+  const actual = crypto.createHash('sha256').update(runnerBytes).digest('hex');
+  const proof = { runnerPath, expectedRunnerSha256: actual, actualRunnerSha256: actual, verificationStatus: 'PASS' };
+  try {
+    assert.deepEqual(activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual, runnerPath, proof }), {
+      runnerPath, expectedRunnerSha256: actual, actualRunnerSha256: actual, verificationStatus: 'PASS',
+    });
+    for (const expectedRunnerSha256 of [undefined, '', 'a'.repeat(63), 'A'.repeat(64), 'a'.repeat(64)]) {
+      const expectedError = expectedRunnerSha256 === undefined || expectedRunnerSha256 === ''
+        ? /EXPECTED_RUNNER_SHA256_REQUIRED/u
+        : expectedRunnerSha256 === 'A'.repeat(64) || expectedRunnerSha256 === 'a'.repeat(63)
+          ? /EXPECTED_RUNNER_SHA256_FORMAT_INVALID/u
+          : /ACTIVATION_RUNNER_SHA256_MISMATCH/u;
+      assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256, runnerPath }), expectedError);
+    }
+    assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual,
+      runnerPath, proof: { ...proof, expectedRunnerSha256: 'b'.repeat(64) } }), /RESUME_PREFLIGHT_RUNNER_EXPECTED_SHA256_MISMATCH/u);
+    assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual,
+      runnerPath, proof: { ...proof, actualRunnerSha256: 'b'.repeat(64) } }), /RESUME_PREFLIGHT_RUNNER_ACTUAL_SHA256_MISMATCH/u);
+    assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual,
+      runnerPath, proof: { ...proof, runnerPath: `${runnerPath}.stale` } }), /RESUME_PREFLIGHT_RUNNER_PATH_MISMATCH/u);
+    assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual,
+      runnerPath, proof: { ...proof, verificationStatus: 'FAIL' } }), /RESUME_PREFLIGHT_RUNNER_VERIFICATION_INVALID/u);
+    assert.throws(() => activationCli.verifyResumePreflightRunnerBinding({
+      schemaVersion: activationCli.RUNNER_PROOF_SCHEMA_VERSION,
+    }, { expectedRunnerSha256: actual, runnerPath }), /RESUME_PREFLIGHT_RUNNER_BINDING_MISSING/u);
+    assert.throws(() => activationCli.verifyResumePreflightRunnerBinding({
+      schemaVersion: 'phase2.3b-p-resume-preflight/3.0.0', runnerIntegrity: proof,
+    }, { expectedRunnerSha256: actual, runnerPath }), /RESUME_PREFLIGHT_SCHEMA_UNSUPPORTED/u);
+    fs.writeFileSync(runnerPath, Buffer.from('modified runner bytes\n'));
+    assert.throws(() => activationCli.verifyActivationRunnerIntegrity({ expectedRunnerSha256: actual, runnerPath, proof }),
+      /ACTIVATION_RUNNER_SHA256_MISMATCH/u);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('resume command integrity verifies runner before package and runtime, and refuses mismatches before preflight or mutation', async () => {
+  const runnerPath = require.resolve('../scripts/phase2.3b-p-activate.cjs');
+  const expectedRunnerSha256 = crypto.createHash('sha256').update(fs.readFileSync(runnerPath)).digest('hex');
+  const calls = [];
+  const dependencies = {
+    expectedRunnerSha256,
+    runnerPath,
+    verifyPackageFn: () => calls.push('package'),
+    verifyRuntimeSyncFn: () => calls.push('runtime'),
+  };
+  const integrity = activationCli.verifyResumeExecutionIntegrity(dependencies);
+  assert.deepEqual(calls, ['package', 'runtime']);
+  assert.equal(integrity.actualRunnerSha256, expectedRunnerSha256);
+
+  calls.length = 0;
+  await assert.rejects(activationCli.resumeAndBuild({ ...dependencies, expectedRunnerSha256: '0'.repeat(64),
+    requireResumePreflightFn: () => { calls.push('proof-read'); throw new Error('unexpected'); } }),
+  /ACTIVATION_RUNNER_SHA256_MISMATCH/u);
+  assert.deepEqual(calls, [], 'a runner mismatch is refused before package checks, proof reads, locks, status changes, or candidate writes');
+
+  calls.length = 0;
+  await assert.rejects(activationCli.resumeAndBuild({ ...dependencies,
+    requireResumePreflightFn: () => { calls.push('proof-read'); throw new Error('test-stop-before-mutation'); } }),
+  /test-stop-before-mutation/u);
+  assert.deepEqual(calls, ['package', 'runtime', 'proof-read'], 'package/runtime checks precede proof eligibility and the later mutating path');
+
+  calls.length = 0;
+  await assert.rejects(activationCli.resumeAndBuild({ ...dependencies,
+    requireResumePreflightFn: (runId, options) => {
+      calls.push('proof-read');
+      return activationCli.verifyResumePreflightRunnerBinding({
+        schemaVersion: activationCli.RUNNER_PROOF_SCHEMA_VERSION,
+        runnerIntegrity: { runnerPath, expectedRunnerSha256, actualRunnerSha256: 'f'.repeat(64), verificationStatus: 'PASS' },
+      }, options);
+    } }), /RESUME_PREFLIGHT_RUNNER_ACTUAL_SHA256_MISMATCH/u);
+  assert.deepEqual(calls, ['package', 'runtime', 'proof-read'], 'a stale proof binding stops before build, lock, status, or candidate writes');
+});
+
+test('audit rejects a wrong operator hash before package, runtime, or proof inspection', async () => {
+  const calls = [];
+  await assert.rejects(activationCli.auditResumeBoundaries({
+    runId: 'audit-run-123', expectedRunnerSha256: '0'.repeat(64), ensureTarget: () => calls.push('target'),
+    verifyPackageFn: () => calls.push('package'), verifyRuntimeSyncFn: () => calls.push('runtime'),
+    resumePreflight: () => { calls.push('proof-read'); throw new Error('unexpected'); },
+  }), /ACTIVATION_RUNNER_SHA256_MISMATCH/u);
+  assert.deepEqual(calls, ['target'], 'runner trust is established before package/runtime verification and proof reads');
+});
+
+test('diagnosis, audit, and resume CLI modes require an explicit runner trust anchor', async () => {
+  for (const mode of ['--diagnose-resume', '--audit-resume-boundaries', '--resume-build']) {
+    await assert.rejects(activationCli.main([mode, '--run-id', 'phase2-3b-p-act-20260925']),
+      /EXPECTED_RUNNER_SHA256_REQUIRED/u, `${mode} must not infer a runner hash`);
+    await assert.rejects(activationCli.main([mode, '--run-id', 'phase2-3b-p-act-20260925', '--expected-runner-sha256', 'A'.repeat(64)]),
+      /EXPECTED_RUNNER_SHA256_FORMAT_INVALID/u, `${mode} rejects uppercase hashes`);
+    await assert.rejects(activationCli.main([mode, '--run-id', 'phase2-3b-p-act-20260925', '--expected-runner-sha256', '0'.repeat(64)]),
+      /ACTIVATION_RUNNER_SHA256_MISMATCH/u, `${mode} rejects stale or incorrect hashes before command work`);
+  }
 });
 
 test('six-act boundary audit accumulates failures in every affected act', () => {

@@ -24,6 +24,7 @@ const RUNTIME_SYNC_FILES = [
   'production-method-manifest.cjs', 'evidence-source-validator.cjs', 'proof-section-planner.cjs', 'act-voice-generator.cjs',
 ];
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
+const RUNNER_PROOF_SCHEMA_VERSION = 'phase2.3b-p-resume-preflight/3.1.0';
 const RESUMABLE_ALIGNMENT_FAILURES = new Set([
   'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2',
   'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11',
@@ -87,6 +88,33 @@ async function verifyApprovalAudio(runId, probe = file => require('/data/pipelin
 function verifyPackage() {
   require('./phase2.3b-sg-stage-a.cjs').verifyCandidatePackage(CANDIDATE_PACKAGE);
   return true;
+}
+function verifyActivationRunnerIntegrity({ expectedRunnerSha256, proof, runnerPath = __filename, fs: fsImpl = fs } = {}) {
+  assert(typeof expectedRunnerSha256 === 'string' && expectedRunnerSha256.length > 0, 'EXPECTED_RUNNER_SHA256_REQUIRED');
+  assert(/^[a-f0-9]{64}$/u.test(expectedRunnerSha256), 'EXPECTED_RUNNER_SHA256_FORMAT_INVALID');
+  assert(typeof runnerPath === 'string' && runnerPath.length > 0 && fsImpl.existsSync(runnerPath), 'ACTIVATION_RUNNER_FILE_MISSING');
+  const actualRunnerSha256 = sha(fsImpl.readFileSync(runnerPath));
+  assert(actualRunnerSha256 === expectedRunnerSha256, 'ACTIVATION_RUNNER_SHA256_MISMATCH');
+  if (proof !== undefined) {
+    assert(proof && typeof proof === 'object', 'RESUME_PREFLIGHT_RUNNER_BINDING_MISSING');
+    assert(proof.runnerPath === runnerPath, 'RESUME_PREFLIGHT_RUNNER_PATH_MISMATCH');
+    assert(proof.expectedRunnerSha256 === expectedRunnerSha256, 'RESUME_PREFLIGHT_RUNNER_EXPECTED_SHA256_MISMATCH');
+    assert(proof.actualRunnerSha256 === actualRunnerSha256, 'RESUME_PREFLIGHT_RUNNER_ACTUAL_SHA256_MISMATCH');
+    assert(proof.verificationStatus === 'PASS', 'RESUME_PREFLIGHT_RUNNER_VERIFICATION_INVALID');
+  }
+  return { runnerPath, expectedRunnerSha256, actualRunnerSha256, verificationStatus: 'PASS' };
+}
+function verifyResumePreflightRunnerBinding(record, { expectedRunnerSha256, runnerPath = __filename, fs: fsImpl = fs } = {}) {
+  assert(record?.schemaVersion === RUNNER_PROOF_SCHEMA_VERSION, 'RESUME_PREFLIGHT_SCHEMA_UNSUPPORTED');
+  assert(record.runnerIntegrity && typeof record.runnerIntegrity === 'object', 'RESUME_PREFLIGHT_RUNNER_BINDING_MISSING');
+  return verifyActivationRunnerIntegrity({ expectedRunnerSha256, runnerPath, fs: fsImpl, proof: record.runnerIntegrity });
+}
+function verifyResumeExecutionIntegrity({ expectedRunnerSha256, proof, runnerPath = __filename, fs: fsImpl = fs,
+  verifyPackageFn = verifyPackage, verifyRuntimeSyncFn = verifyRuntimeSync } = {}) {
+  const runnerIntegrity = verifyActivationRunnerIntegrity({ expectedRunnerSha256, proof, runnerPath, fs: fsImpl });
+  verifyPackageFn();
+  verifyRuntimeSyncFn();
+  return runnerIntegrity;
 }
 function verifyRuntimeSync({ appPipeline = path.join(__dirname, '..', 'pipeline-updates'), activePipeline = '/data/pipeline' } = {}) {
   const hashes = {};
@@ -439,11 +467,13 @@ function assertOwnedActivationLocks({ fs: fsImpl = fs, runId } = {}) {
   return true;
 }
 
-function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
+function diagnoseResume({ runId, expectedRunnerSha256, fs: fsImpl = fs,
+  runnerPath = __filename, verifyPackageFn = verifyPackage, verifyRuntimeSyncFn = verifyRuntimeSync } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   ensureRailwayTarget();
+  const runnerIntegrity = verifyResumeExecutionIntegrity({ expectedRunnerSha256, runnerPath, fs: fsImpl, verifyPackageFn, verifyRuntimeSyncFn });
   const preflight = requireCurrentPreflight(runId);
-  verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ fs: fsImpl, runId });
+  assertNoActivationLocks({ fs: fsImpl, runId });
   const priorStatus = readRunStatus({ fs: fsImpl, runId });
   assert(fsImpl.existsSync(GLOBAL_STATE_PATH), 'ACTIVATION_GLOBAL_STATE_MISSING');
   const globalState = JSON.parse(fsImpl.readFileSync(GLOBAL_STATE_PATH, 'utf8'));
@@ -524,8 +554,9 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   });
   assertFailedRunProcessInactive(priorStatus, { eligibility: resumeEligibility });
   const report = {
-    schemaVersion: 'phase2.3b-p-resume-preflight/3.0.0', status: reviewedAlignment?.status === 'PASS' && (!approvedTimingExceptions || timingRemediation?.status === 'PASS') ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
+    schemaVersion: RUNNER_PROOF_SCHEMA_VERSION, status: reviewedAlignment?.status === 'PASS' && (!approvedTimingExceptions || timingRemediation?.status === 'PASS') ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
     runId, preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
+    runnerIntegrity,
     lockedHashes, approvedAudio: completed.expectedAudio,
     transcript: { file: path.relative(reviewPath(runId), completed.timestampsPath).split(path.sep).join('/'), wordCount: completed.timestamps.length, semanticSha256: completed.verification.wordTimestampsSha256, fileSha256: completed.timestampFileSha256, sourceReceiptSha256: completed.receiptFileSha256, partialFileSha256: completed.partialFileSha256 },
     sourceAlignmentReportSha256: bindings.sourceAlignmentReportSha256,
@@ -566,7 +597,9 @@ function recordAlignmentReviewApproval({ runId, exceptionIds, approvedBy, approv
   return { path: target, sha256: digest, approvedExceptionCount: artifact.approvedExceptions.length };
 }
 
-function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, ownedRun = false } = {}) {
+function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, ownedRun = false,
+  expectedRunnerSha256, runnerPath = __filename } = {}) {
+  const actualRunnerIntegrity = verifyActivationRunnerIntegrity({ expectedRunnerSha256, runnerPath, fs: fsImpl });
   const status = ownedRun
     ? JSON.parse(fsImpl.readFileSync(path.join(reviewPath(runId), 'run-status.json'), 'utf8'))
     : readRunStatus({ fs: fsImpl, runId });
@@ -578,6 +611,8 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
   assert(fsImpl.existsSync(file), 'RESUME_PREFLIGHT_MISSING');
   const record = JSON.parse(fsImpl.readFileSync(file, 'utf8'));
   assert(record.status === 'RESUME_READY' && record.runId === runId, 'RESUME_PREFLIGHT_NOT_PASS');
+  verifyResumePreflightRunnerBinding(record, { expectedRunnerSha256, runnerPath, fs: fsImpl });
+  assert(record.runnerIntegrity.actualRunnerSha256 === actualRunnerIntegrity.actualRunnerSha256, 'RESUME_PREFLIGHT_RUNNER_ACTUAL_SHA256_MISMATCH');
   const current = readAndVerifyCompletedTranscript({ fs: fsImpl, runId });
   assertResumeImmutableBinding('transcript', [record.transcript.wordCount, record.transcript.semanticSha256, record.transcript.fileSha256, record.transcript.sourceReceiptSha256, record.transcript.partialFileSha256], [current.timestamps.length, current.verification.wordTimestampsSha256, current.timestampFileSha256, current.receiptFileSha256, current.partialFileSha256]);
   assert(current.timestampFileSha256 === record.transcript.fileSha256 && current.receiptFileSha256 === record.transcript.sourceReceiptSha256 && current.verification.wordTimestampsSha256 === record.transcript.semanticSha256 && current.partialFileSha256 === record.transcript.partialFileSha256, 'RESUME_TRANSCRIPT_CHANGED');
@@ -681,6 +716,8 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
 
 async function auditResumeBoundaries({
   runId,
+  expectedRunnerSha256,
+  runnerPath = __filename,
   probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file),
   ensureTarget = ensureRailwayTarget,
   verifyPackageFn = verifyPackage,
@@ -697,8 +734,9 @@ async function auditResumeBoundaries({
 } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   ensureTarget();
-  verifyPackageFn(); verifyRuntimeSyncFn();
-  const resumed = resumePreflight(runId);
+  const runnerIntegrity = verifyResumeExecutionIntegrity({ expectedRunnerSha256, runnerPath,
+    verifyPackageFn, verifyRuntimeSyncFn });
+  const resumed = resumePreflight(runId, { expectedRunnerSha256, runnerPath, runnerIntegrity });
   assert(resumed?.status && resumed?.eligibility, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
   assertFailedRunProcessInactive(resumed.status, { eligibility: resumed.eligibility });
   const candidateScript = getApprovedScript();
@@ -723,7 +761,7 @@ async function auditResumeBoundaries({
     runId, source: 'VERIFIED_RETAINED_TRANSCRIPT', candidateCreated: false, episodeRootWrites: 0, providerRequestsMade: 0 };
 }
 
-async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = false, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
+async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = false, expectedRunnerSha256, runWhisper = require('/data/pipeline/vo-timing.cjs').runWhisper, probeAudio = file => require('/data/pipeline/act-voice-generator.cjs').probeMp3Default(file) } = {}) {
   requireCurrentPreflight(runId); verifyPackage(); verifyRuntimeSync();
   require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
   const review = reviewPath(runId); const timingDir = path.join(review, 'fresh-whisper'); const audioDir = path.join(timingDir, 'audio');
@@ -751,7 +789,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
     receipt = { schemaVersion: 'phase2.3b-p-timing-source/1.0.0', runId, createdAt: new Date().toISOString(), audio: audioManifest, state: 'TRANSCRIPTION_IN_PROGRESS' };
     atomicJson(receiptPath, receipt);
   }
-  const resumeReview = resumeOnly ? requireResumePreflight(runId, { checkLocks: false, ownedRun: true }) : null;
+  const resumeReview = resumeOnly ? requireResumePreflight(runId, { checkLocks: false, ownedRun: true, expectedRunnerSha256 }) : null;
   const timestamps = await activation.chooseTimingTranscript({
     resumeOnly,
     readExisting: () => fs.existsSync(timestampsPath) ? readJson(timestampsPath) : null,
@@ -850,7 +888,12 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
 async function transcribeAndBuild(options = {}) {
   const { runId } = options;
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
-  if (options.resumeOnly) requireResumePreflight(runId);
+  if (options.resumeOnly) {
+    verifyResumeExecutionIntegrity({ expectedRunnerSha256: options.expectedRunnerSha256,
+      runnerPath: options.runnerPath, verifyPackageFn: options.verifyPackageFn || verifyPackage,
+      verifyRuntimeSyncFn: options.verifyRuntimeSyncFn || verifyRuntimeSync });
+    requireResumePreflight(runId, { expectedRunnerSha256: options.expectedRunnerSha256, runnerPath: options.runnerPath });
+  }
   const review = reviewPath(runId); fs.mkdirSync(review, { recursive: true });
   const statusPath = path.join(review, 'run-status.json');
   const priorStatus = options.resumeOnly ? readRunStatus({ runId }) : null;
@@ -913,11 +956,15 @@ async function transcribeAndBuild(options = {}) {
     try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {}
   }
 }
-async function resumeAndBuild({ runId } = {}) {
-  const preflight = requireResumePreflight(runId);
+async function resumeAndBuild({ runId, expectedRunnerSha256, runnerPath = __filename,
+  verifyPackageFn = verifyPackage, verifyRuntimeSyncFn = verifyRuntimeSync,
+  requireResumePreflightFn = requireResumePreflight } = {}) {
+  verifyResumeExecutionIntegrity({ expectedRunnerSha256, runnerPath, verifyPackageFn, verifyRuntimeSyncFn });
+  const preflight = requireResumePreflightFn(runId, { expectedRunnerSha256, runnerPath });
   assert(preflight?.eligibility, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
   assertFailedRunProcessInactive(preflight.status, { eligibility: preflight.eligibility });
-  return transcribeAndBuild({ runId, resumeOnly: true, runWhisper: async () => { throw new Error('RESUME_WHISPER_CALL_FORBIDDEN'); } });
+  return transcribeAndBuild({ runId, resumeOnly: true, expectedRunnerSha256, runnerPath, verifyPackageFn, verifyRuntimeSyncFn,
+    runWhisper: async () => { throw new Error('RESUME_WHISPER_CALL_FORBIDDEN'); } });
 }
 function verifyCandidate(runId) {
   requireCurrentPreflight(runId);
@@ -994,21 +1041,27 @@ function rollbackLocked(runId) {
   return record;
 }
 function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
-function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> | --audit-resume-boundaries --run-id <id> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
+function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --audit-resume-boundaries --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
 async function main(argv = process.argv.slice(2)) {
   const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
   if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  const runnerBoundMode = ['--diagnose-resume', '--audit-resume-boundaries', '--resume-build'].includes(mode);
+  const hashIndexes = argv.flatMap((item, index) => item === '--expected-runner-sha256' ? [index] : []);
+  assert(hashIndexes.length <= 1, 'EXPECTED_RUNNER_SHA256_ARGUMENT_DUPLICATE');
+  const hashAt = hashIndexes[0] ?? -1;
+  const expectedRunnerSha256 = hashAt >= 0 ? argv[hashAt + 1] : undefined;
+  if (runnerBoundMode) verifyActivationRunnerIntegrity({ expectedRunnerSha256 });
   let result;
   if (mode === '--preflight') result = await preflight({ runId });
   else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
-  else if (mode === '--diagnose-resume') result = diagnoseResume({ runId });
-  else if (mode === '--audit-resume-boundaries') result = await auditResumeBoundaries({ runId });
+  else if (mode === '--diagnose-resume') result = diagnoseResume({ runId, expectedRunnerSha256 });
+  else if (mode === '--audit-resume-boundaries') result = await auditResumeBoundaries({ runId, expectedRunnerSha256 });
   else if (mode === '--approve-alignment-review') {
     const readOption = name => { const at = argv.indexOf(name); return at >= 0 ? argv[at + 1] : null; };
     result = recordAlignmentReviewApproval({ runId, approvedBy: readOption('--approved-by'), approvalRef: readOption('--approval-ref'), exceptionIds: argv.flatMap((item, index) => item === '--exception-id' && argv[index + 1] ? [argv[index + 1]] : []) });
   }
-  else if (mode === '--resume-build') result = await resumeAndBuild({ runId });
+  else if (mode === '--resume-build') result = await resumeAndBuild({ runId, expectedRunnerSha256 });
   else if (mode === '--status') result = { globalState: fs.existsSync(GLOBAL_STATE_PATH) ? readJson(GLOBAL_STATE_PATH) : null, runStatus: fs.existsSync(path.join(reviewPath(runId), 'run-status.json')) ? readJson(path.join(reviewPath(runId), 'run-status.json')) : null, activeLock: fs.existsSync(GLOBAL_LOCK_PATH) ? readJson(GLOBAL_LOCK_PATH) : null };
   else if (mode === '--promote') result = promote(runId);
   else if (mode === '--rollback') result = rollback(runId);
@@ -1016,4 +1069,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
