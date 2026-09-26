@@ -1,9 +1,9 @@
 {
-  "schemaVersion": "phase2.3b-p-approved-timing-exceptions/1.0.0",
+  "schemaVersion": "phase2.3b-p-approved-timing-exceptions/2.0.0",
   "status": "USER_APPROVED",
   "approval": {
     "approvedBy": "CTO",
-    "approvalRef": "User-approved five-beat Phase 2.3B-P timing exception package",
+    "approvalRef": "User-approved six-beat Phase 2.3B-P timing exception package",
     "recordedDate": "2026-09-26"
   },
   "runId": "phase2-3b-p-act-20260925",
@@ -33,7 +33,89 @@
   },
   "exceptions": [
     {
-      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act2:ACT2_B006",
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act1:ACT1_B030",
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "sourcePlanWordRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 227,
+        "end": 230,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "None went to prison.",
+      "approvedNarrationSha256": "03e57cb492317561a582feae54c1c3019f96198a461854a25fd4693a7a3454c9",
+      "sourcePlanNarrationExcerpt": "none went to prison",
+      "sourcePlanNarrationSha256": "2326296a29ba4f5bcb4ddef7d243f9d23e8eae9656aefa8907cf1896de687222",
+      "mappedTranscriptWordRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "none",
+        "end": "prison"
+      },
+      "approvedDurationSec": 1.161633,
+      "minimumAllowedDurationSec": 1.160633,
+      "maximumAllowedDurationSec": 1.162633,
+      "priorTimingExceptionReason": "Final beat of hook requires landing space before act transition.",
+      "justification": "Deliberate closing impact beat: the short isolated statement “None went to prison” is intended to land as a final consequence.",
+      "productionMethod": "CONTROLLED_STILL",
+      "productionObligations": {
+        "productionMethod": "CONTROLLED_STILL",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "Empty prison corridor—the justice that never came.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": "atmospheric",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "music fades to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Prison corridor, empty, fluorescent lights, no one walking through—justice absent.",
+          "motionType": "dolly_back",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_back"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act1:ACT1_B030",
+        "relationship": "retained-approved-plan-beat"
+      }
+    },
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act2:ACT2_B006",
       "actKey": "act2",
       "beatId": "ACT2_B006",
       "sourcePlanWordRange": {
@@ -64,6 +146,22 @@
         "productionMethod": "EVIDENCE_REFERENCE",
         "visualClass": "EVIDENCE",
         "assetType": "evidence_reference",
+        "visualIntent": "Wells Fargo stands apart from the wreckage.",
+        "rhythmIntent": "building",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo headquarters exterior, stable and gleaming.",
+          "motionType": "crane_rise",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "crane_rise"
+        },
         "evidenceRequirement": {
           "required": true,
           "evidenceType": "photograph",
@@ -91,15 +189,20 @@
           "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context."
         }
       },
-      "productionObligationsSha256": "a2c0a62a03c8dcfdbe8e59dc4b3f435ad6ac0b7e825ad40011701668c884a685",
+      "productionObligationsSha256": "8b02f4eb576f9cf4a2a38f7c82279b3fce120a0bf6c4f64eb67a0d0d7bf5ecc1",
       "revisionLineage": {
         "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
         "entryId": "locked-plan:act2:ACT2_B006",
         "relationship": "retained-approved-plan-beat"
-      }
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "survived"
+      },
+      "priorTimingExceptionReason": null
     },
     {
-      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act3b:ACT3B_B008",
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act3b:ACT3B_B008",
       "actKey": "act3b",
       "beatId": "ACT3B_B008",
       "sourcePlanWordRange": {
@@ -130,6 +233,22 @@
         "productionMethod": "EVIDENCE_REFERENCE",
         "visualClass": "EVIDENCE",
         "assetType": "evidence_reference",
+        "visualIntent": "Show the bank-attributed refund figure with a clear source label; do not imply every flagged account was proven unauthorized.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo 3Q16 quarterly supplement supporting the bank’s statement that about $2.6 million in fees tied to accounts flagged by its review were refunded.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
         "evidenceRequirement": {
           "required": true,
           "evidenceType": "corporate disclosure",
@@ -169,15 +288,20 @@
           "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo."
         }
       },
-      "productionObligationsSha256": "e83b431f2041e05157d0ddd732e4af5dcdea69b2283f3f6f2b2e5a7075632ee4",
+      "productionObligationsSha256": "80ce9834259333a8377255a183511401932c637e230b1d0d0db37d5acb4a070a",
       "revisionLineage": {
         "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
         "entryId": "approved-range:act3b:ACT3B_B008",
         "relationship": "approved-rewritten-range"
-      }
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "review"
+      },
+      "priorTimingExceptionReason": null
     },
     {
-      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act3b:ACT3B_B012",
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act3b:ACT3B_B012",
       "actKey": "act3b",
       "beatId": "ACT3B_B012",
       "sourcePlanWordRange": {
@@ -208,6 +332,22 @@
         "productionMethod": "EVIDENCE_REFERENCE",
         "visualClass": "EVIDENCE",
         "assetType": "evidence_reference",
+        "visualIntent": "The mass firing figure lands with institutional coldness.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo disclosure or regulatory document citing 5,300 terminations.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
         "evidenceRequirement": {
           "required": true,
           "evidenceType": "corporate disclosure or regulatory filing",
@@ -247,15 +387,20 @@
           "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
         }
       },
-      "productionObligationsSha256": "1b2728a39352e995cef8e85f259ca9c9970016871d3978e6713bfe092da2791d",
+      "productionObligationsSha256": "991c17db21fc6f3f8c40c63409c1193645120fc450b57eda553e97264f4d0c4e",
       "revisionLineage": {
         "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
         "entryId": "approved-range:act3b:ACT3B_B012",
         "relationship": "approved-rewritten-range"
-      }
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "violations"
+      },
+      "priorTimingExceptionReason": null
     },
     {
-      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act4:ACT4_B022",
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act4:ACT4_B022",
       "actKey": "act4",
       "beatId": "ACT4_B022",
       "sourcePlanWordRange": {
@@ -286,6 +431,22 @@
         "productionMethod": "EVIDENCE_REFERENCE",
         "visualClass": "EVIDENCE",
         "assetType": "evidence_reference",
+        "visualIntent": "Final enforcement termination closes the regulatory chapter.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL",
+          "description": "Federal Reserve termination of 2018 enforcement action.",
+          "motionType": "static_locked",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "static_locked"
+        },
         "evidenceRequirement": {
           "required": true,
           "evidenceType": "regulatory document",
@@ -325,15 +486,20 @@
           "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure."
         }
       },
-      "productionObligationsSha256": "d614139f55c3705dbc24005f38d59cde1b06b59748fd3ea648774a331ebab92a",
+      "productionObligationsSha256": "88115ceebd4f7f87cee1ecaf536feabca65140caecb01fec20333517f4f154d7",
       "revisionLineage": {
         "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
         "entryId": "locked-plan:act4:ACT4_B022",
         "relationship": "retained-approved-plan-beat"
-      }
+      },
+      "mappedTranscriptAnchors": {
+        "start": "then",
+        "end": "2026"
+      },
+      "priorTimingExceptionReason": null
     },
     {
-      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act5:ACT5_B012",
+      "exceptionId": "phase2.3b-p-timing-exception/2.0.0:act5:ACT5_B012",
       "actKey": "act5",
       "beatId": "ACT5_B012",
       "sourcePlanWordRange": {
@@ -364,6 +530,24 @@
         "productionMethod": "ESSENTIAL_ANIMATION",
         "visualClass": "RECONSTRUCTION",
         "assetType": "generated_clip",
+        "visualIntent": "The bureaucratic process of clearing records and paying damages.",
+        "rhythmIntent": "measured",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": "representative",
+        "continuityRefs": [
+          "employee-cost"
+        ],
+        "audioDirection": null,
+        "visual": {
+          "type": "CLIP",
+          "description": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+          "motionType": "rack_focus",
+          "secondaryAction": "The signed settlement slides across the table."
+        },
+        "motionIntent": {
+          "type": "rack_focus"
+        },
         "evidenceRequirement": {
           "required": false,
           "evidenceType": null,
@@ -379,12 +563,55 @@
         "sourceSearchInstruction": null,
         "sourceRequirement": null
       },
-      "productionObligationsSha256": "5fb3a0037511b4e4a32f30e5fe4d93680365c044dffdbc31ede549ca5f9e60f4",
+      "productionObligationsSha256": "6a2f47986f227abf39cb9e1109ffb36af2a39c94479d7e3870c03a302cc24380",
       "revisionLineage": {
         "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
         "entryId": "locked-plan:act5:ACT5_B012",
         "relationship": "retained-approved-plan-beat"
-      }
+      },
+      "mappedTranscriptAnchors": {
+        "start": "workers",
+        "end": "employees"
+      },
+      "priorTimingExceptionReason": null
     }
-  ]
+  ],
+  "resumeEligibility": {
+    "failureError": "EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT",
+    "completedActs": [
+      "act1",
+      "act2",
+      "act3",
+      "act3b",
+      "act4",
+      "act5"
+    ],
+    "attemptsByAct": {
+      "act1": 1,
+      "act2": 1,
+      "act3": 1,
+      "act3b": 1,
+      "act4": 2,
+      "act5": 1
+    },
+    "expectedTotalDurationSec": 629.054693,
+    "totalDurationToleranceSec": 0.001,
+    "expectedBoundaryCounts": {
+      "act1": 60,
+      "act2": 52,
+      "act3": 58,
+      "act3b": 34,
+      "act4": 48,
+      "act5": 54
+    },
+    "expectedActiveBeatCounts": {
+      "act1": 30,
+      "act2": 26,
+      "act3": 29,
+      "act3b": 17,
+      "act4": 24,
+      "act5": 27
+    },
+    "alignmentApprovalExceptionCount": 19
+  }
 }

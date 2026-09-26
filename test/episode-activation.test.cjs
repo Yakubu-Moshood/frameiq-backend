@@ -667,6 +667,18 @@ test('alignment resume accepts only exact approved deterministic alignment failu
   assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...processIdentityStatus, processStartIdentity: 'bad' }, {
     isProcessAlive: () => true, currentPid: status.pid,
   }), /RESUME_RUN_PROCESS_IDENTITY_INVALID/u);
+  const validationFailure = { ...status, error: 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT', pid: 26 };
+  const remediationEligibility = { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
+    remediationVerified: true, failureError: validationFailure.error, completedActs };
+  assert.equal(activationCli.assertFailedRunProcessInactive(validationFailure, {
+    isProcessAlive: () => true, currentPid: validationFailure.pid, eligibility: remediationEligibility,
+  }), true, 'the same PID is accepted only after the policy-derived validation proof and all safety gates pass');
+  assert.equal(activationCli.assertFailedRunProcessInactive({ ...validationFailure, processStartIdentity: '12345' }, {
+    isProcessAlive: () => true, currentPid: validationFailure.pid, getProcessStartIdentity: () => '67890', eligibility: remediationEligibility,
+  }), true, 'a different process-start identity proves the old PID was reused');
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...validationFailure, processStartIdentity: '12345' }, {
+    isProcessAlive: () => true, currentPid: validationFailure.pid, getProcessStartIdentity: () => '12345', eligibility: remediationEligibility,
+  }), /RESUME_RUN_PROCESS_ACTIVE/u, 'a matching process-start identity still proves a live process');
   assert.throws(() => activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify({ ...status, completedAt: 'not-a-date' })) }, runId }), /RESUME_RUN_STATE_MISMATCH/u);
 
   // Diagnosis and resume use the same process-identity decision helper; its
@@ -935,10 +947,21 @@ function approvedTimingExceptionFixture() {
     alignmentApprovalSha256: binding.alignmentApprovalSha256,
     candidateAmendmentSha256: binding.candidateAmendmentSha256,
   };
+  const transcriptAnchors = [];
+  for (const item of policy.exceptions) {
+    const timingAct = plan.timing.acts.find(act => act.actKey === item.actKey);
+    const actWords = transcriptAnchors.filter(word => word.vo_file === timingAct.voKey);
+    while (actWords.length <= item.mappedTranscriptWordRange.end) {
+      const word = { vo_file: timingAct.voKey, word: `fixture_${actWords.length}`, start_seconds: actWords.length, end_seconds: actWords.length + 0.1 };
+      transcriptAnchors.push(word); actWords.push(word);
+    }
+    actWords[item.mappedTranscriptWordRange.start].word = item.mappedTranscriptAnchors.start;
+    actWords[item.mappedTranscriptWordRange.end].word = item.mappedTranscriptAnchors.end;
+  }
   const approvedTimingExceptions = activationCli.loadApprovedTimingExceptions({
-    runId: binding.runId, policyFile: policyPath, approvedBoundaryPolicy, boundaryInputHashes, packageDirectory: root,
+    runId: binding.runId, policyFile: policyPath, approvedBoundaryPolicy, boundaryInputHashes, wordTimestamps: transcriptAnchors, packageDirectory: root,
   });
-  return { root, policy, bytes, plan, script, shots, manifest, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions };
+  return { root, policy, bytes, plan, script, shots, manifest, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions, transcriptAnchors };
 }
 
 function syntheticApprovedTimingExceptionInput(approvedTimingExceptions, sourcePlan, { unapprovedDuration = null, unapprovedAct = 'act1' } = {}) {
@@ -1159,31 +1182,39 @@ test('approved boundary ranges fail closed on missing or altered policy and line
   assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010', 'ACT3B_B010'] }), /RETIREMENT_NOT_APPROVED/u);
 });
 
-test('the five timing exceptions are versioned, pinned, run-bound, and tied to exact narration, ranges, lineage and production obligations', () => {
+test('the six timing exceptions are versioned, pinned, run-bound, and tied to exact narration, transcript anchors, ranges, lineage and production obligations', () => {
   const value = approvedTimingExceptionFixture();
   const policy = value.approvedTimingExceptions;
   assert.equal(policy.verified, true);
-  assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/1.0.0');
-  assert.equal(policy.policySha256, '9df5925a9410ab47966e156e03e9675c011d3205ae31f8d8bc8394edcef5e0a5');
+  assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/2.0.0');
+  assert.equal(policy.policySha256, 'ea38f2e25b618137c9d72057d24559b039fa2073294bd982a99b67a6deee55e9');
   assert.equal(policy.runId, 'phase2-3b-p-act-20260925');
-  assert.equal(policy.exceptions.length, 5);
+  assert.equal(policy.exceptions.length, 6);
   assert.deepEqual(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`), [
-    'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012',
+    'act1:ACT1_B030', 'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012',
   ]);
-  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
-  assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION']);
+  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.161633, 1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
+  assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['CONTROLLED_STILL', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION']);
   for (const item of policy.exceptions) {
     assert.match(item.approvedNarrationSha256, /^[a-f0-9]{64}$/u);
     assert.match(item.sourcePlanNarrationSha256, /^[a-f0-9]{64}$/u);
     assert.match(item.productionObligationsSha256, /^[a-f0-9]{64}$/u);
     assert.ok(item.revisionLineage.entryId);
+    assert.ok(item.mappedTranscriptAnchors.start && item.mappedTranscriptAnchors.end);
   }
+  const impact = policy.exceptions[0];
+  assert.deepEqual([impact.sourcePlanWordRange.start, impact.sourcePlanWordRange.end], [226, 229]);
+  assert.deepEqual([impact.candidateScriptWordRange.start, impact.candidateScriptWordRange.end], [227, 230]);
+  assert.deepEqual([impact.mappedTranscriptWordRange.start, impact.mappedTranscriptWordRange.end], [226, 229]);
+  assert.equal(impact.approvedNarrationExcerpt, 'None went to prison.');
+  assert.equal(impact.sourcePlanNarrationExcerpt, 'none went to prison');
+  assert.equal(impact.priorTimingExceptionReason, 'Final beat of hook requires landing space before act transition.');
 
   const verify = (actualBindings = value.policy.binding, options = {}) => activation.verifyApprovedTimingExceptionPolicy({
     policy: options.policy || value.policy, policyBytes: options.policyBytes || value.bytes, actualBindings,
     plan: options.plan || value.plan, script: options.script || value.script,
     shotDefinitions: options.shots || value.shots, productionManifest: options.manifest || value.manifest,
-    approvedBoundaryPolicy: value.approvedBoundaryPolicy,
+    approvedBoundaryPolicy: value.approvedBoundaryPolicy, wordTimestamps: options.wordTimestamps || value.transcriptAnchors,
   });
   for (const key of Object.keys(value.policy.binding)) {
     const changed = structuredClone(value.policy.binding);
@@ -1228,7 +1259,7 @@ test('approved exceptions pass the same six-act boundary mapper and deterministi
   assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
   assert.equal(audit.acts.length, 6);
   assert.equal(audit.timingExceptionAudit.status, 'PASS');
-  assert.equal(audit.timingExceptionAudit.entries.length, 5);
+  assert.equal(audit.timingExceptionAudit.entries.length, 6);
   assert.deepEqual(audit.acts.flatMap(act => act.errors), []);
   assert.deepEqual(audit.acts.flatMap(act => act.gaps), []);
   assert.deepEqual(audit.acts.flatMap(act => act.overlaps), []);
@@ -1239,7 +1270,7 @@ test('approved exceptions pass the same six-act boundary mapper and deterministi
   const retimed = retimeEditPlan(fixture.input).plan;
   const report = activation.verifyTimingExceptionApplications({ plan: retimed, approvedTimingExceptions: source.approvedTimingExceptions });
   assert.equal(report.status, 'PASS');
-  assert.deepEqual(report.entries.map(item => item.beatId), ['ACT2_B006', 'ACT3B_B008', 'ACT3B_B012', 'ACT4_B022', 'ACT5_B012']);
+  assert.deepEqual(report.entries.map(item => item.beatId), ['ACT1_B030', 'ACT2_B006', 'ACT3B_B008', 'ACT3B_B012', 'ACT4_B022', 'ACT5_B012']);
   for (const item of source.approvedTimingExceptions.exceptions) {
     const beat = retimed.sequences.flatMap(sequence => sequence.beats).find(value => value.beatId === item.beatId);
     assert.equal(beat.timingExceptionReason, item.justification);
@@ -1252,6 +1283,53 @@ test('approved exceptions pass the same six-act boundary mapper and deterministi
   assert.deepEqual(validation.errors, []);
 });
 
+test('retained BEAT_TOO_SHORT failure is eligible only after shared six-act retiming validation passes', () => {
+  const source = approvedTimingExceptionFixture();
+  const fixture = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
+  const firstAudit = auditEditPlanBoundaries(fixture.input);
+  assert.equal(firstAudit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(firstAudit.errors));
+  const expectedBoundaryCounts = Object.fromEntries(firstAudit.acts.map(act => [act.actKey, act.boundaryCount]));
+  const expectedActiveBeatCounts = Object.fromEntries(firstAudit.acts.map(act => [act.actKey, act.beatCount]));
+  const expectedTotalDurationSec = retimeEditPlan(fixture.input).plan.timing.totalDurationSec;
+  const approvedTimingExceptions = structuredClone(source.approvedTimingExceptions);
+  approvedTimingExceptions.resumeEligibility = { ...approvedTimingExceptions.resumeEligibility,
+    expectedBoundaryCounts, expectedActiveBeatCounts, expectedTotalDurationSec, totalDurationToleranceSec: 0.001 };
+  const before = structuredClone(fixture.input);
+  const remediation = activationCli.verifyTimingRemediation({ ...fixture.input, approvedTimingExceptions, validator: { validateEditPlan } });
+  assert.equal(remediation.status, 'PASS');
+  assert.equal(remediation.audit.status, 'BOUNDARY_AUDIT_PASS');
+  assert.equal(remediation.validation.status, 'PASS');
+  assert.deepEqual(remediation.validation.errors, []);
+  assert.equal(remediation.timingExceptionAudit.entries.length, 6);
+  assert.deepEqual(fixture.input, before, 'eligibility verification is in-memory and does not mutate inputs');
+  assert.equal(remediation.audit.providerRequestsMade, 0);
+  assert.equal(remediation.audit.candidateWrites, 0);
+  assert.equal(remediation.audit.episodeRootWrites, 0);
+
+  const status = { runId: source.policy.runId, state: 'FAILURE', currentStage: 'FAILED', completedAt: '2026-09-25T16:23:14.453Z',
+    error: approvedTimingExceptions.resumeEligibility.failureError, completedActs: approvedTimingExceptions.resumeEligibility.completedActs,
+    attemptsByAct: approvedTimingExceptions.resumeEligibility.attemptsByAct };
+  assert.equal(activationCli.verifyExpectedFailureStatus(status, source.policy.runId, approvedTimingExceptions, remediation), status);
+  const approvals = Array.from({ length: 19 }, (_, index) => ({ exceptionId: `approved-${index}` }));
+  const reviewed = { unusedApprovalExceptionIds: [], acts: [{ approvedExceptions: approvals }] };
+  const approvalArtifact = { status: 'USER_APPROVED', approvedExceptions: approvals, unlistedMismatchPolicy: 'REFUSE' };
+  assert.equal(activationCli.verifyRetainedAlignmentApproval(status, approvedTimingExceptions, reviewed, approvalArtifact), true);
+  assert.throws(() => activationCli.verifyRetainedAlignmentApproval(status, approvedTimingExceptions,
+    { ...reviewed, acts: [{ approvedExceptions: approvals.slice(1) }] }, approvalArtifact), /RESUME_ALIGNMENT_APPROVAL_SET_MISMATCH/u);
+  for (const altered of [
+    { ...status, error: 'EDIT_PLAN_VALIDATION:BEAT_TOO_LONG' },
+    { ...status, attemptsByAct: { ...status.attemptsByAct, act4: 1 } },
+    { ...status, completedActs: status.completedActs.slice(0, -1) },
+  ]) assert.throws(() => activationCli.verifyExpectedFailureStatus(altered, source.policy.runId, approvedTimingExceptions, remediation), /RESUME_RUN_STATE_MISMATCH/u);
+
+  const badPolicy = structuredClone(approvedTimingExceptions);
+  badPolicy.resumeEligibility.expectedBoundaryCounts.act1++;
+  assert.throws(() => activationCli.verifyTimingRemediation({ ...fixture.input, approvedTimingExceptions: badPolicy, validator: { validateEditPlan } }), /RESUME_TIMING_ACT_COVERAGE_MISMATCH:act1/u);
+  const failedValidation = structuredClone(fixture.input);
+  failedValidation.wordTimestamps[0].word = 'unapproved-substitution';
+  assert.throws(() => activationCli.verifyTimingRemediation({ ...failedValidation, approvedTimingExceptions, validator: { validateEditPlan } }), /RESUME_TIMING_BOUNDARY_AUDIT_FAILED/u);
+});
+
 test('removing any one approved exception restores its original hard timing violation', () => {
   const source = approvedTimingExceptionFixture();
   const complete = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
@@ -1261,11 +1339,7 @@ test('removing any one approved exception restores its original hard timing viol
       exceptions: source.approvedTimingExceptions.exceptions.filter(item => item.exceptionId !== omitted.exceptionId),
     };
     const input = { ...complete.input, approvedTimingExceptions: reduced };
-    const retimed = retimeEditPlan(input).plan;
-    const validation = validateEditPlan({ plan: retimed, wordTimestamps: complete.wordTimestamps });
-    assert.equal(validation.status, 'FAIL', omitted.beatId);
-    const code = omitted.approvedDurationSec < 2 ? 'BEAT_TOO_SHORT' : 'BEAT_TOO_LONG';
-    assert.equal(validation.errors.filter(error => error.code === code).length, 1, omitted.beatId);
+    assert.throws(() => retimeEditPlan(input), /ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID/u, omitted.beatId);
   }
 });
 

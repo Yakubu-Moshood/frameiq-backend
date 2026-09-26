@@ -7,7 +7,7 @@ const path = require('node:path');
 const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const APPROVED_BOUNDARY_POLICY_SHA256 = '3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9';
-const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = '9df5925a9410ab47966e156e03e9675c011d3205ae31f8d8bc8394edcef5e0a5';
+const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = 'ea38f2e25b618137c9d72057d24559b039fa2073294bd982a99b67a6deee55e9';
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
   'assets/audio/VO_Act3B.mp3', 'assets/audio/VO_Act4.mp3', 'assets/audio/VO_Act5.mp3',
@@ -316,26 +316,40 @@ function verifyApprovedBoundaryPolicy({ policy, policyBytes, script, scriptSha25
 }
 
 function approvedTimingProductionObligations({ shot, manifestEntry }) {
-  return {
+  const fields = {
     productionMethod: manifestEntry?.productionMethod,
     visualClass: shot?.visualClass,
     assetType: shot?.assetType,
+    visualIntent: shot?.visualIntent,
+    rhythmIntent: shot?.rhythmIntent,
+    intentionalStillness: shot?.intentionalStillness,
+    postNarrationHoldSec: shot?.postNarrationHoldSec,
+    reconstructionMode: shot?.reconstructionMode,
+    continuityRefs: shot?.continuityRefs,
+    audioDirection: shot?.audioDirection,
+    visual: shot?.visual,
+    motionIntent: shot?.motionIntent,
     evidenceRequirement: shot?.evidenceRequirement,
     graphics: shot?.graphics,
     overlaySpecification: shot?.overlaySpecification,
     sourceSearchInstruction: shot?.sourceSearchInstruction,
     sourceRequirement: manifestEntry?.sourceRequirement,
   };
+  return Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined));
 }
 
-function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindings, plan, script, shotDefinitions, productionManifest, approvedBoundaryPolicy, expectedPolicySha256 = APPROVED_TIMING_EXCEPTION_POLICY_SHA256 } = {}) {
+function normalizeTimingAnchor(value) {
+  return String(value ?? '').normalize('NFKC').toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, '');
+}
+
+function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindings, plan, script, shotDefinitions, productionManifest, approvedBoundaryPolicy, wordTimestamps, expectedPolicySha256 = APPROVED_TIMING_EXCEPTION_POLICY_SHA256 } = {}) {
   if (!Buffer.isBuffer(policyBytes)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_HASH_MISMATCH');
   const canonicalBytes = Buffer.from(policyBytes.toString('utf8').replace(/\r\n/gu, '\n'), 'utf8');
   if (expectedPolicySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256 || sha256(canonicalBytes) !== expectedPolicySha256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_HASH_MISMATCH');
   let parsed;
   try { parsed = JSON.parse(canonicalBytes.toString('utf8')); } catch (_) { throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_JSON_INVALID'); }
   if (!equal(policy, parsed)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH');
-  if (policy?.schemaVersion !== 'phase2.3b-p-approved-timing-exceptions/1.0.0' || policy.status !== 'USER_APPROVED'
+  if (policy?.schemaVersion !== 'phase2.3b-p-approved-timing-exceptions/2.0.0' || policy.status !== 'USER_APPROVED'
       || !policy.approval || typeof policy.approval.approvedBy !== 'string' || !policy.approval.approvedBy.trim()
       || typeof policy.approval.approvalRef !== 'string' || !policy.approval.approvalRef.trim()
       || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/u.test(policy.approval.recordedDate || '')
@@ -361,9 +375,23 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
       || policy.tokenization?.candidateScript !== 'js-trim-split-whitespace/1.0.0'
       || policy.tokenization?.retainedTranscript !== 'word-timestamps-array/zero-based-inclusive/1.0.0'
       || policy.tokenization?.timingBoundary !== 'next-word-start-or-act-terminal-boundary/1.0.0'
-      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== 5) {
+      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== 6) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_CONTRACT_INVALID');
   }
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'];
+  if (!equal(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), [...expectedOwners].sort())) throw new Error('ACTIVATION_TIMING_EXCEPTION_SET_INVALID');
+  const remediation = policy.resumeEligibility;
+  const expectedRemediationKeys = ['failureError','completedActs','attemptsByAct','alignmentApprovalExceptionCount','expectedBoundaryCounts','expectedActiveBeatCounts','expectedTotalDurationSec','totalDurationToleranceSec'];
+  if (!equal(Object.keys(remediation || {}).sort(), expectedRemediationKeys.sort())
+      || typeof remediation.failureError !== 'string' || !remediation.failureError
+      || !equal(remediation.completedActs, ['act1','act2','act3','act3b','act4','act5'])
+      || !equal(remediation.attemptsByAct, { act1: 1, act2: 1, act3: 1, act3b: 1, act4: 2, act5: 1 })
+      || remediation.alignmentApprovalExceptionCount !== 19
+      || !equal(remediation.expectedBoundaryCounts, { act1: 60, act2: 52, act3: 58, act3b: 34, act4: 48, act5: 54 })
+      || !equal(remediation.expectedActiveBeatCounts, { act1: 30, act2: 26, act3: 29, act3b: 17, act4: 24, act5: 27 })
+      || remediation.failureError !== 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT'
+      || Math.abs(remediation.expectedTotalDurationSec - 629.054693) > 1e-9
+      || Math.abs(remediation.totalDurationToleranceSec - 0.001) > 1e-12) throw new Error('ACTIVATION_TIMING_REMEDIATION_CONTRACT_INVALID');
   const allPlanBeats = plan.sequences.flatMap(sequence => Array.isArray(sequence.beats) ? sequence.beats : []);
   const allShots = Array.isArray(shotDefinitions.allShots) ? shotDefinitions.allShots : [];
   const manifestShots = Array.isArray(productionManifest.shots) ? productionManifest.shots : [];
@@ -373,7 +401,7 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
     if (!item || typeof item.exceptionId !== 'string' || !item.exceptionId || typeof item.actKey !== 'string' || typeof item.beatId !== 'string'
         || seenIds.has(item.exceptionId) || seenOwners.has(key)) throw new Error('ACTIVATION_TIMING_EXCEPTION_DUPLICATE_OR_INVALID');
     seenIds.add(item.exceptionId); seenOwners.add(key);
-    const expectedKeys = ['exceptionId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','approvedDurationSec','minimumAllowedDurationSec','maximumAllowedDurationSec','justification','productionMethod','productionObligations','productionObligationsSha256','revisionLineage'];
+    const expectedKeys = ['exceptionId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','approvedDurationSec','minimumAllowedDurationSec','maximumAllowedDurationSec','priorTimingExceptionReason','justification','productionMethod','productionObligations','productionObligationsSha256','revisionLineage'];
     if (!equal(Object.keys(item).sort(), expectedKeys.sort())) throw new Error(`ACTIVATION_TIMING_EXCEPTION_FIELDS_INVALID:${key}`);
     const ranges = [item.sourcePlanWordRange, item.candidateScriptWordRange, item.mappedTranscriptWordRange];
     if (ranges.some(range => !Number.isSafeInteger(range?.start) || !Number.isSafeInteger(range?.end) || range.start < 0 || range.end < range.start || range.indexConvention !== 'zero-based-inclusive-act-local-plan-word' && range.indexConvention !== 'zero-based-inclusive-whitespace-token' && range.indexConvention !== 'zero-based-inclusive-act-local-retained-transcript-word')
@@ -382,6 +410,9 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
         || Math.abs((item.approvedDurationSec - item.minimumAllowedDurationSec) - 0.001) > 0.000002
         || Math.abs((item.maximumAllowedDurationSec - item.approvedDurationSec) - 0.001) > 0.000002
         || typeof item.justification !== 'string' || !item.justification.trim()
+        || !item.mappedTranscriptAnchors || typeof item.mappedTranscriptAnchors.start !== 'string' || !item.mappedTranscriptAnchors.start
+        || typeof item.mappedTranscriptAnchors.end !== 'string' || !item.mappedTranscriptAnchors.end
+        || !(item.priorTimingExceptionReason === null || typeof item.priorTimingExceptionReason === 'string' && item.priorTimingExceptionReason.trim())
         || !/^[a-f0-9]{64}$/u.test(item.approvedNarrationSha256 || '') || !/^[a-f0-9]{64}$/u.test(item.sourcePlanNarrationSha256 || '')
         || !/^[a-f0-9]{64}$/u.test(item.productionObligationsSha256 || '')
         || !item.revisionLineage || item.revisionLineage.artifactSha256 !== policy.binding.candidateAmendmentSha256
@@ -393,6 +424,14 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
     if (sourceMatches.length !== 1 || sourceMatches[0].startWordIndex !== item.sourcePlanWordRange.start || sourceMatches[0].endWordIndex !== item.sourcePlanWordRange.end
         || sourceMatches[0].narrationExcerpt !== item.sourcePlanNarrationExcerpt
         || sha256(Buffer.from(item.sourcePlanNarrationExcerpt, 'utf8')) !== item.sourcePlanNarrationSha256) throw new Error(`ACTIVATION_TIMING_EXCEPTION_SOURCE_BEAT_MISMATCH:${key}`);
+    if (!Array.isArray(wordTimestamps)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_MISSING:${key}`);
+    const timingAct = (plan.timing?.acts || []).find(act => act.actKey === item.actKey);
+    const actWords = wordTimestamps.filter(word => word.vo_file === timingAct?.voKey);
+    const startWord = actWords[item.mappedTranscriptWordRange.start]?.word;
+    const endWord = actWords[item.mappedTranscriptWordRange.end]?.word;
+    if (!timingAct?.voKey || !startWord || !endWord
+        || normalizeTimingAnchor(startWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.start)
+        || normalizeTimingAnchor(endWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.end)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_ANCHOR_MISMATCH:${key}`);
     const scriptTokens = String(script.acts?.[item.actKey]?.voScript || '').trim().split(/\s+/u);
     const actualNarration = scriptTokens.slice(item.candidateScriptWordRange.start, item.candidateScriptWordRange.end + 1).join(' ');
     if (!actualNarration || actualNarration !== item.approvedNarrationExcerpt || sha256(Buffer.from(actualNarration, 'utf8')) !== item.approvedNarrationSha256) throw new Error(`ACTIVATION_TIMING_EXCEPTION_NARRATION_MISMATCH:${key}`);
@@ -418,6 +457,8 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
 function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = {}) {
   if (!approvedTimingExceptions) return { status: 'NOT_REQUESTED', entries: [] };
   if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'].sort();
+  if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const beats = plan.sequences.flatMap(sequence => Array.isArray(sequence.beats) ? sequence.beats : []);
   const owners = new Map(beats.map(beat => [`${beat.actKey}:${beat.beatId}`, beat]));
   if (owners.size !== beats.length) throw new Error('ACTIVATION_TIMING_EXCEPTION_PLAN_DUPLICATE_BEAT');
@@ -441,6 +482,8 @@ function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = 
 function applyApprovedTimingExceptions(plan, approvedTimingExceptions) {
   if (!approvedTimingExceptions) return plan;
   if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'].sort();
+  if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const entries = new Map(approvedTimingExceptions.exceptions.map(item => [`${item.actKey}:${item.beatId}`, item]));
   for (const sequence of plan.sequences) for (const beat of sequence.beats) {
     const key = `${beat.actKey}:${beat.beatId}`, item = entries.get(key);
@@ -448,7 +491,8 @@ function applyApprovedTimingExceptions(plan, approvedTimingExceptions) {
       if (typeof beat.timingExceptionReason === 'string' && beat.timingExceptionReason.trim()) throw new Error(`ACTIVATION_TIMING_EXCEPTION_UNAPPROVED:${key}`);
       continue;
     }
-    if (beat.timingExceptionReason !== null && beat.timingExceptionReason !== undefined && beat.timingExceptionReason !== item.justification) throw new Error(`ACTIVATION_TIMING_EXCEPTION_REASON_CONFLICT:${key}`);
+    if (beat.timingExceptionReason !== null && beat.timingExceptionReason !== undefined
+        && beat.timingExceptionReason !== item.justification && beat.timingExceptionReason !== item.priorTimingExceptionReason) throw new Error(`ACTIVATION_TIMING_EXCEPTION_REASON_CONFLICT:${key}`);
     if (beat.startWordIndex !== item.mappedTranscriptWordRange.start || beat.endWordIndex !== item.mappedTranscriptWordRange.end
         || !Number.isFinite(beat.durationSec) || beat.durationSec < item.minimumAllowedDurationSec - 1e-9 || beat.durationSec > item.maximumAllowedDurationSec + 1e-9
         || Math.abs(beat.durationSec - item.approvedDurationSec) > 0.001) throw new Error(`ACTIVATION_TIMING_EXCEPTION_SCOPE_MISMATCH:${key}`);
