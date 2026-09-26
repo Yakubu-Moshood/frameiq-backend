@@ -59,9 +59,9 @@
         "start": "none",
         "end": "prison"
       },
-      "approvedDurationSec": 1.161633,
-      "minimumAllowedDurationSec": 1.160633,
-      "maximumAllowedDurationSec": 1.162633,
+      "approvedDurationSec": 1.390608337890626,
+      "minimumAllowedDurationSec": 1.389608337890626,
+      "maximumAllowedDurationSec": 1.391608337890626,
       "priorTimingExceptionReason": "Final beat of hook requires landing space before act transition.",
       "justification": "Deliberate closing impact beat: the short isolated statement “None went to prison” is intended to land as a final consequence.",
       "productionMethod": "CONTROLLED_STILL",

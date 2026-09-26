@@ -1187,13 +1187,17 @@ test('the six timing exceptions are versioned, pinned, run-bound, and tied to ex
   const policy = value.approvedTimingExceptions;
   assert.equal(policy.verified, true);
   assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/2.0.0');
-  assert.equal(policy.policySha256, 'ea38f2e25b618137c9d72057d24559b039fa2073294bd982a99b67a6deee55e9');
+  assert.equal(policy.policySha256, '2b8f33fe5bf5ae82d0b87bf7807865add1f8728bc95b65b5132c38eecef993e9');
   assert.equal(policy.runId, 'phase2-3b-p-act-20260925');
   assert.equal(policy.exceptions.length, 6);
   assert.deepEqual(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`), [
     'act1:ACT1_B030', 'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012',
   ]);
-  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.161633, 1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
+  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.390608337890626, 1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
+  assert.deepEqual([
+    policy.exceptions[0].minimumAllowedDurationSec,
+    policy.exceptions[0].maximumAllowedDurationSec,
+  ], [1.389608337890626, 1.391608337890626]);
   assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['CONTROLLED_STILL', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION']);
   for (const item of policy.exceptions) {
     assert.match(item.approvedNarrationSha256, /^[a-f0-9]{64}$/u);
@@ -1209,6 +1213,9 @@ test('the six timing exceptions are versioned, pinned, run-bound, and tied to ex
   assert.equal(impact.approvedNarrationExcerpt, 'None went to prison.');
   assert.equal(impact.sourcePlanNarrationExcerpt, 'none went to prison');
   assert.equal(impact.priorTimingExceptionReason, 'Final beat of hook requires landing space before act transition.');
+  assert.equal(policy.resumeEligibility.expectedTotalDurationSec, 629.054693);
+  assert.deepEqual(policy.resumeEligibility.expectedBoundaryCounts, { act1: 60, act2: 52, act3: 58, act3b: 34, act4: 48, act5: 54 });
+  assert.deepEqual(policy.resumeEligibility.expectedActiveBeatCounts, { act1: 30, act2: 26, act3: 29, act3b: 17, act4: 24, act5: 27 });
 
   const verify = (actualBindings = value.policy.binding, options = {}) => activation.verifyApprovedTimingExceptionPolicy({
     policy: options.policy || value.policy, policyBytes: options.policyBytes || value.bytes, actualBindings,
@@ -1250,6 +1257,72 @@ test('the six timing exceptions are versioned, pinned, run-bound, and tied to ex
   const alteredDuration = structuredClone(value.policy);
   alteredDuration.exceptions[0].maximumAllowedDurationSec += 0.01;
   assert.throws(() => verify(undefined, { policy: alteredDuration }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+});
+
+test('ACT1_B030 applies only at its approved retimed duration and exact narrow bounds', () => {
+  const source = approvedTimingExceptionFixture();
+  const fixture = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
+  const policy = source.approvedTimingExceptions;
+  const act1 = plan => plan.sequences.flatMap(sequence => sequence.beats).find(beat => beat.actKey === 'act1' && beat.beatId === 'ACT1_B030');
+
+  const exact = retimeEditPlan(fixture.input).plan;
+  assert.equal(act1(exact).durationSec, 1.390608337890626);
+  assert.equal(activation.verifyTimingExceptionApplications({ plan: exact, approvedTimingExceptions: policy }).status, 'PASS');
+
+  for (const duration of [1.389608337890626 - 0.000001, 1.391608337890626 + 0.000001, 1.161633]) {
+    const outside = structuredClone(exact);
+    act1(outside).durationSec = duration;
+    assert.throws(() => activation.verifyTimingExceptionApplications({ plan: outside, approvedTimingExceptions: policy }), /ACTIVATION_TIMING_EXCEPTION_APPLICATION_MISMATCH:act1:ACT1_B030/u, String(duration));
+  }
+});
+
+test('ACT1_B030 policy remains hash-bound to its transcript, narration, ownership and production obligations', () => {
+  const value = approvedTimingExceptionFixture();
+  const verify = (actualBindings = value.policy.binding, options = {}) => activation.verifyApprovedTimingExceptionPolicy({
+    policy: options.policy || value.policy,
+    policyBytes: options.policyBytes || value.bytes,
+    actualBindings,
+    plan: options.plan || value.plan,
+    script: options.script || value.script,
+    shotDefinitions: options.shots || value.shots,
+    productionManifest: options.manifest || value.manifest,
+    approvedBoundaryPolicy: value.approvedBoundaryPolicy,
+    wordTimestamps: options.wordTimestamps || value.transcriptAnchors,
+  });
+  const alteredRange = structuredClone(value.plan);
+  alteredRange.sequences.flatMap(sequence => sequence.beats).find(beat => beat.actKey === 'act1' && beat.beatId === 'ACT1_B030').startWordIndex++;
+  assert.throws(() => verify(undefined, { plan: alteredRange }), /ACTIVATION_TIMING_EXCEPTION_SOURCE_BEAT_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredAnchors = structuredClone(value.transcriptAnchors);
+  alteredAnchors.find(word => word.vo_file === 'VO_Act1' && word.word === 'none').word = 'not-none';
+  assert.throws(() => verify(undefined, { wordTimestamps: alteredAnchors }), /ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_ANCHOR_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredScript = structuredClone(value.script);
+  const scriptTokens = alteredScript.acts.act1.voScript.trim().split(/\s+/u);
+  scriptTokens[227] = 'never';
+  alteredScript.acts.act1.voScript = scriptTokens.join(' ');
+  assert.throws(() => verify(undefined, { script: alteredScript }), /ACTIVATION_TIMING_EXCEPTION_NARRATION_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredOwner = structuredClone(value.plan);
+  alteredOwner.sequences.flatMap(sequence => sequence.beats).find(beat => beat.actKey === 'act1' && beat.beatId === 'ACT1_B030').actKey = 'act2';
+  assert.throws(() => verify(undefined, { plan: alteredOwner }), /ACTIVATION_TIMING_EXCEPTION_SOURCE_BEAT_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredMethod = structuredClone(value.manifest);
+  const methodRecord = alteredMethod.shots.find(record => record.shotId === 'ACT1_B030' && record.actKey === 'act1');
+  assert.ok(methodRecord, 'ACT1_B030 production-method record exists');
+  methodRecord.productionMethod = 'EVIDENCE_REFERENCE';
+  assert.throws(() => verify(undefined, { manifest: alteredMethod }), /ACTIVATION_TIMING_EXCEPTION_PRODUCTION_BINDING_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredObligation = structuredClone(value.shots);
+  alteredObligation.allShots.find(shot => shot.beatId === 'ACT1_B030' && shot.actKey === 'act1').postNarrationHoldSec = 1.6;
+  assert.throws(() => verify(undefined, { shots: alteredObligation }), /ACTIVATION_TIMING_EXCEPTION_PRODUCTION_BINDING_MISMATCH:act1:ACT1_B030/u);
+
+  const alteredHash = { ...value.policy.binding, candidateScriptSha256: '0'.repeat(64) };
+  assert.throws(() => verify(alteredHash), /ACTIVATION_TIMING_EXCEPTION_BINDING_MISMATCH/u);
+
+  const wrongReasonFixture = syntheticApprovedTimingExceptionInput(value.approvedTimingExceptions, value);
+  wrongReasonFixture.input.plan.sequences.flatMap(sequence => sequence.beats).find(beat => beat.actKey === 'act1' && beat.beatId === 'ACT1_B030').timingExceptionReason = 'Unapproved timing reason';
+  assert.throws(() => retimeEditPlan(wrongReasonFixture.input), /ACTIVATION_TIMING_EXCEPTION_REASON_CONFLICT:act1:ACT1_B030/u);
 });
 
 test('approved exceptions pass the same six-act boundary mapper and deterministic edit-plan validator', () => {

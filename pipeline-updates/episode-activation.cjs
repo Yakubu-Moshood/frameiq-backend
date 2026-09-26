@@ -7,7 +7,7 @@ const path = require('node:path');
 const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const APPROVED_BOUNDARY_POLICY_SHA256 = '3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9';
-const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = 'ea38f2e25b618137c9d72057d24559b039fa2073294bd982a99b67a6deee55e9';
+const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = '2b8f33fe5bf5ae82d0b87bf7807865add1f8728bc95b65b5132c38eecef993e9';
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
   'assets/audio/VO_Act3B.mp3', 'assets/audio/VO_Act4.mp3', 'assets/audio/VO_Act5.mp3',
