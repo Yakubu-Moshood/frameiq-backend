@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "phase2.3b-p-approved-boundary-ranges/1.0.0",
+  "schemaVersion": "phase2.3b-p-approved-boundary-ranges/1.1.0",
   "scriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
   "tokenization": {
     "rangeTokenization": "js-trim-split-whitespace/1.0.0",
@@ -22,5 +22,55 @@
   ],
   "retirements": [
     { "actKey": "act3b", "beatId": "ACT3B_B010", "reason": "Its former narration, “the real number is almost certainly higher,” was removed as unsupported. Its replacement visual merely repeats B009’s bank-attributed refund figure; no replacement narration or zero-duration beat is authorized.", "revisionLineageEntry": "approved-retirement:act3b:ACT3B_B010" }
+  ],
+  "boundaryAuthorizationsVersion": "phase2.3b-p-boundary-authorizations/1.0.0",
+  "supersedesPolicySha256": "95a816be1e8ddb76d70d916a98d3d689ab74b6d4b17b07cbf1d5e30f19f5b58d",
+  "boundaryAuthorizations": [
+    {
+      "authorizationVersion": "phase2.3b-p-boundary-authorization/1.0.0",
+      "authorizationId": "approved-boundary:act2:ACT2_B011:start:89",
+      "actKey": "act2",
+      "beatId": "ACT2_B011",
+      "edge": "start",
+      "sourceBoundaryIndex": 89,
+      "sourceBeatRange": { "startWordIndex": 89, "endWordIndex": 96, "indexConvention": "zero-based-inclusive" },
+      "targetTranscriptIndex": 89,
+      "approvedTranscriptSpan": { "startIndex": 89, "endIndex": 96, "indexConvention": "zero-based-inclusive" },
+      "sourceAnchors": [
+        { "index": 88, "token": "account", "role": "preceding" },
+        { "index": 89, "token": "and", "role": "deleted" },
+        { "index": 90, "token": "convinced", "role": "replacement-source" },
+        { "index": 91, "token": "them", "role": "following" }
+      ],
+      "candidateAnchors": [
+        { "index": 88, "token": "account", "sourceIndex": 88, "role": "preceding" },
+        { "index": 89, "token": "convince", "sourceIndex": 90, "role": "replacement" },
+        { "index": 90, "token": "them", "sourceIndex": 91, "role": "following" }
+      ],
+      "transcriptAnchors": [
+        { "index": 88, "token": "account", "candidateIndex": 88, "role": "preceding" },
+        { "index": 89, "token": "convince", "candidateIndex": 89, "role": "target" },
+        { "index": 90, "token": "them", "candidateIndex": 90, "role": "following" }
+      ],
+      "uniqueAnchorSequences": {
+        "sourcePreceding": ["had", "a", "checking", "account"],
+        "sourceFollowing": ["convinced", "them", "to"],
+        "candidatePreceding": ["had", "a", "checking", "account"],
+        "candidateFollowing": ["convince", "them", "to"],
+        "transcriptPreceding": ["had", "a", "checking", "account"],
+        "transcriptFollowing": ["convince", "them", "to"]
+      },
+      "inputHashes": {
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "a15f99e70788343569a9620695923e94374f8c12986fcffc21e143d290a7a03a",
+        "candidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "retainedTranscriptSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+        "alignmentProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+        "alignmentApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+        "previousApprovedBoundaryPolicySha256": "95a816be1e8ddb76d70d916a98d3d689ab74b6d4b17b07cbf1d5e30f19f5b58d",
+        "candidateAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+      },
+      "revisionLineageEntry": "approved-boundary:act2:ACT2_B011:start:89"
+    }
   ]
 }
