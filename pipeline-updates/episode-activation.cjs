@@ -1433,7 +1433,7 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
       const mirrored = shotDefs.acts?.[shot.actKey]?.find(item => item.beatId === shot.beatId);
       if (!mirrored || mirrored.timingExceptionReason !== migration.existingTimingExceptionReason) throw new Error(`ACTIVATION_EDITORIAL_INTENT_SHOT_MIRROR_MISMATCH:${shot.actKey}:${shot.beatId}`);
       mirrored.timingExceptionReason = null;
-      entries.push({ shotId: shot.shotId, beatId: shot.beatId, fieldPath: 'timingExceptionReason', beforeValue, afterValue: null, reason: 'Remove the exactly approved normal-duration editorial reason from shot metadata; dedicated hold, stillness, and rhythm fields remain intact.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
+      entries.push({ shotId: shot.shotId, beatId: shot.beatId, mirrorActKey: shot.actKey, fieldPath: 'timingExceptionReason', beforeValue, afterValue: null, reason: 'Remove the exactly approved normal-duration editorial reason from shot metadata; dedicated hold, stillness, and rhythm fields remain intact.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
     }
     if (!beat || shot.sequenceId !== beat.sequenceId || shot.actKey !== beat.actKey) throw new Error(`ACTIVATION_SHOT_IDENTITY_MISMATCH:${shot.shotId}`);
     for (const field of SHOT_DYNAMIC_FIELDS) {

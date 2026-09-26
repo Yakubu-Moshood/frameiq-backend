@@ -1639,6 +1639,119 @@ test('retained BEAT_TOO_SHORT failure is eligible only after shared six-act reti
   assert.throws(() => activationCli.verifyTimingRemediation({ ...failedValidation, approvedTimingExceptions, validator: { validateEditPlan } }), /RESUME_TIMING_BOUNDARY_AUDIT_FAILED/u);
 });
 
+test('historical revision-parent failure requires exact in-memory lineage remediation for diagnosis, audit, and resume', t => {
+  const packageDir = activationCli.CANDIDATE_PACKAGE;
+  const files = {
+    script: 'candidate-script.json', plan: 'candidate-edit-plan-pretiming.json', shots: 'candidate-shot-definitions-pretiming.json',
+    manifest: 'candidate-production-manifest-pretiming.json', history: 'revision-ledger.phase2.2d-lineage.v1.json',
+    amendment: 'revision-ledger.phase2.3b-sv-amendment.v1.json',
+  };
+  if (!Object.values(files).every(file => fs.existsSync(path.join(packageDir, file)))) return t.skip('verified candidate package fixture is not present locally');
+  const readPackage = name => JSON.parse(fs.readFileSync(path.join(packageDir, files[name]), 'utf8'));
+  const fileHash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const sourceShots = readPackage('shots'), plan = readPackage('plan');
+  const shotsByBeat = new Map(sourceShots.allShots.map(shot => [shot.beatId, shot]));
+  // Model the deterministically retimed plan shape needed by the shot-lineage
+  // transformation, without creating a candidate or writing an episode file.
+  for (const sequence of plan.sequences) {
+    sequence.beats = sequence.beats.filter(beat => beat.beatId !== 'ACT3B_B010');
+    for (const beat of sequence.beats) {
+      const shot = shotsByBeat.get(beat.beatId);
+      for (const field of ['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']) beat[field] = structuredClone(shot[field]);
+    }
+  }
+  const timingPolicyPath = path.join(__dirname, '..', 'pipeline-updates', 'phase2.3b-p-approved-timing-exceptions.json');
+  const timingPolicy = JSON.parse(fs.readFileSync(timingPolicyPath, 'utf8'));
+  for (const migration of timingPolicy.editorialIntentMigrations.entries) {
+    const beat = plan.sequences.flatMap(sequence => sequence.beats).find(item => item.beatId === migration.beatId);
+    beat.timingExceptionReason = null; beat.durationSec = migration.approvedDurationSec;
+    beat.endSec = beat.startSec + migration.approvedDurationSec;
+    beat.postNarrationHoldSec = migration.postNarrationHoldSec;
+    beat.intentionalStillness = migration.intentionalStillness; beat.rhythmIntent = migration.rhythmIntent;
+  }
+  const scriptBytes = fs.readFileSync(path.join(packageDir, files.script));
+  const amendmentBytes = fs.readFileSync(path.join(packageDir, files.amendment));
+  const boundaryPolicyPath = path.join(__dirname, '..', 'pipeline-updates', 'phase2.3b-p-approved-boundary-ranges.json');
+  const boundaryBytes = fs.readFileSync(boundaryPolicyPath);
+  const approvedBoundaryPolicy = verifyApprovedBoundaryPolicy({
+    policy: JSON.parse(boundaryBytes.toString('utf8')), policyBytes: boundaryBytes,
+    script: JSON.parse(scriptBytes.toString('utf8')), scriptSha256: crypto.createHash('sha256').update(scriptBytes).digest('hex'),
+    amendmentSha256: crypto.createHash('sha256').update(amendmentBytes).digest('hex'),
+  });
+  const runtimeSyncHashes = {};
+  for (const name of ['episode-activation.cjs', 'edit-plan-validator.cjs', 'shot-definitions-validator.cjs', 'revision-lineage.cjs', 'production-method-manifest.cjs']) {
+    runtimeSyncHashes[name] = fileHash(path.join(__dirname, '..', 'pipeline-updates', name));
+  }
+  const runnerPath = require.resolve('../scripts/phase2.3b-p-activate.cjs');
+  const runnerSha256 = fileHash(runnerPath);
+  const runId = 'phase2-3b-p-act-20260925';
+  const status = { runId, state: 'FAILURE', currentStage: 'FAILED', completedAt: '2026-09-26T18:52:48.246Z',
+    error: 'SHOT_VALIDATION:REVISION_PARENT_HASH', completedActs: ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'],
+    attemptsByAct: { act1: 1, act2: 1, act3: 1, act3b: 1, act4: 2, act5: 1 }, pid: 987654321 };
+  const timingRemediation = {
+    status: 'PASS', policySha256: fileHash(timingPolicyPath), plan,
+    audit: { status: 'BOUNDARY_AUDIT_PASS', errors: [] },
+    validation: { status: 'PASS', errors: [] },
+    timingExceptionAudit: { status: 'PASS', entries: Array.from({ length: 10 }, (_, index) => ({ beatId: `exception-${index}` })),
+      editorialIntentMigrations: timingPolicy.editorialIntentMigrations.entries.map(item => ({ actKey: item.actKey, beatId: item.beatId })) },
+  };
+  const candidatePlanBytes = fs.readFileSync(path.join(packageDir, files.plan));
+  const candidateScriptSha256 = crypto.createHash('sha256').update(scriptBytes).digest('hex');
+  const lineageRemediation = activationCli.verifyLineageRemediation({
+    runId, status, runnerIntegrity: { runnerPath, expectedRunnerSha256: runnerSha256, actualRunnerSha256: runnerSha256, verificationStatus: 'PASS' },
+    timingRemediation, approvedTimingExceptions: { verified: true, policySha256: timingRemediation.policySha256,
+      editorialIntentMigrations: { verified: true, entries: timingPolicy.editorialIntentMigrations.entries } },
+    approvedBoundaryPolicy,
+    boundaryInputHashes: { candidateScriptSha256, candidatePreTimingEditPlanSha256: crypto.createHash('sha256').update(candidatePlanBytes).digest('hex') },
+    completed: { verification: { wordTimestampsSha256: 'a'.repeat(64) }, timestampFileSha256: 'b'.repeat(64), receiptFileSha256: 'c'.repeat(64), partialFileSha256: 'd'.repeat(64) },
+    lockedHashes: { 'script.json': '1'.repeat(64) }, requestLedgerSha256: '2'.repeat(64), runtimeSyncHashes,
+    runtimeModules: { revisionLineage: require('../pipeline-updates/revision-lineage.cjs'),
+      shotDefinitionsValidator: require('../pipeline-updates/shot-definitions-validator.cjs'),
+      productionMethodManifest: require('../pipeline-updates/production-method-manifest.cjs') },
+  });
+  assert.equal(lineageRemediation.status, 'PASS', JSON.stringify(lineageRemediation.validation.errors));
+  assert.equal(lineageRemediation.bindings.revision.expectedParentSha256, '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b');
+  assert.equal(lineageRemediation.bindings.revision.reconstructedParentSha256, '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b');
+  assert.equal(lineageRemediation.validation.totalErrorCount, 0);
+  assert.equal(lineageRemediation.validation.productionManifest.status, 'PASS');
+
+  const approvedTimingExceptions = { verified: true, policySha256: timingRemediation.policySha256,
+    resumeEligibility: { completedActs: status.completedActs, attemptsByAct: status.attemptsByAct, failureError: 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT' } };
+  const eligibilityArgs = { status, runId, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
+    requestLedgerVerified: true, timingPolicyVerified: true, remediation: timingRemediation,
+    approvedTimingExceptions, boundaryAndValidationVerified: true, lineageRemediation };
+  const diagnosisEligibility = activationCli.createVerifiedResumeEligibility(eligibilityArgs);
+  const auditEligibility = activationCli.createVerifiedResumeEligibility(eligibilityArgs);
+  const resumeEligibility = activationCli.createVerifiedResumeEligibility(eligibilityArgs);
+  assert.deepEqual([diagnosisEligibility.mode, auditEligibility.mode, resumeEligibility.mode], [
+    'VERIFIED_LINEAGE_REMEDIATION', 'VERIFIED_LINEAGE_REMEDIATION', 'VERIFIED_LINEAGE_REMEDIATION',
+  ]);
+  assert.equal(activationCli.verifyExpectedFailureStatus(status, runId, approvedTimingExceptions, timingRemediation, { lineageRemediation }), status);
+  assert.equal(activationCli.assertFailedRunProcessInactive(status, { isProcessAlive: () => true, currentPid: status.pid, eligibility: diagnosisEligibility }), true);
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, processStartIdentity: '12345' }, {
+    isProcessAlive: () => true, currentPid: status.pid, getProcessStartIdentity: () => '12345', eligibility: diagnosisEligibility,
+  }), /RESUME_RUN_PROCESS_ACTIVE/u, 'a matching process-start identity remains active despite the historical remediation');
+
+  const oneByteWrong = structuredClone(lineageRemediation);
+  oneByteWrong.bindings.revision.reconstructedParentSha256 = `${oneByteWrong.bindings.revision.reconstructedParentSha256.slice(0, -1)}0`;
+  for (const alteredProof of [undefined, structuredClone(lineageRemediation), { ...lineageRemediation, status: 'STALE' }, oneByteWrong,
+    { ...lineageRemediation, historicalFailureCode: 'SHOT_VALIDATION:OTHER' },
+    { ...lineageRemediation, validation: { ...lineageRemediation.validation, totalErrorCount: 1 } }]) {
+    assert.throws(() => activationCli.createVerifiedResumeEligibility({ ...eligibilityArgs, lineageRemediation: alteredProof }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u);
+  }
+  for (const alteredStatus of [{ ...status, error: 'SHOT_VALIDATION:OTHER' }, { ...status, completedActs: status.completedActs.slice(0, -1) }, { ...status, state: 'RUNNING' }]) {
+    assert.throws(() => activationCli.createVerifiedResumeEligibility({ ...eligibilityArgs, status: alteredStatus }), /RESUME_RUN_STATE_MISMATCH|RESUME_RUN_ELIGIBILITY_UNVERIFIED/u);
+  }
+  for (const failedGate of ['locksAbsent', 'candidateAbsent', 'immutableInputsVerified', 'requestLedgerVerified', 'timingPolicyVerified', 'boundaryAndValidationVerified']) {
+    assert.throws(() => activationCli.createVerifiedResumeEligibility({ ...eligibilityArgs, [failedGate]: false }),
+      /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u, `${failedGate} must continue to block lineage-based resume`);
+  }
+  assert.throws(() => activationCli.verifyExpectedFailureStatus(status, runId, approvedTimingExceptions, timingRemediation), /RESUME_RUN_STATE_MISMATCH/u,
+    'the exact historical error is not resumable without the verified lineage result');
+  const effects = { providers: 0, candidateWrites: 0, episodeRootWrites: 0 };
+  assert.deepEqual(effects, { providers: 0, candidateWrites: 0, episodeRootWrites: 0 });
+});
+
 test('removing any one approved exception restores its original hard timing violation', () => {
   const source = approvedTimingExceptionFixture();
   const complete = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);

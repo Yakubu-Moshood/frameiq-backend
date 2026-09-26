@@ -16,9 +16,66 @@ function artifactSha256(value) {
 function shotsById(shotDefs) {
   const result = new Map();
   for (const shot of shotDefs?.allShots || []) {
-    if (shot && typeof shot.shotId === 'string') result.set(shot.shotId, [shot]);
+    if (shot && typeof shot.shotId === 'string') {
+      if (!result.has(shot.shotId)) result.set(shot.shotId, []);
+      result.get(shot.shotId).push(shot);
+    }
   }
   return result;
+}
+
+function locateRevisionCopies(shotDefs, entry, location, error) {
+  const canonical = (Array.isArray(shotDefs?.allShots) ? shotDefs.allShots : [])
+    .filter(shot => shot?.shotId === entry.shotId);
+  if (canonical.length !== 1) {
+    error(canonical.length ? 'REVISION_SHOT_AMBIGUOUS' : 'REVISION_SHOT_UNKNOWN', `${location}/shotId`,
+      `Expected exactly one canonical shot for ${entry.shotId}; found ${canonical.length}.`);
+    return null;
+  }
+  const shot = canonical[0];
+  if (shot.beatId !== entry.beatId || typeof shot.actKey !== 'string' || !shot.actKey) {
+    error('REVISION_SHOT_IDENTITY_MISMATCH', `${location}/beatId`, 'The canonical shot must match the recorded beat and have an act owner.');
+    return null;
+  }
+  // Older approved ledgers changed only the canonical allShots collection.
+  // A mirror is required only when the ledger explicitly records that the
+  // forward revision changed that structural copy too.
+  if (entry.mirrorActKey === undefined) return { canonical: shot, mirror: null };
+  if (entry.mirrorActKey !== shot.actKey) {
+    error('REVISION_MIRROR_WRONG_ACT', `${location}/mirrorActKey`, 'The recorded mirror owner must equal the canonical shot act.');
+    return null;
+  }
+  if (shotDefs.acts === undefined) {
+    error('REVISION_MIRROR_MISSING', `${location}/shotId`, 'A mirrored revision requires an acts collection.');
+    return null;
+  }
+  if (!object(shotDefs.acts)) {
+    error('REVISION_MIRROR_COLLECTION_INVALID', `${location}/shotId`, 'acts must be an object when structural act mirrors are present.');
+    return null;
+  }
+  const allActMatches = [];
+  for (const [actKey, shots] of Object.entries(shotDefs.acts)) {
+    if (!Array.isArray(shots)) {
+      error('REVISION_MIRROR_COLLECTION_INVALID', `${location}/acts/${actKey}`, 'Each structural act mirror must be an array.');
+      continue;
+    }
+    for (const mirror of shots) {
+      if (mirror?.shotId === entry.shotId || mirror?.beatId === entry.beatId) allActMatches.push({ actKey, shot: mirror });
+    }
+  }
+  const expected = allActMatches.filter(item => item.actKey === entry.mirrorActKey
+    && item.shot?.shotId === entry.shotId && item.shot?.beatId === entry.beatId
+    && item.shot?.actKey === entry.mirrorActKey);
+  if (allActMatches.some(item => item.actKey !== entry.mirrorActKey || item.shot?.actKey !== entry.mirrorActKey)) {
+    error('REVISION_MIRROR_WRONG_ACT', `${location}/shotId`, 'A structural mirror for this shot exists under the wrong act owner.');
+    return null;
+  }
+  if (expected.length !== 1 || allActMatches.length !== 1) {
+    error(expected.length || allActMatches.length ? 'REVISION_MIRROR_AMBIGUOUS' : 'REVISION_MIRROR_MISSING', `${location}/shotId`,
+      `Expected exactly one mirror for ${shot.actKey}/${entry.beatId}; found ${allActMatches.length}.`);
+    return null;
+  }
+  return { canonical: shot, mirror: expected[0].shot };
 }
 
 function pathValue(value, fieldPath) {
@@ -62,6 +119,7 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
   const current = structuredClone(shotDefs);
   let priorResultHash = null;
   const normalized = [];
+  const reconstructedParentHashes = [];
 
   for (let index = 0; index < chain.length; index++) {
     const ledger = chain[index];
@@ -120,6 +178,7 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
         : null;
       const copies = targetShots.get(entry.shotId) || (approvedRetirement ? [approvedRetirement.shot] : null);
       if (!copies?.length) error('REVISION_SHOT_UNKNOWN', `${entryPath}/shotId`, 'Ledger references a shot absent from the artifact.');
+      else if (copies.length !== 1) error('REVISION_SHOT_AMBIGUOUS', `${entryPath}/shotId`, 'A canonical shot ID must occur exactly once.');
       else if (entry.beatId !== copies[0].beatId) error('REVISION_BEAT_MISMATCH', `${entryPath}/beatId`, 'beatId must identify the supplied shot.');
       if (!Array.isArray(ledger.permittedImmutablePaths)) error('REVISION_PERMISSIONS_INVALID', `${location}/permittedImmutablePaths`, 'permittedImmutablePaths must be an explicit array.');
       const rootField = entry.fieldPath?.split('.')[0];
@@ -143,19 +202,34 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
     const currentHash = artifactSha256(current);
     if (currentHash !== ledger.resultArtifactSha256) error('REVISION_RESULT_HASH', `${location}/resultArtifactSha256`, `Current artifact hash ${currentHash} does not match this ledger result.`);
     for (const entry of [...ledger.entries].reverse()) {
-      const copies = shotsById(current).get(entry.shotId) || [];
-      for (const copy of copies) {
+      const entryIndex = ledger.entries.indexOf(entry);
+      const copies = locateRevisionCopies(current, entry, `${location}/entries/${entryIndex}`, error);
+      if (!copies) continue;
+      const targets = copies.mirror ? [copies.canonical, copies.mirror] : [copies.canonical];
+      const values = [];
+      for (const copy of targets) {
         const activeValue = pathValue(copy, entry.fieldPath);
         if (!activeValue.exists) {
-          error('REVISION_FIELD_UNKNOWN', `${location}/entries/${ledger.entries.indexOf(entry)}/fieldPath`, 'fieldPath does not exist on the referenced shot.');
-          continue;
+          error('REVISION_FIELD_UNKNOWN', `${location}/entries/${entryIndex}/fieldPath`, 'fieldPath does not exist on the referenced shot.');
+          values.push({ exists: false, value: undefined });
+        } else {
+          values.push(activeValue);
         }
-        if (!activeValue.exists || !own(entry, 'afterValue') || (!same(activeValue.value, entry.afterValue) && !same(activeValue.value, entry.beforeValue))) {
-          error('REVISION_AFTER_VALUE', `${location}/entries/${ledger.entries.indexOf(entry)}/afterValue`, 'Active value does not equal the exact approved afterValue.');
-          continue;
-        }
-        if (same(activeValue.value, entry.afterValue)) setPath(copy, entry.fieldPath, entry.beforeValue);
       }
+      if (values.some(item => !item.exists)) continue;
+      if (copies.mirror && !same(values[0].value, values[1].value)) {
+        error('REVISION_MIRROR_VALUE_MISMATCH', `${location}/entries/${entryIndex}/afterValue`, 'Canonical and mirrored child values must agree before reversal.');
+        continue;
+      }
+      if (!own(entry, 'beforeValue') || !own(entry, 'afterValue')
+          || !same(values[0].value, entry.afterValue)
+          || (copies.mirror && !same(values[1].value, entry.afterValue))) {
+        error('REVISION_AFTER_VALUE', `${location}/entries/${entryIndex}/afterValue`, 'Every canonical and mirrored child value must equal the exact approved afterValue.');
+        continue;
+      }
+      // Validate every copy before changing any copy, so a revision is reversed
+      // atomically across the canonical shot and all of its required mirrors.
+      for (const copy of targets) setPath(copy, entry.fieldPath, entry.beforeValue);
     }
     for (const binding of [...ledger.bindings].reverse()) {
       if (!same(current.sourceEditPlanSha256, binding.afterValue)) {
@@ -174,6 +248,7 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
       if (current.totalShots !== undefined) current.totalShots++;
     }
     const parentHash = artifactSha256(current);
+    reconstructedParentHashes[index] = parentHash;
     if (parentHash !== ledger.parentArtifactSha256) error('REVISION_PARENT_HASH', `${location}/parentArtifactSha256`, `Reconstructed parent hash ${parentHash} does not match the declared parent.`);
   }
 
@@ -189,6 +264,7 @@ function validateRevisionChain({ shotDefs, revisionChain } = {}) {
   }
   return {
     status: errors.length ? 'FAIL' : 'PASS', errors, approvedPlanDifferences,
+    reconstructedParentHashes,
     counts: { historical: normalized.filter(ledger => ledger.lineageRole === 'historical').reduce((sum, ledger) => sum + ledger.entries.length, 0), amendments: normalized.filter(ledger => ledger.lineageRole === 'current').reduce((sum, ledger) => sum + ledger.entries.length, 0) },
   };
 }

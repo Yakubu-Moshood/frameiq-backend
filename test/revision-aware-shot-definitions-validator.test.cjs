@@ -84,6 +84,30 @@ function makeLayer(parent, changes, { revisionId = 'test-revision', revisionVers
   };
 }
 
+function makeMirroredLayer(parent, changes, { revisionId = 'test-mirrored-revision' } = {}) {
+  const result = structuredClone(parent);
+  const entries = changes.map(change => {
+    const canonical = result.allShots.filter(shot => shot.shotId === change.shotId);
+    assert.equal(canonical.length, 1);
+    const owner = canonical[0].actKey;
+    const mirrors = result.acts?.[owner]?.filter(shot => shot.shotId === change.shotId && shot.beatId === canonical[0].beatId) || [];
+    assert.equal(mirrors.length, 1);
+    const beforeValue = structuredClone(readShot(canonical[0], change.fieldPath));
+    editShot(result, change.shotId, change.fieldPath, change.afterValue);
+    const segments = change.fieldPath.split('.');
+    let target = mirrors[0];
+    for (const segment of segments.slice(0, -1)) target = target[segment];
+    target[segments.at(-1)] = structuredClone(change.afterValue);
+    return { shotId: change.shotId, beatId: canonical[0].beatId, mirrorActKey: owner,
+      fieldPath: change.fieldPath, beforeValue, afterValue: structuredClone(change.afterValue),
+      reason: 'Approved mirrored test change.', approvalStatus: 'APPROVED', revisionVersion: 'test-v1' };
+  });
+  const ledger = { ledgerVersion: '1.0.0', revisionId, revisionVersion: 'test-v1', lineageRole: 'historical', approvalStatus: 'APPROVED',
+    approval: { status: 'APPROVED', basis: 'Explicit mirrored fixture approval.' }, parentArtifactSha256: artifactSha256(parent),
+    resultArtifactSha256: artifactSha256(result), permittedImmutablePaths: [], entries };
+  return { result, ledger };
+}
+
 function adaptPhase22dLedger(raw) {
   const sourceLedgerSha256 = require('node:crypto').createHash('sha256').update(fs.readFileSync(path.join(PHASE_22D, 'revision-ledger.phase2.2d.json'))).digest('hex');
   assert.equal(sourceLedgerSha256, 'ee483ff82b0f10e42279b0b6b9e4d6b3d4621872e7f605b485085c7456ecdc47');
@@ -164,6 +188,87 @@ test('duplicate revision entries are rejected', () => {
   const duplicate = structuredClone(layer.ledger);
   duplicate.entries.push(structuredClone(duplicate.entries[0]));
   assert.ok(validateRevisionChain({ shotDefs: layer.result, revisionChain: [duplicate] }).errors.some(error => error.code === 'REVISION_ENTRY_DUPLICATE'));
+});
+
+test('approved mirrored fields reverse in allShots and act copies to the exact approved parent hash', t => {
+  const file = path.join(CANDIDATE, 'candidate-shot-definitions-pretiming.json');
+  if (!fs.existsSync(file)) return t.skip('canonical approved candidate shot fixture is not present locally');
+  const parent = JSON.parse(fs.readFileSync(file, 'utf8'));
+  assert.equal(artifactSha256(parent), '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b');
+  const owners = [['act2', 'ACT2_B026'], ['act3b', 'ACT3B_B018'], ['act5', 'ACT5_B022'], ['act5', 'ACT5_B023'], ['act5', 'ACT5_B027']];
+  const changes = owners.map(([actKey, beatId]) => {
+    const shot = parent.allShots.find(item => item.actKey === actKey && item.beatId === beatId);
+    assert.ok(shot && typeof shot.timingExceptionReason === 'string' && shot.timingExceptionReason.length > 0);
+    return { shotId: shot.shotId, fieldPath: 'timingExceptionReason', afterValue: null };
+  });
+  const layer = makeMirroredLayer(parent, changes);
+  const result = validateRevisionChain({ shotDefs: layer.result, revisionChain: [layer.ledger] });
+  assert.equal(result.status, 'PASS', JSON.stringify(result.errors));
+  assert.equal(result.reconstructedParentHashes[0], '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b');
+  for (const [actKey, beatId] of owners) {
+    const flat = layer.result.allShots.find(item => item.actKey === actKey && item.beatId === beatId);
+    const mirror = layer.result.acts[actKey].find(item => item.actKey === actKey && item.beatId === beatId);
+    assert.equal(flat.timingExceptionReason, null);
+    assert.equal(mirror.timingExceptionReason, null);
+  }
+});
+
+test('mirrored revision reversal fails closed for missing, duplicate, wrong-owner, or disagreeing mirrors', () => {
+  const data = tinyFixture();
+  const layer = makeMirroredLayer(data.shotDefs, [{ shotId: 'act1_b001', fieldPath: 'visual.description', afterValue: 'Revised street.' }]);
+  const cases = [
+    ['missing', shotDefs => { shotDefs.acts.act1 = []; }],
+    ['duplicate', shotDefs => { shotDefs.acts.act1.push(structuredClone(shotDefs.acts.act1[0] || layer.result.allShots[0])); }],
+    ['wrong owner', shotDefs => { const mirror = shotDefs.acts.act1.pop(); shotDefs.acts.act2 = [mirror]; }],
+    ['child disagreement', shotDefs => { shotDefs.acts.act1[0].visual.description = 'Different mirror.'; }],
+  ];
+  for (const [name, mutate] of cases) {
+    const altered = structuredClone(layer.result); mutate(altered);
+    layer.ledger.resultArtifactSha256 = artifactSha256(altered);
+    const report = validateRevisionChain({ shotDefs: altered, revisionChain: [layer.ledger] });
+    assert.equal(report.status, 'FAIL', name);
+    assert.ok(report.errors.some(error => error.code.startsWith('REVISION_MIRROR_')), name);
+    layer.ledger.resultArtifactSha256 = artifactSha256(layer.result);
+  }
+});
+
+test('mirrored reversal rejects duplicate canonical identity, wrong child and altered prior values', () => {
+  const data = tinyFixture();
+  const layer = makeMirroredLayer(data.shotDefs, [{ shotId: 'act1_b001', fieldPath: 'visual.description', afterValue: 'Revised street.' }]);
+  const duplicate = structuredClone(layer.result); duplicate.allShots.push(structuredClone(duplicate.allShots[0]));
+  layer.ledger.resultArtifactSha256 = artifactSha256(duplicate);
+  assert.ok(validateRevisionChain({ shotDefs: duplicate, revisionChain: [layer.ledger] }).errors.some(error => error.code === 'REVISION_SHOT_AMBIGUOUS'));
+  layer.ledger.resultArtifactSha256 = artifactSha256(layer.result);
+
+  const wrongChild = structuredClone(layer.result);
+  wrongChild.allShots[0].visual.description = wrongChild.acts.act1[0].visual.description = 'Unapproved child.';
+  layer.ledger.resultArtifactSha256 = artifactSha256(wrongChild);
+  assert.ok(validateRevisionChain({ shotDefs: wrongChild, revisionChain: [layer.ledger] }).errors.some(error => error.code === 'REVISION_AFTER_VALUE'));
+
+  layer.ledger.resultArtifactSha256 = artifactSha256(layer.result);
+  const alteredPrior = structuredClone(layer.ledger); alteredPrior.entries[0].beforeValue = 'Altered parent.';
+  assert.ok(validateRevisionChain({ shotDefs: layer.result, revisionChain: [alteredPrior] }).errors.some(error => error.code === 'REVISION_PARENT_HASH'));
+});
+
+test('unrecorded mirrored mutation fails parent reconstruction and multiple mirrored fields reverse generically', () => {
+  const data = tinyFixture();
+  const layer = makeMirroredLayer(data.shotDefs, [
+    { shotId: 'act1_b001', fieldPath: 'visual.description', afterValue: 'Revised street.' },
+    { shotId: 'act1_b001', fieldPath: 'rhythmIntent', afterValue: 'impact' },
+  ]);
+  // A separate field changed in the mirror but not in the ledger must remain
+  // visible in the reconstructed hash and prevent a false pass.
+  const unrecorded = structuredClone(layer.result);
+  unrecorded.acts.act1[0].imagePrompt = 'Unrecorded mirror mutation.';
+  layer.ledger.resultArtifactSha256 = artifactSha256(unrecorded);
+  const failed = validateRevisionChain({ shotDefs: unrecorded, revisionChain: [layer.ledger] });
+  assert.equal(failed.status, 'FAIL');
+  assert.ok(failed.errors.some(error => error.code === 'REVISION_PARENT_HASH'));
+
+  layer.ledger.resultArtifactSha256 = artifactSha256(layer.result);
+  const passed = validateRevisionChain({ shotDefs: layer.result, revisionChain: [layer.ledger] });
+  assert.equal(passed.status, 'PASS', JSON.stringify(passed.errors));
+  assert.deepEqual(passed.reconstructedParentHashes, [artifactSha256(data.shotDefs)]);
 });
 
 test('unknown shot IDs and fields are rejected', () => {
