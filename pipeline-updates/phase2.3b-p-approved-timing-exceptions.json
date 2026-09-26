@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "phase2.3b-p-approved-timing-exceptions/1.0.0",
+  "status": "USER_APPROVED",
+  "approval": {
+    "approvedBy": "CTO",
+    "approvalRef": "User-approved five-beat Phase 2.3B-P timing exception package",
+    "recordedDate": "2026-09-26"
+  },
+  "runId": "phase2-3b-p-act-20260925",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "channelKey": "EmpireOmitted",
+  "tokenization": {
+    "sourcePlan": "edit-plan-schema/3.0.0-inclusive-word-indices",
+    "candidateScript": "js-trim-split-whitespace/1.0.0",
+    "retainedTranscript": "word-timestamps-array/zero-based-inclusive/1.0.0",
+    "timingBoundary": "next-word-start-or-act-terminal-boundary/1.0.0"
+  },
+  "binding": {
+    "runId": "phase2-3b-p-act-20260925",
+    "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+    "channelKey": "EmpireOmitted",
+    "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "candidatePreTimingEditPlanSha256": "a15f99e70788343569a9620695923e94374f8c12986fcffc21e143d290a7a03a",
+    "candidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+    "retainedTranscriptSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+    "alignmentProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+    "alignmentApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+    "approvedBoundaryPolicySha256": "3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9",
+    "candidateAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+    "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+    "candidateShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+    "candidateProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed"
+  },
+  "exceptions": [
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act2:ACT2_B006",
+      "actKey": "act2",
+      "beatId": "ACT2_B006",
+      "sourcePlanWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo survived.",
+      "approvedNarrationSha256": "9d21928564e0b7ccc99f25c90b3771e8c927b0c3654684da6cc318b3ee8e6f49",
+      "sourcePlanNarrationExcerpt": "wells fargo survived",
+      "sourcePlanNarrationSha256": "7e43c36187d2ccd59873577d68c49381bb6ac97dc3719640ca751072924a2e23",
+      "mappedTranscriptWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 1.720001,
+      "minimumAllowedDurationSec": 1.719001,
+      "maximumAllowedDurationSec": 1.721001,
+      "justification": "This short, complete three-word statement is a deliberate dramatic contrast: the bank survived the 2008 financial crisis. Keep the approved evidence reference and narration ownership unchanged.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "photograph",
+          "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Corporate Photography",
+          "humanReviewRequired": true
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "photograph",
+            "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Corporate Photography",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context."
+        }
+      },
+      "productionObligationsSha256": "a2c0a62a03c8dcfdbe8e59dc4b3f435ad6ac0b7e825ad40011701668c884a685",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act2:ACT2_B006",
+        "relationship": "retained-approved-plan-beat"
+      }
+    },
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act3b:ACT3B_B008",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "sourcePlanWordRange": {
+        "start": 59,
+        "end": 69,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 58,
+        "end": 74,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo says it refunded about $2.6 million in fees tied to accounts flagged by its review.",
+      "approvedNarrationSha256": "2285bdcb657e52824e7dd7e4046a2ef0866701e76b4f8204ccc67615c70160b6",
+      "sourcePlanNarrationExcerpt": "bank collected an estimated 2 6 million in fees from accounts",
+      "sourcePlanNarrationSha256": "7600ded519b1c1852509b8301497bb71ed47894d73178daf8c0ac1d45952d011",
+      "mappedTranscriptWordRange": {
+        "start": 58,
+        "end": 75,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 7.27,
+      "minimumAllowedDurationSec": 7.269,
+      "maximumAllowedDurationSec": 7.271,
+      "justification": "This complete sentence attributes the approximately $2.6 million fee refund to Wells Fargo and its review. Preserve the evidence reference and the approved fee-refund graphic for the entire verified narration interval.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure",
+          "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure",
+            "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo."
+        }
+      },
+      "productionObligationsSha256": "e83b431f2041e05157d0ddd732e4af5dcdea69b2283f3f6f2b2e5a7075632ee4",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "approved-range:act3b:ACT3B_B008",
+        "relationship": "approved-rewritten-range"
+      }
+    },
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act3b:ACT3B_B012",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "sourcePlanWordRange": {
+        "start": 90,
+        "end": 101,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 86,
+        "end": 97,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo said it fired more than 5,300 employees for sales-practice violations.",
+      "approvedNarrationSha256": "f0e222f3e73415ba2d52dd237186594689a25c92c814bbac4feb49279664676a",
+      "sourcePlanNarrationExcerpt": "fargo said it fired more than 5 300 employees for sales practice",
+      "sourcePlanNarrationSha256": "e6a87b4f66a4902fadf3431d164c1b39b5c564da8a307424381353ddd95faf72",
+      "mappedTranscriptWordRange": {
+        "start": 87,
+        "end": 100,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.760002,
+      "minimumAllowedDurationSec": 6.759002,
+      "maximumAllowedDurationSec": 6.761002,
+      "justification": "This complete sentence states the bank-reported termination count and its sales-practice scope. Preserve the evidence reference and the approved 5,300-employees graphic across the full verified narration interval.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure or regulatory filing",
+          "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo Disclosure",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure or regulatory filing",
+            "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo Disclosure",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
+        }
+      },
+      "productionObligationsSha256": "1b2728a39352e995cef8e85f259ca9c9970016871d3978e6713bfe092da2791d",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "approved-range:act3b:ACT3B_B012",
+        "relationship": "approved-rewritten-range"
+      }
+    },
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act4:ACT4_B022",
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "sourcePlanWordRange": {
+        "start": 198,
+        "end": 207,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 198,
+        "end": 207,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "then terminated the remaining 2018 enforcement action in March 2026.",
+      "approvedNarrationSha256": "b65b76c608968740754647aeba34804497a6f4f83f845c429eabbf44cee32fc3",
+      "sourcePlanNarrationExcerpt": "then terminated the remaining 2018 enforcement action in march 2026",
+      "sourcePlanNarrationSha256": "62d0545dff80c1c096cf2aa8be03d0419d1cdee54a91028edb061ab5562ccb3f",
+      "mappedTranscriptWordRange": {
+        "start": 195,
+        "end": 204,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.019997,
+      "minimumAllowedDurationSec": 6.018997,
+      "maximumAllowedDurationSec": 6.020997,
+      "justification": "This dated Federal Reserve closure clause is 19.997 milliseconds above the normal maximum because of the approved retained-VO word boundaries. Preserve the Fed evidence and March 2026 date marker; do not reassign narration.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "regulatory document",
+          "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Federal Reserve, March 2026",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "regulatory document",
+            "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Federal Reserve, March 2026",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure."
+        }
+      },
+      "productionObligationsSha256": "d614139f55c3705dbc24005f38d59cde1b06b59748fd3ea648774a331ebab92a",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act4:ACT4_B022",
+        "relationship": "retained-approved-plan-beat"
+      }
+    },
+    {
+      "exceptionId": "phase2.3b-p-timing-exception/1.0.0:act5:ACT5_B012",
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "sourcePlanWordRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 119,
+        "end": 130,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "workers, clear their records and pay back wages or damages. Other employees",
+      "approvedNarrationSha256": "d630a57fa5047d31695578546debcf43dabd5580e8ab303976351c10326f479e",
+      "sourcePlanNarrationExcerpt": "workers clear their records and pay back wages or damages other employees",
+      "sourcePlanNarrationSha256": "ffc6a715e1e7e996aa0e1dca4c6bd712874d1c9181dbfdc8dce6d480027603be",
+      "mappedTranscriptWordRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.099998,
+      "minimumAllowedDurationSec": 6.098998,
+      "maximumAllowedDurationSec": 6.100998,
+      "justification": "This approved reconstruction sentence explains the remedy for reinstated workers. Its retained-VO timing is 99.998 milliseconds above the normal maximum; preserve the approved essential-animation method and narration ownership.",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "5fb3a0037511b4e4a32f30e5fe4d93680365c044dffdbc31ede549ca5f9e60f4",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act5:ACT5_B012",
+        "relationship": "retained-approved-plan-beat"
+      }
+    }
+  ]
+}

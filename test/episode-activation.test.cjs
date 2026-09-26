@@ -14,7 +14,9 @@ const {
   verifyApprovedBoundaryPolicy, updateProductionManifestForRetirements, updateShotDefinitions,
 } = require('../pipeline-updates/episode-activation.cjs');
 const { artifactSha256: revisionArtifactSha256, validateRevisionChain } = require('../pipeline-updates/revision-lineage.cjs');
+const activation = require('../pipeline-updates/episode-activation.cjs');
 const activationCli = require('../scripts/phase2.3b-p-activate.cjs');
+const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 
 function fixture() {
   const bindings = { act1: 'VO_Act1.mp3', act2: 'VO_Act2.mp3' };
@@ -909,6 +911,107 @@ function authorizedAct2Input() {
   };
 }
 
+function approvedTimingExceptionFixture() {
+  const root = path.join(__dirname, '../artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate');
+  const policyPath = path.join(__dirname, '../pipeline-updates/phase2.3b-p-approved-timing-exceptions.json');
+  const bytes = Buffer.from(fs.readFileSync(policyPath, 'utf8').replace(/\r\n/gu, '\n'));
+  const policy = JSON.parse(bytes.toString('utf8'));
+  const plan = JSON.parse(fs.readFileSync(path.join(root, 'candidate-edit-plan-pretiming.json'), 'utf8'));
+  const script = JSON.parse(fs.readFileSync(path.join(root, 'candidate-script.json'), 'utf8'));
+  const shots = JSON.parse(fs.readFileSync(path.join(root, 'candidate-shot-definitions-pretiming.json'), 'utf8'));
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'candidate-production-manifest-pretiming.json'), 'utf8'));
+  const boundaryFile = path.join(__dirname, '../pipeline-updates/phase2.3b-p-approved-boundary-ranges.json');
+  const boundaryBytes = Buffer.from(fs.readFileSync(boundaryFile, 'utf8').replace(/\r\n/gu, '\n'));
+  const boundary = JSON.parse(boundaryBytes.toString('utf8'));
+  const amendment = fs.readFileSync(path.join(root, 'revision-ledger.phase2.3b-sv-amendment.v1.json'));
+  const approvedBoundaryPolicy = verifyApprovedBoundaryPolicy({ policy: boundary, policyBytes: boundaryBytes, script, scriptSha256: sha256(fs.readFileSync(path.join(root, 'candidate-script.json'))), amendmentSha256: sha256(amendment) });
+  const binding = policy.binding;
+  const boundaryInputHashes = {
+    lockedEditPlanSha256: binding.lockedEditPlanSha256,
+    candidatePreTimingEditPlanSha256: binding.candidatePreTimingEditPlanSha256,
+    candidateScriptSha256: binding.candidateScriptSha256,
+    retainedTranscriptSha256: binding.retainedTranscriptSha256,
+    alignmentProposalSha256: binding.alignmentProposalSha256,
+    alignmentApprovalSha256: binding.alignmentApprovalSha256,
+    candidateAmendmentSha256: binding.candidateAmendmentSha256,
+  };
+  const approvedTimingExceptions = activationCli.loadApprovedTimingExceptions({
+    runId: binding.runId, policyFile: policyPath, approvedBoundaryPolicy, boundaryInputHashes, packageDirectory: root,
+  });
+  return { root, policy, bytes, plan, script, shots, manifest, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions };
+}
+
+function syntheticApprovedTimingExceptionInput(approvedTimingExceptions, sourcePlan, { unapprovedDuration = null, unapprovedAct = 'act1' } = {}) {
+  const actOrder = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const actBindings = Object.fromEntries(actOrder.map(key => [key, `VO_${key === 'act3b' ? 'Act3B' : `${key[0].toUpperCase()}${key.slice(1)}`}`]));
+  const groups = new Map(actOrder.map(key => [key, approvedTimingExceptions.exceptions.filter(item => item.actKey === key).sort((a, b) => a.mappedTranscriptWordRange.start - b.mappedTranscriptWordRange.start)]));
+  const script = { ...structuredClone(sourcePlan.script), acts: {} };
+  const plan = structuredClone(sourcePlan.plan);
+  const wordTimestamps = [], actDurationsSec = {};
+  const sequences = [];
+  const splitSpoken = value => value.replace(/\$(?=\d)/gu, '').replace(/(?<=\d)[,.](?=\d)/gu, ' ').replace(/(?<=[\p{L}])-(?=[\p{L}])/gu, ' ').trim().split(/\s+/u);
+
+  for (const actKey of actOrder) {
+    const exceptions = groups.get(actKey);
+    const intervals = [];
+    let cursor = 0;
+    for (const exception of exceptions) {
+      const { start, end } = exception.mappedTranscriptWordRange;
+      if (start > cursor) intervals.push({ start: cursor, end: start - 1, exception: null });
+      intervals.push({ start, end, exception });
+      cursor = end + 1;
+    }
+    if (!intervals.length) intervals.push({ start: 0, end: 3, exception: null });
+    const tokenCount = intervals.at(-1).end + 1;
+    const words = Array.from({ length: tokenCount }, (_, index) => `fixture_${actKey}_${String(index).padStart(3, '0')}`);
+    const beats = [];
+    const originalSequence = plan.sequences.find(sequence => sequence.actKey === actKey);
+    const sequence = structuredClone(originalSequence);
+    sequence.beats = [];
+    const specialSourceBeats = new Map(sourcePlan.plan.sequences.flatMap(item => item.beats).map(beat => [`${beat.actKey}:${beat.beatId}`, beat]));
+    let cursorSec = 0;
+    for (let index = 0; index < intervals.length; index++) {
+      const interval = intervals[index];
+      const exception = interval.exception;
+      const beatId = exception?.beatId || `FIXTURE_${actKey}_B${String(index + 1).padStart(3, '0')}`;
+      const sourceBeat = exception ? specialSourceBeats.get(`${actKey}:${beatId}`) : sourcePlan.plan.sequences.find(item => item.actKey === actKey)?.beats[0];
+      const beat = structuredClone(sourceBeat);
+      beat.beatId = beatId;
+      beat.actKey = actKey;
+      beat.sequenceId = sequence.sequenceId;
+      beat.startWordIndex = interval.start;
+      beat.endWordIndex = interval.end;
+      const narrationWords = exception ? splitSpoken(exception.approvedNarrationExcerpt) : words.slice(interval.start, interval.end + 1);
+      assert.equal(narrationWords.length, interval.end - interval.start + 1, `${actKey}:${beatId} fixture range size`);
+      narrationWords.forEach((word, offset) => { words[interval.start + offset] = word; });
+      beat.narrationExcerpt = narrationWords.join(' ');
+      beat.startSec = cursorSec;
+      beat.durationSec = exception?.approvedDurationSec || (unapprovedDuration !== null && actKey === unapprovedAct && !beats.some(item => item.beatId.startsWith(`FIXTURE_${actKey}_`)) ? unapprovedDuration : 4);
+      beat.endSec = cursorSec + beat.durationSec;
+      beat.timingExceptionReason = null;
+      const intervalDuration = beat.durationSec / narrationWords.length;
+      narrationWords.forEach((_, offset) => {
+        const start = cursorSec + offset * intervalDuration;
+        wordTimestamps.push({ vo_file: actBindings[actKey], word: words[interval.start + offset], start_seconds: start, end_seconds: start + Math.min(0.05, intervalDuration / 2) });
+      });
+      cursorSec += beat.durationSec;
+      beats.push(beat);
+    }
+    sequence.beats = beats;
+    sequences.push(sequence);
+    script.acts[actKey] = { voScript: words.join(' ') };
+    actDurationsSec[actKey] = cursorSec;
+  }
+  plan.sequences = sequences;
+  plan.timing = {
+    basis: 'finished_vo_word_timestamps', totalDurationSec: Object.values(actDurationsSec).reduce((sum, value) => sum + value, 0),
+    acts: actOrder.map(actKey => ({ actKey, voKey: actBindings[actKey], wordCount: wordTimestamps.filter(item => item.vo_file === actBindings[actKey]).length, startSec: 0, endSec: actDurationsSec[actKey], durationSec: actDurationsSec[actKey] })),
+  };
+  const reviewedAlignment = reviewedFor(script, wordTimestamps, actBindings, true);
+  const input = { plan, wordTimestamps, actOrder, actBindings, actDurationsSec, script, reviewedAlignment, approvedTimingExceptions };
+  return { input, wordTimestamps, actDurationsSec, reviewedAlignment };
+}
+
 test('policy authorization maps ACT2_B011 start 89 to transcript 89 through the shared six-act audit and retimer', () => {
   const { value, input } = authorizedAct2Input();
   const sourceAct2 = input.plan.sequences.find(sequence => sequence.actKey === 'act2').beats;
@@ -1054,6 +1157,129 @@ test('approved boundary ranges fail closed on missing or altered policy and line
   assert.throws(() => verifyApprovedBoundaryPolicy({ policy: value.policy, policyBytes: value.policyBytes, script: altered, scriptSha256: value.policy.scriptSha256, amendmentSha256: value.policy.revisionLineage.amendmentSha256 }), /RANGE_MISMATCH/u);
   assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010'], retirementRecords: [] }), /RETIREMENT_APPROVAL_MISSING/u);
   assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010', 'ACT3B_B010'] }), /RETIREMENT_NOT_APPROVED/u);
+});
+
+test('the five timing exceptions are versioned, pinned, run-bound, and tied to exact narration, ranges, lineage and production obligations', () => {
+  const value = approvedTimingExceptionFixture();
+  const policy = value.approvedTimingExceptions;
+  assert.equal(policy.verified, true);
+  assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/1.0.0');
+  assert.equal(policy.policySha256, '9df5925a9410ab47966e156e03e9675c011d3205ae31f8d8bc8394edcef5e0a5');
+  assert.equal(policy.runId, 'phase2-3b-p-act-20260925');
+  assert.equal(policy.exceptions.length, 5);
+  assert.deepEqual(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`), [
+    'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012',
+  ]);
+  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
+  assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION']);
+  for (const item of policy.exceptions) {
+    assert.match(item.approvedNarrationSha256, /^[a-f0-9]{64}$/u);
+    assert.match(item.sourcePlanNarrationSha256, /^[a-f0-9]{64}$/u);
+    assert.match(item.productionObligationsSha256, /^[a-f0-9]{64}$/u);
+    assert.ok(item.revisionLineage.entryId);
+  }
+
+  const verify = (actualBindings = value.policy.binding, options = {}) => activation.verifyApprovedTimingExceptionPolicy({
+    policy: options.policy || value.policy, policyBytes: options.policyBytes || value.bytes, actualBindings,
+    plan: options.plan || value.plan, script: options.script || value.script,
+    shotDefinitions: options.shots || value.shots, productionManifest: options.manifest || value.manifest,
+    approvedBoundaryPolicy: value.approvedBoundaryPolicy,
+  });
+  for (const key of Object.keys(value.policy.binding)) {
+    const changed = structuredClone(value.policy.binding);
+    changed[key] = key.endsWith('Sha256') ? '0'.repeat(64) : `${changed[key]}-stale`;
+    assert.throws(() => verify(changed), /TIMING_EXCEPTION_(?:POLICY_)?(?:APPROVAL_INVALID|BINDING_MISMATCH)/u, key);
+  }
+  assert.equal(activationCli.loadApprovedTimingExceptions({ runId: 'another-independent-run' }), null);
+  assert.throws(() => activationCli.loadApprovedTimingExceptions({
+    runId: value.policy.binding.runId, policyFile: path.join(os.tmpdir(), `missing-timing-exceptions-${process.pid}.json`),
+    approvedBoundaryPolicy: value.approvedBoundaryPolicy, boundaryInputHashes: {
+      lockedEditPlanSha256: value.policy.binding.lockedEditPlanSha256,
+      candidatePreTimingEditPlanSha256: value.policy.binding.candidatePreTimingEditPlanSha256,
+      candidateScriptSha256: value.policy.binding.candidateScriptSha256,
+      retainedTranscriptSha256: value.policy.binding.retainedTranscriptSha256,
+      alignmentProposalSha256: value.policy.binding.alignmentProposalSha256,
+      alignmentApprovalSha256: value.policy.binding.alignmentApprovalSha256,
+      candidateAmendmentSha256: value.policy.binding.candidateAmendmentSha256,
+    }, packageDirectory: value.root,
+  }), /ACTIVATION_TIMING_EXCEPTION_POLICY_MISSING/u);
+  const alteredShots = structuredClone(value.shots);
+  alteredShots.allShots.find(item => item.beatId === 'ACT3B_B008').graphics[0].text = 'ALTERED GRAPHIC';
+  assert.throws(() => verify(undefined, { shots: alteredShots }), /TIMING_EXCEPTION_PRODUCTION_BINDING_MISMATCH/u);
+  const alteredPlan = structuredClone(value.plan);
+  alteredPlan.sequences.flatMap(sequence => sequence.beats).find(item => item.beatId === 'ACT2_B006').startWordIndex++;
+  assert.throws(() => verify(undefined, { plan: alteredPlan }), /TIMING_EXCEPTION_SOURCE_BEAT_MISMATCH/u);
+  assert.throws(() => verify(undefined, { policyBytes: Buffer.concat([value.bytes, Buffer.from(' ')]) }), /TIMING_EXCEPTION_POLICY_HASH_MISMATCH/u);
+  const duplicate = structuredClone(value.policy);
+  duplicate.exceptions.push(structuredClone(duplicate.exceptions[0]));
+  assert.throws(() => verify(undefined, { policy: duplicate }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+  const unknown = structuredClone(value.policy);
+  unknown.exceptions[0].beatId = 'UNKNOWN_BEAT';
+  assert.throws(() => verify(undefined, { policy: unknown }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+  const alteredDuration = structuredClone(value.policy);
+  alteredDuration.exceptions[0].maximumAllowedDurationSec += 0.01;
+  assert.throws(() => verify(undefined, { policy: alteredDuration }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+});
+
+test('approved exceptions pass the same six-act boundary mapper and deterministic edit-plan validator', () => {
+  const source = approvedTimingExceptionFixture();
+  const fixture = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
+  const audit = auditEditPlanBoundaries(fixture.input);
+  assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
+  assert.equal(audit.acts.length, 6);
+  assert.equal(audit.timingExceptionAudit.status, 'PASS');
+  assert.equal(audit.timingExceptionAudit.entries.length, 5);
+  assert.deepEqual(audit.acts.flatMap(act => act.errors), []);
+  assert.deepEqual(audit.acts.flatMap(act => act.gaps), []);
+  assert.deepEqual(audit.acts.flatMap(act => act.overlaps), []);
+  assert.equal(audit.providerRequestsMade, 0);
+  assert.equal(audit.candidateWrites, 0);
+  assert.equal(audit.episodeRootWrites, 0);
+
+  const retimed = retimeEditPlan(fixture.input).plan;
+  const report = activation.verifyTimingExceptionApplications({ plan: retimed, approvedTimingExceptions: source.approvedTimingExceptions });
+  assert.equal(report.status, 'PASS');
+  assert.deepEqual(report.entries.map(item => item.beatId), ['ACT2_B006', 'ACT3B_B008', 'ACT3B_B012', 'ACT4_B022', 'ACT5_B012']);
+  for (const item of source.approvedTimingExceptions.exceptions) {
+    const beat = retimed.sequences.flatMap(sequence => sequence.beats).find(value => value.beatId === item.beatId);
+    assert.equal(beat.timingExceptionReason, item.justification);
+    assert.deepEqual([beat.startWordIndex, beat.endWordIndex], [item.mappedTranscriptWordRange.start, item.mappedTranscriptWordRange.end]);
+    assert.ok(beat.durationSec >= item.minimumAllowedDurationSec && beat.durationSec <= item.maximumAllowedDurationSec, item.beatId);
+  }
+  assertCreativePlanFieldsFrozen(fixture.input.plan, retimed, { approvedTimingExceptionBeatIds: source.approvedTimingExceptions.exceptions.map(item => item.beatId) });
+  const validation = validateEditPlan({ plan: retimed, wordTimestamps: fixture.wordTimestamps });
+  assert.equal(validation.status, 'PASS', JSON.stringify(validation.errors));
+  assert.deepEqual(validation.errors, []);
+});
+
+test('removing any one approved exception restores its original hard timing violation', () => {
+  const source = approvedTimingExceptionFixture();
+  const complete = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
+  for (const omitted of source.approvedTimingExceptions.exceptions) {
+    const reduced = {
+      ...source.approvedTimingExceptions,
+      exceptions: source.approvedTimingExceptions.exceptions.filter(item => item.exceptionId !== omitted.exceptionId),
+    };
+    const input = { ...complete.input, approvedTimingExceptions: reduced };
+    const retimed = retimeEditPlan(input).plan;
+    const validation = validateEditPlan({ plan: retimed, wordTimestamps: complete.wordTimestamps });
+    assert.equal(validation.status, 'FAIL', omitted.beatId);
+    const code = omitted.approvedDurationSec < 2 ? 'BEAT_TOO_SHORT' : 'BEAT_TOO_LONG';
+    assert.equal(validation.errors.filter(error => error.code === code).length, 1, omitted.beatId);
+  }
+});
+
+test('unlisted short and long beats still fail; the five near-minimum normal beats receive no exception', () => {
+  const source = approvedTimingExceptionFixture();
+  for (const [duration, code] of [[1.5, 'BEAT_TOO_SHORT'], [7, 'BEAT_TOO_LONG']]) {
+    const fixture = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source, { unapprovedDuration: duration });
+    const retimed = retimeEditPlan(fixture.input).plan;
+    const validation = validateEditPlan({ plan: retimed, wordTimestamps: fixture.wordTimestamps });
+    assert.equal(validation.status, 'FAIL');
+    assert.equal(validation.errors.filter(error => error.code === code).length, 1);
+  }
+  const approvedIds = new Set(source.approvedTimingExceptions.exceptions.map(item => item.beatId));
+  for (const id of ['ACT1_B014', 'ACT2_B004', 'ACT4_B008', 'ACT1_B010', 'ACT2_B024']) assert.equal(approvedIds.has(id), false, id);
 });
 
 test('revision lineage restores an approved retired shot before validating its parent hash', () => {

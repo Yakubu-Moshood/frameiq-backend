@@ -15,10 +15,12 @@ const CANDIDATE_PACKAGE = process.env.EO_P_CANDIDATE_PACKAGE || path.join(__dirn
 const GLOBAL_LOCK_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-active.lock');
 const GLOBAL_STATE_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-state.json');
 const GLOBAL_LEDGER_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+const REQUIRED_TIMING_EXCEPTION_RUN_ID = 'phase2-3b-p-act-20260925';
 const RUNTIME_SYNC_FILES = [
   'episode-activation.cjs', 'vo-timing.cjs', 'edit-plan-validator.cjs', 'edit-plan.schema.json',
   'shot-definitions-validator.cjs', 'shot-definitions-production-contract.cjs', 'revision-lineage.cjs',
   'phase2.3b-p-approved-boundary-ranges.json',
+  'phase2.3b-p-approved-timing-exceptions.json',
   'production-method-manifest.cjs', 'evidence-source-validator.cjs', 'proof-section-planner.cjs', 'act-voice-generator.cjs',
 ];
 const SAFE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{5,63}$/;
@@ -120,6 +122,36 @@ function loadBoundaryInputHashes({ runId, planFile = path.join(CANDIDATE_PACKAGE
   }
   assert(hashes.lockedEditPlanSha256 === approval.lockedEpisodeHashesBeforeActivation['edit-plan.json'], 'ACTIVATION_BOUNDARY_AUTHORIZATION_LOCKED_PLAN_MISMATCH');
   return hashes;
+}
+function loadApprovedTimingExceptions({ runId, policyFile, approvedBoundaryPolicy, boundaryInputHashes, packageDirectory = CANDIDATE_PACKAGE } = {}) {
+  if (runId !== REQUIRED_TIMING_EXCEPTION_RUN_ID) return null;
+  policyFile ||= path.join('/data/pipeline', 'phase2.3b-p-approved-timing-exceptions.json');
+  approvedBoundaryPolicy ||= loadApprovedBoundaryPolicy();
+  boundaryInputHashes ||= loadBoundaryInputHashes({ runId });
+  assert(fs.existsSync(policyFile), 'ACTIVATION_TIMING_EXCEPTION_POLICY_MISSING');
+  const policyBytes = fs.readFileSync(policyFile), policy = JSON.parse(policyBytes.toString('utf8'));
+  const actualBindings = {
+    runId, episodeId: approval.episodeId, channelKey: approval.channelKey,
+    lockedEditPlanSha256: boundaryInputHashes.lockedEditPlanSha256,
+    candidatePreTimingEditPlanSha256: boundaryInputHashes.candidatePreTimingEditPlanSha256,
+    candidateScriptSha256: boundaryInputHashes.candidateScriptSha256,
+    retainedTranscriptSha256: boundaryInputHashes.retainedTranscriptSha256,
+    alignmentProposalSha256: boundaryInputHashes.alignmentProposalSha256,
+    alignmentApprovalSha256: boundaryInputHashes.alignmentApprovalSha256,
+    approvedBoundaryPolicySha256: approvedBoundaryPolicy.policySha256,
+    candidateAmendmentSha256: boundaryInputHashes.candidateAmendmentSha256,
+    candidateHistorySha256: hashFile(path.join(packageDirectory, CANDIDATE_FILES.history)),
+    candidateShotDefinitionsSha256: hashFile(path.join(packageDirectory, CANDIDATE_FILES.shots)),
+    candidateProductionManifestSha256: hashFile(path.join(packageDirectory, CANDIDATE_FILES.manifest)),
+  };
+  return activation.verifyApprovedTimingExceptionPolicy({
+    policy, policyBytes, actualBindings,
+    plan: readJson(path.join(packageDirectory, CANDIDATE_FILES.plan)),
+    script: readJson(path.join(packageDirectory, CANDIDATE_FILES.script)),
+    shotDefinitions: readJson(path.join(packageDirectory, CANDIDATE_FILES.shots)),
+    productionManifest: readJson(path.join(packageDirectory, CANDIDATE_FILES.manifest)),
+    approvedBoundaryPolicy,
+  });
 }
 async function preflight({ runId, probeAudio, inspectActivity } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
@@ -346,6 +378,7 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
   assertFailedRunProcessInactive(priorStatus, { eligibility: { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true } });
   const reviewedPath = reviewedAlignment ? path.join(reviewPath(runId), 'alignment-report.reviewed.v1.json') : null;
   const reviewedAlignmentSha256 = reviewedPath ? writeImmutableJson(fsImpl, reviewedPath, reviewedAlignment) : null;
+  const approvedTimingExceptions = reviewedAlignment?.status === 'PASS' ? loadApprovedTimingExceptions({ runId }) : null;
   const report = {
     schemaVersion: 'phase2.3b-p-resume-preflight/2.0.0', status: reviewedAlignment?.status === 'PASS' ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
     runId, preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
@@ -357,6 +390,7 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
     alignmentReviewApproval: fsImpl.existsSync(approvalPath) ? { file: path.basename(approvalPath), sha256: hashFile(approvalPath) } : null,
     reviewedAlignmentReport: reviewedPath ? { file: path.basename(reviewedPath), sha256: reviewedAlignmentSha256 } : null,
     alignment: { deterministicStatus: alignment.status, reviewedStatus: reviewedAlignment?.status || null, deterministicMatches: alignment.acts.map(act => ({ actKey: act.actKey, matchedTokenCount: act.matchedTokenCount, normalizedEquivalents: act.normalizedEquivalents })), approvedExceptions, unapprovedExceptions },
+    timingExceptionPolicy: approvedTimingExceptions ? { status: 'VERIFIED', schemaVersion: approvedTimingExceptions.schemaVersion, sha256: approvedTimingExceptions.policySha256, exceptionCount: approvedTimingExceptions.exceptions.length } : null,
     requestLedgerSha256: ledgerSha256,
     preservedRunMetadata: { completedActs: priorStatus.completedActs, attemptsByAct: priorStatus.attemptsByAct },
     providerRequestsMade: 0, rootArtifactWrites: 0,
@@ -460,7 +494,8 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
   assert(sha(jsonBytes(alignment)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_RECOMPUTE_MISMATCH');
   assert(alignment.status === 'PASS', 'RESUME_REVIEWED_ALIGNMENT_NOT_PASS');
   if (!ownedRun) assertFailedRunProcessInactive(status, { eligibility: { terminalFailure: true, locksAbsent: checkLocks, candidateAbsent: true, immutableInputsVerified: true } });
-  return { completed: current, alignment, record };
+  const approvedTimingExceptions = loadApprovedTimingExceptions({ runId });
+  return { completed: current, alignment, record, approvedTimingExceptions };
 }
 
 async function auditResumeBoundaries({
@@ -477,6 +512,7 @@ async function auditResumeBoundaries({
   actBindings = VO_BINDINGS,
   loadBoundaryPolicy = loadApprovedBoundaryPolicy,
   getBoundaryInputHashes = loadBoundaryInputHashes,
+  loadTimingExceptions = loadApprovedTimingExceptions,
 } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   ensureTarget();
@@ -485,6 +521,7 @@ async function auditResumeBoundaries({
   const candidateScript = getApprovedScript();
   const approvedBoundaryPolicy = loadBoundaryPolicy({ script: candidateScript });
   const boundaryInputHashes = getBoundaryInputHashes({ runId });
+  const approvedTimingExceptions = loadTimingExceptions({ runId, approvedBoundaryPolicy, boundaryInputHashes });
   const plan = loadPlan();
   const timingAudioDir = path.join(reviewPath(runId), 'fresh-whisper', 'audio');
   const durations = {};
@@ -495,7 +532,7 @@ async function auditResumeBoundaries({
   const audit = activation.auditEditPlanBoundaries({
     plan, wordTimestamps: resumed.completed.timestamps, actOrder,
     actBindings, actDurationsSec: durations, script: candidateScript,
-    reviewedAlignment: resumed.alignment, approvedBoundaryPolicy, boundaryInputHashes,
+    reviewedAlignment: resumed.alignment, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions,
   });
   return { ...audit, runId, source: 'VERIFIED_RETAINED_TRANSCRIPT', candidateCreated: false, episodeRootWrites: 0, providerRequestsMade: 0 };
 }
@@ -545,6 +582,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   const candidateScript = verifyApprovedScript().candidate;
   const approvedBoundaryPolicy = loadApprovedBoundaryPolicy();
   const boundaryInputHashes = loadBoundaryInputHashes({ runId });
+  const approvedTimingExceptions = resumeOnly ? resumeReview.approvedTimingExceptions : loadApprovedTimingExceptions({ runId, approvedBoundaryPolicy, boundaryInputHashes });
   const alignment = resumeOnly ? resumeReview.alignment : activation.analyzeScriptTimestampAlignment(candidateScript, timestamps, VO_BINDINGS);
   if (!resumeOnly) {
     const alignmentPath = path.join(review, 'alignment-report.json');
@@ -569,12 +607,14 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   const basePlan = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan));
   const retimed = retimeBeforeCandidateOutput({
     candidateDirectory: candidate,
-    retime: () => activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment, approvedBoundaryPolicy, boundaryInputHashes }),
+    retime: () => activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions }),
   }).plan;
+  const timingExceptionAudit = activation.verifyTimingExceptionApplications({ plan: retimed, approvedTimingExceptions });
+  assert(!approvedTimingExceptions || timingExceptionAudit.status === 'PASS', 'ACTIVATION_TIMING_EXCEPTION_APPLICATION_NOT_VERIFIED');
   const editValidation = require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
   assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
   const retiredBeatIds = approvedBoundaryPolicy.retirements.map(item => item.beatId);
-  activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds });
+  activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [] });
   const originalShots = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.shots));
   const lineage = [readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.history)), readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment))];
   const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements });
@@ -615,7 +655,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
     const target = path.join(candidate, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); activation.atomicWrite(fs, target, bytes);
   }
   const fileManifest = Object.entries(files).map(([relative, bytes]) => ({ path: relative, bytes: bytes.length, sha256: sha(bytes) }));
-  const report = { schemaVersion: 'phase2.3b-p-activation-candidate/1.0.0', status: 'VALIDATED_NOT_PROMOTED', runId, createdAt: new Date().toISOString(), actOrder: ACT_ORDER, freshTimingWords: timestamps.length, audio: approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes, durationSec: durations[actKey] })), lineageLedger: { path: path.basename(timingLedgerPath), sha256: hashFile(timingLedgerPath) }, validation: { scriptAudioParity: 'PASS', editPlan: editValidation.status, shotDefinitions: shotValidation.status, productionManifest: manifestValidation.status, evidenceManifest: evidenceValidation.status }, candidateFiles: fileManifest };
+  const report = { schemaVersion: 'phase2.3b-p-activation-candidate/1.0.0', status: 'VALIDATED_NOT_PROMOTED', runId, createdAt: new Date().toISOString(), actOrder: ACT_ORDER, freshTimingWords: timestamps.length, audio: approval.approvedAudio.map(({ actKey, file, sha256: digest, bytes }) => ({ actKey, file, sha256: digest, bytes, durationSec: durations[actKey] })), timingExceptionAudit, lineageLedger: { path: path.basename(timingLedgerPath), sha256: hashFile(timingLedgerPath) }, validation: { scriptAudioParity: 'PASS', editPlan: editValidation.status, shotDefinitions: shotValidation.status, productionManifest: manifestValidation.status, evidenceManifest: evidenceValidation.status, timingExceptions: timingExceptionAudit.status }, candidateFiles: fileManifest };
   atomicJson(path.join(candidate, 'candidate-report.json'), report);
   receipt = readJson(receiptPath); receipt.state = 'COMPLETE'; receipt.wordTimestampsSha256 = sha(jsonBytes(timestamps)); receipt.completedAt = new Date().toISOString(); atomicJson(receiptPath, receipt);
   return report;
@@ -787,4 +827,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
