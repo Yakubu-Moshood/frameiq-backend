@@ -7,7 +7,7 @@ const path = require('node:path');
 const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const APPROVED_BOUNDARY_POLICY_SHA256 = '3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9';
-const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = '2b8f33fe5bf5ae82d0b87bf7807865add1f8728bc95b65b5132c38eecef993e9';
+const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = '423d77c02fdec6949382556913767a63974fba3784f26115e544bb4b9f881215';
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
   'assets/audio/VO_Act3B.mp3', 'assets/audio/VO_Act4.mp3', 'assets/audio/VO_Act5.mp3',
@@ -349,7 +349,7 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
   let parsed;
   try { parsed = JSON.parse(canonicalBytes.toString('utf8')); } catch (_) { throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_JSON_INVALID'); }
   if (!equal(policy, parsed)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH');
-  if (policy?.schemaVersion !== 'phase2.3b-p-approved-timing-exceptions/2.0.0' || policy.status !== 'USER_APPROVED'
+  if (policy?.schemaVersion !== 'phase2.3b-p-approved-timing-exceptions/3.0.0' || policy.status !== 'USER_APPROVED'
       || !policy.approval || typeof policy.approval.approvedBy !== 'string' || !policy.approval.approvedBy.trim()
       || typeof policy.approval.approvalRef !== 'string' || !policy.approval.approvalRef.trim()
       || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/u.test(policy.approval.recordedDate || '')
@@ -375,10 +375,10 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
       || policy.tokenization?.candidateScript !== 'js-trim-split-whitespace/1.0.0'
       || policy.tokenization?.retainedTranscript !== 'word-timestamps-array/zero-based-inclusive/1.0.0'
       || policy.tokenization?.timingBoundary !== 'next-word-start-or-act-terminal-boundary/1.0.0'
-      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== 6) {
+      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== 10) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_CONTRACT_INVALID');
   }
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'];
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'];
   if (!equal(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), [...expectedOwners].sort())) throw new Error('ACTIVATION_TIMING_EXCEPTION_SET_INVALID');
   const remediation = policy.resumeEligibility;
   const expectedRemediationKeys = ['failureError','completedActs','attemptsByAct','alignmentApprovalExceptionCount','expectedBoundaryCounts','expectedActiveBeatCounts','expectedTotalDurationSec','totalDurationToleranceSec'];
@@ -401,7 +401,10 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
     if (!item || typeof item.exceptionId !== 'string' || !item.exceptionId || typeof item.actKey !== 'string' || typeof item.beatId !== 'string'
         || seenIds.has(item.exceptionId) || seenOwners.has(key)) throw new Error('ACTIVATION_TIMING_EXCEPTION_DUPLICATE_OR_INVALID');
     seenIds.add(item.exceptionId); seenOwners.add(key);
-    const expectedKeys = ['exceptionId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','approvedDurationSec','minimumAllowedDurationSec','maximumAllowedDurationSec','priorTimingExceptionReason','justification','productionMethod','productionObligations','productionObligationsSha256','revisionLineage'];
+    const expectedKeys = ['exceptionId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','approvedDurationSec','minimumAllowedDurationSec','maximumAllowedDurationSec','priorTimingExceptionReason','justification','productionMethod','productionObligations','productionObligationsSha256','revisionLineage','inputHashes'];
+    const mappedTranscriptFields = ['mappedTranscriptNarrationExcerpt','mappedTranscriptNarrationSha256'];
+    const hasMappedTranscriptNarration = mappedTranscriptFields.some(field => Object.hasOwn(item, field));
+    if (hasMappedTranscriptNarration) expectedKeys.push(...mappedTranscriptFields);
     if (!equal(Object.keys(item).sort(), expectedKeys.sort())) throw new Error(`ACTIVATION_TIMING_EXCEPTION_FIELDS_INVALID:${key}`);
     const ranges = [item.sourcePlanWordRange, item.candidateScriptWordRange, item.mappedTranscriptWordRange];
     if (ranges.some(range => !Number.isSafeInteger(range?.start) || !Number.isSafeInteger(range?.end) || range.start < 0 || range.end < range.start || range.indexConvention !== 'zero-based-inclusive-act-local-plan-word' && range.indexConvention !== 'zero-based-inclusive-whitespace-token' && range.indexConvention !== 'zero-based-inclusive-act-local-retained-transcript-word')
@@ -415,6 +418,7 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
         || !(item.priorTimingExceptionReason === null || typeof item.priorTimingExceptionReason === 'string' && item.priorTimingExceptionReason.trim())
         || !/^[a-f0-9]{64}$/u.test(item.approvedNarrationSha256 || '') || !/^[a-f0-9]{64}$/u.test(item.sourcePlanNarrationSha256 || '')
         || !/^[a-f0-9]{64}$/u.test(item.productionObligationsSha256 || '')
+        || !equal(item.inputHashes, policy.binding)
         || !item.revisionLineage || item.revisionLineage.artifactSha256 !== policy.binding.candidateAmendmentSha256
         || typeof item.revisionLineage.entryId !== 'string' || !item.revisionLineage.entryId
         || !['approved-rewritten-range','retained-approved-plan-beat'].includes(item.revisionLineage.relationship)) {
@@ -432,6 +436,11 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
     if (!timingAct?.voKey || !startWord || !endWord
         || normalizeTimingAnchor(startWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.start)
         || normalizeTimingAnchor(endWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.end)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_ANCHOR_MISMATCH:${key}`);
+    if (hasMappedTranscriptNarration) {
+      const excerpt = actWords.slice(item.mappedTranscriptWordRange.start, item.mappedTranscriptWordRange.end + 1).map(word => word.word).join(' ');
+      if (typeof item.mappedTranscriptNarrationExcerpt !== 'string' || excerpt !== item.mappedTranscriptNarrationExcerpt
+          || sha256(Buffer.from(excerpt, 'utf8')) !== item.mappedTranscriptNarrationSha256) throw new Error(`ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_MISMATCH:${key}`);
+    }
     const scriptTokens = String(script.acts?.[item.actKey]?.voScript || '').trim().split(/\s+/u);
     const actualNarration = scriptTokens.slice(item.candidateScriptWordRange.start, item.candidateScriptWordRange.end + 1).join(' ');
     if (!actualNarration || actualNarration !== item.approvedNarrationExcerpt || sha256(Buffer.from(actualNarration, 'utf8')) !== item.approvedNarrationSha256) throw new Error(`ACTIVATION_TIMING_EXCEPTION_NARRATION_MISMATCH:${key}`);
@@ -451,19 +460,77 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
       throw new Error(`ACTIVATION_TIMING_EXCEPTION_PRODUCTION_BINDING_MISMATCH:${key}`);
     }
   }
-  return deepFreeze({ ...deepClone(policy), verified: true, policySha256: expectedPolicySha256, byBeat: new Map(policy.exceptions.map(item => [`${item.actKey}:${item.beatId}`, item])) });
+  const migrationOwners = ['act2:ACT2_B026','act3b:ACT3B_B018','act5:ACT5_B022','act5:ACT5_B023','act5:ACT5_B027'];
+  const migrations = policy.editorialIntentMigrations;
+  if (!migrations || migrations.schemaVersion !== 'phase2.3b-p-editorial-intent-migrations/1.0.0' || migrations.status !== 'USER_APPROVED'
+      || !Array.isArray(migrations.entries) || !equal(migrations.entries.map(item => `${item.actKey}:${item.beatId}`).sort(), migrationOwners.sort())) {
+    throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  }
+  const migrationIds = new Set();
+  for (const item of migrations.entries) {
+    const key = `${item.actKey}:${item.beatId}`;
+    const expectedKeys = ['migrationId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','mappedTranscriptNarrationExcerpt','mappedTranscriptNarrationSha256','approvedDurationSec','existingTimingExceptionReason','postNarrationHoldSec','intentionalStillness','rhythmIntent','productionMethod','visualClass','productionObligations','productionObligationsSha256','revisionLineage','inputHashes'];
+    const validRange = (range, convention) => range && equal(Object.keys(range).sort(), ['end','indexConvention','start'].sort())
+      && Number.isSafeInteger(range.start) && Number.isSafeInteger(range.end) && range.start >= 0 && range.end >= range.start && range.indexConvention === convention;
+    if (!item || typeof item.migrationId !== 'string' || migrationIds.has(item.migrationId) || !equal(Object.keys(item).sort(), expectedKeys.sort())
+        || !validRange(item.sourcePlanWordRange, 'zero-based-inclusive-act-local-plan-word')
+        || !validRange(item.candidateScriptWordRange, 'zero-based-inclusive-whitespace-token')
+        || !validRange(item.mappedTranscriptWordRange, 'zero-based-inclusive-act-local-retained-transcript-word')
+        || !equal(item.inputHashes, policy.binding) || !Number.isFinite(item.approvedDurationSec) || item.approvedDurationSec < 2 || item.approvedDurationSec > 6
+        || !Number.isFinite(item.postNarrationHoldSec) || item.postNarrationHoldSec < 0 || typeof item.intentionalStillness !== 'boolean'
+        || typeof item.rhythmIntent !== 'string' || !item.rhythmIntent || typeof item.existingTimingExceptionReason !== 'string' || !item.existingTimingExceptionReason.trim()
+        || typeof item.visualClass !== 'string' || !item.visualClass || !/^[a-f0-9]{64}$/u.test(item.approvedNarrationSha256 || '')
+        || !/^[a-f0-9]{64}$/u.test(item.sourcePlanNarrationSha256 || '') || !/^[a-f0-9]{64}$/u.test(item.mappedTranscriptNarrationSha256 || '')
+        || !/^[a-f0-9]{64}$/u.test(item.productionObligationsSha256 || '')
+        || !equal(item.sourcePlanWordRange, { ...item.sourcePlanWordRange, indexConvention: 'zero-based-inclusive-act-local-plan-word' })
+        || !equal(item.candidateScriptWordRange, { ...item.candidateScriptWordRange, indexConvention: 'zero-based-inclusive-whitespace-token' })
+        || !equal(item.mappedTranscriptWordRange, { ...item.mappedTranscriptWordRange, indexConvention: 'zero-based-inclusive-act-local-retained-transcript-word' })
+        || !item.mappedTranscriptAnchors?.start || !item.mappedTranscriptAnchors?.end
+        || item.revisionLineage?.artifactSha256 !== policy.binding.candidateAmendmentSha256
+        || item.revisionLineage?.entryId !== `locked-plan:${item.actKey}:${item.beatId}` || item.revisionLineage?.relationship !== 'retained-approved-plan-beat') {
+      throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_ENTRY_INVALID:${key}`);
+    }
+    migrationIds.add(item.migrationId);
+    const sourceMatches = allPlanBeats.filter(beat => beat.actKey === item.actKey && beat.beatId === item.beatId);
+    if (sourceMatches.length !== 1 || sourceMatches[0].startWordIndex !== item.sourcePlanWordRange.start || sourceMatches[0].endWordIndex !== item.sourcePlanWordRange.end
+        || sourceMatches[0].narrationExcerpt !== item.sourcePlanNarrationExcerpt
+        || sha256(Buffer.from(item.sourcePlanNarrationExcerpt, 'utf8')) !== item.sourcePlanNarrationSha256
+        || sourceMatches[0].timingExceptionReason !== item.existingTimingExceptionReason
+        || (sourceMatches[0].postNarrationHoldSec ?? 0) !== item.postNarrationHoldSec
+        || (sourceMatches[0].intentionalStillness === true) !== item.intentionalStillness || sourceMatches[0].rhythmIntent !== item.rhythmIntent
+        || sourceMatches[0].visualClass !== item.visualClass) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_SOURCE_MISMATCH:${key}`);
+    const scriptTokens = String(script.acts?.[item.actKey]?.voScript || '').trim().split(/\s+/u);
+    const excerpt = scriptTokens.slice(item.candidateScriptWordRange.start, item.candidateScriptWordRange.end + 1).join(' ');
+    if (excerpt !== item.approvedNarrationExcerpt || sha256(Buffer.from(excerpt, 'utf8')) !== item.approvedNarrationSha256) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_NARRATION_MISMATCH:${key}`);
+    const timingAct = (plan.timing?.acts || []).find(act => act.actKey === item.actKey);
+    const actWords = wordTimestamps.filter(word => word.vo_file === timingAct?.voKey);
+    const startWord = actWords[item.mappedTranscriptWordRange.start]?.word, endWord = actWords[item.mappedTranscriptWordRange.end]?.word;
+    if (!timingAct?.voKey || normalizeTimingAnchor(startWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.start)
+        || normalizeTimingAnchor(endWord) !== normalizeTimingAnchor(item.mappedTranscriptAnchors.end)) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_ANCHOR_MISMATCH:${key}`);
+    const transcriptExcerpt = actWords.slice(item.mappedTranscriptWordRange.start, item.mappedTranscriptWordRange.end + 1).map(word => word.word).join(' ');
+    if (transcriptExcerpt !== item.mappedTranscriptNarrationExcerpt || sha256(Buffer.from(transcriptExcerpt, 'utf8')) !== item.mappedTranscriptNarrationSha256) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_TRANSCRIPT_MISMATCH:${key}`);
+    const shots = allShots.filter(shot => shot.actKey === item.actKey && shot.beatId === item.beatId), records = manifestShots.filter(record => record.actKey === item.actKey && record.shotId === item.beatId);
+    if (shots.length !== 1 || records.length !== 1 || records[0].productionMethod !== item.productionMethod
+        || !equal(approvedTimingProductionObligations({ shot: shots[0], manifestEntry: records[0] }), item.productionObligations)
+        || canonicalJsonSha256(item.productionObligations) !== item.productionObligationsSha256) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_PRODUCTION_MISMATCH:${key}`);
+  }
+  return deepFreeze({ ...deepClone(policy), verified: true, policySha256: expectedPolicySha256,
+    byBeat: new Map(policy.exceptions.map(item => [`${item.actKey}:${item.beatId}`, item])),
+    editorialIntentMigrations: { ...deepClone(migrations), verified: true, byBeat: new Map(migrations.entries.map(item => [`${item.actKey}:${item.beatId}`, item])) } });
 }
 
 function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = {}) {
   if (!approvedTimingExceptions) return { status: 'NOT_REQUESTED', entries: [] };
   if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'].sort();
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'].sort();
   if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const beats = plan.sequences.flatMap(sequence => Array.isArray(sequence.beats) ? sequence.beats : []);
   const owners = new Map(beats.map(beat => [`${beat.actKey}:${beat.beatId}`, beat]));
   if (owners.size !== beats.length) throw new Error('ACTIVATION_TIMING_EXCEPTION_PLAN_DUPLICATE_BEAT');
   const approved = approvedTimingExceptions.exceptions;
-  const allowed = new Set(approved.map(item => `${item.actKey}:${item.beatId}`));
+  const migrations = approvedTimingExceptions.editorialIntentMigrations?.entries || [];
+  if (migrations.length !== 5) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const allowed = new Set([...approved, ...migrations].map(item => `${item.actKey}:${item.beatId}`));
   for (const beat of beats) {
     const key = `${beat.actKey}:${beat.beatId}`;
     if (typeof beat.timingExceptionReason === 'string' && beat.timingExceptionReason.trim() && !allowed.has(key)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_UNAPPROVED:${key}`);
@@ -476,18 +543,32 @@ function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = 
         || Math.abs(beat.durationSec - item.approvedDurationSec) > 0.001) throw new Error(`ACTIVATION_TIMING_EXCEPTION_APPLICATION_MISMATCH:${key}`);
     return { exceptionId: item.exceptionId, actKey: item.actKey, beatId: item.beatId, status: 'VERIFIED', mappedTranscriptWordRange: deepClone(item.mappedTranscriptWordRange), durationSec: beat.durationSec, approvedDurationSec: item.approvedDurationSec, minimumAllowedDurationSec: item.minimumAllowedDurationSec, maximumAllowedDurationSec: item.maximumAllowedDurationSec, productionMethod: item.productionMethod, productionObligationsSha256: item.productionObligationsSha256 };
   });
-  return { status: 'PASS', policySha256: approvedTimingExceptions.policySha256, entries };
+  const migrationResults = migrations.map(item => {
+    const key = `${item.actKey}:${item.beatId}`, beat = owners.get(key);
+    if (!beat || beat.timingExceptionReason !== null || beat.startWordIndex !== item.mappedTranscriptWordRange.start
+        || beat.endWordIndex !== item.mappedTranscriptWordRange.end || beat.narrationExcerpt !== item.mappedTranscriptNarrationExcerpt
+        || !Number.isFinite(beat.durationSec) || beat.durationSec < 2 || beat.durationSec > 6
+        || Math.abs(beat.durationSec - item.approvedDurationSec) > 1e-9
+        || (beat.postNarrationHoldSec ?? 0) !== item.postNarrationHoldSec || (beat.intentionalStillness === true) !== item.intentionalStillness
+        || beat.rhythmIntent !== item.rhythmIntent || beat.visualClass !== item.visualClass) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_APPLICATION_MISMATCH:${key}`);
+    return { migrationId: item.migrationId, actKey: item.actKey, beatId: item.beatId, status: 'VERIFIED', durationSec: beat.durationSec, postNarrationHoldSec: beat.postNarrationHoldSec ?? 0, intentionalStillness: beat.intentionalStillness === true, rhythmIntent: beat.rhythmIntent, productionMethod: item.productionMethod, productionObligationsSha256: item.productionObligationsSha256 };
+  });
+  return { status: 'PASS', policySha256: approvedTimingExceptions.policySha256, entries, editorialIntentMigrations: migrationResults };
 }
 
 function applyApprovedTimingExceptions(plan, approvedTimingExceptions) {
   if (!approvedTimingExceptions) return plan;
   if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act5:ACT5_B012'].sort();
+  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'].sort();
   if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const entries = new Map(approvedTimingExceptions.exceptions.map(item => [`${item.actKey}:${item.beatId}`, item]));
+  const migrations = approvedTimingExceptions.editorialIntentMigrations?.entries || [];
+  if (migrations.length !== 5) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const migrationOwners = new Set(migrations.map(item => `${item.actKey}:${item.beatId}`));
   for (const sequence of plan.sequences) for (const beat of sequence.beats) {
     const key = `${beat.actKey}:${beat.beatId}`, item = entries.get(key);
     if (!item) {
+      if (migrationOwners.has(key)) continue;
       if (typeof beat.timingExceptionReason === 'string' && beat.timingExceptionReason.trim()) throw new Error(`ACTIVATION_TIMING_EXCEPTION_UNAPPROVED:${key}`);
       continue;
     }
@@ -500,6 +581,22 @@ function applyApprovedTimingExceptions(plan, approvedTimingExceptions) {
   }
   const found = plan.sequences.flatMap(sequence => sequence.beats).filter(beat => entries.has(`${beat.actKey}:${beat.beatId}`)).length;
   if (found !== entries.size) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_BEAT_MISSING');
+  const migrationMap = new Map(migrations.map(item => [`${item.actKey}:${item.beatId}`, item]));
+  let migrationFound = 0;
+  for (const sequence of plan.sequences) for (const beat of sequence.beats) {
+    const key = `${beat.actKey}:${beat.beatId}`, item = migrationMap.get(key);
+    if (!item) continue;
+    migrationFound++;
+    if (beat.timingExceptionReason !== item.existingTimingExceptionReason
+        || beat.startWordIndex !== item.mappedTranscriptWordRange.start || beat.endWordIndex !== item.mappedTranscriptWordRange.end
+        || beat.narrationExcerpt !== item.mappedTranscriptNarrationExcerpt
+        || !Number.isFinite(beat.durationSec) || beat.durationSec < 2 || beat.durationSec > 6
+        || Math.abs(beat.durationSec - item.approvedDurationSec) > 1e-9
+        || (beat.postNarrationHoldSec ?? 0) !== item.postNarrationHoldSec || (beat.intentionalStillness === true) !== item.intentionalStillness
+        || beat.rhythmIntent !== item.rhythmIntent || beat.visualClass !== item.visualClass) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_SCOPE_MISMATCH:${key}`);
+    beat.timingExceptionReason = null;
+  }
+  if (migrationFound !== migrationMap.size) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_BEAT_MISSING');
   return plan;
 }
 
@@ -1288,7 +1385,7 @@ async function chooseTimingTranscript({ resumeOnly = false, readExisting, transc
   return transcribe();
 }
 
-function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [] }) {
+function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [], editorialIntentMigrations = null }) {
   const shotDefs = deepClone(originalShotDefs);
   const retireSet = new Set(retiredBeatIds);
   if (retireSet.size !== retiredBeatIds.length || [...retireSet].some(id => id !== 'ACT3B_B010')) throw new Error('ACTIVATION_SHOT_RETIREMENT_NOT_APPROVED');
@@ -1298,6 +1395,10 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   const planBeats = new Map(beatEntries);
   if (planBeats.size !== beatEntries.length) throw new Error('ACTIVATION_PLAN_BEAT_IDS_INVALID');
   const retiredShots = [];
+  const migrationOwners = ['act2:ACT2_B026','act3b:ACT3B_B018','act5:ACT5_B022','act5:ACT5_B023','act5:ACT5_B027'].sort();
+  const migrations = editorialIntentMigrations === null ? [] : editorialIntentMigrations?.verified === true ? editorialIntentMigrations.entries : null;
+  if (editorialIntentMigrations !== null && (!Array.isArray(migrations) || !equal(migrations.map(item => `${item.actKey}:${item.beatId}`).sort(), migrationOwners))) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const migrationMap = new Map((migrations || []).map(item => [`${item.actKey}:${item.beatId}`, item]));
   if (retireSet.size) {
     const originalShots = shotDefs.allShots;
     for (const beatId of retireSet) {
@@ -1319,6 +1420,21 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   const entries = [], permittedImmutablePaths = [];
   for (const shot of shotDefs.allShots) {
     const beat = planBeats.get(shot.beatId);
+    const migration = migrationMap.get(`${shot.actKey}:${shot.beatId}`);
+    if (migration) {
+      if (shot.timingExceptionReason !== migration.existingTimingExceptionReason || beat?.timingExceptionReason !== null
+          || beat?.durationSec < 2 || beat?.durationSec > 6 || Math.abs(beat?.durationSec - migration.approvedDurationSec) > 1e-9
+          || (beat?.postNarrationHoldSec ?? 0) !== migration.postNarrationHoldSec
+          || (beat?.intentionalStillness === true) !== migration.intentionalStillness || beat?.rhythmIntent !== migration.rhythmIntent) {
+        throw new Error(`ACTIVATION_EDITORIAL_INTENT_SHOT_MIGRATION_MISMATCH:${shot.actKey}:${shot.beatId}`);
+      }
+      const beforeValue = shot.timingExceptionReason;
+      shot.timingExceptionReason = null;
+      const mirrored = shotDefs.acts?.[shot.actKey]?.find(item => item.beatId === shot.beatId);
+      if (!mirrored || mirrored.timingExceptionReason !== migration.existingTimingExceptionReason) throw new Error(`ACTIVATION_EDITORIAL_INTENT_SHOT_MIRROR_MISMATCH:${shot.actKey}:${shot.beatId}`);
+      mirrored.timingExceptionReason = null;
+      entries.push({ shotId: shot.shotId, beatId: shot.beatId, fieldPath: 'timingExceptionReason', beforeValue, afterValue: null, reason: 'Remove the exactly approved normal-duration editorial reason from shot metadata; dedicated hold, stillness, and rhythm fields remain intact.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
+    }
     if (!beat || shot.sequenceId !== beat.sequenceId || shot.actKey !== beat.actKey) throw new Error(`ACTIVATION_SHOT_IDENTITY_MISMATCH:${shot.shotId}`);
     for (const field of SHOT_DYNAMIC_FIELDS) {
       const beforeValue = shot[field]; const afterValue = beat[field];
@@ -1343,26 +1459,30 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   return { shotDefs, revisionLedger: ledger, revisionChain: [...revisionChain, ledger] };
 }
 
-function assertCreativePlanFieldsFrozen(before, after, { retiredBeatIds = [], approvedTimingExceptionBeatIds = [] } = {}) {
+function assertCreativePlanFieldsFrozen(before, after, { retiredBeatIds = [], approvedTimingExceptionBeatIds = [], editorialIntentMigrationBeatIds = [] } = {}) {
   if (!equal(Object.keys(before), Object.keys(after))) throw new Error('ACTIVATION_PLAN_TOP_LEVEL_KEYS_CHANGED');
   const beforeBeats = new Map(before.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
   const afterBeats = new Map(after.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
   const retired = new Set(retiredBeatIds);
   const timingExceptions = new Set(approvedTimingExceptionBeatIds);
-  if (timingExceptions.size !== approvedTimingExceptionBeatIds.length || [...timingExceptions].some(id => typeof id !== 'string' || !id)) throw new Error('ACTIVATION_TIMING_EXCEPTION_ID_SET_INVALID');
+  const editorialMigrations = new Set(editorialIntentMigrationBeatIds);
+  if (timingExceptions.size !== approvedTimingExceptionBeatIds.length || editorialMigrations.size !== editorialIntentMigrationBeatIds.length
+      || [...timingExceptions, ...editorialMigrations].some(id => typeof id !== 'string' || !id)
+      || [...timingExceptions].some(id => editorialMigrations.has(id))) throw new Error('ACTIVATION_TIMING_EXCEPTION_ID_SET_INVALID');
+  const permittedReasonChanges = new Set([...timingExceptions, ...editorialMigrations]);
   if (!equal([...beforeBeats.keys()].filter(id => !retired.has(id)), [...afterBeats.keys()])) throw new Error('ACTIVATION_BEAT_SET_CHANGED');
   for (const [beatId, oldBeat] of beforeBeats) {
     if (retired.has(beatId)) continue;
     const newBeat = afterBeats.get(beatId);
     const a = deepClone(oldBeat), b = deepClone(newBeat);
     for (const field of PLAN_DYNAMIC_FIELDS) { delete a[field]; delete b[field]; }
-    if (timingExceptions.has(beatId)) { delete a.timingExceptionReason; delete b.timingExceptionReason; }
+    if (permittedReasonChanges.has(beatId)) { delete a.timingExceptionReason; delete b.timingExceptionReason; }
     if (!equal(a, b)) throw new Error(`ACTIVATION_CREATIVE_BEAT_FIELD_CHANGED:${beatId}`);
   }
   const stripDynamicBeat = beat => {
     const result = deepClone(beat);
     for (const field of PLAN_DYNAMIC_FIELDS) delete result[field];
-    if (timingExceptions.has(beat.beatId)) delete result.timingExceptionReason;
+    if (permittedReasonChanges.has(beat.beatId)) delete result.timingExceptionReason;
     return result;
   };
   const beforeSequences = before.sequences.map(sequence => ({ ...sequence, beats: sequence.beats.filter(beat => !retired.has(beat.beatId)).map(stripDynamicBeat) })).filter(sequence => sequence.beats.length);

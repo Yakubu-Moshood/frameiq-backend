@@ -131,14 +131,26 @@ test('justified long beat passes and is counted as an exception', () => {
   assert.equal(r.metrics.longestNormalBeatDurationSec, 4);
   assert.ok(r.warnings.some(w => w.code === 'TIMING_EXCEPTION'));
 });
-test('intentional stillness requires a nonblank reason even for a normal beat', () => {
-  const f = fixture(); Object.assign(beats(f)[0], { intentionalStillness: true, timingExceptionReason: '   ' });
-  fail(f, 'STILLNESS_REASON_REQUIRED');
-  beats(f)[0].timingExceptionReason = 'Hold on the human consequence.';
-  beats(f)[0].visual.motionType = 'static_locked'; beats(f)[0].motionIntent.type = 'static_locked';
+test('normal-duration editorial stillness is represented by stillness and rhythm fields without a timing exception', () => {
+  const f = fixture(); const beat = beats(f)[0];
+  Object.assign(beat, { intentionalStillness: true, timingExceptionReason: null, rhythmIntent: 'impact' });
+  beat.visual.motionType = 'static_locked'; beat.motionIntent.type = 'static_locked';
   const r = validate(f);
   assert.equal(r.status, 'PASS');
   assert.equal(r.metrics.intentionalStillnessCount, 1);
+  assert.equal(r.metrics.timingExceptionCount, 0);
+});
+test('a normal-duration hold with rhythm intent does not need a timing exception reason', () => {
+  const f = fixture(); Object.assign(beats(f)[0], { postNarrationHoldSec: 1.5, timingExceptionReason: null, rhythmIntent: 'reflective' });
+  const r = validate(f);
+  assert.equal(r.status, 'PASS');
+  assert.equal(r.metrics.timingExceptionCount, 0);
+});
+test('a hold cannot exempt a beat below the hard minimum without an approved reason', () => {
+  const f = fixture(); const beat = beats(f)[0];
+  beat.endWordIndex = 0; beat.endSec = 1.5; beat.durationSec = 1.5;
+  beat.postNarrationHoldSec = 1; beat.timingExceptionReason = null;
+  fail(f, 'BEAT_TOO_SHORT');
 });
 test('EVIDENCE fails without meaningful requirements; pending source needs no URL', () => {
   const f = fixture(); beats(f)[0].visualClass = 'EVIDENCE'; beats(f)[0].reconstructionMode = null;
@@ -146,11 +158,10 @@ test('EVIDENCE fails without meaningful requirements; pending source needs no UR
   beats(f)[0].evidenceRequirement = { required: true, evidenceType: 'regulatory_filing', description: 'The finding that documents the sales targets.', sourceStatus: 'pending', rightsStatus: 'unknown', authenticityStatus: 'pending_review', citationLabel: null, humanReviewRequired: true };
   assert.equal(validate(f).status, 'PASS');
 });
-test('editorial holds extend projected compilation only and require a reason', () => {
-  const f = fixture(); const b = beats(f)[0]; b.postNarrationHoldSec = 1.5;
-  assert.equal(validate(f).status, 'FAIL');
-  b.timingExceptionReason = 'Hold on the zero frame.';
+test('editorial holds extend projected compilation without becoming timing exceptions', () => {
+  const f = fixture(); const b = beats(f)[0]; b.postNarrationHoldSec = 1.5; b.rhythmIntent = 'reflective'; b.timingExceptionReason = null;
   const r = validate(f); assert.equal(r.status, 'PASS');
+  assert.equal(r.metrics.timingExceptionCount, 0);
   assert.equal(r.metrics.plannedEditorialHoldSec, 1.5);
   assert.equal(r.metrics.projectedCompiledDurationSec, 17.5);
   assert.equal(b.startSec, 0); assert.equal(b.endSec, 4);
@@ -158,8 +169,8 @@ test('editorial holds extend projected compilation only and require a reason', (
 test('static camera is distinct from intentional stillness and reconstruction mode is explicit', () => {
   const f = fixture(); const b = beats(f)[0]; b.visual.motionType = 'static_locked'; b.motionIntent.type = 'static_locked';
   assert.equal(validate(f).status, 'PASS');
-  b.intentionalStillness = true; assert.equal(validate(f).status, 'FAIL');
-  b.timingExceptionReason = 'Held silence is the editorial turn.'; assert.equal(validate(f).status, 'PASS');
+  b.intentionalStillness = true; b.rhythmIntent = 'impact'; b.timingExceptionReason = null; assert.equal(validate(f).status, 'PASS');
+  assert.equal(validate(f).metrics.timingExceptionCount, 0);
 });
 test('evidence story function without evidence class is warned', () => {
   const f = fixture(); beats(f)[0].storyFunction = 'evidence';

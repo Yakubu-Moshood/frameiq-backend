@@ -948,15 +948,24 @@ function approvedTimingExceptionFixture() {
     candidateAmendmentSha256: binding.candidateAmendmentSha256,
   };
   const transcriptAnchors = [];
-  for (const item of policy.exceptions) {
-    const timingAct = plan.timing.acts.find(act => act.actKey === item.actKey);
-    const actWords = transcriptAnchors.filter(word => word.vo_file === timingAct.voKey);
-    while (actWords.length <= item.mappedTranscriptWordRange.end) {
-      const word = { vo_file: timingAct.voKey, word: `fixture_${actWords.length}`, start_seconds: actWords.length, end_seconds: actWords.length + 0.1 };
-      transcriptAnchors.push(word); actWords.push(word);
+  const approvedItems = [...policy.exceptions, ...policy.editorialIntentMigrations.entries];
+  const actOrder = ['act1','act2','act3','act3b','act4','act5'];
+  for (const actKey of actOrder) {
+    const timingAct = plan.timing.acts.find(act => act.actKey === actKey);
+    const items = approvedItems.filter(item => item.actKey === actKey);
+    const maxIndex = Math.max(...items.map(item => item.mappedTranscriptWordRange.end));
+    const actWords = Array.from({ length: maxIndex + 1 }, (_, index) => ({ vo_file: timingAct.voKey, word: `fixture_${actKey}_${index}`, start_seconds: index, end_seconds: index + 0.1 }));
+    for (const item of items) {
+      const { start, end } = item.mappedTranscriptWordRange;
+      const exactWords = item.mappedTranscriptNarrationExcerpt
+        ? item.mappedTranscriptNarrationExcerpt.split(/\s+/u)
+        : item.approvedNarrationExcerpt.replace(/\$(?=\d)/gu, '').replace(/(?<=\d)[,.](?=\d)/gu, ' ').replace(/(?<=[\p{L}])-(?=[\p{L}])/gu, ' ').trim().split(/\s+/u);
+      assert.equal(exactWords.length, end - start + 1, `${item.beatId} transcript fixture range`);
+      exactWords.forEach((word, offset) => { actWords[start + offset].word = word; });
+      assert.equal(actWords[start].word.toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, ''), item.mappedTranscriptAnchors.start.toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, ''));
+      assert.equal(actWords[end].word.toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, ''), item.mappedTranscriptAnchors.end.toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, ''));
     }
-    actWords[item.mappedTranscriptWordRange.start].word = item.mappedTranscriptAnchors.start;
-    actWords[item.mappedTranscriptWordRange.end].word = item.mappedTranscriptAnchors.end;
+    transcriptAnchors.push(...actWords);
   }
   const approvedTimingExceptions = activationCli.loadApprovedTimingExceptions({
     runId: binding.runId, policyFile: policyPath, approvedBoundaryPolicy, boundaryInputHashes, wordTimestamps: transcriptAnchors, packageDirectory: root,
@@ -967,7 +976,8 @@ function approvedTimingExceptionFixture() {
 function syntheticApprovedTimingExceptionInput(approvedTimingExceptions, sourcePlan, { unapprovedDuration = null, unapprovedAct = 'act1' } = {}) {
   const actOrder = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
   const actBindings = Object.fromEntries(actOrder.map(key => [key, `VO_${key === 'act3b' ? 'Act3B' : `${key[0].toUpperCase()}${key.slice(1)}`}`]));
-  const groups = new Map(actOrder.map(key => [key, approvedTimingExceptions.exceptions.filter(item => item.actKey === key).sort((a, b) => a.mappedTranscriptWordRange.start - b.mappedTranscriptWordRange.start)]));
+  const allApprovedItems = [...approvedTimingExceptions.exceptions, ...approvedTimingExceptions.editorialIntentMigrations.entries];
+  const groups = new Map(actOrder.map(key => [key, allApprovedItems.filter(item => item.actKey === key).sort((a, b) => a.mappedTranscriptWordRange.start - b.mappedTranscriptWordRange.start)]));
   const script = { ...structuredClone(sourcePlan.script), acts: {} };
   const plan = structuredClone(sourcePlan.plan);
   const wordTimestamps = [], actDurationsSec = {};
@@ -1004,14 +1014,14 @@ function syntheticApprovedTimingExceptionInput(approvedTimingExceptions, sourceP
       beat.sequenceId = sequence.sequenceId;
       beat.startWordIndex = interval.start;
       beat.endWordIndex = interval.end;
-      const narrationWords = exception ? splitSpoken(exception.approvedNarrationExcerpt) : words.slice(interval.start, interval.end + 1);
+      const narrationWords = exception ? splitSpoken(exception.mappedTranscriptNarrationExcerpt || exception.approvedNarrationExcerpt) : words.slice(interval.start, interval.end + 1);
       assert.equal(narrationWords.length, interval.end - interval.start + 1, `${actKey}:${beatId} fixture range size`);
       narrationWords.forEach((word, offset) => { words[interval.start + offset] = word; });
       beat.narrationExcerpt = narrationWords.join(' ');
       beat.startSec = cursorSec;
       beat.durationSec = exception?.approvedDurationSec || (unapprovedDuration !== null && actKey === unapprovedAct && !beats.some(item => item.beatId.startsWith(`FIXTURE_${actKey}_`)) ? unapprovedDuration : 4);
       beat.endSec = cursorSec + beat.durationSec;
-      beat.timingExceptionReason = null;
+      beat.timingExceptionReason = exception?.existingTimingExceptionReason || exception?.priorTimingExceptionReason || null;
       const intervalDuration = beat.durationSec / narrationWords.length;
       narrationWords.forEach((_, offset) => {
         const start = cursorSec + offset * intervalDuration;
@@ -1182,23 +1192,28 @@ test('approved boundary ranges fail closed on missing or altered policy and line
   assert.throws(() => updateShotDefinitions({ originalShotDefs: { allShots: [] }, plan: value.plan, revisionChain: [], retiredBeatIds: ['ACT3B_B010', 'ACT3B_B010'] }), /RETIREMENT_NOT_APPROVED/u);
 });
 
-test('the six timing exceptions are versioned, pinned, run-bound, and tied to exact narration, transcript anchors, ranges, lineage and production obligations', () => {
+test('the ten timing exceptions and five editorial-intent migrations are versioned, pinned, run-bound, and tied to exact approved scope', () => {
   const value = approvedTimingExceptionFixture();
   const policy = value.approvedTimingExceptions;
   assert.equal(policy.verified, true);
-  assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/2.0.0');
-  assert.equal(policy.policySha256, '2b8f33fe5bf5ae82d0b87bf7807865add1f8728bc95b65b5132c38eecef993e9');
+  assert.equal(policy.schemaVersion, 'phase2.3b-p-approved-timing-exceptions/3.0.0');
+  assert.equal(policy.policySha256, '423d77c02fdec6949382556913767a63974fba3784f26115e544bb4b9f881215');
   assert.equal(policy.runId, 'phase2-3b-p-act-20260925');
-  assert.equal(policy.exceptions.length, 6);
+  assert.equal(policy.exceptions.length, 10);
+  assert.deepEqual(policy.exceptions.map(item => item.inputHashes), Array(10).fill(policy.binding));
   assert.deepEqual(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`), [
-    'act1:ACT1_B030', 'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012',
+    'act1:ACT1_B030', 'act2:ACT2_B006', 'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act5:ACT5_B012', 'act2:ACT2_B023', 'act3:ACT3_B004', 'act3:ACT3_B025', 'act4:ACT4_B024',
   ]);
-  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.390608337890626, 1.720001, 7.270000, 6.760002, 6.019997, 6.099998]);
+  assert.deepEqual(policy.exceptions.map(item => item.approvedDurationSec), [1.390608337890626, 1.720001, 7.270000, 6.760002, 6.019997, 6.099998, 1.7199935913085938, 1.4200000762939453, 1.7400054931640625, 8.333472662109386]);
+  assert.equal(policy.editorialIntentMigrations.entries.length, 5);
+  assert.deepEqual(policy.editorialIntentMigrations.entries.map(item => `${item.actKey}:${item.beatId}`), [
+    'act2:ACT2_B026', 'act3b:ACT3B_B018', 'act5:ACT5_B022', 'act5:ACT5_B023', 'act5:ACT5_B027',
+  ]);
   assert.deepEqual([
     policy.exceptions[0].minimumAllowedDurationSec,
     policy.exceptions[0].maximumAllowedDurationSec,
   ], [1.389608337890626, 1.391608337890626]);
-  assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['CONTROLLED_STILL', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION']);
+  assert.deepEqual(policy.exceptions.map(item => item.productionMethod), ['CONTROLLED_STILL', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'EVIDENCE_REFERENCE', 'ESSENTIAL_ANIMATION', 'ESSENTIAL_ANIMATION', 'GENERATED_STILL', 'GRAPHIC_COMPILATION', 'EVIDENCE_REFERENCE']);
   for (const item of policy.exceptions) {
     assert.match(item.approvedNarrationSha256, /^[a-f0-9]{64}$/u);
     assert.match(item.sourcePlanNarrationSha256, /^[a-f0-9]{64}$/u);
@@ -1257,6 +1272,12 @@ test('the six timing exceptions are versioned, pinned, run-bound, and tied to ex
   const alteredDuration = structuredClone(value.policy);
   alteredDuration.exceptions[0].maximumAllowedDurationSec += 0.01;
   assert.throws(() => verify(undefined, { policy: alteredDuration }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+  const missingMigration = structuredClone(value.policy);
+  missingMigration.editorialIntentMigrations.entries.pop();
+  assert.throws(() => verify(undefined, { policy: missingMigration }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
+  const alteredMigration = structuredClone(value.policy);
+  alteredMigration.editorialIntentMigrations.entries[0].postNarrationHoldSec += 0.1;
+  assert.throws(() => verify(undefined, { policy: alteredMigration }), /TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH/u);
 });
 
 test('ACT1_B030 applies only at its approved retimed duration and exact narrow bounds', () => {
@@ -1294,7 +1315,7 @@ test('ACT1_B030 policy remains hash-bound to its transcript, narration, ownershi
   assert.throws(() => verify(undefined, { plan: alteredRange }), /ACTIVATION_TIMING_EXCEPTION_SOURCE_BEAT_MISMATCH:act1:ACT1_B030/u);
 
   const alteredAnchors = structuredClone(value.transcriptAnchors);
-  alteredAnchors.find(word => word.vo_file === 'VO_Act1' && word.word === 'none').word = 'not-none';
+  alteredAnchors.find(word => word.vo_file === 'VO_Act1' && word.word.toLocaleLowerCase('en-US') === 'none').word = 'not-none';
   assert.throws(() => verify(undefined, { wordTimestamps: alteredAnchors }), /ACTIVATION_TIMING_EXCEPTION_TRANSCRIPT_ANCHOR_MISMATCH:act1:ACT1_B030/u);
 
   const alteredScript = structuredClone(value.script);
@@ -1332,7 +1353,8 @@ test('approved exceptions pass the same six-act boundary mapper and deterministi
   assert.equal(audit.status, 'BOUNDARY_AUDIT_PASS', JSON.stringify(audit.errors));
   assert.equal(audit.acts.length, 6);
   assert.equal(audit.timingExceptionAudit.status, 'PASS');
-  assert.equal(audit.timingExceptionAudit.entries.length, 6);
+  assert.equal(audit.timingExceptionAudit.entries.length, 10);
+  assert.equal(audit.timingExceptionAudit.editorialIntentMigrations.length, 5);
   assert.deepEqual(audit.acts.flatMap(act => act.errors), []);
   assert.deepEqual(audit.acts.flatMap(act => act.gaps), []);
   assert.deepEqual(audit.acts.flatMap(act => act.overlaps), []);
@@ -1343,17 +1365,67 @@ test('approved exceptions pass the same six-act boundary mapper and deterministi
   const retimed = retimeEditPlan(fixture.input).plan;
   const report = activation.verifyTimingExceptionApplications({ plan: retimed, approvedTimingExceptions: source.approvedTimingExceptions });
   assert.equal(report.status, 'PASS');
-  assert.deepEqual(report.entries.map(item => item.beatId), ['ACT1_B030', 'ACT2_B006', 'ACT3B_B008', 'ACT3B_B012', 'ACT4_B022', 'ACT5_B012']);
+  assert.equal(report.entries.length, 10);
+  assert.equal(report.editorialIntentMigrations.length, 5);
+  assert.deepEqual(report.entries.map(item => item.beatId), ['ACT1_B030', 'ACT2_B006', 'ACT3B_B008', 'ACT3B_B012', 'ACT4_B022', 'ACT5_B012', 'ACT2_B023', 'ACT3_B004', 'ACT3_B025', 'ACT4_B024']);
   for (const item of source.approvedTimingExceptions.exceptions) {
     const beat = retimed.sequences.flatMap(sequence => sequence.beats).find(value => value.beatId === item.beatId);
     assert.equal(beat.timingExceptionReason, item.justification);
     assert.deepEqual([beat.startWordIndex, beat.endWordIndex], [item.mappedTranscriptWordRange.start, item.mappedTranscriptWordRange.end]);
     assert.ok(beat.durationSec >= item.minimumAllowedDurationSec && beat.durationSec <= item.maximumAllowedDurationSec, item.beatId);
   }
-  assertCreativePlanFieldsFrozen(fixture.input.plan, retimed, { approvedTimingExceptionBeatIds: source.approvedTimingExceptions.exceptions.map(item => item.beatId) });
+  for (const migration of source.approvedTimingExceptions.editorialIntentMigrations.entries) {
+    const beat = retimed.sequences.flatMap(sequence => sequence.beats).find(value => value.actKey === migration.actKey && value.beatId === migration.beatId);
+    assert.ok(beat, `${migration.actKey}:${migration.beatId}`);
+    assert.equal(beat.timingExceptionReason, null);
+    assert.equal(beat.durationSec, migration.approvedDurationSec);
+    assert.ok(beat.durationSec >= 2 && beat.durationSec <= 6);
+    assert.equal(beat.postNarrationHoldSec ?? 0, migration.postNarrationHoldSec);
+    assert.equal(beat.intentionalStillness === true, migration.intentionalStillness);
+    assert.equal(beat.rhythmIntent, migration.rhythmIntent);
+    assert.equal(beat.visualClass, migration.visualClass);
+    assert.equal(beat.narrationExcerpt, migration.mappedTranscriptNarrationExcerpt);
+  }
+  assertCreativePlanFieldsFrozen(fixture.input.plan, retimed, { approvedTimingExceptionBeatIds: source.approvedTimingExceptions.exceptions.map(item => item.beatId), editorialIntentMigrationBeatIds: source.approvedTimingExceptions.editorialIntentMigrations.entries.map(item => item.beatId) });
   const validation = validateEditPlan({ plan: retimed, wordTimestamps: fixture.wordTimestamps });
   assert.equal(validation.status, 'PASS', JSON.stringify(validation.errors));
   assert.deepEqual(validation.errors, []);
+  const migrationIds = new Set(source.approvedTimingExceptions.editorialIntentMigrations.entries.map(item => item.beatId));
+  const migrationPlan = structuredClone(retimed);
+  for (const sequence of migrationPlan.sequences) sequence.beats = sequence.beats.filter(beat => migrationIds.has(beat.beatId));
+  const originalShots = structuredClone(source.shots);
+  originalShots.allShots = originalShots.allShots.filter(shot => migrationIds.has(shot.beatId));
+  for (const [actKey, actShots] of Object.entries(originalShots.acts)) originalShots.acts[actKey] = actShots.filter(shot => migrationIds.has(shot.beatId));
+  const migrationBeats = new Map(migrationPlan.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
+  for (const shot of originalShots.allShots) shot.sequenceId = migrationBeats.get(shot.beatId).sequenceId;
+  for (const shots of Object.values(originalShots.acts)) for (const shot of shots) shot.sequenceId = migrationBeats.get(shot.beatId).sequenceId;
+  const originalMigrationShots = structuredClone(originalShots.allShots);
+  originalShots.totalShots = originalShots.allShots.length;
+  const shotResult = updateShotDefinitions({
+    originalShotDefs: originalShots,
+    plan: migrationPlan,
+    revisionChain: [{ resultArtifactSha256: 'a'.repeat(64) }],
+    revisionId: 'test-editorial-intent-migrations',
+    editorialIntentMigrations: source.approvedTimingExceptions.editorialIntentMigrations,
+  });
+  for (const migration of source.approvedTimingExceptions.editorialIntentMigrations.entries) {
+    const shot = shotResult.shotDefs.allShots.find(value => value.actKey === migration.actKey && value.beatId === migration.beatId);
+    const mirrored = shotResult.shotDefs.acts[migration.actKey].find(value => value.beatId === migration.beatId);
+    assert.equal(shot.timingExceptionReason, null);
+    assert.equal(mirrored.timingExceptionReason, null);
+    assert.equal(shot.postNarrationHoldSec ?? 0, migration.postNarrationHoldSec);
+    assert.equal(mirrored.postNarrationHoldSec ?? 0, migration.postNarrationHoldSec);
+    assert.equal(shot.intentionalStillness === true, migration.intentionalStillness);
+    assert.equal(shot.rhythmIntent, migration.rhythmIntent);
+    assert.ok(shotResult.revisionLedger.entries.some(entry => entry.beatId === migration.beatId && entry.fieldPath === 'timingExceptionReason' && entry.afterValue === null));
+    const beforeCreative = structuredClone(originalMigrationShots.find(value => value.actKey === migration.actKey && value.beatId === migration.beatId));
+    const afterCreative = structuredClone(shot);
+    for (const field of ['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt', 'timingExceptionReason']) {
+      delete beforeCreative[field];
+      delete afterCreative[field];
+    }
+    assert.deepEqual(afterCreative, beforeCreative, `${migration.actKey}:${migration.beatId} preserves every other shot obligation and creative field`);
+  }
 });
 
 test('retained BEAT_TOO_SHORT failure is eligible only after shared six-act retiming validation passes', () => {
@@ -1373,7 +1445,8 @@ test('retained BEAT_TOO_SHORT failure is eligible only after shared six-act reti
   assert.equal(remediation.audit.status, 'BOUNDARY_AUDIT_PASS');
   assert.equal(remediation.validation.status, 'PASS');
   assert.deepEqual(remediation.validation.errors, []);
-  assert.equal(remediation.timingExceptionAudit.entries.length, 6);
+  assert.equal(remediation.timingExceptionAudit.entries.length, 10);
+  assert.equal(remediation.timingExceptionAudit.editorialIntentMigrations.length, 5);
   assert.deepEqual(fixture.input, before, 'eligibility verification is in-memory and does not mutate inputs');
   assert.equal(remediation.audit.providerRequestsMade, 0);
   assert.equal(remediation.audit.candidateWrites, 0);
@@ -1418,6 +1491,13 @@ test('removing any one approved exception restores its original hard timing viol
 
 test('unlisted short and long beats still fail; the five near-minimum normal beats receive no exception', () => {
   const source = approvedTimingExceptionFixture();
+  const unapprovedEditorialReason = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source);
+  const approvedIds = new Set([...source.approvedTimingExceptions.exceptions, ...source.approvedTimingExceptions.editorialIntentMigrations.entries].map(beat => `${beat.actKey}:${beat.beatId}`));
+  const normalBeat = unapprovedEditorialReason.input.plan.sequences.flatMap(sequence => sequence.beats).find(beat => beat.actKey === 'act2' && !approvedIds.has(`${beat.actKey}:${beat.beatId}`));
+  assert.ok(normalBeat, 'fixture contains an unrelated normal-duration Act 2 beat');
+  assert.ok(normalBeat.durationSec >= 2 && normalBeat.durationSec <= 6);
+  normalBeat.timingExceptionReason = 'Unapproved normal-duration timing reason';
+  assert.throws(() => retimeEditPlan(unapprovedEditorialReason.input), new RegExp(`ACTIVATION_TIMING_EXCEPTION_UNAPPROVED:act2:${normalBeat.beatId}`, 'u'));
   for (const [duration, code] of [[1.5, 'BEAT_TOO_SHORT'], [7, 'BEAT_TOO_LONG']]) {
     const fixture = syntheticApprovedTimingExceptionInput(source.approvedTimingExceptions, source, { unapprovedDuration: duration });
     const retimed = retimeEditPlan(fixture.input).plan;
@@ -1425,8 +1505,8 @@ test('unlisted short and long beats still fail; the five near-minimum normal bea
     assert.equal(validation.status, 'FAIL');
     assert.equal(validation.errors.filter(error => error.code === code).length, 1);
   }
-  const approvedIds = new Set(source.approvedTimingExceptions.exceptions.map(item => item.beatId));
-  for (const id of ['ACT1_B014', 'ACT2_B004', 'ACT4_B008', 'ACT1_B010', 'ACT2_B024']) assert.equal(approvedIds.has(id), false, id);
+  const formalExceptionIds = new Set(source.approvedTimingExceptions.exceptions.map(item => item.beatId));
+  for (const id of ['ACT1_B014', 'ACT2_B004', 'ACT4_B008', 'ACT1_B010', 'ACT2_B024']) assert.equal(formalExceptionIds.has(id), false, id);
 });
 
 test('revision lineage restores an approved retired shot before validating its parent hash', () => {

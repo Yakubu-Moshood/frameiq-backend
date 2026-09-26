@@ -208,11 +208,9 @@ function validateEditPlan({ plan, wordTimestamps, outputDir } = {}) {
       const justified = text(beat.timingExceptionReason);
       const hold = finite(beat.postNarrationHoldSec) ? beat.postNarrationHoldSec : 0;
       metrics.plannedEditorialHoldSec += hold;
-      if (hold > EPSILON && !justified) error('HOLD_REASON_REQUIRED', bp, 'postNarrationHoldSec above zero needs timingExceptionReason.');
       if (hold > 3) warn('LONG_EDITORIAL_HOLD', bp, 'Editorial hold is unusually long.');
       if (beat.intentionalStillness === true) {
         metrics.intentionalStillnessCount++;
-        if (!justified) error('STILLNESS_REASON_REQUIRED', bp, 'Intentional stillness needs an explicit reason.');
         if (beat.visual?.motionType !== 'static_locked') error('STILLNESS_MOTION_REQUIRED', bp, 'Intentional stillness requires static_locked motion.');
       }
       if (span(beat)) {
@@ -227,7 +225,7 @@ function validateEditPlan({ plan, wordTimestamps, outputDir } = {}) {
         } else {
           metrics.longestNormalBeatDurationSec = Math.max(metrics.longestNormalBeatDurationSec, duration);
           if (duration < 2 - EPSILON) {
-            if (!justified && hold <= EPSILON) error('BEAT_TOO_SHORT', bp, 'A beat below 2 seconds needs an explicit timingExceptionReason.');
+            if (!justified) error('BEAT_TOO_SHORT', bp, 'A beat below 2 seconds needs an explicit timingExceptionReason.');
           } else if ((duration < 3.5 - EPSILON || duration > 5.5 + EPSILON) && !justified) warn('TARGET_DURATION', bp, 'Beat is outside the normal 3.5–5.5 second target.');
         }
       }

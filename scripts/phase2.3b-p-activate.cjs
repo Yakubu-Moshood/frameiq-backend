@@ -176,11 +176,13 @@ function verifyTimingRemediation({ plan, wordTimestamps, script, reviewedAlignme
   const retimed = activation.retimeEditPlan(input);
   const applied = activation.verifyTimingExceptionApplications({ plan: retimed.plan, approvedTimingExceptions });
   const expected = approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort();
-  assert(applied.status === 'PASS' && applied.entries.length === 6
+  assert(applied.status === 'PASS' && applied.entries.length === 10
+    && applied.editorialIntentMigrations.length === 5
     && JSON.stringify(applied.entries.map(item => `${item.actKey}:${item.beatId}`).sort()) === JSON.stringify(expected), 'RESUME_TIMING_EXCEPTION_APPLICATIONS_MISMATCH');
   assert(activation.assertCreativePlanFieldsFrozen(plan, retimed.plan, {
     retiredBeatIds: (approvedBoundaryPolicy?.retirements || []).map(item => item.beatId),
     approvedTimingExceptionBeatIds: approvedTimingExceptions.exceptions.map(item => item.beatId),
+    editorialIntentMigrationBeatIds: approvedTimingExceptions.editorialIntentMigrations.entries.map(item => item.beatId),
   }), 'RESUME_TIMING_CREATIVE_FIELDS_CHANGED');
   const validation = validator.validateEditPlan({ plan: retimed.plan, wordTimestamps });
   assert(validation.status === 'PASS' && Array.isArray(validation.errors) && validation.errors.length === 0, 'RESUME_TIMING_EDIT_PLAN_VALIDATION_FAILED');
@@ -732,10 +734,10 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   const editValidation = timingProof?.validation || require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
   assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
   const retiredBeatIds = approvedBoundaryPolicy.retirements.map(item => item.beatId);
-  activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [] });
+  activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [], editorialIntentMigrationBeatIds: approvedTimingExceptions?.editorialIntentMigrations.entries.map(item => item.beatId) || [] });
   const originalShots = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.shots));
   const lineage = [readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.history)), readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment))];
-  const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements });
+  const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements, editorialIntentMigrations: approvedTimingExceptions?.editorialIntentMigrations });
   const shotValidation = require('/data/pipeline/shot-definitions-validator.cjs').validateShotDefinitions({ plan: retimed, shotDefs: shotResult.shotDefs, revisionChain: shotResult.revisionChain });
   assert(shotValidation.status === 'PASS', `SHOT_VALIDATION:${shotValidation.errors?.[0]?.code || 'FAIL'}`);
   const manifest = activation.updateProductionManifestForRetirements(readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.manifest)), retiredBeatIds);
