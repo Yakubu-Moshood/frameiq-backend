@@ -253,7 +253,8 @@ function verifyLineageRemediation({ runId, status, runnerIntegrity, timingRemedi
   const shotResult = activation.updateShotDefinitions({ originalShotDefs: sourceShots, plan: timingRemediation.plan,
     revisionChain: [history, amendment], revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds,
     retirementRecords: approvedBoundaryPolicy.retirements,
-    editorialIntentMigrations: approvedTimingExceptions.editorialIntentMigrations });
+    editorialIntentMigrations: approvedTimingExceptions.editorialIntentMigrations,
+    approvedTimingExceptions });
   const revisionReport = revisionLineage.validateRevisionChain({ shotDefs: shotResult.shotDefs, revisionChain: shotResult.revisionChain });
   const shotReport = shotValidator.validateShotDefinitions({ plan: timingRemediation.plan,
     shotDefs: shotResult.shotDefs, revisionChain: shotResult.revisionChain });
@@ -1012,7 +1013,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [], editorialIntentMigrationBeatIds: approvedTimingExceptions?.editorialIntentMigrations.entries.map(item => item.beatId) || [] });
   const originalShots = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.shots));
   const lineage = [readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.history)), readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment))];
-  const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements, editorialIntentMigrations: approvedTimingExceptions?.editorialIntentMigrations });
+  const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements, editorialIntentMigrations: approvedTimingExceptions?.editorialIntentMigrations, approvedTimingExceptions });
   const shotValidation = require('/data/pipeline/shot-definitions-validator.cjs').validateShotDefinitions({ plan: retimed, shotDefs: shotResult.shotDefs, revisionChain: shotResult.revisionChain });
   assert(shotValidation.status === 'PASS', `SHOT_VALIDATION:${shotValidation.errors?.[0]?.code || 'FAIL'}`);
   const manifest = activation.updateProductionManifestForRetirements(readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.manifest)), retiredBeatIds);

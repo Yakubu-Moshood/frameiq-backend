@@ -1385,7 +1385,7 @@ async function chooseTimingTranscript({ resumeOnly = false, readExisting, transc
   return transcribe();
 }
 
-function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [], editorialIntentMigrations = null }) {
+function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [], editorialIntentMigrations = null, approvedTimingExceptions = null }) {
   const shotDefs = deepClone(originalShotDefs);
   const retireSet = new Set(retiredBeatIds);
   if (retireSet.size !== retiredBeatIds.length || [...retireSet].some(id => id !== 'ACT3B_B010')) throw new Error('ACTIVATION_SHOT_RETIREMENT_NOT_APPROVED');
@@ -1399,6 +1399,20 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   const migrations = editorialIntentMigrations === null ? [] : editorialIntentMigrations?.verified === true ? editorialIntentMigrations.entries : null;
   if (editorialIntentMigrations !== null && (!Array.isArray(migrations) || !equal(migrations.map(item => `${item.actKey}:${item.beatId}`).sort(), migrationOwners))) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
   const migrationMap = new Map((migrations || []).map(item => [`${item.actKey}:${item.beatId}`, item]));
+  const timingExceptionOwners = [
+    'act1:ACT1_B030', 'act2:ACT2_B006', 'act2:ACT2_B023', 'act3:ACT3_B004', 'act3:ACT3_B025',
+    'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act4:ACT4_B024', 'act5:ACT5_B012',
+  ];
+  const timingExceptions = approvedTimingExceptions === null ? [] : approvedTimingExceptions?.verified === true
+    && approvedTimingExceptions.policySha256 === APPROVED_TIMING_EXCEPTION_POLICY_SHA256
+    && Array.isArray(approvedTimingExceptions.exceptions) ? approvedTimingExceptions.exceptions : null;
+  if (approvedTimingExceptions !== null && (!timingExceptions
+      || !equal(timingExceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), timingExceptionOwners.sort()))) {
+    throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
+  }
+  const timingExceptionMap = new Map((timingExceptions || []).map(item => [`${item.actKey}:${item.beatId}`, item]));
+  if (timingExceptionMap.size !== (timingExceptions || []).length) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_DUPLICATE');
+  for (const key of migrationMap.keys()) if (timingExceptionMap.has(key)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_MIGRATION_CONFLICT:${key}`);
   if (retireSet.size) {
     const originalShots = shotDefs.allShots;
     for (const beatId of retireSet) {
@@ -1418,9 +1432,11 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   if (new Set(shotDefs.allShots.map(shot => shot.shotId)).size !== shotDefs.allShots.length || new Set(shotDefs.allShots.map(shot => shot.beatId)).size !== shotDefs.allShots.length) throw new Error('ACTIVATION_SHOT_IDS_INVALID');
   if (!Array.isArray(revisionChain) || revisionChain.length === 0 || !revisionChain.at(-1)?.resultArtifactSha256) throw new Error('ACTIVATION_REVISION_CHAIN_INVALID');
   const entries = [], permittedImmutablePaths = [];
+  let timingExceptionReasonsApplied = 0;
   for (const shot of shotDefs.allShots) {
     const beat = planBeats.get(shot.beatId);
     const migration = migrationMap.get(`${shot.actKey}:${shot.beatId}`);
+    const timingException = timingExceptionMap.get(`${shot.actKey}:${shot.beatId}`);
     if (migration) {
       if (shot.timingExceptionReason !== migration.existingTimingExceptionReason || beat?.timingExceptionReason !== null
           || beat?.durationSec < 2 || beat?.durationSec > 6 || Math.abs(beat?.durationSec - migration.approvedDurationSec) > 1e-9
@@ -1436,6 +1452,42 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
       entries.push({ shotId: shot.shotId, beatId: shot.beatId, mirrorActKey: shot.actKey, fieldPath: 'timingExceptionReason', beforeValue, afterValue: null, reason: 'Remove the exactly approved normal-duration editorial reason from shot metadata; dedicated hold, stillness, and rhythm fields remain intact.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
     }
     if (!beat || shot.sequenceId !== beat.sequenceId || shot.actKey !== beat.actKey) throw new Error(`ACTIVATION_SHOT_IDENTITY_MISMATCH:${shot.shotId}`);
+    if (timingException) {
+      const key = `${timingException.actKey}:${timingException.beatId}`;
+      if (timingException.actKey !== shot.actKey || timingException.beatId !== shot.beatId
+          || typeof timingException.justification !== 'string' || !timingException.justification.trim()
+          || beat.timingExceptionReason !== timingException.justification) {
+        throw new Error(`ACTIVATION_TIMING_EXCEPTION_REASON_SCOPE_MISMATCH:${key}`);
+      }
+      const canonicalCopies = shotDefs.allShots.filter(item => item?.shotId === shot.shotId && item?.beatId === shot.beatId);
+      const mirrorCopies = [];
+      for (const [actKey, actShots] of Object.entries(shotDefs.acts || {})) {
+        if (!Array.isArray(actShots)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_MIRROR_INVALID:${key}`);
+        for (const mirror of actShots) if (mirror?.shotId === shot.shotId || mirror?.beatId === shot.beatId) mirrorCopies.push({ actKey, shot: mirror });
+      }
+      const expectedMirrors = mirrorCopies.filter(item => item.actKey === shot.actKey && item.shot?.shotId === shot.shotId
+        && item.shot?.beatId === shot.beatId && item.shot?.actKey === shot.actKey);
+      if (canonicalCopies.length !== 1) throw new Error(`ACTIVATION_TIMING_EXCEPTION_SHOT_AMBIGUOUS:${key}`);
+      if (expectedMirrors.length !== 1 || mirrorCopies.length !== 1) {
+        throw new Error(`ACTIVATION_TIMING_EXCEPTION_MIRROR_MISSING_OR_AMBIGUOUS:${key}`);
+      }
+      const mirrored = expectedMirrors[0].shot;
+      if (shot.timingExceptionReason !== timingException.priorTimingExceptionReason
+          || mirrored.timingExceptionReason !== timingException.priorTimingExceptionReason) {
+        throw new Error(`ACTIVATION_TIMING_EXCEPTION_PRIOR_REASON_MISMATCH:${key}`);
+      }
+      const beforeValue = shot.timingExceptionReason;
+      shot.timingExceptionReason = timingException.justification;
+      mirrored.timingExceptionReason = timingException.justification;
+      permittedImmutablePaths.push(`${shot.shotId}.timingExceptionReason`);
+      entries.push({ shotId: shot.shotId, beatId: shot.beatId, mirrorActKey: shot.actKey,
+        fieldPath: 'timingExceptionReason', beforeValue, afterValue: timingException.justification,
+        reason: 'Propagate the exact reason from the verified, hash-bound timing exception policy to canonical and mirrored shot metadata.',
+        approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
+      timingExceptionReasonsApplied++;
+    } else if (!migration && shot.timingExceptionReason !== beat.timingExceptionReason) {
+      throw new Error(`ACTIVATION_SHOT_TIMING_REASON_UNAPPROVED:${shot.actKey}:${shot.beatId}`);
+    }
     for (const field of SHOT_DYNAMIC_FIELDS) {
       const beforeValue = shot[field]; const afterValue = beat[field];
       if (!equal(beforeValue, afterValue)) {
@@ -1445,6 +1497,7 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
       }
     }
   }
+  if (timingExceptionReasonsApplied !== timingExceptionMap.size) throw new Error('ACTIVATION_TIMING_EXCEPTION_BEAT_MISSING');
   const planSha256 = require('./shot-definitions-validator.cjs').planFingerprint(plan);
   const beforePlanSha = shotDefs.sourceEditPlanSha256;
   shotDefs.sourceEditPlanSha256 = planSha256;

@@ -1669,6 +1669,11 @@ test('historical revision-parent failure requires exact in-memory lineage remedi
     beat.postNarrationHoldSec = migration.postNarrationHoldSec;
     beat.intentionalStillness = migration.intentionalStillness; beat.rhythmIntent = migration.rhythmIntent;
   }
+  for (const exception of timingPolicy.exceptions) {
+    const beat = plan.sequences.flatMap(sequence => sequence.beats).find(item => item.actKey === exception.actKey && item.beatId === exception.beatId);
+    assert.ok(beat, `${exception.actKey}:${exception.beatId} is present in the source plan`);
+    beat.timingExceptionReason = exception.justification;
+  }
   const scriptBytes = fs.readFileSync(path.join(packageDir, files.script));
   const amendmentBytes = fs.readFileSync(path.join(packageDir, files.amendment));
   const boundaryPolicyPath = path.join(__dirname, '..', 'pipeline-updates', 'phase2.3b-p-approved-boundary-ranges.json');
@@ -1695,12 +1700,81 @@ test('historical revision-parent failure requires exact in-memory lineage remedi
     timingExceptionAudit: { status: 'PASS', entries: Array.from({ length: 10 }, (_, index) => ({ beatId: `exception-${index}` })),
       editorialIntentMigrations: timingPolicy.editorialIntentMigrations.entries.map(item => ({ actKey: item.actKey, beatId: item.beatId })) },
   };
+  const verifiedTimingPolicy = { verified: true, policySha256: timingRemediation.policySha256,
+    exceptions: timingPolicy.exceptions,
+    editorialIntentMigrations: { verified: true, entries: timingPolicy.editorialIntentMigrations.entries } };
+  const sourceLineage = [readPackage('history'), readPackage('amendment')];
+  const shotTransform = ({ policy = verifiedTimingPolicy, shots = sourceShots, plan: candidatePlan = plan } = {}) => activation.updateShotDefinitions({
+    originalShotDefs: structuredClone(shots), plan: structuredClone(candidatePlan), revisionChain: structuredClone(sourceLineage),
+    revisionId: 'phase2.3b-p-retiming-test', retiredBeatIds: approvedBoundaryPolicy.retirements.map(item => item.beatId),
+    retirementRecords: approvedBoundaryPolicy.retirements, editorialIntentMigrations: policy?.editorialIntentMigrations,
+    approvedTimingExceptions: policy,
+  });
+  const propagated = shotTransform();
+  const reasonEntries = propagated.revisionLedger.entries.filter(entry => entry.fieldPath === 'timingExceptionReason' && entry.afterValue !== null);
+  assert.equal(reasonEntries.length, 10);
+  for (const exception of timingPolicy.exceptions) {
+    const key = `${exception.actKey}:${exception.beatId}`;
+    const canonical = propagated.shotDefs.allShots.find(shot => shot.actKey === exception.actKey && shot.beatId === exception.beatId);
+    const mirror = propagated.shotDefs.acts[exception.actKey].find(shot => shot.actKey === exception.actKey && shot.beatId === exception.beatId);
+    const ledgerEntry = reasonEntries.find(entry => entry.mirrorActKey === exception.actKey && entry.beatId === exception.beatId);
+    assert.equal(canonical.timingExceptionReason, exception.justification, `${key} canonical reason`);
+    assert.equal(mirror.timingExceptionReason, exception.justification, `${key} mirrored reason`);
+    assert.equal(sourceShots.acts[exception.actKey].find(shot => shot.beatId === exception.beatId).timingExceptionReason,
+      exception.priorTimingExceptionReason, `${key} mirrored parent value`);
+    assert.equal(ledgerEntry.beforeValue, exception.priorTimingExceptionReason, `${key} canonical parent value`);
+    assert.equal(ledgerEntry.afterValue, exception.justification, `${key} canonical revised value`);
+    assert.equal(ledgerEntry.mirrorActKey, exception.actKey, `${key} mirror owner`);
+  }
+  const reverse = require('../pipeline-updates/revision-lineage.cjs').validateRevisionChain({
+    shotDefs: propagated.shotDefs, revisionChain: propagated.revisionChain,
+  });
+  assert.equal(reverse.status, 'PASS', JSON.stringify(reverse.errors));
+  assert.equal(reverse.reconstructedParentHashes.at(-1), '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b');
+  const propagatedValidation = require('../pipeline-updates/shot-definitions-validator.cjs').validateShotDefinitions({
+    plan, shotDefs: propagated.shotDefs, revisionChain: propagated.revisionChain,
+  });
+  assert.equal(propagatedValidation.status, 'PASS', JSON.stringify(propagatedValidation.errors));
+  assert.deepEqual(propagatedValidation.errors.filter(error => error.code === 'EDITORIAL_FIELD_MISMATCH'), []);
+  assert.equal(propagated.shotDefs.allShots.some(shot => shot.beatId === 'ACT3B_B010'), false);
+
+  const missingPolicyEntry = structuredClone(verifiedTimingPolicy);
+  missingPolicyEntry.exceptions.pop();
+  assert.throws(() => shotTransform({ policy: missingPolicyEntry }), /ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED/u);
+  const duplicatePolicyEntry = structuredClone(verifiedTimingPolicy);
+  duplicatePolicyEntry.exceptions[9] = structuredClone(duplicatePolicyEntry.exceptions[0]);
+  assert.throws(() => shotTransform({ policy: duplicatePolicyEntry }), /ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED/u);
+  const wrongPolicyText = structuredClone(verifiedTimingPolicy);
+  wrongPolicyText.exceptions[0].justification += ' altered';
+  assert.throws(() => shotTransform({ policy: wrongPolicyText }), /ACTIVATION_TIMING_EXCEPTION_REASON_SCOPE_MISMATCH/u);
+  const wrongCurrent = structuredClone(sourceShots);
+  wrongCurrent.allShots.find(shot => shot.beatId === timingPolicy.exceptions[0].beatId).timingExceptionReason = 'unexpected';
+  assert.throws(() => shotTransform({ shots: wrongCurrent }), /ACTIVATION_TIMING_EXCEPTION_PRIOR_REASON_MISMATCH/u);
+  const missingMirror = structuredClone(sourceShots);
+  missingMirror.acts[timingPolicy.exceptions[0].actKey] = missingMirror.acts[timingPolicy.exceptions[0].actKey]
+    .filter(shot => shot.beatId !== timingPolicy.exceptions[0].beatId);
+  assert.throws(() => shotTransform({ shots: missingMirror }), /ACTIVATION_TIMING_EXCEPTION_MIRROR_MISSING_OR_AMBIGUOUS/u);
+  const duplicateMirror = structuredClone(sourceShots);
+  duplicateMirror.acts[timingPolicy.exceptions[0].actKey].push(structuredClone(duplicateMirror.acts[timingPolicy.exceptions[0].actKey]
+    .find(shot => shot.beatId === timingPolicy.exceptions[0].beatId)));
+  assert.throws(() => shotTransform({ shots: duplicateMirror }), /ACTIVATION_TIMING_EXCEPTION_MIRROR_MISSING_OR_AMBIGUOUS/u);
+  const wrongShotOwner = structuredClone(sourceShots);
+  wrongShotOwner.allShots.find(shot => shot.beatId === timingPolicy.exceptions[0].beatId).actKey = 'act5';
+  assert.throws(() => shotTransform({ shots: wrongShotOwner }), /ACTIVATION_SHOT_IDENTITY_MISMATCH/u);
+  const wrongOwnerPolicy = structuredClone(verifiedTimingPolicy);
+  wrongOwnerPolicy.exceptions[0].actKey = 'act5';
+  assert.throws(() => shotTransform({ policy: wrongOwnerPolicy }), /ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED/u);
+  const unrecordedPlan = structuredClone(plan);
+  const unrelated = unrecordedPlan.sequences.flatMap(sequence => sequence.beats)
+    .find(beat => !timingPolicy.exceptions.some(item => item.beatId === beat.beatId)
+      && !timingPolicy.editorialIntentMigrations.entries.some(item => item.beatId === beat.beatId));
+  unrelated.timingExceptionReason = 'unapproved';
+  assert.throws(() => shotTransform({ plan: unrecordedPlan }), /ACTIVATION_SHOT_TIMING_REASON_UNAPPROVED/u);
   const candidatePlanBytes = fs.readFileSync(path.join(packageDir, files.plan));
   const candidateScriptSha256 = crypto.createHash('sha256').update(scriptBytes).digest('hex');
   const lineageRemediation = activationCli.verifyLineageRemediation({
     runId, status, runnerIntegrity: { runnerPath, expectedRunnerSha256: runnerSha256, actualRunnerSha256: runnerSha256, verificationStatus: 'PASS' },
-    timingRemediation, approvedTimingExceptions: { verified: true, policySha256: timingRemediation.policySha256,
-      editorialIntentMigrations: { verified: true, entries: timingPolicy.editorialIntentMigrations.entries } },
+    timingRemediation, approvedTimingExceptions: verifiedTimingPolicy,
     approvedBoundaryPolicy,
     boundaryInputHashes: { candidateScriptSha256, candidatePreTimingEditPlanSha256: crypto.createHash('sha256').update(candidatePlanBytes).digest('hex') },
     completed: { verification: { wordTimestampsSha256: 'a'.repeat(64) }, timestampFileSha256: 'b'.repeat(64), receiptFileSha256: 'c'.repeat(64), partialFileSha256: 'd'.repeat(64) },
@@ -1715,7 +1789,7 @@ test('historical revision-parent failure requires exact in-memory lineage remedi
   assert.equal(lineageRemediation.validation.totalErrorCount, 0);
   assert.equal(lineageRemediation.validation.productionManifest.status, 'PASS');
 
-  const approvedTimingExceptions = { verified: true, policySha256: timingRemediation.policySha256,
+  const approvedTimingExceptions = { ...verifiedTimingPolicy,
     resumeEligibility: { completedActs: status.completedActs, attemptsByAct: status.attemptsByAct, failureError: 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT' } };
   const eligibilityArgs = { status, runId, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
     requestLedgerVerified: true, timingPolicyVerified: true, remediation: timingRemediation,
