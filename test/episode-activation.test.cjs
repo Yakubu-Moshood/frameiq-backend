@@ -187,12 +187,18 @@ test('six-act CLI boundary audit shares candidate mappings, reports full coverag
   const before = structuredClone(input);
   const orchestration = { targetChecks: 0, packageChecks: 0, runtimeChecks: 0, preflightChecks: 0, scriptReads: 0, planReads: 0, audioProbes: 0, providerCalls: 0, writes: 0 };
   const audioContracts = value.actOrder.map(actKey => ({ actKey, file: `${actKey}.mp3` }));
+  const auditStatus = { runId: 'audit-run-123', state: 'FAILURE', currentStage: 'FAILED',
+    completedAt: '2026-09-25T16:23:14.453Z', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2',
+    completedActs: ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'], pid: 2147483647 };
+  const auditEligibility = activationCli.createVerifiedResumeEligibility({ status: auditStatus,
+    runId: auditStatus.runId, locksAbsent: true, candidateAbsent: true,
+    immutableInputsVerified: true, requestLedgerVerified: true });
   const audit = await activationCli.auditResumeBoundaries({
     runId: 'audit-run-123',
     ensureTarget: () => { orchestration.targetChecks++; },
     verifyPackageFn: () => { orchestration.packageChecks++; },
     verifyRuntimeSyncFn: () => { orchestration.runtimeChecks++; },
-    resumePreflight: runId => { orchestration.preflightChecks++; assert.equal(runId, 'audit-run-123'); return { completed: { timestamps: value.words }, alignment: reviewedAlignment }; },
+    resumePreflight: runId => { orchestration.preflightChecks++; assert.equal(runId, 'audit-run-123'); return { status: auditStatus, eligibility: auditEligibility, completed: { timestamps: value.words }, alignment: reviewedAlignment }; },
     getApprovedScript: () => { orchestration.scriptReads++; return value.script; },
     loadBoundaryPolicy: ({ script: loadedScript }) => {
       assert.deepEqual(loadedScript, value.script, 'the approved script is supplied to the lineage loader');
@@ -630,7 +636,8 @@ test('alignment resume accepts only exact approved deterministic alignment failu
   const status = { runId, state: 'FAILURE', currentStage: 'FAILED', completedAt: '2026-09-25T16:23:14.453Z', error: 'ACTIVATION_WORD_ALIGNMENT_MISMATCH:act2', completedActs, pid: 26 };
   const fakeFs = { existsSync: () => true, readFileSync: () => Buffer.from(JSON.stringify(status)) };
   assert.deepEqual(activationCli.verifyResumableAlignmentFailure({ fs: fakeFs, runId }), status);
-  const eligibility = { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true };
+  const eligibility = activationCli.createVerifiedResumeEligibility({ status, runId,
+    locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true, requestLedgerVerified: true });
   assert.equal(activationCli.assertFailedRunProcessInactive({ ...status, pid: 987654321 }, { isProcessAlive: () => false }), true);
   assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, pid: 1234 }, { isProcessAlive: () => true, currentPid: 26 }), /RESUME_RUN_PROCESS_ACTIVE/u);
 
@@ -638,11 +645,11 @@ test('alignment resume accepts only exact approved deterministic alignment failu
   // after both diagnosis and resume have completed their strict eligibility gates.
   assert.equal(activationCli.assertFailedRunProcessInactive(status, { isProcessAlive: () => true, currentPid: status.pid, eligibility }), true);
   assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...status, completedAt: null }, { isProcessAlive: () => true, currentPid: status.pid, eligibility }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u);
-  for (const failedGate of ['locksAbsent', 'candidateAbsent', 'immutableInputsVerified']) {
-    assert.throws(() => activationCli.assertFailedRunProcessInactive(status, {
-      isProcessAlive: () => true, currentPid: status.pid,
-      eligibility: { ...eligibility, [failedGate]: false },
-    }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u, `${failedGate} must block PID-reuse acceptance`);
+  for (const failedGate of ['locksAbsent', 'candidateAbsent', 'immutableInputsVerified', 'requestLedgerVerified']) {
+    assert.throws(() => activationCli.createVerifiedResumeEligibility({ status, runId,
+      locksAbsent: failedGate !== 'locksAbsent', candidateAbsent: failedGate !== 'candidateAbsent',
+      immutableInputsVerified: failedGate !== 'immutableInputsVerified', requestLedgerVerified: failedGate !== 'requestLedgerVerified' }),
+    /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u, `${failedGate} must block PID-reuse acceptance`);
   }
   for (const lockPath of [
     path.join(activationCli.ROOT, '.review', `phase2.3b-p-activation-${runId}`, 'activation.lock'),
@@ -668,17 +675,60 @@ test('alignment resume accepts only exact approved deterministic alignment failu
     isProcessAlive: () => true, currentPid: status.pid,
   }), /RESUME_RUN_PROCESS_IDENTITY_INVALID/u);
   const validationFailure = { ...status, error: 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT', pid: 26 };
-  const remediationEligibility = { terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
-    remediationVerified: true, failureError: validationFailure.error, completedActs };
-  assert.equal(activationCli.assertFailedRunProcessInactive(validationFailure, {
-    isProcessAlive: () => true, currentPid: validationFailure.pid, eligibility: remediationEligibility,
+  const policySource = approvedTimingExceptionFixture();
+  const policyInput = syntheticApprovedTimingExceptionInput(policySource.approvedTimingExceptions, policySource);
+  const audit = auditEditPlanBoundaries(policyInput.input);
+  const approvedPolicy = structuredClone(policySource.approvedTimingExceptions);
+  approvedPolicy.resumeEligibility = { ...approvedPolicy.resumeEligibility,
+    expectedBoundaryCounts: Object.fromEntries(audit.acts.map(act => [act.actKey, act.boundaryCount])),
+    expectedActiveBeatCounts: Object.fromEntries(audit.acts.map(act => [act.actKey, act.beatCount])),
+    expectedTotalDurationSec: retimeEditPlan(policyInput.input).plan.timing.totalDurationSec,
+    totalDurationToleranceSec: 0.001 };
+  const verifiedRemediation = activationCli.verifyTimingRemediation({ ...policyInput.input,
+    approvedTimingExceptions: approvedPolicy, validator: { validateEditPlan } });
+  const remediationStatus = { ...validationFailure, error: approvedPolicy.resumeEligibility.failureError,
+    completedActs, attemptsByAct: approvedPolicy.resumeEligibility.attemptsByAct };
+  const remediationEligibility = activationCli.createVerifiedResumeEligibility({ status: remediationStatus,
+    runId: remediationStatus.runId, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
+    requestLedgerVerified: true, timingPolicyVerified: true, remediation: verifiedRemediation,
+    approvedTimingExceptions: approvedPolicy, boundaryAndValidationVerified: true });
+  const eligibilityArgs = { status: remediationStatus, runId: remediationStatus.runId,
+    locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true, requestLedgerVerified: true,
+    timingPolicyVerified: true, remediation: verifiedRemediation, approvedTimingExceptions: approvedPolicy,
+    boundaryAndValidationVerified: true };
+  for (const [label, change] of [
+    ['failureError missing', { approvedTimingExceptions: { ...approvedPolicy, resumeEligibility: { ...approvedPolicy.resumeEligibility, failureError: undefined } } }],
+    ['run-status error mismatch', { status: { ...remediationStatus, error: 'EDIT_PLAN_VALIDATION:BEAT_TOO_LONG' } }],
+    ['completed acts missing', { status: { ...remediationStatus, completedActs: completedActs.slice(0, -1) } }],
+    ['nonterminal state', { status: { ...remediationStatus, state: 'RUNNING' } }],
+    ['completedAt missing', { status: { ...remediationStatus, completedAt: null } }],
+    ['run lock present', { locksAbsent: false }],
+    ['candidate present', { candidateAbsent: false }],
+    ['immutable input mismatch', { immutableInputsVerified: false }],
+    ['request ledger mismatch', { requestLedgerVerified: false }],
+    ['timing policy mismatch', { timingPolicyVerified: false }],
+    ['remediation failure', { remediation: { ...verifiedRemediation, status: 'FAIL' } }],
+    ['boundary failure', { remediation: { ...verifiedRemediation, audit: { ...verifiedRemediation.audit, status: 'BOUNDARY_AUDIT_FAIL' } } }],
+    ['validation failure', { remediation: { ...verifiedRemediation, validation: { status: 'FAIL', errors: [{ code: 'BEAT_TOO_SHORT' }] } } }],
+    ['wrong exception count', { remediation: { ...verifiedRemediation, timingExceptionAudit: { ...verifiedRemediation.timingExceptionAudit, entries: [] } } }],
+    ['policy and remediation hash mismatch', { remediation: { ...verifiedRemediation, policySha256: '0'.repeat(64) } }],
+  ]) {
+    assert.throws(() => activationCli.createVerifiedResumeEligibility({ ...eligibilityArgs, ...change }),
+      /RESUME_RUN_(?:STATE_MISMATCH|ELIGIBILITY_UNVERIFIED)/u, label);
+  }
+  assert.equal(activationCli.assertFailedRunProcessInactive(remediationStatus, {
+    isProcessAlive: () => true, currentPid: remediationStatus.pid, eligibility: remediationEligibility,
   }), true, 'the same PID is accepted only after the policy-derived validation proof and all safety gates pass');
-  assert.equal(activationCli.assertFailedRunProcessInactive({ ...validationFailure, processStartIdentity: '12345' }, {
-    isProcessAlive: () => true, currentPid: validationFailure.pid, getProcessStartIdentity: () => '67890', eligibility: remediationEligibility,
+  assert.equal(activationCli.assertFailedRunProcessInactive({ ...remediationStatus, processStartIdentity: '12345' }, {
+    isProcessAlive: () => true, currentPid: remediationStatus.pid, getProcessStartIdentity: () => '67890', eligibility: remediationEligibility,
   }), true, 'a different process-start identity proves the old PID was reused');
-  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...validationFailure, processStartIdentity: '12345' }, {
-    isProcessAlive: () => true, currentPid: validationFailure.pid, getProcessStartIdentity: () => '12345', eligibility: remediationEligibility,
+  assert.throws(() => activationCli.assertFailedRunProcessInactive({ ...remediationStatus, processStartIdentity: '12345' }, {
+    isProcessAlive: () => true, currentPid: remediationStatus.pid, getProcessStartIdentity: () => '12345', eligibility: remediationEligibility,
   }), /RESUME_RUN_PROCESS_ACTIVE/u, 'a matching process-start identity still proves a live process');
+  assert.throws(() => activationCli.assertFailedRunProcessInactive(remediationStatus, {
+    isProcessAlive: () => true, currentPid: remediationStatus.pid,
+    eligibility: { ...remediationEligibility },
+  }), /RESUME_RUN_ELIGIBILITY_UNVERIFIED/u, 'unbranded caller-supplied flags cannot authorize PID reuse');
   assert.throws(() => activationCli.verifyResumableAlignmentFailure({ fs: { ...fakeFs, readFileSync: () => Buffer.from(JSON.stringify({ ...status, completedAt: 'not-a-date' })) }, runId }), /RESUME_RUN_STATE_MISMATCH/u);
 
   // Diagnosis and resume use the same process-identity decision helper; its
@@ -686,8 +736,9 @@ test('alignment resume accepts only exact approved deterministic alignment failu
   let providerCalls = 0, candidateWrites = 0, rootWrites = 0;
   const sharedOptions = { isProcessAlive: () => true, currentPid: status.pid, eligibility };
   const diagnosisDecision = activationCli.assertFailedRunProcessInactive(status, sharedOptions);
+  const auditDecision = activationCli.assertFailedRunProcessInactive(status, sharedOptions);
   const resumeDecision = activationCli.assertFailedRunProcessInactive(status, sharedOptions);
-  assert.equal(diagnosisDecision, resumeDecision);
+  assert.deepEqual([diagnosisDecision, auditDecision, resumeDecision], [true, true, true]);
   assert.deepEqual([providerCalls, candidateWrites, rootWrites], [0, 0, 0]);
 
   const liveBoundaryFailure = { ...status, error: 'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11' };

@@ -29,6 +29,7 @@ const RESUMABLE_ALIGNMENT_FAILURES = new Set([
   'ACTIVATION_BOUNDARY_MAPPING_MISSING:act1:11',
   'ACTIVATION_BOUNDARY_MAPPING_MISSING:act2:0',
 ]);
+const VERIFIED_RESUME_ELIGIBILITY = new WeakSet();
 const ACT_ORDER = spec.actOrder;
 const VO_BINDINGS = Object.fromEntries(ACT_ORDER.map(key => [key, spec.voFilenames[key].replace(/\.mp3$/iu, '')]));
 const CANDIDATE_FILES = {
@@ -332,6 +333,49 @@ function isCompleteResumableFailure(status) {
     && JSON.stringify(status?.completedActs) === JSON.stringify(ACT_ORDER);
 }
 
+function createVerifiedResumeEligibility({ status, runId, locksAbsent, candidateAbsent, immutableInputsVerified,
+  requestLedgerVerified, timingPolicyVerified, remediation, approvedTimingExceptions,
+  boundaryAndValidationVerified } = {}) {
+  assert(SAFE_ID.test(runId || '') && status?.runId === runId
+    && status?.state === 'FAILURE' && status?.currentStage === 'FAILED'
+    && Number.isFinite(Date.parse(status?.completedAt || ''))
+    && JSON.stringify(status?.completedActs) === JSON.stringify(ACT_ORDER), 'RESUME_RUN_STATE_MISMATCH');
+  assert(locksAbsent === true && candidateAbsent === true && immutableInputsVerified === true
+    && requestLedgerVerified === true, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+  const staticFailure = isCompleteResumableFailure(status);
+  const policyEligibility = approvedTimingExceptions?.verified === true
+    ? approvedTimingExceptions.resumeEligibility : null;
+  const remediationFailure = Boolean(policyEligibility
+    && timingPolicyVerified === true
+    && remediation?.status === 'PASS'
+    && remediation.policySha256 === approvedTimingExceptions.policySha256
+    && remediation.audit?.status === 'BOUNDARY_AUDIT_PASS'
+    && remediation.audit?.errors?.length === 0
+    && remediation.validation?.status === 'PASS'
+    && remediation.validation?.errors?.length === 0
+    && remediation.timingExceptionAudit?.status === 'PASS'
+    && remediation.timingExceptionAudit?.entries?.length === 10
+    && remediation.timingExceptionAudit?.editorialIntentMigrations?.length === 5
+    && boundaryAndValidationVerified === true
+    && typeof policyEligibility.failureError === 'string' && policyEligibility.failureError.length > 0
+    && policyEligibility.failureError === status.error
+    && JSON.stringify(policyEligibility.completedActs) === JSON.stringify(status.completedActs)
+    && JSON.stringify(policyEligibility.attemptsByAct) === JSON.stringify(status.attemptsByAct));
+  assert(staticFailure || remediationFailure, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+  const result = Object.freeze({
+    runId, statusError: status.error, completedAt: status.completedAt,
+    completedActs: JSON.stringify(status.completedActs), pid: status.pid,
+    terminalFailure: true, locksAbsent: true, candidateAbsent: true,
+    immutableInputsVerified: true, requestLedgerVerified: true,
+    timingPolicyVerified: timingPolicyVerified === true,
+    remediationVerified: remediationFailure,
+    failureError: remediationFailure ? policyEligibility.failureError : null,
+    mode: remediationFailure ? 'VERIFIED_TIMING_REMEDIATION' : 'STATIC_ALLOWLIST',
+  });
+  VERIFIED_RESUME_ELIGIBILITY.add(result);
+  return result;
+}
+
 function assertFailedRunProcessInactive(status, { isProcessAlive = pid => {
   try { process.kill(pid, 0); return true; }
   catch (error) { return error?.code !== 'ESRCH'; }
@@ -339,15 +383,18 @@ function assertFailedRunProcessInactive(status, { isProcessAlive = pid => {
   assert(Number.isSafeInteger(status?.pid) && status.pid > 0, 'RESUME_RUN_PID_INVALID');
   if (!isProcessAlive(status.pid)) return true;
 
-  const verified = eligibility.terminalFailure === true
+  const verified = VERIFIED_RESUME_ELIGIBILITY.has(eligibility)
+    && eligibility.runId === status.runId && eligibility.statusError === status.error
+    && eligibility.completedAt === status.completedAt && eligibility.pid === status.pid
+    && eligibility.completedActs === JSON.stringify(status.completedActs)
+    && eligibility.terminalFailure === true
     && eligibility.locksAbsent === true
     && eligibility.candidateAbsent === true
     && eligibility.immutableInputsVerified === true
+    && eligibility.requestLedgerVerified === true
     && (isCompleteResumableFailure(status)
-      || eligibility.remediationVerified === true && status?.error === eligibility.failureError
-        && status?.state === 'FAILURE' && status?.currentStage === 'FAILED'
-        && Number.isFinite(Date.parse(status?.completedAt || ''))
-        && JSON.stringify(status?.completedActs) === JSON.stringify(eligibility.completedActs));
+      || eligibility.mode === 'VERIFIED_TIMING_REMEDIATION' && eligibility.remediationVerified === true
+        && eligibility.timingPolicyVerified === true && status?.error === eligibility.failureError);
   const recordedIdentity = status.processStartIdentity;
   if (recordedIdentity !== undefined && recordedIdentity !== null) {
     assert(typeof recordedIdentity === 'string' && /^\d+$/u.test(recordedIdentity), 'RESUME_RUN_PROCESS_IDENTITY_INVALID');
@@ -464,11 +511,18 @@ function diagnoseResume({ runId, fs: fsImpl = fs } = {}) {
     approvedTimingExceptions, actDurationsSec: Object.fromEntries(approval.approvedAudio.map(item => [item.actKey, item.durationSec])),
   }) : null;
   verifyExpectedFailureStatus(priorStatus, runId, approvedTimingExceptions, timingRemediation);
-  assertFailedRunProcessInactive(priorStatus, { eligibility: {
-    terminalFailure: true, locksAbsent: true, candidateAbsent: true, immutableInputsVerified: true,
-    remediationVerified: timingRemediation?.status === 'PASS', failureError: approvedTimingExceptions?.resumeEligibility?.failureError,
-    completedActs: approvedTimingExceptions?.resumeEligibility?.completedActs,
-  } });
+  const resumeEligibility = createVerifiedResumeEligibility({
+    status: priorStatus, runId, locksAbsent: true,
+    candidateAbsent: !fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')),
+    immutableInputsVerified: JSON.stringify(verifyLockedEpisode()) === JSON.stringify(lockedHashes),
+    requestLedgerVerified: fsImpl.existsSync(ledgerPath) && hashFile(ledgerPath) === ledgerSha256,
+    timingPolicyVerified: approvedTimingExceptions?.verified === true,
+    remediation: timingRemediation, approvedTimingExceptions,
+    boundaryAndValidationVerified: timingRemediation?.status === 'PASS'
+      && timingRemediation.audit?.status === 'BOUNDARY_AUDIT_PASS'
+      && timingRemediation.validation?.status === 'PASS',
+  });
+  assertFailedRunProcessInactive(priorStatus, { eligibility: resumeEligibility });
   const report = {
     schemaVersion: 'phase2.3b-p-resume-preflight/3.0.0', status: reviewedAlignment?.status === 'PASS' && (!approvedTimingExceptions || timingRemediation?.status === 'PASS') ? 'RESUME_READY' : 'ALIGNMENT_REQUIRES_REVIEW',
     runId, preflightSha256: hashFile(path.join(reviewPath(runId), 'preflight.json')),
@@ -588,7 +642,6 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
   }
   assert(sha(jsonBytes(alignment)) === record.reviewedAlignmentReport.sha256, 'RESUME_REVIEWED_ALIGNMENT_RECOMPUTE_MISMATCH');
   assert(alignment.status === 'PASS', 'RESUME_REVIEWED_ALIGNMENT_NOT_PASS');
-  if (!ownedRun) assertFailedRunProcessInactive(status, { eligibility: { terminalFailure: true, locksAbsent: checkLocks, candidateAbsent: true, immutableInputsVerified: true } });
   const approvedBoundaryPolicy = loadApprovedBoundaryPolicy();
   const boundaryInputHashes = loadBoundaryInputHashes({ runId });
   const approvedTimingExceptions = loadApprovedTimingExceptions({ runId, approvedBoundaryPolicy, boundaryInputHashes, wordTimestamps: current.timestamps });
@@ -606,12 +659,24 @@ function requireResumePreflight(runId, { fs: fsImpl = fs, checkLocks = true, own
       && storedProof.validation?.status === 'PASS' && storedProof.validation?.errors?.length === 0,
     'RESUME_TIMING_REMEDIATION_PROOF_MISSING_OR_STALE');
   }
-  if (!ownedRun) assertFailedRunProcessInactive(status, { eligibility: {
-    terminalFailure: true, locksAbsent: checkLocks, candidateAbsent: true, immutableInputsVerified: true,
-    remediationVerified: timingRemediation?.status === 'PASS', failureError: approvedTimingExceptions?.resumeEligibility?.failureError,
-    completedActs: approvedTimingExceptions?.resumeEligibility?.completedActs,
-  } });
-  return { status, completed: current, alignment, record, approvedTimingExceptions, approvedBoundaryPolicy, boundaryInputHashes, timingRemediation };
+  let eligibility = null;
+  if (!ownedRun) {
+    eligibility = createVerifiedResumeEligibility({
+      status, runId, locksAbsent: checkLocks && !fsImpl.existsSync(path.join(reviewPath(runId), 'activation.lock'))
+        && !fsImpl.existsSync(GLOBAL_LOCK_PATH),
+      candidateAbsent: !fsImpl.existsSync(path.join(reviewPath(runId), 'candidate')),
+      immutableInputsVerified: JSON.stringify(verifyLockedEpisode()) === JSON.stringify(record.lockedHashes),
+      requestLedgerVerified: fsImpl.existsSync(GLOBAL_LEDGER_PATH)
+        && hashFile(GLOBAL_LEDGER_PATH) === record.requestLedgerSha256,
+      timingPolicyVerified: approvedTimingExceptions?.verified === true,
+      remediation: timingRemediation, approvedTimingExceptions,
+      boundaryAndValidationVerified: timingRemediation?.status === 'PASS'
+        && timingRemediation.audit?.status === 'BOUNDARY_AUDIT_PASS'
+        && timingRemediation.validation?.status === 'PASS',
+    });
+    assertFailedRunProcessInactive(status, { eligibility });
+  }
+  return { status, completed: current, alignment, record, approvedTimingExceptions, approvedBoundaryPolicy, boundaryInputHashes, timingRemediation, eligibility };
 }
 
 async function auditResumeBoundaries({
@@ -634,6 +699,8 @@ async function auditResumeBoundaries({
   ensureTarget();
   verifyPackageFn(); verifyRuntimeSyncFn();
   const resumed = resumePreflight(runId);
+  assert(resumed?.status && resumed?.eligibility, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+  assertFailedRunProcessInactive(resumed.status, { eligibility: resumed.eligibility });
   const candidateScript = getApprovedScript();
   const approvedBoundaryPolicy = loadBoundaryPolicy({ script: candidateScript });
   const boundaryInputHashes = getBoundaryInputHashes({ runId });
@@ -847,7 +914,9 @@ async function transcribeAndBuild(options = {}) {
   }
 }
 async function resumeAndBuild({ runId } = {}) {
-  requireResumePreflight(runId);
+  const preflight = requireResumePreflight(runId);
+  assert(preflight?.eligibility, 'RESUME_RUN_ELIGIBILITY_UNVERIFIED');
+  assertFailedRunProcessInactive(preflight.status, { eligibility: preflight.eligibility });
   return transcribeAndBuild({ runId, resumeOnly: true, runWhisper: async () => { throw new Error('RESUME_WHISPER_CALL_FORBIDDEN'); } });
 }
 function verifyCandidate(runId) {
@@ -947,4 +1016,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
