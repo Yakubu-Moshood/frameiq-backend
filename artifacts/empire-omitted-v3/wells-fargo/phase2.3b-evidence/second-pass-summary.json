@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "phase2.3b-evidence-reconciliation-summary/1.0.0",
+  "evidenceRows": 46,
+  "expectedEvidenceShots": 46,
+  "missingRows": [],
+  "extraRows": [],
+  "currentNarrationSupported": 45,
+  "sourceGaps": 1,
+  "visualAssetGaps": 0,
+  "visualOnlyAlternatives": 3,
+  "reviewReadyEntries": 45,
+  "distinctSelectedLocalAssets": 28,
+  "rejectedNarrationProposals": 32,
+  "audioChanges": 0,
+  "docketGroupCounts": {
+    "noSpeech": 10,
+    "visualOnly": 3,
+    "newlyResolved": 2,
+    "alreadySourced": 30,
+    "blocked": 1
+  },
+  "status": "REVIEW_PACKAGE_PREPARED",
+  "approvalStatusesAssigned": [],
+  "act3bB009EvidenceRequired": false,
+  "act3bB010Retired": true
+}

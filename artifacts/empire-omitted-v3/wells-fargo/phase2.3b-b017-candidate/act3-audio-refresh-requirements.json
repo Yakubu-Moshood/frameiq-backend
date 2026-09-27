@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "phase2.3b-act3-audio-refresh-requirements/1.0.0",
+  "status": "PROPOSED_NOT_AUTHORIZED_FOR_EXECUTION",
+  "reason": "ACT3 spoken narration changed; prior Act 3 audio, transcript slice, timing, and reviewed alignment no longer bind to candidate script.",
+  "onlyVoiceFile": "VO_Act3.mp3",
+  "otherFiveVoiceFiles": "PRESERVE_UNCHANGED",
+  "tts": {
+    "provider": "ElevenLabs",
+    "model": "eleven_multilingual_v2",
+    "outputFormat": "mp3_44100_128",
+    "settings": {
+      "stability": 0.45,
+      "similarity_boost": 0.75,
+      "style": 0.1,
+      "use_speaker_boost": true,
+      "speed": 0.94
+    },
+    "voiceSelection": "Resolve the already approved Empire Omitted voice from channel DNA; do not substitute a voice.",
+    "maxCharactersPerSegment": 720,
+    "segmentJoinPauseMs": 350,
+    "requiredBeforeRequest": "Create and hash-bind exact Act 3 request segments from the corrected candidate narration and obtain a separate explicit paid-request authorization.",
+    "authorizedRequests": 0,
+    "proposedSegmentPlan": {
+      "schemaVersion": "paced-narration-plan/1.0.0",
+      "status": "PROPOSED_UNEXECUTED",
+      "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+      "act3PlanSha256": "b1186ec7a5c261902fd498b03ddd850447a13f117b029cea5bedbe6f23b070b8",
+      "segmentCount": 3,
+      "totalCharacters": 1516,
+      "segments": [
+        {
+          "segmentId": "act3.segment-001",
+          "characters": 668,
+          "words": 104,
+          "textSha256": "2b45595bce1244dadab09df7a47a7e413a0e9b9d9d90f94efb83e757a3f88cee",
+          "sourceStart": 0,
+          "sourceEnd": 654
+        },
+        {
+          "segmentId": "act3.segment-002",
+          "characters": 699,
+          "words": 106,
+          "textSha256": "8c2c096d07cea581a013303f5b4a73533d782f09238e3c64b9568c3bffe25d55",
+          "sourceStart": 655,
+          "sourceEnd": 1346
+        },
+        {
+          "segmentId": "act3.segment-003",
+          "characters": 149,
+          "words": 24,
+          "textSha256": "db1a25805d58610401983f8b8b73b05b33f680781a061871a52ea92be8fd4d26",
+          "sourceStart": 1347,
+          "sourceEnd": 1494
+        }
+      ]
+    }
+  },
+  "whisper": {
+    "provider": "OpenAI Whisper",
+    "endpoint": "POST /v1/audio/transcriptions",
+    "model": "whisper-1",
+    "responseFormat": "verbose_json",
+    "granularity": "word",
+    "scope": "Submit only the validated replacement VO_Act3.mp3; preserve five existing approved act transcript slices in a newly versioned transcript package.",
+    "authorizedRequests": 0,
+    "requiredBeforeRequest": "Use a dedicated one-act request wrapper with a single attempt; do not invoke the six-act runWhisper function on the combined transcript.",
+    "autoRetry": false,
+    "proposedOperation": {
+      "method": "POST",
+      "host": "api.openai.com",
+      "path": "/v1/audio/transcriptions",
+      "file": "VO_Act3.mp3",
+      "model": "whisper-1",
+      "responseFormat": "verbose_json",
+      "timestampGranularity": "word",
+      "maximumAttempts": 1,
+      "scope": "Act 3 only; retain Acts 1, 2, 3B, 4 and 5 transcript slices unchanged"
+    }
+  },
+  "invalidatedArtifacts": [
+    "Act 3 retained-audio slice",
+    "Act 3 word timestamps",
+    "Act 3 script-to-transcript alignment approval",
+    "all Act 3 timing-derived beat startSec/endSec/durationSec",
+    "timing-exception/boundary-policy bindings to prior candidate script where applicable"
+  ],
+  "prohibitedUntilSeparatelyAuthorized": [
+    "provider requests",
+    "overwrite VO_Act3.mp3",
+    "resume-build",
+    "candidate promotion",
+    "render"
+  ]
+}

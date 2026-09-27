@@ -8,6 +8,7 @@ const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const spec = require('./phase2.3b-p-run.cjs').SPEC;
 const activation = require('../pipeline-updates/episode-activation.cjs');
+const { createEvidencePackageBinding, verifyEvidencePackageBinding } = require('../pipeline-updates/evidence-source-validator.cjs');
 const APPROVAL_PATH = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase2.3b-p-review', 'activation-approval.v1.json');
 const approval = JSON.parse(fs.readFileSync(APPROVAL_PATH, 'utf8'));
 const ROOT = spec.episodeDirectory;
@@ -384,6 +385,14 @@ function verifyRetainedAlignmentApproval(status, approvedTimingExceptions, align
     && approvalArtifact.unlistedMismatchPolicy === 'REFUSE', 'RESUME_ALIGNMENT_APPROVAL_SET_MISMATCH');
   return true;
 }
+function createActivationEvidenceBinding({ episodeDirectory = ROOT, fsImpl = fs } = {}) {
+  return createEvidencePackageBinding({
+    manifestPath: path.join(episodeDirectory, 'evidence-source-manifest.json'),
+    shotDefsPath: path.join(episodeDirectory, 'shot-definitions.json'),
+    evidenceAssetDir: path.join(episodeDirectory, 'assets', 'evidence'), fsImpl,
+  });
+}
+
 async function preflight({ runId, probeAudio, inspectActivity } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
   assert(!fs.existsSync(GLOBAL_LOCK_PATH), 'ACTIVATION_GLOBAL_RUN_ALREADY_LOCKED');
@@ -391,6 +400,7 @@ async function preflight({ runId, probeAudio, inspectActivity } = {}) {
   ensureRailwayTarget(); verifyPackage();
   const runtimeSyncHashes = verifyRuntimeSync();
   const lockedHashes = verifyLockedEpisode();
+  const evidencePackageBinding = createActivationEvidenceBinding();
   const scripts = verifyApprovedScript();
   const run = await require('./phase2.3b-p-run.cjs').verifyReviewOutputs({ episodeDirectory: ROOT, runId: approval.approvedRunId, fs, probeAudio });
   const pacingPlan = readJson(path.join(run.reviewDirectory, 'generation-plan.json'));
@@ -411,7 +421,7 @@ async function preflight({ runId, probeAudio, inspectActivity } = {}) {
     schemaVersion: 'phase2.3b-p-activation-preflight/1.0.0', status: 'PREFLIGHT_PASS', runId,
     createdAt: new Date().toISOString(), railwayTarget: { ...ensureRailwayTarget(), environmentName: 'staging', serviceName: 'giving-success' }, episodeId: approval.episodeId,
     lockedHashes, pacingRun: { runId: approval.approvedRunId, planSha256: pacingPlan.planSha256, providerRequestCount: run.providerRequestCount, plannedCharacters: run.plannedCharacters, completedActs: ACT_ORDER },
-    approvedAudio, candidateScriptSha256: sha(jsonBytes(scripts.candidate)), activity, runtimeSyncHashes,
+    approvedAudio, candidateScriptSha256: sha(jsonBytes(scripts.candidate)), activity, runtimeSyncHashes, evidencePackageBinding,
     userApprovalArtifactSha256: hashFile(APPROVAL_PATH),
     costs: { paidRequestsMade: 0, whisperRequestsPlanned: 6, maximumWhisperAttempts: 18, expectedAudioSeconds: totalSeconds, expectedAudioMinutes: totalSeconds / 60, estimatedWhisperCostUsd: (totalSeconds / 60) * whisperCostPerMinute, conservativeMaximumAudioMinutes: (totalSeconds * 3) / 60, conservativeMaximumCostUsd: ((totalSeconds * 3) / 60) * whisperCostPerMinute, priceUsdPerMinute: whisperCostPerMinute, automaticRetriesPerAct: 2, ttsRequestsPlanned: 0, anthropicRequestsPlanned: 0, imageRequestsPlanned: 0, videoRequestsPlanned: 0, renderRequestsPlanned: 0 },
     outputs: { reviewDirectory: outDir, freshWhisperDirectory: path.join(outDir, 'fresh-whisper'), wordTimestamps: path.join(outDir, 'fresh-whisper', 'word-timestamps.json'), partialCheckpoint: path.join(outDir, 'fresh-whisper', 'word-timestamps.partial.json'), durableRequestLedger: GLOBAL_LEDGER_PATH, candidateDirectory: path.join(outDir, 'candidate') },
@@ -424,6 +434,7 @@ function requireCurrentPreflight(runId) {
   ensureRailwayTarget();
   const record = readJson(path.join(reviewPath(runId), 'preflight.json'));
   assert(record.status === 'PREFLIGHT_PASS' && record.runId === runId, 'ACTIVATION_PREFLIGHT_NOT_CURRENT');
+  verifyEvidencePackageBinding({ expected: record.evidencePackageBinding, manifestPath: path.join(ROOT, 'evidence-source-manifest.json'), shotDefsPath: path.join(ROOT, 'shot-definitions.json'), evidenceAssetDir: path.join(ROOT, 'assets', 'evidence') });
   const hashes = verifyLockedEpisode();
   assert(JSON.stringify(hashes) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
   return record;
@@ -1240,4 +1251,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, createActivationEvidenceBinding, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

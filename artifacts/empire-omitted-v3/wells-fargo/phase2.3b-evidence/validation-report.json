@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "phase2.3b-evidence-validation/1.0.0",
+  "status": "READY_FOR_FINAL_HUMAN_REVIEW",
+  "approvalStatus": "PENDING_FOR_ALL_46_ENTRIES",
+  "evidenceValidation": {
+    "status": "FAIL",
+    "errors": [
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT1_B001",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT1_B003",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT1_B024",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT1_B025",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT1_B029",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B001",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B005",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B006",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B007",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B008",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B017",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B018",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT2_B019",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT3_B009",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT3_B017",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT3_B024",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT3B_B008",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT3B_B012",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B001",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B002",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B003",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B004",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B005",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B006",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B007",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B008",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B009",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B010",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B011",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B012",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B013",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B016",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B017",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B018",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B019",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B020",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B021",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B022",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT4_B024",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B001",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B002",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B005",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B006",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B007",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B008",
+        "detail": "Source status is REVIEW_REQUIRED."
+      },
+      {
+        "code": "EVIDENCE_NOT_APPROVED",
+        "shotId": "ACT5_B011",
+        "detail": "Source status is REVIEW_REQUIRED."
+      }
+    ],
+    "errorCount": 46,
+    "errorCodes": {
+      "EVIDENCE_NOT_APPROVED": 46
+    }
+  },
+  "reviewReadyEntries": 46,
+  "sourceGaps": 0,
+  "visualOnlyGaps": 0,
+  "missingRows": 0,
+  "extraRows": 0,
+  "selectedAssetCount": 29,
+  "unreferencedProductionAssets": [],
+  "act3AudioTimingAlignment": "STALE_AND_REQUIRES_REFRESH",
+  "candidatePromotionReady": false
+}

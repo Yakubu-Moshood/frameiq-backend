@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-b017-candidate/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-evidence/** -text

@@ -89,6 +89,67 @@ function validateEvidenceSourceManifest({ manifest, shotDefs, evidenceAssetDir =
   return errors.length ? { status: 'FAIL', errors } : { status: 'PASS', errors: [] };
 }
 
+function listAssetFiles(root, fsImpl, prefix = '') {
+  if (!fsImpl.existsSync(root)) return [];
+  const output = [];
+  for (const name of fsImpl.readdirSync(root).sort()) {
+    const relative = prefix ? path.posix.join(prefix, name) : name;
+    const absolute = path.join(root, name);
+    const stat = fsImpl.lstatSync(absolute);
+    if (stat.isSymbolicLink()) throw new Error('EVIDENCE_ASSET_SYMLINK_FORBIDDEN:' + relative);
+    if (stat.isDirectory()) output.push(...listAssetFiles(absolute, fsImpl, relative));
+    else if (stat.isFile()) output.push(relative.split(path.sep).join('/'));
+    else throw new Error('EVIDENCE_ASSET_TYPE_UNSUPPORTED:' + relative);
+  }
+  return output;
+}
+
+function createEvidencePackageBinding({ manifestPath, shotDefsPath, evidenceAssetDir, fsImpl = fs } = {}) {
+  if (!manifestPath || !shotDefsPath || !evidenceAssetDir) throw new Error('EVIDENCE_BINDING_PATHS_REQUIRED');
+  for (const [file, code] of [[manifestPath, 'EVIDENCE_MANIFEST_MISSING'], [shotDefsPath, 'EVIDENCE_SHOT_DEFINITIONS_MISSING']]) {
+    if (!fsImpl.existsSync(file)) throw new Error(code);
+  }
+  if (!fsImpl.existsSync(evidenceAssetDir)) throw new Error('EVIDENCE_ASSET_ROOT_MISSING');
+  const assetRootStat = fsImpl.lstatSync(evidenceAssetDir);
+  if (assetRootStat.isSymbolicLink()) throw new Error('EVIDENCE_ASSET_SYMLINK_FORBIDDEN:.');
+  if (!assetRootStat.isDirectory()) throw new Error('EVIDENCE_ASSET_ROOT_MISSING');
+  const manifestBytes = fsImpl.readFileSync(manifestPath);
+  const shotBytes = fsImpl.readFileSync(shotDefsPath);
+  let manifest, shotDefs;
+  try { manifest = JSON.parse(manifestBytes.toString('utf8')); shotDefs = JSON.parse(shotBytes.toString('utf8')); }
+  catch (_) { throw new Error('EVIDENCE_BINDING_JSON_INVALID'); }
+  const validation = validateEvidenceSourceManifest({ manifest, shotDefs, evidenceAssetDir, fsImpl, requireApproved: true, requireLocalAssets: true });
+  if (validation.status !== 'PASS') throw new Error('EVIDENCE_PACKAGE_NOT_READY:' + validation.errors.map(item => item.code + (item.shotId ? ':' + item.shotId : '')).join(','));
+  const declared = [...new Set(manifest.entries.map(entry => entry.localFilename).filter(Boolean).map(value => value.split(path.sep).join('/')))].sort();
+  const actual = listAssetFiles(evidenceAssetDir, fsImpl).sort();
+  if (JSON.stringify(actual) !== JSON.stringify(declared)) throw new Error('EVIDENCE_ASSET_SET_MISMATCH');
+  const assets = declared.map(relativePath => {
+    const absolute = path.resolve(evidenceAssetDir, relativePath);
+    const root = path.resolve(evidenceAssetDir);
+    if (!absolute.startsWith(root + path.sep)) throw new Error('EVIDENCE_LOCAL_PATH_UNSAFE:' + relativePath);
+    const bytes = fsImpl.readFileSync(absolute);
+    const digest = sha256(bytes);
+    const rows = manifest.entries.filter(entry => entry.localFilename && entry.localFilename.split(path.sep).join('/') === relativePath);
+    if (!rows.length || rows.some(entry => entry.sha256 !== digest)) throw new Error('EVIDENCE_LOCAL_HASH_MISMATCH:' + relativePath);
+    return { relativePath, bytes: bytes.length, sha256: digest };
+  });
+  const core = {
+    schemaVersion: 'phase2.3b-evidence-preflight-binding/1.0.0',
+    manifestSha256: sha256(manifestBytes),
+    shotDefinitionsSha256: sha256(shotBytes),
+    assetCount: assets.length,
+    assets,
+  };
+  return { ...core, bindingSha256: sha256(Buffer.from(JSON.stringify(core))) };
+}
+
+function verifyEvidencePackageBinding({ expected, manifestPath, shotDefsPath, evidenceAssetDir, fsImpl = fs } = {}) {
+  if (!expected || typeof expected !== 'object') throw new Error('EVIDENCE_PREFLIGHT_BINDING_MISSING');
+  const actual = createEvidencePackageBinding({ manifestPath, shotDefsPath, evidenceAssetDir, fsImpl });
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error('EVIDENCE_PREFLIGHT_BINDING_CHANGED');
+  return actual;
+}
+
 function loadEvidenceSourceManifest({ manifestPath, shotDefsPath, shotDefs = null, evidenceAssetDir = null, fsImpl = fs }) {
   if (!manifestPath || !fsImpl.existsSync(manifestPath)) throw new Error('[evidence][EVIDENCE_MANIFEST_MISSING] Required evidence-source-manifest.json is missing.');
   const bytes = fsImpl.readFileSync(manifestPath);
@@ -104,4 +165,4 @@ function loadEvidenceSourceManifest({ manifestPath, shotDefsPath, shotDefs = nul
   return manifest;
 }
 
-module.exports = { MANIFEST_VERSION, RIGHTS_CLASSIFICATIONS, REQUIRED_FIELDS, sha256, requiredEvidenceShots, validateEvidenceSourceManifest, loadEvidenceSourceManifest };
+module.exports = { MANIFEST_VERSION, RIGHTS_CLASSIFICATIONS, REQUIRED_FIELDS, sha256, requiredEvidenceShots, validateEvidenceSourceManifest, createEvidencePackageBinding, verifyEvidencePackageBinding, loadEvidenceSourceManifest };

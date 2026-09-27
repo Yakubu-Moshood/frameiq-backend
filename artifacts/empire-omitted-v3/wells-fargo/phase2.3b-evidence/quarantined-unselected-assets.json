@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "phase2.3b-quarantined-assets/1.0.0",
+  "files": [
+    {
+      "filename": "occ-wells-fargo-notice-charges-2020.pdf",
+      "bytes": 737498,
+      "sha256": "2f71c0e889292aa3c04c17cdc9e9f298b5800ece077ec65cdb64764b7db05843",
+      "reason": "Retrieved but not selected for any shot; retain outside the production asset set."
+    },
+    {
+      "filename": "habs-bf-hastings-wells-fargo-express-office.jpg",
+      "bytes": 231718,
+      "sha256": "b017aff91c8ee0e34a909083fa51fabf7384396524ca1411f899b5b687054693",
+      "reason": "No explicit public-domain/reuse basis verified for this image; not selected."
+    },
+    {
+      "filename": "loc-wells-fargo-express-office-1866.jpg",
+      "bytes": 453079,
+      "sha256": "701d9cde568348cde6299e287cbae5907ab2b729ef0326eba8128398cc3c5286",
+      "reason": "LOC no-known-restrictions statement is not a reuse licence; not selected."
+    },
+    {
+      "filename": "fed-alvarez-wachovia-testimony-2010.pdf",
+      "bytes": 45510,
+      "sha256": "eaacccfa4287e4073d2518e434ce4754abd16e464e3539057999322a2b99cf21",
+      "reason": "Unreferenced by the rebuilt evidence-source manifest; preserved in the existing quarantine area, not selected for production."
+    },
+    {
+      "filename": "fed-wells-fargo-wachovia-order-2008.html",
+      "bytes": 112603,
+      "sha256": "03e219d974e6b6ba13682f352b42c69e4644dc62a11babd5ce120cbd77e1fe49",
+      "reason": "Unreferenced by the rebuilt evidence-source manifest; preserved in the existing quarantine area, not selected for production."
+    }
+  ]
+}

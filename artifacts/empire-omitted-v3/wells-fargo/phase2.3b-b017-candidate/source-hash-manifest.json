@@ -1,0 +1,50 @@
+{
+  "capturedAt": "2026-09-24T14:18:43.923Z",
+  "railwayEnvironment": "staging",
+  "railwayService": "giving-success",
+  "episodeDir": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO",
+  "files": {
+    "productionManifest": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/production-manifest.json",
+      "localFile": "authoritative-production-manifest.json",
+      "size": 134786,
+      "sha256": "7d03890ae197d05afa865c7607c1371ca3d9b0c68251b91dbe2056a8c37782ca"
+    },
+    "act3bAudio": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/assets/audio/VO_Act3B.mp3",
+      "localFile": "authoritative-VO_Act3B.mp3",
+      "size": 1125190,
+      "sha256": "05f9f48849f2ac94e88ed7b368c1da8a6cb3f833497ef913886cce8300a70d06"
+    },
+    "editPlan": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/edit-plan.json",
+      "localFile": "authoritative-edit-plan.json",
+      "size": 313692,
+      "sha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337"
+    },
+    "shotDefinitions": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/shot-definitions.json",
+      "localFile": "authoritative-shot-definitions.json",
+      "size": 888015,
+      "sha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb"
+    },
+    "script": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/script.json",
+      "localFile": "authoritative-script.json",
+      "size": 12569,
+      "sha256": "b9da1e3977d0d0bcd6b246c70c8f17b4a2aa4c2bd7284ca587e4b5749d25aec8"
+    },
+    "wordTimestamps": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/.v3-shadow/timing/350bc59988d2f291583282f6ace4b1f3523e4ed7bcc362d11d4932a4cf71c1f7/word-timestamps.json",
+      "localFile": "authoritative-word-timestamps.json",
+      "size": 179597,
+      "sha256": "68234536e839e1ac07f5a92d32cc6a2c9bfbe1a87974af1626c320333330212c"
+    },
+    "validation": {
+      "remotePath": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/edit-plan-validation.json",
+      "localFile": "authoritative-edit-plan-validation.json",
+      "size": 6831,
+      "sha256": "b4c37ca8e5c24115e21f218a654bcc2de21368d947f62e159067aedb09616fac"
+    }
+  }
+}
