@@ -1,0 +1,125 @@
+{
+  "status": "PASS",
+  "errorCount": 0,
+  "formalExceptionsProvisionallyApplied": [
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "durationSec": 1.3533753378906255,
+      "minimumAllowedDurationSec": 1.3523753378906256,
+      "maximumAllowedDurationSec": 1.3543753378906254
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B006",
+      "durationSec": 1.720001220703125,
+      "minimumAllowedDurationSec": 1.719001,
+      "maximumAllowedDurationSec": 1.721001
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "durationSec": 1.7199935913085938,
+      "minimumAllowedDurationSec": 1.7189935913085939,
+      "maximumAllowedDurationSec": 1.7209935913085939
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B004",
+      "durationSec": 1.640000343322754,
+      "minimumAllowedDurationSec": 1.639000343322754,
+      "maximumAllowedDurationSec": 1.6410003433227538
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "durationSec": 7.270000457763672,
+      "minimumAllowedDurationSec": 7.269,
+      "maximumAllowedDurationSec": 7.271
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "durationSec": 6.760002136230469,
+      "minimumAllowedDurationSec": 6.759002,
+      "maximumAllowedDurationSec": 6.761002
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "durationSec": 6.019996643066406,
+      "minimumAllowedDurationSec": 6.018997,
+      "maximumAllowedDurationSec": 6.020997
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B024",
+      "durationSec": 8.304946662109387,
+      "minimumAllowedDurationSec": 8.303946662109388,
+      "maximumAllowedDurationSec": 8.305946662109386
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "durationSec": 6.099998474121094,
+      "minimumAllowedDurationSec": 6.098998,
+      "maximumAllowedDurationSec": 6.100998
+    }
+  ],
+  "editorialIntentMigrations": [
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B026",
+      "preservedHoldSec": 1.2,
+      "preservedStillness": false,
+      "preservedRhythmIntent": "suspended"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "preservedHoldSec": 1.5,
+      "preservedStillness": false,
+      "preservedRhythmIntent": "reflective"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B022",
+      "preservedHoldSec": 0,
+      "preservedStillness": true,
+      "preservedRhythmIntent": "impact"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B023",
+      "preservedHoldSec": 1.5,
+      "preservedStillness": true,
+      "preservedRhythmIntent": "reflective"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B027",
+      "preservedHoldSec": 2,
+      "preservedStillness": false,
+      "preservedRhythmIntent": "reflective"
+    }
+  ],
+  "removedObsoleteNormalDurationException": {
+    "actKey": "act3",
+    "beatId": "ACT3_B025",
+    "classification": "FORMAL_EXCEPTION_NO_LONGER_REQUIRED",
+    "durationSec": 2.0199966430664062,
+    "startSec": 303.5759891362305,
+    "endSec": 305.5959857792969,
+    "reason": "Retimed duration is within the global 2–6 second range; preserve existing stillness and rhythm metadata and clear the obsolete exception reason.",
+    "preserved": {
+      "intentionalStillness": true,
+      "rhythmIntent": "impact"
+    },
+    "formalTimingExceptionRequired": false
+  },
+  "writes": {
+    "candidate": 0,
+    "episodeRoot": 0,
+    "provider": 0
+  }
+}

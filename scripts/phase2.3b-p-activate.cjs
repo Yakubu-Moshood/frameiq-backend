@@ -17,6 +17,10 @@ const GLOBAL_LOCK_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-acti
 const GLOBAL_STATE_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-state.json');
 const GLOBAL_LEDGER_PATH = path.join(ROOT, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
 const REQUIRED_TIMING_EXCEPTION_RUN_ID = 'phase2-3b-p-act-20260925';
+const REFRESHED_CANDIDATE_SCRIPT_SHA256 = 'fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4';
+const REFRESHED_TIMING_POLICY_PATH = path.join(__dirname, '..', 'pipeline-updates', 'phase2.3b-p-approved-timing-exceptions.refresh-v5.json');
+const REFRESHED_BOUNDARY_POLICY_PATH = path.join(__dirname, '..', 'pipeline-updates', 'phase2.3b-p-approved-boundary-ranges.refresh-v2.json');
+const REFRESHED_BINDING_PACKAGE_DIR = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase2.3b-act3-refresh-bindings-20260928-r3');
 const RUNTIME_SYNC_FILES = [
   'episode-activation.cjs', 'vo-timing.cjs', 'edit-plan-validator.cjs', 'edit-plan.schema.json',
   'shot-definitions-validator.cjs', 'shot-definitions-production-contract.cjs', 'revision-lineage.cjs',
@@ -139,13 +143,19 @@ function verifyApprovedScript() {
   activation.assertOnlyApprovedActTextChanges(current, candidate, ['act3b', 'act4']);
   return { current, candidate };
 }
-function loadApprovedBoundaryPolicy({ policyFile = '/data/pipeline/phase2.3b-p-approved-boundary-ranges.json', scriptFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.script), amendmentFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment) } = {}) {
+function loadApprovedBoundaryPolicy({ policyFile, scriptFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.script), amendmentFile } = {}) {
+  const refreshed = fs.existsSync(scriptFile) && hashFile(scriptFile) === REFRESHED_CANDIDATE_SCRIPT_SHA256;
+  policyFile ||= refreshed ? REFRESHED_BOUNDARY_POLICY_PATH : '/data/pipeline/phase2.3b-p-approved-boundary-ranges.json';
+  amendmentFile ||= refreshed ? path.join(path.dirname(scriptFile), 'factual-correction-amendment.v1.json') : path.join(path.dirname(scriptFile), CANDIDATE_FILES.amendment);
   assert(fs.existsSync(policyFile) && fs.existsSync(scriptFile) && fs.existsSync(amendmentFile), 'ACTIVATION_APPROVED_BOUNDARY_INPUT_MISSING');
   const policyBytes = fs.readFileSync(policyFile), scriptBytes = fs.readFileSync(scriptFile), amendmentBytes = fs.readFileSync(amendmentFile);
   return activation.verifyApprovedBoundaryPolicy({ policy: JSON.parse(policyBytes.toString('utf8')), policyBytes, script: JSON.parse(scriptBytes.toString('utf8')), scriptSha256: sha(scriptBytes), amendmentSha256: sha(amendmentBytes) });
 }
-function loadBoundaryInputHashes({ runId, planFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan), scriptFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.script), transcriptFile = path.join(reviewPath(runId), 'fresh-whisper', 'word-timestamps.json'), proposalFile = path.join(reviewPath(runId), 'alignment-review-proposal.v1.json'), alignmentApprovalFile = path.join(reviewPath(runId), 'alignment-review-approval.v1.json'), amendmentFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment), lockedPlanFile = path.join(ROOT, 'edit-plan.json') } = {}) {
+function loadBoundaryInputHashes({ runId, planFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan), scriptFile = path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.script), transcriptFile = path.join(reviewPath(runId), 'fresh-whisper', 'word-timestamps.json'), proposalFile = path.join(reviewPath(runId), 'alignment-review-proposal.v1.json'), alignmentApprovalFile = path.join(reviewPath(runId), 'alignment-review-approval.v1.json'), amendmentFile, lockedPlanFile = path.join(ROOT, 'edit-plan.json') } = {}) {
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
+  amendmentFile ||= hashFile(scriptFile) === REFRESHED_CANDIDATE_SCRIPT_SHA256
+    ? path.join(path.dirname(scriptFile), 'factual-correction-amendment.v1.json')
+    : path.join(path.dirname(scriptFile), CANDIDATE_FILES.amendment);
   const files = { lockedEditPlanSha256: lockedPlanFile, candidatePreTimingEditPlanSha256: planFile, candidateScriptSha256: scriptFile, retainedTranscriptSha256: transcriptFile, alignmentProposalSha256: proposalFile, alignmentApprovalSha256: alignmentApprovalFile, candidateAmendmentSha256: amendmentFile };
   const hashes = {};
   for (const [key, file] of Object.entries(files)) {
@@ -155,13 +165,81 @@ function loadBoundaryInputHashes({ runId, planFile = path.join(CANDIDATE_PACKAGE
   assert(hashes.lockedEditPlanSha256 === approval.lockedEpisodeHashesBeforeActivation['edit-plan.json'], 'ACTIVATION_BOUNDARY_AUTHORIZATION_LOCKED_PLAN_MISMATCH');
   return hashes;
 }
-function loadApprovedTimingExceptions({ runId, policyFile, approvedBoundaryPolicy, boundaryInputHashes, wordTimestamps, packageDirectory = CANDIDATE_PACKAGE } = {}) {
+function loadRefreshedTimingLineageEvidence({ packageDirectory = CANDIDATE_PACKAGE } = {}) {
+  const childRoot = path.resolve(packageDirectory);
+  const parentRoot = path.resolve(childRoot, '..', 'phase2.3b-sv-candidate');
+  const chainNames = [
+    'revision-ledger.phase2.2d-lineage.v1.json',
+    'revision-ledger.phase2.3b-sv-amendment.v1.json',
+    'revision-ledger.phase2.3b-b017-factual-correction.v1.json',
+  ];
+  const readBytes = file => {
+    assert(fs.existsSync(file), `ACTIVATION_REFRESHED_TIMING_LINEAGE_FILE_MISSING:${path.basename(file)}`);
+    return fs.readFileSync(file);
+  };
+  const revisionChainBytes = chainNames.map(name => readBytes(path.join(childRoot, name)));
+  return {
+    parentAmendmentBytes: readBytes(path.join(childRoot, chainNames[1])),
+    childAmendmentBytes: readBytes(path.join(childRoot, 'factual-correction-amendment.v1.json')),
+    parentScriptBytes: readBytes(path.join(parentRoot, 'candidate-script.json')),
+    parentShotDefinitionsBytes: readBytes(path.join(parentRoot, 'candidate-shot-definitions-pretiming.json')),
+    parentProductionManifestBytes: readBytes(path.join(parentRoot, 'candidate-production-manifest-pretiming.json')),
+    revisionChainBytes,
+    revisionChain: revisionChainBytes.map(bytes => JSON.parse(bytes.toString('utf8'))),
+  };
+}
+
+function loadRefreshedTimingBindingHashes({ packageDirectory = REFRESHED_BINDING_PACKAGE_DIR } = {}) {
+  const indexFile = path.join(packageDirectory, 'outputs', 'package-hash-index.json');
+  assert(fs.existsSync(indexFile), 'ACTIVATION_REFRESHED_PACKAGE_INDEX_MISSING');
+  const indexBytes = fs.readFileSync(indexFile);
+  assert(sha(indexBytes) === '4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0', 'ACTIVATION_REFRESHED_PACKAGE_INDEX_HASH_MISMATCH');
+  const index = JSON.parse(indexBytes.toString('utf8'));
+  assert(index.schemaVersion === 'phase2.3b-p-act3-refresh-package-index/2.0.0'
+    && index.status === 'HASH_INDEXED_PENDING_REVIEW' && index.fileCount === 39
+    && Array.isArray(index.files) && index.files.length === 39, 'ACTIVATION_REFRESHED_PACKAGE_INDEX_INVALID');
+  const seen = new Set();
+  for (const entry of index.files) {
+    assert(entry && typeof entry.path === 'string' && !path.isAbsolute(entry.path)
+      && !entry.path.split(/[\\/]/u).some(part => part === '..') && !seen.has(entry.path)
+      && Number.isSafeInteger(entry.bytes) && /^[a-f0-9]{64}$/u.test(entry.sha256 || ''), 'ACTIVATION_REFRESHED_PACKAGE_INDEX_ENTRY_INVALID');
+    seen.add(entry.path);
+    const file = path.join(packageDirectory, entry.path);
+    assert(fs.existsSync(file), `ACTIVATION_REFRESHED_PACKAGE_FILE_MISSING:${entry.path}`);
+    const bytes = fs.readFileSync(file);
+    assert(bytes.length === entry.bytes && sha(bytes) === entry.sha256, `ACTIVATION_REFRESHED_PACKAGE_FILE_HASH_MISMATCH:${entry.path}`);
+  }
+  const approvalFile = path.join(packageDirectory, 'approvals', 'timing-approval.refresh-2026-09-28.json');
+  const approvalBytes = fs.readFileSync(approvalFile);
+  assert(sha(approvalBytes) === 'fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1', 'ACTIVATION_REFRESHED_TIMING_APPROVAL_RECORD_HASH_MISMATCH');
+  const receipt = JSON.parse(fs.readFileSync(path.join(packageDirectory, 'outputs', 'refresh-package-bindings.json'), 'utf8'));
+  assert(receipt.globalRequestLedgerSha256 === 'c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf', 'ACTIVATION_REFRESHED_REQUEST_LEDGER_BINDING_MISMATCH');
+  return {
+    packageIndexSha256: sha(indexBytes),
+    proposalSha256: hashFile(path.join(packageDirectory, 'outputs', 'timing-policy-proposal.unsigned.v2.json')),
+    alignmentApprovalSha256: hashFile(path.join(packageDirectory, 'approvals', 'alignment-review-approval.v1.json')),
+    boundaryApprovalSha256: hashFile(path.join(packageDirectory, 'approvals', 'boundary-policy-approval.v1.json')),
+    boundaryPolicySha256: hashFile(path.join(packageDirectory, 'approvals', 'refreshed-boundary-policy.v2.json')),
+    timestampsSha256: hashFile(path.join(packageDirectory, 'outputs', 'fresh-whisper', 'combined-word-timestamps.json')),
+    audioManifestSha256: hashFile(path.join(packageDirectory, 'outputs', 'six-act-audio-manifest.json')),
+    evidenceApprovalSha256: hashFile(path.join(packageDirectory, 'outputs', 'evidence-review-approval-record.v1.json')),
+    requestLedgerSha256: receipt.globalRequestLedgerSha256,
+    timingApprovalRecordSha256: sha(approvalBytes),
+  };
+}
+
+function loadApprovedTimingExceptions({ runId, policyFile, approvedBoundaryPolicy, boundaryInputHashes, wordTimestamps, packageDirectory = CANDIDATE_PACKAGE, lineageEvidence } = {}) {
   if (runId !== REQUIRED_TIMING_EXCEPTION_RUN_ID) return null;
-  policyFile ||= path.join('/data/pipeline', 'phase2.3b-p-approved-timing-exceptions.json');
-  approvedBoundaryPolicy ||= loadApprovedBoundaryPolicy();
-  boundaryInputHashes ||= loadBoundaryInputHashes({ runId });
+  const packageScriptFile = path.join(packageDirectory, CANDIDATE_FILES.script);
+  assert(fs.existsSync(packageScriptFile), 'ACTIVATION_CANDIDATE_SCRIPT_MISSING');
+  const refreshed = hashFile(packageScriptFile) === REFRESHED_CANDIDATE_SCRIPT_SHA256;
+  policyFile ||= refreshed ? REFRESHED_TIMING_POLICY_PATH : path.join('/data/pipeline', 'phase2.3b-p-approved-timing-exceptions.json');
   assert(fs.existsSync(policyFile), 'ACTIVATION_TIMING_EXCEPTION_POLICY_MISSING');
   const policyBytes = fs.readFileSync(policyFile), policy = JSON.parse(policyBytes.toString('utf8'));
+  const amendmentFile = refreshed ? path.join(packageDirectory, 'factual-correction-amendment.v1.json') : path.join(packageDirectory, CANDIDATE_FILES.amendment);
+  approvedBoundaryPolicy ||= loadApprovedBoundaryPolicy({ scriptFile: packageScriptFile, amendmentFile });
+  boundaryInputHashes ||= loadBoundaryInputHashes({ runId, scriptFile: packageScriptFile, amendmentFile });
+  const actualRefreshBindings = refreshed ? loadRefreshedTimingBindingHashes() : undefined;
   const actualBindings = {
     runId, episodeId: approval.episodeId, channelKey: approval.channelKey,
     lockedEditPlanSha256: boundaryInputHashes.lockedEditPlanSha256,
@@ -177,12 +255,15 @@ function loadApprovedTimingExceptions({ runId, policyFile, approvedBoundaryPolic
     candidateProductionManifestSha256: hashFile(path.join(packageDirectory, CANDIDATE_FILES.manifest)),
   };
   return activation.verifyApprovedTimingExceptionPolicy({
-    policy, policyBytes, actualBindings,
+    policy, policyBytes, actualBindings, actualRefreshBindings,
+    expectedPolicySha256: refreshed ? activation.REFRESHED_TIMING_EXCEPTION_POLICY_SHA256 : activation.APPROVED_TIMING_EXCEPTION_POLICY_SHA256,
     plan: readJson(path.join(packageDirectory, CANDIDATE_FILES.plan)),
     script: readJson(path.join(packageDirectory, CANDIDATE_FILES.script)),
     shotDefinitions: readJson(path.join(packageDirectory, CANDIDATE_FILES.shots)),
     productionManifest: readJson(path.join(packageDirectory, CANDIDATE_FILES.manifest)),
     approvedBoundaryPolicy, wordTimestamps: wordTimestamps || readAndVerifyCompletedTranscript({ runId }).timestamps,
+    lineageEvidence: lineageEvidence || (policy.schemaVersion === 'phase2.3b-p-approved-timing-exceptions/5.0.0'
+      ? loadRefreshedTimingLineageEvidence({ packageDirectory }) : undefined),
   });
 }
 
@@ -208,13 +289,14 @@ function verifyTimingRemediation({ plan, wordTimestamps, script, reviewedAlignme
   const retimed = activation.retimeEditPlan(input);
   const applied = activation.verifyTimingExceptionApplications({ plan: retimed.plan, approvedTimingExceptions });
   const expected = approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort();
-  assert(applied.status === 'PASS' && applied.entries.length === 10
+  assert(applied.status === 'PASS' && applied.entries.length === approvedTimingExceptions.exceptions.length
     && applied.editorialIntentMigrations.length === 5
     && JSON.stringify(applied.entries.map(item => `${item.actKey}:${item.beatId}`).sort()) === JSON.stringify(expected), 'RESUME_TIMING_EXCEPTION_APPLICATIONS_MISMATCH');
   assert(activation.assertCreativePlanFieldsFrozen(plan, retimed.plan, {
     retiredBeatIds: (approvedBoundaryPolicy?.retirements || []).map(item => item.beatId),
     approvedTimingExceptionBeatIds: approvedTimingExceptions.exceptions.map(item => item.beatId),
     editorialIntentMigrationBeatIds: approvedTimingExceptions.editorialIntentMigrations.entries.map(item => item.beatId),
+    excludedTimingExceptionBeatIds: (approvedTimingExceptions.excludedFormalExceptionIds || []).map(value => value.split(':')[1]),
   }), 'RESUME_TIMING_CREATIVE_FIELDS_CHANGED');
   const validation = validator.validateEditPlan({ plan: retimed.plan, wordTimestamps });
   assert(validation.status === 'PASS' && Array.isArray(validation.errors) && validation.errors.length === 0, 'RESUME_TIMING_EDIT_PLAN_VALIDATION_FAILED');
@@ -1013,15 +1095,33 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
   const basePlan = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.plan));
   const timingProof = approvedTimingExceptions ? verifyTimingRemediation({ plan: basePlan, wordTimestamps: timestamps, script: candidateScript, reviewedAlignment,
     approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions, actDurationsSec: durations, validator: require('/data/pipeline/edit-plan-validator.cjs') }) : null;
-  const retimed = retimeBeforeCandidateOutput({ candidateDirectory: candidate, retime: () => timingProof
+  let retimed = retimeBeforeCandidateOutput({ candidateDirectory: candidate, retime: () => timingProof
     ? { plan: timingProof.plan }
     : activation.retimeEditPlan({ plan: basePlan, wordTimestamps: timestamps, actOrder: ACT_ORDER, actBindings: VO_BINDINGS, actDurationsSec: durations, script: candidateScript, reviewedAlignment, approvedBoundaryPolicy, boundaryInputHashes, approvedTimingExceptions }) }).plan;
+  let planFreezeBaseline = basePlan;
+  let refreshedPlanAmendmentProof = null;
+  if (approvedTimingExceptions?.policySha256 === activation.REFRESHED_TIMING_EXCEPTION_POLICY_SHA256) {
+    const amendmentLedgerPath = path.join(CANDIDATE_PACKAGE, 'revision-ledger.phase2.3b-b017-factual-correction.v1.json');
+    assert(fs.existsSync(amendmentLedgerPath), 'ACTIVATION_B017_PLAN_AMENDMENT_LEDGER_MISSING');
+    const amendmentLedgerBytes = fs.readFileSync(amendmentLedgerPath);
+    const sourcePlanSha256 = packageHash('plan');
+    const amendedBaseline = activation.applyApprovedB017AmendmentToPlan({ plan: basePlan, sourcePlanSha256,
+      amendmentLedgerBytes, approvedTimingExceptions });
+    const amendedRetimed = activation.applyApprovedB017AmendmentToPlan({ plan: retimed, sourcePlanSha256,
+      amendmentLedgerBytes, approvedTimingExceptions });
+    planFreezeBaseline = amendedBaseline.plan;
+    retimed = amendedRetimed.plan;
+    refreshedPlanAmendmentProof = amendedRetimed.proof;
+  }
   const timingExceptionAudit = timingProof?.timingExceptionAudit || activation.verifyTimingExceptionApplications({ plan: retimed, approvedTimingExceptions });
   assert(!approvedTimingExceptions || timingExceptionAudit.status === 'PASS', 'ACTIVATION_TIMING_EXCEPTION_APPLICATION_NOT_VERIFIED');
-  const editValidation = timingProof?.validation || require('/data/pipeline/edit-plan-validator.cjs').validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
+  const editValidator = require('/data/pipeline/edit-plan-validator.cjs');
+  const editValidation = refreshedPlanAmendmentProof
+    ? editValidator.validateEditPlan({ plan: retimed, wordTimestamps: timestamps })
+    : timingProof?.validation || editValidator.validateEditPlan({ plan: retimed, wordTimestamps: timestamps });
   assert(editValidation.status === 'PASS', `EDIT_PLAN_VALIDATION:${editValidation.errors?.[0]?.code || 'FAIL'}`);
   const retiredBeatIds = approvedBoundaryPolicy.retirements.map(item => item.beatId);
-  activation.assertCreativePlanFieldsFrozen(basePlan, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [], editorialIntentMigrationBeatIds: approvedTimingExceptions?.editorialIntentMigrations.entries.map(item => item.beatId) || [] });
+  activation.assertCreativePlanFieldsFrozen(planFreezeBaseline, retimed, { retiredBeatIds, approvedTimingExceptionBeatIds: approvedTimingExceptions?.exceptions.map(item => item.beatId) || [], editorialIntentMigrationBeatIds: approvedTimingExceptions?.editorialIntentMigrations.entries.map(item => item.beatId) || [], excludedTimingExceptionBeatIds: (approvedTimingExceptions?.excludedFormalExceptionIds || []).map(value => value.split(':')[1]) });
   const originalShots = readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.shots));
   const lineage = [readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.history)), readJson(path.join(CANDIDATE_PACKAGE, CANDIDATE_FILES.amendment))];
   const shotResult = activation.updateShotDefinitions({ originalShotDefs: originalShots, plan: retimed, revisionChain: lineage, revisionId: `phase2.3b-p-retiming-${runId}`, retiredBeatIds, retirementRecords: approvedBoundaryPolicy.retirements, editorialIntentMigrations: approvedTimingExceptions?.editorialIntentMigrations, approvedTimingExceptions });
@@ -1048,6 +1148,7 @@ async function transcribeAndBuildInternal({ runId, onProgress, resumeOnly = fals
     'script.json': jsonBytes(verifyApprovedScript().candidate),
     'edit-plan.json': jsonBytes(retimed),
     'edit-plan-validation.json': jsonBytes(editValidation),
+    ...(refreshedPlanAmendmentProof ? { 'b017-plan-amendment-proof.json': jsonBytes(refreshedPlanAmendmentProof) } : {}),
     'shot-definitions.json': jsonBytes(shotResult.shotDefs),
     'production-manifest.json': jsonBytes(manifest),
     'evidence-source-manifest.json': jsonBytes(evidence),
@@ -1251,4 +1352,4 @@ async function main(argv = process.argv.slice(2)) {
   console.log(JSON.stringify(result, null, 2));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, createActivationEvidenceBinding, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadRefreshedTimingLineageEvidence, loadRefreshedTimingBindingHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, createActivationEvidenceBinding, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "phase2.3b-p-refreshed-boundary-audit/1.0.0",
+  "status": "BOUNDARY_AUDIT_PASS",
+  "acts": [
+    {
+      "actKey": "act1",
+      "activeBeatCount": 30,
+      "mappedBoundaries": 60,
+      "expectedBoundaries": 60,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    },
+    {
+      "actKey": "act2",
+      "activeBeatCount": 26,
+      "mappedBoundaries": 52,
+      "expectedBoundaries": 52,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    },
+    {
+      "actKey": "act3",
+      "activeBeatCount": 29,
+      "mappedBoundaries": 58,
+      "expectedBoundaries": 58,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    },
+    {
+      "actKey": "act3b",
+      "activeBeatCount": 17,
+      "mappedBoundaries": 34,
+      "expectedBoundaries": 34,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    },
+    {
+      "actKey": "act4",
+      "activeBeatCount": 24,
+      "mappedBoundaries": 48,
+      "expectedBoundaries": 48,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    },
+    {
+      "actKey": "act5",
+      "activeBeatCount": 27,
+      "mappedBoundaries": 54,
+      "expectedBoundaries": 54,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguousMappings": 0,
+      "unmappedBoundaries": 0,
+      "errorCount": 0
+    }
+  ],
+  "errorCount": 0,
+  "retiredAct3B_B010": true,
+  "activeAct3BBeatCount": 17,
+  "safety": {
+    "providerRequests": 0,
+    "candidateWrites": 0,
+    "episodeRootWrites": 0
+  }
+}

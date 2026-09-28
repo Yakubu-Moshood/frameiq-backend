@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "phase2.3b-act3-audio-refresh-transcription/1.0.0",
+  "runId": "phase2.3b-act3-audio-refresh-20260927-r3",
+  "provider": "openai",
+  "model": "whisper-1",
+  "responseFormat": "verbose_json",
+  "timestampGranularity": "word",
+  "audioFile": "audio/VO_Act3.mp3",
+  "audioSha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+  "audioBytes": 1672298,
+  "whisperHttpStatus": 200,
+  "providerRequestId": "req_1212daef38744610b6ce2834e9d53c41",
+  "rawResponseSha256": "6caa52f690c567c6ef9fdcb212a5f754765b6430c0e905cf3999cc91aae3f35b",
+  "wordTimestampsSha256": "b8bac22161ee4f07ec99e230eb277c58bb9f39450d6caa64e256aee80a3d8e84",
+  "wordCount": 235,
+  "requestOrdinal": 11,
+  "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+  "createdAt": "2026-09-27T21:05:45.801Z"
+}

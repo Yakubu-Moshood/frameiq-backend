@@ -1,0 +1,148 @@
+{
+  "schemaVersion": "phase2.3b-p-act3-refresh-local-verification/1.0.0",
+  "status": "PREPARATION_COMPLETE_PENDING_HUMAN_REVIEW",
+  "baseCommit": "ac5d2105de8b32a689ebf0d83a355cdfac193fb5",
+  "combinedTimestamps": {
+    "sourceSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+    "act3RowsReplaced": 235,
+    "otherRowsPreserved": 1117,
+    "totalRows": 1352,
+    "combinedSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "perActRows": {
+      "act1": 230,
+      "act2": 220,
+      "act3": 235,
+      "act3b": 156,
+      "act4": 229,
+      "act5": 282
+    },
+    "voOwnerField": "vo_file",
+    "perVoLocal": true
+  },
+  "alignment": {
+    "status": "FAIL",
+    "perAct": [
+      {
+        "actKey": "act1",
+        "status": "FAIL",
+        "scriptTokenCount": 230,
+        "transcriptRows": 230,
+        "matchedUnits": 227,
+        "normalizedEquivalentSpans": 14,
+        "substitutions": 2,
+        "insertions": 0,
+        "deletions": 0
+      },
+      {
+        "actKey": "act2",
+        "status": "FAIL",
+        "scriptTokenCount": 220,
+        "transcriptRows": 220,
+        "matchedUnits": 218,
+        "normalizedEquivalentSpans": 10,
+        "substitutions": 2,
+        "insertions": 0,
+        "deletions": 0
+      },
+      {
+        "actKey": "act3",
+        "status": "PASS",
+        "scriptTokenCount": 234,
+        "transcriptRows": 235,
+        "matchedUnits": 243,
+        "normalizedEquivalentSpans": 24,
+        "substitutions": 0,
+        "insertions": 0,
+        "deletions": 0
+      },
+      {
+        "actKey": "act3b",
+        "status": "FAIL",
+        "scriptTokenCount": 155,
+        "transcriptRows": 156,
+        "matchedUnits": 155,
+        "normalizedEquivalentSpans": 9,
+        "substitutions": 1,
+        "insertions": 0,
+        "deletions": 0
+      },
+      {
+        "actKey": "act4",
+        "status": "FAIL",
+        "scriptTokenCount": 233,
+        "transcriptRows": 229,
+        "matchedUnits": 214,
+        "normalizedEquivalentSpans": 16,
+        "substitutions": 8,
+        "insertions": 0,
+        "deletions": 0
+      },
+      {
+        "actKey": "act5",
+        "status": "FAIL",
+        "scriptTokenCount": 283,
+        "transcriptRows": 282,
+        "matchedUnits": 269,
+        "normalizedEquivalentSpans": 5,
+        "substitutions": 5,
+        "insertions": 0,
+        "deletions": 0
+      }
+    ],
+    "previousApproved": 19,
+    "freshUnsigned": 18,
+    "unchangedRequiringRenewal": 18,
+    "removed": [
+      {
+        "actKey": "act3",
+        "classification": "ASR_PHONETIC_VARIANT",
+        "exceptionId": "e37370d1434af0dcb85458c6baf472c3071be88594af85af962dc2dccac6db0e",
+        "scriptToken": "And",
+        "transcriptToken": "an",
+        "scriptTokenIndex": 47,
+        "transcriptTokenIndex": 47,
+        "reason": "Refreshed Act 3 transcript aligns this occurrence; old exception no longer applies."
+      }
+    ],
+    "new": 0,
+    "changed": 0,
+    "oldApprovalReused": false,
+    "exceptionIdRenewal": {
+      "occurrenceMatches": 18,
+      "idsRecomputed": 18,
+      "oldIdsReusable": false
+    }
+  },
+  "durations": {
+    "sixActMediaTotalSeconds": 623.36,
+    "oldAct3Seconds": 99.552653,
+    "newAct3MeasuredSeconds": 104.446757,
+    "newAct3ApprovedReferenceSeconds": 104.489796,
+    "observedDeltaSeconds": 4.894104,
+    "referenceDeltaSeconds": 4.937143,
+    "differenceSeconds": 0.043039,
+    "toleranceSeconds": 0.1,
+    "withinTolerance": true,
+    "retimedSpokenWordDurationSeconds": null
+  },
+  "proposals": {
+    "boundary": {
+      "status": "PENDING_HUMAN_REVIEW",
+      "sha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e"
+    },
+    "timing": {
+      "status": "PENDING_HUMAN_REVIEW",
+      "sha256": "0f46c178e0d0d6be95e2891d638dba6c215af131acbeb3498fe353d60d847364"
+    },
+    "retimingPerformed": false
+  },
+  "act3bB010": "RETIRED",
+  "evidenceApprovalSha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2",
+  "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+  "externalWrites": {
+    "railway": 0,
+    "providers": 0,
+    "episodeRoot": 0,
+    "git": 0
+  }
+}

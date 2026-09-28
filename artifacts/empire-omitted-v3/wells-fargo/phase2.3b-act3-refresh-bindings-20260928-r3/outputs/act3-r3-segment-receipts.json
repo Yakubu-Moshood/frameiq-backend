@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "phase2.3b-act3-audio-refresh-segment-receipts/1.0.0",
+  "runId": "phase2.3b-act3-audio-refresh-20260927-r3",
+  "planSha256": "b1186ec7a5c261902fd498b03ddd850447a13f117b029cea5bedbe6f23b070b8",
+  "segments": [
+    {
+      "segmentId": "act3.segment-001",
+      "textSha256": "2b45595bce1244dadab09df7a47a7e413a0e9b9d9d90f94efb83e757a3f88cee",
+      "characters": 668,
+      "words": 104,
+      "audioSha256": "cdc9cdc789b68bcd7d79788233cd257901bf10032449fe8aad71f50af6573003",
+      "audioBytes": 776612,
+      "durationSec": 48.509388,
+      "providerRequestId": "5Z31nvKqRYCNTiBAU39P",
+      "relativeAudioPath": "audio/segments/act3.segment-001-2b45595bce12.mp3"
+    },
+    {
+      "segmentId": "act3.segment-002",
+      "textSha256": "8c2c096d07cea581a013303f5b4a73533d782f09238e3c64b9568c3bffe25d55",
+      "characters": 699,
+      "words": 106,
+      "audioSha256": "96791a9994beb61dc23d8a640f48f9f3bd06629f53586b91a83253d43741e6f1",
+      "audioBytes": 735234,
+      "durationSec": 45.923265,
+      "providerRequestId": "BxhRCfsF28L9fII1g1i2",
+      "relativeAudioPath": "audio/segments/act3.segment-002-8c2c096d07ce.mp3"
+    },
+    {
+      "segmentId": "act3.segment-003",
+      "textSha256": "db1a25805d58610401983f8b8b73b05b33f680781a061871a52ea92be8fd4d26",
+      "characters": 149,
+      "words": 24,
+      "audioSha256": "935b39f198dde9aea0787f2e80d5c9ab5a4ea0970fe5085fbb129f3c879c1848",
+      "audioBytes": 151345,
+      "durationSec": 9.430204,
+      "providerRequestId": "mAPZ3fblNGGYjhCCABbh",
+      "relativeAudioPath": "audio/segments/act3.segment-003-db1a25805d58.mp3"
+    }
+  ],
+  "assembled": {
+    "file": "audio/VO_Act3.mp3",
+    "sha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+    "bytes": 1672298,
+    "codec": "mp3",
+    "sampleRate": 44100,
+    "bitrate": 128000,
+    "durationSec": 104.489796,
+    "joinPauseMs": 350
+  }
+}

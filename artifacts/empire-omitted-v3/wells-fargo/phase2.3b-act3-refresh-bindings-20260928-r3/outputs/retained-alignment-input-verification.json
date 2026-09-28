@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "phase2.3b-p-alignment-source-binding-check/1.0.0",
+  "status": "VERIFIED_BY_RECOMPUTATION_AND_EXACT_EXCEPTION_CONTENT",
+  "oldProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+  "oldApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+  "oldReviewedReportSha256": "682a6f8e6e3264aa37286d10d4968764a1c2d355b2f97ed707f23458f0529c0a",
+  "retainedTranscriptSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+  "oldApprovalReferencesExactProposal": true,
+  "approvalIdsExactlyEqualProposal": true,
+  "reviewedReportIdsExactlyEqualApproval": true,
+  "reviewedStatus": "PASS",
+  "reviewedActStatuses": [
+    {
+      "actKey": "act1",
+      "status": "PASS",
+      "approvedExceptions": 2,
+      "unapprovedExceptions": 0
+    },
+    {
+      "actKey": "act2",
+      "status": "PASS",
+      "approvedExceptions": 2,
+      "unapprovedExceptions": 0
+    },
+    {
+      "actKey": "act3",
+      "status": "PASS",
+      "approvedExceptions": 1,
+      "unapprovedExceptions": 0
+    },
+    {
+      "actKey": "act3b",
+      "status": "PASS",
+      "approvedExceptions": 1,
+      "unapprovedExceptions": 0
+    },
+    {
+      "actKey": "act4",
+      "status": "PASS",
+      "approvedExceptions": 8,
+      "unapprovedExceptions": 0
+    },
+    {
+      "actKey": "act5",
+      "status": "PASS",
+      "approvedExceptions": 5,
+      "unapprovedExceptions": 0
+    }
+  ],
+  "limitation": "The reviewed report has no independent top-level cryptographic binding fields; relationship verified by exact exception records and recomputed source inputs."
+}

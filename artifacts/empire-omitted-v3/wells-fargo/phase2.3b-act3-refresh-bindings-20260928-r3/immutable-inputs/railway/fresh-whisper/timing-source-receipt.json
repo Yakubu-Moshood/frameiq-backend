@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "phase2.3b-p-timing-source/1.0.0",
+  "runId": "phase2-3b-p-act-20260925",
+  "createdAt": "2026-09-25T01:38:55.547Z",
+  "audio": [
+    {
+      "file": "VO_Act1.mp3",
+      "bytes": 1825271,
+      "sha256": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986"
+    },
+    {
+      "file": "VO_Act2.mp3",
+      "bytes": 1582019,
+      "sha256": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32"
+    },
+    {
+      "file": "VO_Act3.mp3",
+      "bytes": 1593304,
+      "sha256": "f1929546ee1ba9de3d3facbb1e1604f03987f79a98968c1018fcd2fecb8336ac"
+    },
+    {
+      "file": "VO_Act3B.mp3",
+      "bytes": 1104710,
+      "sha256": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e"
+    },
+    {
+      "file": "VO_Act4.mp3",
+      "bytes": 1787237,
+      "sha256": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0"
+    },
+    {
+      "file": "VO_Act5.mp3",
+      "bytes": 2175103,
+      "sha256": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+    }
+  ],
+  "state": "TRANSCRIPTION_IN_PROGRESS"
+}

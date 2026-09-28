@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "phase2.3b-p-act3-refresh-package-index/2.0.0",
+  "status": "HASH_INDEXED_PENDING_REVIEW",
+  "baseCommit": "ac5d2105de8b32a689ebf0d83a355cdfac193fb5",
+  "fileCount": 39,
+  "files": [
+    {
+      "path": "authoritative-audio/VO_Act1.mp3",
+      "bytes": 1825271,
+      "sha256": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986"
+    },
+    {
+      "path": "authoritative-audio/VO_Act2.mp3",
+      "bytes": 1582019,
+      "sha256": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32"
+    },
+    {
+      "path": "authoritative-audio/VO_Act3B.mp3",
+      "bytes": 1104710,
+      "sha256": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e"
+    },
+    {
+      "path": "authoritative-audio/VO_Act4.mp3",
+      "bytes": 1787237,
+      "sha256": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0"
+    },
+    {
+      "path": "authoritative-audio/VO_Act5.mp3",
+      "bytes": 2175103,
+      "sha256": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+    },
+    {
+      "path": "immutable-inputs/railway/alignment-report.reviewed.v1.json",
+      "bytes": 444250,
+      "sha256": "682a6f8e6e3264aa37286d10d4968764a1c2d355b2f97ed707f23458f0529c0a"
+    },
+    {
+      "path": "immutable-inputs/railway/alignment-review-approval.v1.json",
+      "bytes": 18982,
+      "sha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369"
+    },
+    {
+      "path": "immutable-inputs/railway/alignment-review-proposal.v1.json",
+      "bytes": 18717,
+      "sha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0"
+    },
+    {
+      "path": "immutable-inputs/railway/fresh-whisper/timing-source-receipt.json",
+      "bytes": 1091,
+      "sha256": "a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1"
+    },
+    {
+      "path": "immutable-inputs/railway/fresh-whisper/word-timestamps.json",
+      "bytes": 179174,
+      "sha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1"
+    },
+    {
+      "path": "immutable-inputs/railway/retrieval-manifest.json",
+      "bytes": 2732,
+      "sha256": "35c464119d0c88544856deef360f2d168e913fbb3fc5c70194e3a6044ddac694"
+    },
+    {
+      "path": "outputs/act3-r3-alignment-report.json",
+      "bytes": 80254,
+      "sha256": "0be7469e7174902941c4baff9fa53604c798bca27ed8e6d7755ff108ee5d51c7"
+    },
+    {
+      "path": "outputs/act3-r3-refresh-result.json",
+      "bytes": 4767,
+      "sha256": "23b0b7804bb9588f141f887b1f9a57e008eee88f9fe4312bd6b861d2360909d3"
+    },
+    {
+      "path": "outputs/act3-r3-segment-receipts.json",
+      "bytes": 1904,
+      "sha256": "611db52357564993104cea928fa26ce180d8096e291d3a873547c1d7484c35b2"
+    },
+    {
+      "path": "outputs/alignment-delta-report.v1.json",
+      "bytes": 7572,
+      "sha256": "405e9d6f5d84f775effc93f0e594c983cfea96027555db9b7de8a43f8532e167"
+    },
+    {
+      "path": "outputs/alignment-exception-delta.v1.json",
+      "bytes": 7572,
+      "sha256": "405e9d6f5d84f775effc93f0e594c983cfea96027555db9b7de8a43f8532e167"
+    },
+    {
+      "path": "outputs/alignment-review-proposal.unsigned.v1.json",
+      "bytes": 18051,
+      "sha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee"
+    },
+    {
+      "path": "outputs/audio/VO_Act3.mp3",
+      "bytes": 1672298,
+      "sha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449"
+    },
+    {
+      "path": "outputs/boundary-policy-proposal.unsigned.v1.json",
+      "bytes": 13498,
+      "sha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e"
+    },
+    {
+      "path": "outputs/candidate-edit-plan-pretiming.json",
+      "bytes": 315685,
+      "sha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504"
+    },
+    {
+      "path": "outputs/candidate-production-manifest.source.json",
+      "bytes": 134871,
+      "sha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+    },
+    {
+      "path": "outputs/candidate-script.json",
+      "bytes": 12539,
+      "sha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4"
+    },
+    {
+      "path": "outputs/candidate-shot-definitions.source.json",
+      "bytes": 885720,
+      "sha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1"
+    },
+    {
+      "path": "outputs/deterministic-alignment.v1.json",
+      "bytes": 429302,
+      "sha256": "7c751a83b3fa1ecbc646b3d1f9619a1394b33a0ab5b565b7e77621d786c64c8e"
+    },
+    {
+      "path": "outputs/duration-separation-report.json",
+      "bytes": 623,
+      "sha256": "a6a880f11656c8fa98f0de02fcda211071a791cb2bf8a52dc72079531a30e32c"
+    },
+    {
+      "path": "outputs/evidence-review-approval-record.v1.json",
+      "bytes": 32744,
+      "sha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2"
+    },
+    {
+      "path": "outputs/factual-correction-amendment.v1.json",
+      "bytes": 21515,
+      "sha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5"
+    },
+    {
+      "path": "outputs/fresh-whisper/act3-r3-transcription-receipt.json",
+      "bytes": 849,
+      "sha256": "3d687baa580faee5df597f718dac8ca8456eaec59c444d0707992a5cbcd8f36b"
+    },
+    {
+      "path": "outputs/fresh-whisper/act3-r3-whisper-response.verbose.json",
+      "bytes": 25187,
+      "sha256": "6caa52f690c567c6ef9fdcb212a5f754765b6430c0e905cf3999cc91aae3f35b"
+    },
+    {
+      "path": "outputs/fresh-whisper/act3-r3-word-timestamps.json",
+      "bytes": 31984,
+      "sha256": "b8bac22161ee4f07ec99e230eb277c58bb9f39450d6caa64e256aee80a3d8e84"
+    },
+    {
+      "path": "outputs/fresh-whisper/combined-word-timestamps.json",
+      "bytes": 179016,
+      "sha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0"
+    },
+    {
+      "path": "outputs/fresh-whisper/retained-word-timestamps.source.json",
+      "bytes": 179174,
+      "sha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1"
+    },
+    {
+      "path": "outputs/local-verification-report.json",
+      "bytes": 4201,
+      "sha256": "5b31b8a1626503e877d12b8662d8da39d343c342aa78d98d2626365300b674a2"
+    },
+    {
+      "path": "outputs/prior-audio-binding-invalidation.v1.json",
+      "bytes": 1488,
+      "sha256": "6b4fede41d8d5b471687f09674e17991dc075dd714386f803a0a049b44be2a06"
+    },
+    {
+      "path": "outputs/refresh-package-bindings.json",
+      "bytes": 1929,
+      "sha256": "7e47275143978a12685b751c12bfc7d75ebe4a40fe98623b3157db2434c1eac1"
+    },
+    {
+      "path": "outputs/retained-alignment-input-verification.json",
+      "bytes": 1639,
+      "sha256": "6759136cbb9b47df0a9e75979440c6527a10286beddde208fd242bd973a8089a"
+    },
+    {
+      "path": "outputs/revision-lineage.cjs",
+      "bytes": 19623,
+      "sha256": "276088cd7e31571e0dd7aaf2c18e482c1f4d5fe8668bc6a8c3abacef905eea28"
+    },
+    {
+      "path": "outputs/six-act-audio-manifest.json",
+      "bytes": 3128,
+      "sha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d"
+    },
+    {
+      "path": "outputs/six-act-source-binding.proposed.json",
+      "bytes": 1950,
+      "sha256": "a02d0cc2b1e46b261e926a80dbc3c8802a7fe1eecef2351f1a51821969b9230c"
+    }
+  ],
+  "bindings": {
+    "schemaVersion": "phase2.3b-p-act3-refresh-source-bindings/2.0.0",
+    "status": "VERIFIED_RECEIPT_AUDIO_REBOUND",
+    "runId": "phase2-3b-p-act-20260925",
+    "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "preTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+    "combinedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "newAct3AudioSha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+    "newAct3TimestampSha256": "b8bac22161ee4f07ec99e230eb277c58bb9f39450d6caa64e256aee80a3d8e84",
+    "sixActAudioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+    "unchangedAudioHashes": {
+      "act1": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986",
+      "act2": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32",
+      "act3b": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e",
+      "act4": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0",
+      "act5": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+    },
+    "oldProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+    "oldApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+    "newUnsignedProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+    "boundaryPolicyGitObjectSha256": "3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9",
+    "timingPolicyGitObjectSha256": "423d77c02fdec6949382556913767a63974fba3784f26115e544bb4b9f881215",
+    "evidenceApprovalRecordSha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2",
+    "globalRequestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "boundaryProposalSha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e",
+    "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee"
+  },
+  "safety": {
+    "invalidatedPriorAudioBinding": {
+      "status": "INVALID_AUDIO_BINDING_NOT_APPROVABLE",
+      "recordPath": "outputs/prior-audio-binding-invalidation.v1.json",
+      "recordSha256": "6b4fede41d8d5b471687f09674e17991dc075dd714386f803a0a049b44be2a06"
+    },
+    "retiming": "NOT_RUN_PENDING_APPROVAL",
+    "candidateConstruction": "NOT_RUN",
+    "providerRequests": 0,
+    "railwayWrites": 0,
+    "episodeRootWrites": 0,
+    "gitChanges": 0
+  },
+  "reviewArtifacts": [
+    {
+      "path": "outputs/timing-policy-proposal.unsigned.v2.json",
+      "binding": "separate; binds the package-index-bound approvals and excluded to avoid a hash cycle"
+    },
+    {
+      "path": "approvals/refreshed-approved-boundary-ranges.v2.json",
+      "binding": "policy itself pins package index and both approval records"
+    }
+  ]
+}

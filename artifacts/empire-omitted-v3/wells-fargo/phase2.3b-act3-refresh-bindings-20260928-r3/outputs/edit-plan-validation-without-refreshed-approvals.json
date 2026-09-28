@@ -1,0 +1,61 @@
+{
+  "status": "FAIL",
+  "errorCount": 9,
+  "errors": [
+    {
+      "code": "BEAT_TOO_SHORT",
+      "path": "/sequences/10/beats/2",
+      "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_SHORT",
+      "path": "/sequences/12/beats/1",
+      "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_SHORT",
+      "path": "/sequences/16/beats/3",
+      "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_SHORT",
+      "path": "/sequences/19/beats/0",
+      "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_LONG",
+      "path": "/sequences/26/beats/2",
+      "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_LONG",
+      "path": "/sequences/27/beats/1",
+      "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_LONG",
+      "path": "/sequences/36/beats/1",
+      "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_LONG",
+      "path": "/sequences/37/beats/1",
+      "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+    },
+    {
+      "code": "BEAT_TOO_LONG",
+      "path": "/sequences/39/beats/3",
+      "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+    }
+  ],
+  "inputs": {
+    "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "timestampsSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "retimedSpokenDurationSec": 633.782449
+  },
+  "writes": {
+    "candidate": 0,
+    "episodeRoot": 0,
+    "provider": 0
+  }
+}

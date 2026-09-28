@@ -1,0 +1,1211 @@
+{
+  "schemaVersion": "phase2.3b-p-timing-exceptions-proposal/2.0.0",
+  "status": "PENDING_HUMAN_REVIEW",
+  "runId": "phase2-3b-p-act-20260925",
+  "bindings": {
+    "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+    "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "combinedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+    "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+    "boundaryProposalSha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e",
+    "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+    "refreshedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+    "sixActAudioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+    "evidenceApprovalSha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2",
+    "globalRequestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf"
+  },
+  "globalLimits": {
+    "minimumSeconds": 2,
+    "maximumSeconds": 6,
+    "changed": false
+  },
+  "mediaDurationTotalSec": 633.782449,
+  "retimedSpokenWordDurationSec": 633.782449,
+  "priorEightFormalExceptions": [
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "REFRESHED_DURATION_BINDING_REQUIRED",
+      "sourcePlanRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "none",
+        "end": "prison"
+      },
+      "narration": "None went to prison",
+      "startSec": 112.66000366210938,
+      "endSec": 114.013379,
+      "durationSec": 1.3533753378906255,
+      "minimumAllowedDurationSec": 1.3523753378906256,
+      "maximumAllowedDurationSec": 1.3543753378906254,
+      "priorApprovedDurationSec": 1.390608337890626,
+      "priorBoundsMatched": false,
+      "reason": "Deliberate closing impact beat: the short isolated statement “None went to prison” is intended to land as a final consequence.",
+      "productionObligations": {
+        "productionMethod": "CONTROLLED_STILL",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "Empty prison corridor—the justice that never came.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": "atmospheric",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "music fades to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Prison corridor, empty, fluorescent lights, no one walking through—justice absent.",
+          "motionType": "dolly_back",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_back"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B006",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "wells",
+        "end": "survived"
+      },
+      "narration": "Wells Fargo survived",
+      "startSec": 135.57337846594237,
+      "endSec": 137.2933796866455,
+      "durationSec": 1.720001220703125,
+      "minimumAllowedDurationSec": 1.719001,
+      "maximumAllowedDurationSec": 1.721001,
+      "priorApprovedDurationSec": 1.720001,
+      "priorBoundsMatched": true,
+      "reason": "This short, complete three-word statement is a deliberate dramatic contrast: the bank survived the 2008 financial crisis. Keep the approved evidence reference and narration ownership unchanged.",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Wells Fargo stands apart from the wreckage.",
+        "rhythmIntent": "building",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo headquarters exterior, stable and gleaming.",
+          "motionType": "crane_rise",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "crane_rise"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "photograph",
+          "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Corporate Photography",
+          "humanReviewRequired": true
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "photograph",
+            "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Corporate Photography",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context."
+        }
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 197,
+        "end": 200,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 196,
+        "end": 199,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "they",
+        "end": "way"
+      },
+      "narration": "they found another way",
+      "startSec": 201.3133820517578,
+      "endSec": 203.0333756430664,
+      "durationSec": 1.7199935913085938,
+      "minimumAllowedDurationSec": 1.7189935913085939,
+      "maximumAllowedDurationSec": 1.7209935913085939,
+      "priorApprovedDurationSec": 1.7199935913085938,
+      "priorBoundsMatched": true,
+      "reason": "A deliberate short moral-turn beat; combining it with neighbouring narration would weaken the precise shift in the argument and alter narration ownership.",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "The moment of moral compromise.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": "representative",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "tension suspends",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [
+            "keyboard typing"
+          ],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Controlled still of anonymous hands beside a single abstract, blank account interface.",
+          "motionType": "rack_focus",
+          "secondaryAction": "Customer details populate a new account form."
+        },
+        "motionIntent": {
+          "type": "rack_focus"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 59,
+        "end": 69,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 58,
+        "end": 75,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "wells",
+        "end": "review"
+      },
+      "narration": "Wells Fargo says it refunded about $ 2.6 million in fees tied to accounts flagged by its review",
+      "startSec": 342.71274476293945,
+      "endSec": 349.9827452207031,
+      "durationSec": 7.270000457763672,
+      "minimumAllowedDurationSec": 7.269,
+      "maximumAllowedDurationSec": 7.271,
+      "priorApprovedDurationSec": 7.27,
+      "priorBoundsMatched": true,
+      "reason": "This complete sentence attributes the approximately $2.6 million fee refund to Wells Fargo and its review. Preserve the evidence reference and the approved fee-refund graphic for the entire verified narration interval.",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Show the bank-attributed refund figure with a clear source label; do not imply every flagged account was proven unauthorized.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo 3Q16 quarterly supplement supporting the bank’s statement that about $2.6 million in fees tied to accounts flagged by its review were refunded.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure",
+          "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure",
+            "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo."
+        }
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 90,
+        "end": 101,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 87,
+        "end": 100,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "wells",
+        "end": "violations"
+      },
+      "narration": "Wells Fargo said it fired more than 5,300 employees for sales practice violations",
+      "startSec": 357.0227423215332,
+      "endSec": 363.78274445776367,
+      "durationSec": 6.760002136230469,
+      "minimumAllowedDurationSec": 6.759002,
+      "maximumAllowedDurationSec": 6.761002,
+      "priorApprovedDurationSec": 6.760002,
+      "priorBoundsMatched": true,
+      "reason": "This complete sentence states the bank-reported termination count and its sales-practice scope. Preserve the evidence reference and the approved 5,300-employees graphic across the full verified narration interval.",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "The mass firing figure lands with institutional coldness.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo disclosure or regulatory document citing 5,300 terminations.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure or regulatory filing",
+          "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo Disclosure",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure or regulatory filing",
+            "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo Disclosure",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
+        }
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 198,
+        "end": 207,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 195,
+        "end": 204,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "then",
+        "end": "2026"
+      },
+      "narration": "then terminated the remaining 2018 enforcement action in March 2026",
+      "startSec": 479.33093183105467,
+      "endSec": 485.3509284741211,
+      "durationSec": 6.019996643066406,
+      "minimumAllowedDurationSec": 6.018997,
+      "maximumAllowedDurationSec": 6.020997,
+      "priorApprovedDurationSec": 6.019997,
+      "priorBoundsMatched": true,
+      "reason": "This dated Federal Reserve closure clause is 19.997 milliseconds above the normal maximum because of the approved retained-VO word boundaries. Preserve the Fed evidence and March 2026 date marker; do not reassign narration.",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Final enforcement termination closes the regulatory chapter.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL",
+          "description": "Federal Reserve termination of 2018 enforcement action.",
+          "motionType": "static_locked",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "static_locked"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "regulatory document",
+          "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Federal Reserve, March 2026",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "regulatory document",
+            "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Federal Reserve, March 2026",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure."
+        }
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B024",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "REFRESHED_DURATION_BINDING_REQUIRED",
+      "sourcePlanRange": {
+        "start": 218,
+        "end": 231,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 215,
+        "end": 228,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "single",
+        "end": "redress"
+      },
+      "narration": "single 2022 consumer protection order required 3.7 billion dollars in penalties and customer redress",
+      "startSec": 489.5909263378906,
+      "endSec": 497.895873,
+      "durationSec": 8.304946662109387,
+      "minimumAllowedDurationSec": 8.303946662109388,
+      "maximumAllowedDurationSec": 8.305946662109386,
+      "priorApprovedDurationSec": 8.333472662109386,
+      "priorBoundsMatched": false,
+      "reason": "The beat contains one complete, sourced regulatory claim and its total-cost impact card; splitting it would separate the figure from its evidentiary context and change approved narration ownership.",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Single CFPB order document delivers the devastating final number.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "resolve to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "2022 CFPB consent order showing $3.7 billion penalty and redress figure.",
+          "motionType": "document_reveal",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "document_reveal"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "consent order",
+          "description": "2022 CFPB consent order requiring $3.7 billion in penalties and customer redress",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "CFPB Consent Order, December 2022",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the final devastating number.",
+            "text": "$3.7 BILLION"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the final devastating number.",
+            "text": "$3.7 BILLION"
+          }
+        ],
+        "sourceSearchInstruction": "Locate December 2022 CFPB consent order against Wells Fargo showing $3.7 billion in combined penalties and customer redress. Search CFPB enforcement database for Wells Fargo December 2022 consent order, verify penalty and redress breakdown figures.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "consent order",
+            "description": "2022 CFPB consent order requiring $3.7 billion in penalties and customer redress",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "CFPB Consent Order, December 2022",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate December 2022 CFPB consent order against Wells Fargo showing $3.7 billion in combined penalties and customer redress. Search CFPB enforcement database for Wells Fargo December 2022 consent order, verify penalty and redress breakdown figures."
+        }
+      },
+      "timingExceptionRequired": true
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "PRIOR_APPROVED_DURATION_BOUNDS_RETAINED",
+      "sourcePlanRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "workers",
+        "end": "employees"
+      },
+      "narration": "workers clear their records and pay back wages or damages Other employees",
+      "startSec": 555.2758740681152,
+      "endSec": 561.3758725422363,
+      "durationSec": 6.099998474121094,
+      "minimumAllowedDurationSec": 6.098998,
+      "maximumAllowedDurationSec": 6.100998,
+      "priorApprovedDurationSec": 6.099998,
+      "priorBoundsMatched": true,
+      "reason": "This approved reconstruction sentence explains the remedy for reinstated workers. Its retained-VO timing is 99.998 milliseconds above the normal maximum; preserve the approved essential-animation method and narration ownership.",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "The bureaucratic process of clearing records and paying damages.",
+        "rhythmIntent": "measured",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": "representative",
+        "continuityRefs": [
+          "employee-cost"
+        ],
+        "audioDirection": null,
+        "visual": {
+          "type": "CLIP",
+          "description": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+          "motionType": "rack_focus",
+          "secondaryAction": "The signed settlement slides across the table."
+        },
+        "motionIntent": {
+          "type": "rack_focus"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "timingExceptionRequired": true
+    }
+  ],
+  "refreshedAct3Exceptions": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B004",
+      "classification": "REQUIRES_FORMAL_TIMING_EXCEPTION",
+      "scopeStatus": "REFRESHED_DURATION_BINDING_REQUIRED",
+      "sourcePlanRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "mappedTranscriptRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "anchors": {
+        "start": "here's",
+        "end": "a"
+      },
+      "narration": "Here's how it worked A",
+      "startSec": 223.19598711444092,
+      "endSec": 224.83598745776368,
+      "durationSec": 1.640000343322754,
+      "minimumAllowedDurationSec": 1.639000343322754,
+      "maximumAllowedDurationSec": 1.6410003433227538,
+      "priorApprovedDurationSec": 1.4200000762939453,
+      "priorBoundsMatched": false,
+      "reason": "A deliberately brief transition into the explanatory sequence; moving its boundary would alter the established sequence handoff.",
+      "productionObligations": {
+        "productionMethod": "GENERATED_STILL",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "generated_image",
+        "visualIntent": "Set up the explanation of fraud mechanics.",
+        "rhythmIntent": "measured",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "clinical procedural rhythm begins",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL",
+          "description": "A branch interior from customer perspective—clean, orderly, unthreatening.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "timingExceptionRequired": true
+    }
+  ],
+  "formalExceptionNoLongerRequired": {
+    "actKey": "act3",
+    "beatId": "ACT3_B025",
+    "classification": "FORMAL_EXCEPTION_NO_LONGER_REQUIRED",
+    "durationSec": 2.0199966430664062,
+    "startSec": 303.5759891362305,
+    "endSec": 305.5959857792969,
+    "reason": "Retimed duration is within the global 2–6 second range; preserve existing stillness and rhythm metadata and clear the obsolete exception reason.",
+    "preserved": {
+      "intentionalStillness": true,
+      "rhythmIntent": "impact"
+    },
+    "formalTimingExceptionRequired": false
+  },
+  "editorialIntentMigrationRenewals": [
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B026",
+      "classification": "EDITORIAL_INTENT_MIGRATION_RENEWAL",
+      "narration": "And for years nobody at the top claimed to notice",
+      "mappedTranscriptRange": [
+        210,
+        219
+      ],
+      "anchors": [
+        "and",
+        "notice"
+      ],
+      "startSec": 208.15337838964842,
+      "endSec": 212.815987,
+      "durationSec": 4.662608610351583,
+      "existingReason": "Act-ending thesis requires space for audience processing of institutional complicity.",
+      "postNarrationHoldSec": 1.2,
+      "intentionalStillness": false,
+      "rhythmIntent": "suspended",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "Executive isolation and claimed ignorance.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.2,
+        "reconstructionMode": "atmospheric",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "tension holds then fades",
+          "musicEvent": "duck_under_line",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Executive office door closes; through frosted glass, a figure turns away from the window.",
+          "motionType": "dolly_back",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_back"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "scopeStatus": "UNCHANGED_EDITORIAL_DECISION_RENEWAL"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "classification": "EDITORIAL_INTENT_MIGRATION_RENEWAL",
+      "narration": "And some of the people who warned the bank said they were fired too",
+      "mappedTranscriptRange": [
+        142,
+        155
+      ],
+      "anchors": [
+        "and",
+        "too"
+      ],
+      "startSec": 381.6827421689453,
+      "endSec": 386.25093,
+      "durationSec": 4.568187831054672,
+      "existingReason": "Final beat requires emotional landing space after the triple injustice",
+      "postNarrationHoldSec": 1.5,
+      "intentionalStillness": false,
+      "rhythmIntent": "reflective",
+      "productionMethod": "CONTROLLED_STILL",
+      "productionObligations": {
+        "productionMethod": "CONTROLLED_STILL",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": "representative",
+        "continuityRefs": [
+          "ethics-hotline",
+          "whistleblower"
+        ],
+        "audioDirection": {
+          "musicCue": "single sustained tone, unresolved",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [
+            "elevator doors closing"
+          ],
+          "silenceIntent": "Let the institutional betrayal settle"
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+          "motionType": "dolly_back",
+          "secondaryAction": "Elevator doors close on their face"
+        },
+        "motionIntent": {
+          "type": "dolly_back",
+          "secondaryAction": "Elevator doors close on their face"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "scopeStatus": "UNCHANGED_EDITORIAL_DECISION_RENEWAL"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B022",
+      "classification": "EDITORIAL_INTENT_MIGRATION_RENEWAL",
+      "narration": "work in banking One pleaded guilty None went to prison",
+      "mappedTranscriptRange": [
+        214,
+        223
+      ],
+      "anchors": [
+        "work",
+        "prison"
+      ],
+      "startSec": 604.3558720844726,
+      "endSec": 609.6558751362304,
+      "durationSec": 5.3000030517578125,
+      "existingReason": "Major reveal: the contrast between a single guilty plea and absence of prison time requires stillness for impact.",
+      "postNarrationHoldSec": 0,
+      "intentionalStillness": true,
+      "rhythmIntent": "impact",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligations": {
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "graphic_compilation",
+        "visualIntent": "The single guilty plea against the absence of prison.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": true,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [
+          "criminal-accountability",
+          "accountability-gap"
+        ],
+        "audioDirection": {
+          "musicCue": "silence, room tone only",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL",
+          "description": "The word GUILTY isolated beside empty prison cell, door open.",
+          "motionType": "static_locked",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "static_locked"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the contrast between plea and incarceration.",
+            "text": "ONE PLEADED GUILTY • NONE WENT TO PRISON"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the contrast between plea and incarceration.",
+            "text": "ONE PLEADED GUILTY • NONE WENT TO PRISON"
+          }
+        ],
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "scopeStatus": "UNCHANGED_EDITORIAL_DECISION_RENEWAL"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B023",
+      "classification": "EDITORIAL_INTENT_MIGRATION_RENEWAL",
+      "narration": "Accountability arrived but it did not land evenly This is",
+      "mappedTranscriptRange": [
+        224,
+        233
+      ],
+      "anchors": [
+        "accountability",
+        "is"
+      ],
+      "startSec": 609.6558751362304,
+      "endSec": 613.9158696430663,
+      "durationSec": 4.2599945068359375,
+      "existingReason": "Final thesis moment requires stillness and hold for audience absorption.",
+      "postNarrationHoldSec": 1.5,
+      "intentionalStillness": true,
+      "rhythmIntent": "reflective",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligations": {
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "graphic_compilation",
+        "visualIntent": "The final verdict on institutional accountability.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": true,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": null,
+        "continuityRefs": [
+          "accountability-gap"
+        ],
+        "audioDirection": {
+          "musicCue": "low sustained chord resolving to minor",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL",
+          "description": "A scales of justice image, visibly unbalanced, one side weighted with documents.",
+          "motionType": "static_locked",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "static_locked"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": [
+          {
+            "type": "takeaway",
+            "intent": "Deliver the structural thesis.",
+            "text": "ACCOUNTABILITY ARRIVED. IT DID NOT LAND EVENLY."
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "takeaway",
+            "intent": "Deliver the structural thesis.",
+            "text": "ACCOUNTABILITY ARRIVED. IT DID NOT LAND EVENLY."
+          }
+        ],
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "scopeStatus": "UNCHANGED_EDITORIAL_DECISION_RENEWAL"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B027",
+      "classification": "EDITORIAL_INTENT_MIGRATION_RENEWAL",
+      "narration": "Which corporate scandal should we examine next Let us know in the comments",
+      "mappedTranscriptRange": [
+        269,
+        281
+      ],
+      "anchors": [
+        "which",
+        "comments"
+      ],
+      "startSec": 628.2558736103515,
+      "endSec": 633.782449,
+      "durationSec": 5.526575389648542,
+      "existingReason": "Final beat invites audience participation and requires hold for engagement.",
+      "postNarrationHoldSec": 2,
+      "intentionalStillness": false,
+      "rhythmIntent": "reflective",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligations": {
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "graphic_compilation",
+        "visualIntent": "Invitation for future episodes.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 2,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "theme resolves, fades to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL",
+          "description": "Comment prompt with question mark, inviting viewer participation.",
+          "motionType": "static_locked",
+          "secondaryAction": "Cursor blink effect."
+        },
+        "motionIntent": {
+          "type": "static_locked",
+          "secondaryAction": "Cursor blink effect."
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": [
+          {
+            "type": "takeaway",
+            "intent": "Invite viewer input.",
+            "text": "WHICH SCANDAL SHOULD WE EXAMINE NEXT?"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "takeaway",
+            "intent": "Invite viewer input.",
+            "text": "WHICH SCANDAL SHOULD WE EXAMINE NEXT?"
+          }
+        ],
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "scopeStatus": "UNCHANGED_EDITORIAL_DECISION_RENEWAL"
+    }
+  ],
+  "validationWithoutRefreshedTimingApprovals": {
+    "status": "FAIL",
+    "errorCount": 9,
+    "errors": [
+      {
+        "code": "BEAT_TOO_SHORT",
+        "path": "/sequences/10/beats/2",
+        "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_SHORT",
+        "path": "/sequences/12/beats/1",
+        "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_SHORT",
+        "path": "/sequences/16/beats/3",
+        "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_SHORT",
+        "path": "/sequences/19/beats/0",
+        "message": "A beat below 2 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_LONG",
+        "path": "/sequences/26/beats/2",
+        "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_LONG",
+        "path": "/sequences/27/beats/1",
+        "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_LONG",
+        "path": "/sequences/36/beats/1",
+        "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_LONG",
+        "path": "/sequences/37/beats/1",
+        "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+      },
+      {
+        "code": "BEAT_TOO_LONG",
+        "path": "/sequences/39/beats/3",
+        "message": "A beat above 6 seconds needs an explicit timingExceptionReason."
+      }
+    ]
+  },
+  "provisionalUnsignedValidation": {
+    "status": "PASS",
+    "errorCount": 0,
+    "providerRequests": 0,
+    "candidateWrites": 0,
+    "episodeRootWrites": 0
+  },
+  "safety": {
+    "candidateConstruction": "NOT_RUN",
+    "shotTransformation": "NOT_RUN",
+    "timingApproval": "NOT_GRANTED",
+    "providerRequests": 0,
+    "railwayOperations": 0,
+    "episodeRootWrites": 0
+  },
+  "timingApproval": "NOT_GRANTED",
+  "decisionRequired": "Human review of the nine formal exceptions, the ACT3_B025 closure, and five editorial-intent migrations."
+}

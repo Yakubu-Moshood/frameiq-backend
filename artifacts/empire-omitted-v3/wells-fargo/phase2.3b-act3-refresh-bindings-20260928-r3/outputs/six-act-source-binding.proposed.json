@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "phase2.3b-p-act3-refresh-six-act-source-binding/1.0.0",
+  "status": "LOCAL_RECONSTRUCTION_BINDING_UNSIGNED",
+  "runId": "phase2-3b-p-act-20260925",
+  "retainedTimingReceiptSha256": "a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1",
+  "retainedTimestampSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+  "rebuiltTimestampSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+  "rebuiltTimestampSemanticSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+  "act3Replacement": {
+    "audioSha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+    "audioBytes": 1672298,
+    "ffprobeDurationSeconds": 104.446757,
+    "approvedDurationSeconds": 104.489796,
+    "timestampSha256": "b8bac22161ee4f07ec99e230eb277c58bb9f39450d6caa64e256aee80a3d8e84",
+    "transcriptionReceiptSha256": "3d687baa580faee5df597f718dac8ca8456eaec59c444d0707992a5cbcd8f36b",
+    "alignmentReportSha256": "0be7469e7174902941c4baff9fa53604c798bca27ed8e6d7755ff108ee5d51c7"
+  },
+  "unchangedAudio": [
+    {
+      "file": "VO_Act1.mp3",
+      "bytes": 1825271,
+      "sha256": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986"
+    },
+    {
+      "file": "VO_Act2.mp3",
+      "bytes": 1582019,
+      "sha256": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32"
+    },
+    {
+      "file": "VO_Act3B.mp3",
+      "bytes": 1104710,
+      "sha256": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e"
+    },
+    {
+      "file": "VO_Act4.mp3",
+      "bytes": 1787237,
+      "sha256": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0"
+    },
+    {
+      "file": "VO_Act5.mp3",
+      "bytes": 2175103,
+      "sha256": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+    }
+  ],
+  "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf"
+}

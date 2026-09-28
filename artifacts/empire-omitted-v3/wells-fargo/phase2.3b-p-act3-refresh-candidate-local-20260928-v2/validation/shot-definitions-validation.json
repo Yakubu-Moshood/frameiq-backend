@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "lineage": {
+    "status": "PASS",
+    "errors": [],
+    "counts": {
+      "baseMatches": 2884,
+      "approvedHistoricalRevisions": 23,
+      "currentApprovedAmendments": 664,
+      "unapprovedDifferences": 0
+    }
+  }
+}

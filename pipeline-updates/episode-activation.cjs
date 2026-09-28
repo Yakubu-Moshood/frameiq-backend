@@ -7,7 +7,59 @@ const path = require('node:path');
 const PLAN_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const SHOT_DYNAMIC_FIELDS = new Set(['startWordIndex', 'endWordIndex', 'startSec', 'endSec', 'durationSec', 'narrationExcerpt']);
 const APPROVED_BOUNDARY_POLICY_SHA256 = '3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9';
+const REFRESHED_BOUNDARY_POLICY_SHA256 = 'cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf';
+const REFRESHED_BOUNDARY_POLICY_BINDINGS = Object.freeze({
+  packageIndexSha256: '4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0',
+  lockedEditPlanSha256: '33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337',
+  candidatePreTimingEditPlanSha256: '94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504',
+  candidateScriptSha256: 'fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4',
+  combinedTranscriptSha256: 'e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0',
+  alignmentProposalSha256: '7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee',
+  alignmentApprovalSha256: '32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42',
+  boundaryProposalSha256: '1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e',
+  boundaryApprovalSha256: '29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f',
+  newAct3AudioSha256: '79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449',
+  unchangedAudioHashes: Object.freeze({
+    act1: '453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986',
+    act2: '46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32',
+    act3b: '31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e',
+    act4: '9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0',
+    act5: 'a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db',
+  }),
+  evidenceApprovalSha256: 'c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2',
+  globalRequestLedgerSha256: 'c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf',
+  candidateAmendmentSha256: '93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5',
+  retainedTimingSourceReceiptSha256: 'a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1',
+  previousApprovedBoundaryPolicySha256: '3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9',
+});
 const APPROVED_TIMING_EXCEPTION_POLICY_SHA256 = '423d77c02fdec6949382556913767a63974fba3784f26115e544bb4b9f881215';
+const REFRESHED_TIMING_EXCEPTION_POLICY_SHA256 = '8a0173087b2e7364e8bd46c4a9e53c3acb738904fc3f94968099b357deea843b';
+const REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256 = '6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a';
+const REFRESHED_B017_AMENDMENT_SHA256 = '93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5';
+const REFRESHED_B017_REVISION_LEDGER_SHA256 = '61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a';
+const REFRESHED_REVISION_CHAIN_FILE_SHA256S = Object.freeze([
+  '82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86',
+  REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256,
+  REFRESHED_B017_REVISION_LEDGER_SHA256,
+]);
+const REFRESHED_TIMING_OWNER_KEYS = Object.freeze([
+  'act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act2:ACT2_B026',
+  'act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012',
+  'act3b:ACT3B_B018','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012',
+  'act5:ACT5_B022','act5:ACT5_B023','act5:ACT5_B027',
+]);
+const REFRESHED_B017_CHANGED_BEATS = Object.freeze(['ACT3_B016','ACT3_B017','ACT3_B018','ACT3_B019']);
+const OLD_TIMING_EXCEPTION_OWNERS = Object.freeze(['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012']);
+const REFRESHED_TIMING_EXCEPTION_OWNERS = Object.freeze(['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012']);
+const EDITORIAL_INTENT_MIGRATION_OWNERS = Object.freeze(['act2:ACT2_B026','act3b:ACT3B_B018','act5:ACT5_B022','act5:ACT5_B023','act5:ACT5_B027']);
+function timingExceptionOwnersFor(policySha256) {
+  if (policySha256 === APPROVED_TIMING_EXCEPTION_POLICY_SHA256) return OLD_TIMING_EXCEPTION_OWNERS;
+  if (policySha256 === REFRESHED_TIMING_EXCEPTION_POLICY_SHA256) return REFRESHED_TIMING_EXCEPTION_OWNERS;
+  return null;
+}
+function isVerifiedTimingExceptionPolicy(policy) {
+  return policy?.verified === true && timingExceptionOwnersFor(policy.policySha256) !== null;
+}
 const TARGET_FILES = [
   'script.json', 'assets/audio/VO_Act1.mp3', 'assets/audio/VO_Act2.mp3', 'assets/audio/VO_Act3.mp3',
   'assets/audio/VO_Act3B.mp3', 'assets/audio/VO_Act4.mp3', 'assets/audio/VO_Act5.mp3',
@@ -260,13 +312,81 @@ function verifyReviewedTranscriptRange(range, scriptToTranscript, actKey, bounda
   if ([...covered].some(index => index < range.start || index > range.end)) throw new Error(`ACTIVATION_BOUNDARY_REVIEW_RELATION_AMBIGUOUS:${actKey}:${boundaryIndex}`);
 }
 
-function verifyApprovedBoundaryPolicy({ policy, policyBytes, script, scriptSha256, amendmentSha256 }) {
+function deriveRefreshedWhitespaceRange({ scriptText, lexicalRange, expectedExcerpt } = {}) {
+  const lexical = lexicalTokens(scriptText);
+  const whitespace = [...String(scriptText || '').matchAll(/\S+/gu)].map(match => ({ text: match[0], start: match.index, end: match.index + match[0].length - 1 }));
+  if (!lexicalRange || lexicalRange.indexConvention !== 'zero-based-inclusive-act-local-lexical-word'
+      || !Number.isSafeInteger(lexicalRange.start) || !Number.isSafeInteger(lexicalRange.end)
+      || lexicalRange.start < 0 || lexicalRange.end < lexicalRange.start || !lexical[lexicalRange.start] || !lexical[lexicalRange.end]) throw new Error('ACTIVATION_REFRESHED_BOUNDARY_LEXICAL_RANGE_INVALID');
+  const selected = lexical.slice(lexicalRange.start, lexicalRange.end + 1);
+  const translated = selected.map(token => whitespace.flatMap((span, index) => token.offset >= span.start && token.offset <= span.end ? [index] : []));
+  if (translated.some(indexes => indexes.length !== 1)) throw new Error('ACTIVATION_REFRESHED_BOUNDARY_LEXICAL_TRANSLATION_AMBIGUOUS');
+  const indexes = translated.map(indexes => indexes[0]);
+  const start = Math.min(...indexes), end = Math.max(...indexes);
+  const canonical = value => String(value || '').normalize('NFKC').replace(/[’‘`]/gu, "'").toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}']/gu, ' ').replace(/\s+/gu, ' ').trim();
+  const lexicalText = selected.map(token => token.surface).join(' '), whitespaceText = whitespace.slice(start, end + 1).map(token => token.text).join(' ');
+  if (canonical(lexicalText) !== canonical(expectedExcerpt) || canonical(whitespaceText) !== canonical(expectedExcerpt)) throw new Error('ACTIVATION_REFRESHED_BOUNDARY_LEXICAL_TEXT_MISMATCH');
+  return { start, end, excerpt: whitespaceText, lexicalText };
+}
+
+function verifyApprovedBoundaryPolicy({ policy, policyBytes, script, scriptSha256, amendmentSha256, actualBindings }) {
   if (!Buffer.isBuffer(policyBytes)) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_HASH_MISMATCH');
   const canonicalPolicyBytes = Buffer.from(policyBytes.toString('utf8').replace(/\r\n/gu, '\n'));
-  if (sha256(canonicalPolicyBytes) !== APPROVED_BOUNDARY_POLICY_SHA256) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_HASH_MISMATCH');
+  const receivedHash = sha256(canonicalPolicyBytes);
+  if (![APPROVED_BOUNDARY_POLICY_SHA256, REFRESHED_BOUNDARY_POLICY_SHA256].includes(receivedHash)) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_HASH_MISMATCH');
   let parsedPolicy;
   try { parsedPolicy = JSON.parse(canonicalPolicyBytes.toString('utf8')); } catch (_) { throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_JSON_INVALID'); }
   if (!equal(policy, parsedPolicy)) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_OBJECT_MISMATCH');
+  if (receivedHash === REFRESHED_BOUNDARY_POLICY_SHA256) {
+    const fail = code => { throw new Error(code); };
+    if (policy?.schemaVersion !== 'phase2.3b-p-approved-boundary-ranges/2.0.0'
+        || policy.status !== 'USER_APPROVED'
+        || policy.runId !== 'phase2-3b-p-act-20260925'
+        || policy.episodeId !== 'e59b6b79-96aa-4dcd-92c3-749fd536f55e'
+        || policy.channelKey !== 'EmpireOmitted'
+        || !equal(policy.binding, REFRESHED_BOUNDARY_POLICY_BINDINGS)
+        || !equal(actualBindings, REFRESHED_BOUNDARY_POLICY_BINDINGS)
+        || scriptSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.candidateScriptSha256
+        || amendmentSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.candidateAmendmentSha256
+        || policy.approval?.approvedBy !== 'Yakubu Moshood'
+        || policy.approval?.decision !== 'APPROVED'
+        || policy.approval?.alignmentProposalSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.alignmentProposalSha256
+        || policy.approval?.alignmentApprovalSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.alignmentApprovalSha256
+        || policy.approval?.boundaryProposalSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.boundaryProposalSha256
+        || policy.approval?.boundaryApprovalSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.boundaryApprovalSha256) fail('ACTIVATION_REFRESHED_BOUNDARY_BINDING_MISMATCH');
+    const exactIds = (actual, expected, label) => {
+      if (!Array.isArray(expected) || !Array.isArray(actual) || actual.length !== expected.length || actual.some((value, index) => value !== expected[index]) || new Set(actual).size !== actual.length) fail(`ACTIVATION_REFRESHED_BOUNDARY_DECISION_SET_INVALID:${label}`);
+    };
+    exactIds(policy.boundaryAuthorizations?.map(item => item.authorizationId), policy.decisionOrder?.boundaryAuthorizations, 'AUTHORIZATIONS');
+    exactIds(policy.allocations?.map(item => `${item.actKey}:${item.beatId}`), policy.decisionOrder?.allocations, 'ALLOCATIONS');
+    exactIds(policy.retirements?.map(item => `${item.actKey}:${item.beatId}`), policy.decisionOrder?.retirements, 'RETIREMENTS');
+    if (!equal(policy.declaredCounts, { boundaryAuthorizations: policy.decisionOrder.boundaryAuthorizations.length, allocations: policy.decisionOrder.allocations.length, retirements: policy.decisionOrder.retirements.length })
+        || policy.unlistedChangesPolicy !== 'REFUSE'
+        || policy.supersedesPolicySha256 !== APPROVED_BOUNDARY_POLICY_SHA256
+        || policy.tokenization?.act3Translation !== 'lexical-token-offset-to-whitespace-span-intersection/1.0.0') fail('ACTIVATION_REFRESHED_BOUNDARY_DECISION_SET_INVALID:COUNTS');
+    for (const item of policy.allocations) {
+      const beatKey = `${item.actKey}:${item.beatId}`;
+      if (!Number.isSafeInteger(item.startTokenIndex) || !Number.isSafeInteger(item.endTokenIndex) || item.startTokenIndex < 0 || item.endTokenIndex < item.startTokenIndex
+          || !item.whitespaceRange || item.whitespaceRange.start !== item.startTokenIndex || item.whitespaceRange.end !== item.endTokenIndex
+          || item.whitespaceRange.indexConvention !== 'zero-based-inclusive-whitespace-token') fail(`ACTIVATION_REFRESHED_BOUNDARY_RANGE_MISMATCH:${beatKey}`);
+      if (item.actKey === 'act3') {
+        let translated;
+        try { translated = deriveRefreshedWhitespaceRange({ scriptText: script?.acts?.act3?.voScript, lexicalRange: item.lexicalRange, expectedExcerpt: item.excerpt }); }
+        catch (error) { fail(`ACTIVATION_REFRESHED_BOUNDARY_LEXICAL_TRANSLATION_MISMATCH:${beatKey}:${error.message}`); }
+        if (translated.start !== item.startTokenIndex || translated.end !== item.endTokenIndex || translated.excerpt !== item.excerpt) fail(`ACTIVATION_REFRESHED_BOUNDARY_LEXICAL_TRANSLATION_MISMATCH:${beatKey}`);
+      }
+    }
+    const expected = new Map(policy.allocations.map(item => [`${item.actKey}:${item.beatId}`, item]));
+    const retired = new Map(policy.retirements.map(item => [`${item.actKey}:${item.beatId}`, item]));
+    const lineageEntries = [...policy.allocations.map(item => [item.revisionLineageEntry, `approved-range:${item.actKey}:${item.beatId}`]), ...policy.retirements.map(item => [item.revisionLineageEntry, `approved-retirement:${item.actKey}:${item.beatId}`])];
+    if (lineageEntries.some(([actual, expectedEntry]) => actual !== expectedEntry && !(actual === `phase2.3b-b017-factual-correction/1.0.0:${expectedEntry.split(':').at(-1)}` && expectedEntry.startsWith('approved-range:act3:'))) || new Set(lineageEntries.map(([actual]) => actual)).size !== lineageEntries.length) fail('ACTIVATION_APPROVED_BOUNDARY_LINEAGE_ENTRY_INVALID');
+    for (const [key, item] of expected) {
+      const tokens = String(script?.acts?.[item.actKey]?.voScript || '').trim().split(/\s+/u);
+      if (tokens.slice(item.startTokenIndex, item.endTokenIndex + 1).join(' ') !== item.excerpt) fail(`ACTIVATION_APPROVED_BOUNDARY_RANGE_MISMATCH:${key}`);
+    }
+    if (!retired.has('act3b:ACT3B_B010') || expected.has('act3b:ACT3B_B010')) fail('ACTIVATION_REFRESHED_BOUNDARY_RETIREMENT_INVALID');
+    return { verified: true, policySha256: receivedHash, supersedesPolicySha256: policy.supersedesPolicySha256, allocations: [...expected.values()], retirements: [...retired.values()], boundaryAuthorizations: deepFreeze(deepClone(policy.boundaryAuthorizations)), byBeat: expected, retiredByBeat: retired, refreshedPolicy: true };
+  }
   if (policy?.schemaVersion !== 'phase2.3b-p-approved-boundary-ranges/1.1.0'
       || policy.scriptSha256 !== scriptSha256
       || scriptSha256 !== '319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955'
@@ -342,20 +462,130 @@ function normalizeTimingAnchor(value) {
   return String(value ?? '').normalize('NFKC').toLocaleLowerCase('en-US').replace(/[^\p{L}\p{N}]/gu, '');
 }
 
-function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindings, plan, script, shotDefinitions, productionManifest, approvedBoundaryPolicy, wordTimestamps, expectedPolicySha256 = APPROVED_TIMING_EXCEPTION_POLICY_SHA256 } = {}) {
+function refreshedTimingOwnerProjection(shotDefinitions, productionManifest) {
+  return REFRESHED_TIMING_OWNER_KEYS.map(key => {
+    const [actKey, beatId] = key.split(':');
+    const canonical = (shotDefinitions?.allShots || []).filter(shot => shot?.actKey === actKey && shot?.beatId === beatId && shot?.shotId === beatId);
+    const mirrors = (shotDefinitions?.acts?.[actKey] || []).filter(shot => shot?.actKey === actKey && shot?.beatId === beatId && shot?.shotId === beatId);
+    const records = (productionManifest?.shots || []).filter(shot => shot?.actKey === actKey && shot?.shotId === beatId);
+    if (canonical.length !== 1 || mirrors.length !== 1 || records.length !== 1) throw new Error(`ACTIVATION_REFRESHED_TIMING_OWNER_SCOPE_INVALID:${key}`);
+    return { actKey, beatId, canonical: canonical[0], mirror: mirrors[0], manifest: records[0] };
+  });
+}
+
+function verifyRefreshedTimingRevisionLineage({ policy, lineageEvidence, script, scriptSha256, shotDefinitions, productionManifest, actualBindings } = {}) {
+  const fail = code => { throw new Error(code); };
+  const proof = policy?.revisionLineage;
+  if (!lineageEvidence || !Buffer.isBuffer(lineageEvidence.parentAmendmentBytes)
+      || !Buffer.isBuffer(lineageEvidence.childAmendmentBytes)
+      || !Buffer.isBuffer(lineageEvidence.parentScriptBytes)
+      || !Buffer.isBuffer(lineageEvidence.parentShotDefinitionsBytes)
+      || !Buffer.isBuffer(lineageEvidence.parentProductionManifestBytes)
+      || !Array.isArray(lineageEvidence.revisionChainBytes) || lineageEvidence.revisionChainBytes.length !== 3
+      || !Array.isArray(lineageEvidence.revisionChain) || lineageEvidence.revisionChain.length !== 3) fail('ACTIVATION_REFRESHED_TIMING_REVISION_LINEAGE_MISSING');
+  const hashes = {
+    parentAmendmentSha256: sha256(lineageEvidence.parentAmendmentBytes),
+    childAmendmentSha256: sha256(lineageEvidence.childAmendmentBytes),
+    parentScriptSha256: sha256(lineageEvidence.parentScriptBytes),
+    currentScriptSha256: scriptSha256,
+    parentShotDefinitionsSha256: sha256(lineageEvidence.parentShotDefinitionsBytes),
+    currentShotDefinitionsSha256: actualBindings?.candidateShotDefinitionsSha256,
+    parentProductionManifestSha256: sha256(lineageEvidence.parentProductionManifestBytes),
+    currentProductionManifestSha256: actualBindings?.candidateProductionManifestSha256,
+    revisionChainFileSha256s: lineageEvidence.revisionChainBytes.map(sha256),
+  };
+  if (hashes.parentAmendmentSha256 !== REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256
+      || hashes.childAmendmentSha256 !== REFRESHED_B017_AMENDMENT_SHA256
+      || hashes.parentScriptSha256 !== '319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955'
+      || hashes.currentScriptSha256 !== REFRESHED_BOUNDARY_POLICY_BINDINGS.candidateScriptSha256
+      || hashes.parentShotDefinitionsSha256 !== '6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b'
+      || hashes.currentShotDefinitionsSha256 !== '0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1'
+      || hashes.parentProductionManifestSha256 !== '9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed'
+      || hashes.currentProductionManifestSha256 !== '364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe'
+      || !equal(hashes.revisionChainFileSha256s, REFRESHED_REVISION_CHAIN_FILE_SHA256S)) fail('ACTIVATION_REFRESHED_TIMING_REVISION_LINEAGE_HASH_MISMATCH');
+  let amendment, parentScript, parentShots, parentManifest;
+  try {
+    amendment = JSON.parse(lineageEvidence.childAmendmentBytes.toString('utf8'));
+    parentScript = JSON.parse(lineageEvidence.parentScriptBytes.toString('utf8'));
+    parentShots = JSON.parse(lineageEvidence.parentShotDefinitionsBytes.toString('utf8'));
+    parentManifest = JSON.parse(lineageEvidence.parentProductionManifestBytes.toString('utf8'));
+  } catch (_) { fail('ACTIVATION_REFRESHED_TIMING_REVISION_LINEAGE_JSON_INVALID'); }
+  const expectedAmendmentBindings = {
+    parentCandidateScriptSha256: hashes.parentScriptSha256,
+    candidateScriptSha256: hashes.currentScriptSha256,
+    sourceEditPlanParentSha256: 'a15f99e70788343569a9620695923e94374f8c12986fcffc21e143d290a7a03a',
+    sourceEditPlanSha256: '94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504',
+    parentShotDefinitionsSha256: hashes.parentShotDefinitionsSha256,
+    shotDefinitionsSha256: hashes.currentShotDefinitionsSha256,
+    parentProductionManifestSha256: hashes.parentProductionManifestSha256,
+    productionManifestSha256: hashes.currentProductionManifestSha256,
+    evidenceMatrixSha256: 'bc255ed7b49a3e1898f574936f0b65cecb20a8f8753c7dbde88be14d779cc841',
+    evidenceManifestSha256: 'aa13ec374430ee86d7438d9ba6202755dcb1f7c483603e8bd18f01e9227f6ef8',
+    sourceRightsLogSha256: '127a2e65245749102f71b9cf526f4f863fd44e1b39d88f8f269e9cf2982e6cef',
+    assetSha256: '9ffceab6cffe4419e12a7f10e7f6b475d780337296aaf654aaa0eef62140b1ca',
+    lineageLedgerSha256: hashes.revisionChainFileSha256s[2],
+    existingBoundaryPolicySha256: 'fb4f0a80ebe3ab4bded1f4786defc57b6348e485d79cfd6c2396e6f700829b98',
+    existingTimingPolicySha256: APPROVED_TIMING_EXCEPTION_POLICY_SHA256,
+    retainedTranscriptSha256: '238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1',
+    reviewedAlignmentStatus: 'STALE_FOR_ACT3_NARRATION',
+    approvalPolicyStatus: 'EVIDENCE_PENDING_HUMAN_APPROVAL',
+    sourceEditPlanFingerprint: '6961a94a032a2f40450e90582788a781dac7f17a6ac0c5cebb8a5ce0dadbd748',
+    candidatePackagePath: 'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-b017-candidate',
+  };
+  if (amendment?.schemaVersion !== 'phase2.3b-b017-factual-correction/1.0.0'
+      || !equal(amendment.bindings, expectedAmendmentBindings)
+      || !equal(amendment.affectedBeats?.map(item => item.beatId), REFRESHED_B017_CHANGED_BEATS)
+      || amendment.replacement?.before !== 'One whistleblower described watching a colleague open 24 accounts in a single day for customers who had never set foot in the branch.'
+      || amendment.replacement?.after !== 'The board’s investigation found a branch manager’s teenage daughter had 24 accounts, an adult daughter had 18, and the manager’s spouse had 21.') fail('ACTIVATION_REFRESHED_TIMING_B017_AMENDMENT_SCOPE_INVALID');
+  const rebuiltScript = deepClone(parentScript);
+  const originalAct3 = String(rebuiltScript?.acts?.act3?.voScript || '');
+  if (!originalAct3 || originalAct3.split(amendment.replacement.before).length !== 2) fail('ACTIVATION_REFRESHED_TIMING_B017_SCRIPT_PARENT_AMBIGUOUS');
+  rebuiltScript.acts.act3.voScript = originalAct3.replace(amendment.replacement.before, amendment.replacement.after);
+  if (sha256(Buffer.from(`${JSON.stringify(rebuiltScript, null, 2)}\n`, 'utf8')) !== hashes.currentScriptSha256
+      || sha256(Buffer.from(`${JSON.stringify(script, null, 2)}\n`, 'utf8')) !== hashes.currentScriptSha256) fail('ACTIVATION_REFRESHED_TIMING_B017_SCRIPT_TRANSFORM_MISMATCH');
+  const revisionModule = require('./revision-lineage.cjs');
+  const revision = revisionModule.validateRevisionChain({ shotDefs: shotDefinitions, revisionChain: lineageEvidence.revisionChain });
+  if (revision.status !== 'PASS' || revision.errors.length || revision.reconstructedParentHashes.at(-1) !== hashes.parentShotDefinitionsSha256) fail('ACTIVATION_REFRESHED_TIMING_REVISION_CHAIN_INVALID');
+  const parentScope = refreshedTimingOwnerProjection(parentShots, parentManifest);
+  const currentScope = refreshedTimingOwnerProjection(shotDefinitions, productionManifest);
+  if (!equal(parentScope, currentScope)) fail('ACTIVATION_REFRESHED_TIMING_OWNER_SCOPE_CHANGED');
+  const preservedTimingScopeSha256 = canonicalJsonSha256(currentScope);
+  const expectedProof = {
+    schemaVersion: 'phase2.3b-p-timing-revision-lineage-proof/1.0.0',
+    approvalProvenanceAmendmentSha256: hashes.parentAmendmentSha256,
+    currentCandidateAmendmentSha256: hashes.childAmendmentSha256,
+    revisionChainFileSha256s: hashes.revisionChainFileSha256s,
+    parentCandidateScriptSha256: hashes.parentScriptSha256,
+    currentCandidateScriptSha256: hashes.currentScriptSha256,
+    parentShotDefinitionsSha256: hashes.parentShotDefinitionsSha256,
+    currentShotDefinitionsSha256: hashes.currentShotDefinitionsSha256,
+    reconstructedParentShotDefinitionsSha256: revision.reconstructedParentHashes.at(-1),
+    parentProductionManifestSha256: hashes.parentProductionManifestSha256,
+    currentProductionManifestSha256: hashes.currentProductionManifestSha256,
+    changedBeatIds: [...REFRESHED_B017_CHANGED_BEATS],
+    preservedTimingOwnerKeys: [...REFRESHED_TIMING_OWNER_KEYS],
+    preservedTimingScopeSha256,
+  };
+  if (!equal(proof, expectedProof)) fail('ACTIVATION_REFRESHED_TIMING_REVISION_PROOF_MISMATCH');
+  return expectedProof;
+}
+
+function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindings, actualRefreshBindings, plan, script, shotDefinitions, productionManifest, approvedBoundaryPolicy, wordTimestamps, lineageEvidence, expectedPolicySha256 = APPROVED_TIMING_EXCEPTION_POLICY_SHA256 } = {}) {
   if (!Buffer.isBuffer(policyBytes)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_HASH_MISMATCH');
   const canonicalBytes = Buffer.from(policyBytes.toString('utf8').replace(/\r\n/gu, '\n'), 'utf8');
-  if (expectedPolicySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256 || sha256(canonicalBytes) !== expectedPolicySha256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_HASH_MISMATCH');
+  if (![APPROVED_TIMING_EXCEPTION_POLICY_SHA256, REFRESHED_TIMING_EXCEPTION_POLICY_SHA256].includes(expectedPolicySha256)
+      || sha256(canonicalBytes) !== expectedPolicySha256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_HASH_MISMATCH');
+  const refreshed = expectedPolicySha256 === REFRESHED_TIMING_EXCEPTION_POLICY_SHA256;
   let parsed;
   try { parsed = JSON.parse(canonicalBytes.toString('utf8')); } catch (_) { throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_JSON_INVALID'); }
   if (!equal(policy, parsed)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_OBJECT_MISMATCH');
-  if (policy?.schemaVersion !== 'phase2.3b-p-approved-timing-exceptions/3.0.0' || policy.status !== 'USER_APPROVED'
+  if (policy?.schemaVersion !== (refreshed ? 'phase2.3b-p-approved-timing-exceptions/5.0.0' : 'phase2.3b-p-approved-timing-exceptions/3.0.0') || policy.status !== 'USER_APPROVED'
       || !policy.approval || typeof policy.approval.approvedBy !== 'string' || !policy.approval.approvedBy.trim()
       || typeof policy.approval.approvalRef !== 'string' || !policy.approval.approvalRef.trim()
       || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/u.test(policy.approval.recordedDate || '')
       || policy.runId !== actualBindings?.runId || policy.episodeId !== actualBindings?.episodeId
       || policy.channelKey !== actualBindings?.channelKey || !plan || !script || !shotDefinitions || !productionManifest
-      || approvedBoundaryPolicy?.verified !== true || approvedBoundaryPolicy.policySha256 !== APPROVED_BOUNDARY_POLICY_SHA256) {
+      || approvedBoundaryPolicy?.verified !== true || approvedBoundaryPolicy.policySha256 !== (refreshed ? REFRESHED_BOUNDARY_POLICY_SHA256 : APPROVED_BOUNDARY_POLICY_SHA256)) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_APPROVAL_INVALID');
   }
   const requiredBindings = [
@@ -368,17 +598,49 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
       || !equal(Object.keys(actualBindings || {}).sort(), [...requiredBindings].sort())
       || !equal(policy.binding, actualBindings)
       || requiredBindings.filter(key => key.endsWith('Sha256')).some(key => !/^[a-f0-9]{64}$/u.test(policy.binding[key] || ''))
-      || policy.binding.approvedBoundaryPolicySha256 !== APPROVED_BOUNDARY_POLICY_SHA256) {
+      || policy.binding.approvedBoundaryPolicySha256 !== (refreshed ? REFRESHED_BOUNDARY_POLICY_SHA256 : APPROVED_BOUNDARY_POLICY_SHA256)) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_BINDING_MISMATCH');
   }
+  if (refreshed) {
+    const expectedRefreshBindings = {
+      packageIndexSha256: '4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0',
+      proposalSha256: '7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a',
+      alignmentApprovalSha256: '32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42',
+      boundaryApprovalSha256: '29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f',
+      boundaryPolicySha256: REFRESHED_BOUNDARY_POLICY_SHA256,
+      timestampsSha256: 'e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0',
+      audioManifestSha256: '1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d',
+      evidenceApprovalSha256: 'c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2',
+      requestLedgerSha256: 'c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf',
+      timingApprovalRecordSha256: 'fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1',
+    };
+    const approval = policy.approval || {};
+    if (!equal(policy.refreshBindings, expectedRefreshBindings)
+        || !equal(actualRefreshBindings, expectedRefreshBindings)
+        || policy.approvalProvenanceAmendmentSha256 !== REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256
+        || policy.currentCandidateAmendmentSha256 !== REFRESHED_B017_AMENDMENT_SHA256
+        || policy.proposalSha256 !== expectedRefreshBindings.proposalSha256
+        || policy.packageIndexSha256 !== expectedRefreshBindings.packageIndexSha256
+        || policy.formalExceptionCount !== 9 || policy.editorialIntentMigrationCount !== 5
+        || !equal(policy.excludedFormalExceptionIds, ['act3:ACT3_B025'])
+        || approval.proposalSha256 !== expectedRefreshBindings.proposalSha256
+        || !/^[a-f0-9]{64}$/u.test(approval.approvalRecordSha256 || '')
+        || approval.approvedBy !== 'Yakubu Moshood'
+        || approval.approvalRef !== 'phase2.3b-act3-refresh-timing-2026-09-28'
+        || approval.decision !== 'APPROVED') throw new Error('ACTIVATION_REFRESHED_TIMING_APPROVAL_BINDING_MISMATCH');
+  }
+  const refreshedLineageProof = refreshed ? verifyRefreshedTimingRevisionLineage({
+    policy, lineageEvidence, script, scriptSha256: actualBindings.candidateScriptSha256,
+    shotDefinitions, productionManifest, actualBindings,
+  }) : null;
   if (policy.tokenization?.sourcePlan !== 'edit-plan-schema/3.0.0-inclusive-word-indices'
       || policy.tokenization?.candidateScript !== 'js-trim-split-whitespace/1.0.0'
       || policy.tokenization?.retainedTranscript !== 'word-timestamps-array/zero-based-inclusive/1.0.0'
       || policy.tokenization?.timingBoundary !== 'next-word-start-or-act-terminal-boundary/1.0.0'
-      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== 10) {
+      || !Array.isArray(policy.exceptions) || policy.exceptions.length !== (refreshed ? 9 : 10)) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_CONTRACT_INVALID');
   }
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'];
+  const expectedOwners = refreshed ? REFRESHED_TIMING_EXCEPTION_OWNERS : OLD_TIMING_EXCEPTION_OWNERS;
   if (!equal(policy.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), [...expectedOwners].sort())) throw new Error('ACTIVATION_TIMING_EXCEPTION_SET_INVALID');
   const remediation = policy.resumeEligibility;
   const expectedRemediationKeys = ['failureError','completedActs','attemptsByAct','alignmentApprovalExceptionCount','expectedBoundaryCounts','expectedActiveBeatCounts','expectedTotalDurationSec','totalDurationToleranceSec'];
@@ -386,11 +648,11 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
       || typeof remediation.failureError !== 'string' || !remediation.failureError
       || !equal(remediation.completedActs, ['act1','act2','act3','act3b','act4','act5'])
       || !equal(remediation.attemptsByAct, { act1: 1, act2: 1, act3: 1, act3b: 1, act4: 2, act5: 1 })
-      || remediation.alignmentApprovalExceptionCount !== 19
+      || remediation.alignmentApprovalExceptionCount !== (refreshed ? 18 : 19)
       || !equal(remediation.expectedBoundaryCounts, { act1: 60, act2: 52, act3: 58, act3b: 34, act4: 48, act5: 54 })
       || !equal(remediation.expectedActiveBeatCounts, { act1: 30, act2: 26, act3: 29, act3b: 17, act4: 24, act5: 27 })
       || remediation.failureError !== 'EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT'
-      || Math.abs(remediation.expectedTotalDurationSec - 629.054693) > 1e-9
+      || Math.abs(remediation.expectedTotalDurationSec - (refreshed ? 633.782449 : 629.054693)) > 1e-9
       || Math.abs(remediation.totalDurationToleranceSec - 0.001) > 1e-12) throw new Error('ACTIVATION_TIMING_REMEDIATION_CONTRACT_INVALID');
   const allPlanBeats = plan.sequences.flatMap(sequence => Array.isArray(sequence.beats) ? sequence.beats : []);
   const allShots = Array.isArray(shotDefinitions.allShots) ? shotDefinitions.allShots : [];
@@ -402,6 +664,7 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
         || seenIds.has(item.exceptionId) || seenOwners.has(key)) throw new Error('ACTIVATION_TIMING_EXCEPTION_DUPLICATE_OR_INVALID');
     seenIds.add(item.exceptionId); seenOwners.add(key);
     const expectedKeys = ['exceptionId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','approvedDurationSec','minimumAllowedDurationSec','maximumAllowedDurationSec','priorTimingExceptionReason','justification','productionMethod','productionObligations','productionObligationsSha256','revisionLineage','inputHashes'];
+    if (refreshed) expectedKeys.push('approvalProvenanceAmendmentSha256','currentCandidateAmendmentSha256','revisionLineageProof','currentTimingBinding');
     const mappedTranscriptFields = ['mappedTranscriptNarrationExcerpt','mappedTranscriptNarrationSha256'];
     const hasMappedTranscriptNarration = mappedTranscriptFields.some(field => Object.hasOwn(item, field));
     if (hasMappedTranscriptNarration) expectedKeys.push(...mappedTranscriptFields);
@@ -419,10 +682,29 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
         || !/^[a-f0-9]{64}$/u.test(item.approvedNarrationSha256 || '') || !/^[a-f0-9]{64}$/u.test(item.sourcePlanNarrationSha256 || '')
         || !/^[a-f0-9]{64}$/u.test(item.productionObligationsSha256 || '')
         || !equal(item.inputHashes, policy.binding)
-        || !item.revisionLineage || item.revisionLineage.artifactSha256 !== policy.binding.candidateAmendmentSha256
+        || !item.revisionLineage || item.revisionLineage.artifactSha256 !== (refreshed ? REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256 : policy.binding.candidateAmendmentSha256)
         || typeof item.revisionLineage.entryId !== 'string' || !item.revisionLineage.entryId
         || !['approved-rewritten-range','retained-approved-plan-beat'].includes(item.revisionLineage.relationship)) {
       throw new Error(`ACTIVATION_TIMING_EXCEPTION_ENTRY_INVALID:${key}`);
+    }
+    if (refreshed) {
+      const expectedCurrentTimingBinding = {
+        packageIndexSha256: policy.refreshBindings.packageIndexSha256,
+        transcriptSha256: policy.refreshBindings.timestampsSha256,
+        audioManifestSha256: policy.refreshBindings.audioManifestSha256,
+        alignmentApprovalSha256: policy.refreshBindings.alignmentApprovalSha256,
+        boundaryApprovalSha256: policy.refreshBindings.boundaryApprovalSha256,
+        timingProposalSha256: policy.refreshBindings.proposalSha256,
+        timingApprovalRecordSha256: policy.approval.approvalRecordSha256,
+        approvedDurationSec: item.approvedDurationSec,
+        mappedTranscriptWordRange: item.mappedTranscriptWordRange,
+        mappedTranscriptAnchors: item.mappedTranscriptAnchors,
+      };
+      if (item.approvalProvenanceAmendmentSha256 !== REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256
+          || item.currentCandidateAmendmentSha256 !== REFRESHED_B017_AMENDMENT_SHA256
+          || item.currentCandidateAmendmentSha256 !== policy.binding.candidateAmendmentSha256
+          || !equal(item.revisionLineageProof, refreshedLineageProof)
+          || !equal(item.currentTimingBinding, expectedCurrentTimingBinding)) throw new Error(`ACTIVATION_REFRESHED_TIMING_ENTRY_PROVENANCE_MISMATCH:${key}`);
     }
     const sourceMatches = allPlanBeats.filter(beat => beat.beatId === item.beatId && beat.actKey === item.actKey);
     if (sourceMatches.length !== 1 || sourceMatches[0].startWordIndex !== item.sourcePlanWordRange.start || sourceMatches[0].endWordIndex !== item.sourcePlanWordRange.end
@@ -470,6 +752,7 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
   for (const item of migrations.entries) {
     const key = `${item.actKey}:${item.beatId}`;
     const expectedKeys = ['migrationId','actKey','beatId','sourcePlanWordRange','candidateScriptWordRange','approvedNarrationExcerpt','approvedNarrationSha256','sourcePlanNarrationExcerpt','sourcePlanNarrationSha256','mappedTranscriptWordRange','mappedTranscriptAnchors','mappedTranscriptNarrationExcerpt','mappedTranscriptNarrationSha256','approvedDurationSec','existingTimingExceptionReason','postNarrationHoldSec','intentionalStillness','rhythmIntent','productionMethod','visualClass','productionObligations','productionObligationsSha256','revisionLineage','inputHashes'];
+    if (refreshed) expectedKeys.push('approvalProvenanceAmendmentSha256','currentCandidateAmendmentSha256','revisionLineageProof','currentTimingBinding');
     const validRange = (range, convention) => range && equal(Object.keys(range).sort(), ['end','indexConvention','start'].sort())
       && Number.isSafeInteger(range.start) && Number.isSafeInteger(range.end) && range.start >= 0 && range.end >= range.start && range.indexConvention === convention;
     if (!item || typeof item.migrationId !== 'string' || migrationIds.has(item.migrationId) || !equal(Object.keys(item).sort(), expectedKeys.sort())
@@ -486,9 +769,28 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
         || !equal(item.candidateScriptWordRange, { ...item.candidateScriptWordRange, indexConvention: 'zero-based-inclusive-whitespace-token' })
         || !equal(item.mappedTranscriptWordRange, { ...item.mappedTranscriptWordRange, indexConvention: 'zero-based-inclusive-act-local-retained-transcript-word' })
         || !item.mappedTranscriptAnchors?.start || !item.mappedTranscriptAnchors?.end
-        || item.revisionLineage?.artifactSha256 !== policy.binding.candidateAmendmentSha256
+        || item.revisionLineage?.artifactSha256 !== (refreshed ? REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256 : policy.binding.candidateAmendmentSha256)
         || item.revisionLineage?.entryId !== `locked-plan:${item.actKey}:${item.beatId}` || item.revisionLineage?.relationship !== 'retained-approved-plan-beat') {
       throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_ENTRY_INVALID:${key}`);
+    }
+    if (refreshed) {
+      const expectedCurrentTimingBinding = {
+        packageIndexSha256: policy.refreshBindings.packageIndexSha256,
+        transcriptSha256: policy.refreshBindings.timestampsSha256,
+        audioManifestSha256: policy.refreshBindings.audioManifestSha256,
+        alignmentApprovalSha256: policy.refreshBindings.alignmentApprovalSha256,
+        boundaryApprovalSha256: policy.refreshBindings.boundaryApprovalSha256,
+        timingProposalSha256: policy.refreshBindings.proposalSha256,
+        timingApprovalRecordSha256: policy.approval.approvalRecordSha256,
+        approvedDurationSec: item.approvedDurationSec,
+        mappedTranscriptWordRange: item.mappedTranscriptWordRange,
+        mappedTranscriptAnchors: item.mappedTranscriptAnchors,
+      };
+      if (item.approvalProvenanceAmendmentSha256 !== REFRESHED_ORIGINAL_TIMING_AMENDMENT_SHA256
+          || item.currentCandidateAmendmentSha256 !== REFRESHED_B017_AMENDMENT_SHA256
+          || item.currentCandidateAmendmentSha256 !== policy.binding.candidateAmendmentSha256
+          || !equal(item.revisionLineageProof, refreshedLineageProof)
+          || !equal(item.currentTimingBinding, expectedCurrentTimingBinding)) throw new Error(`ACTIVATION_REFRESHED_TIMING_MIGRATION_PROVENANCE_MISMATCH:${key}`);
     }
     migrationIds.add(item.migrationId);
     const sourceMatches = allPlanBeats.filter(beat => beat.actKey === item.actKey && beat.beatId === item.beatId);
@@ -521,16 +823,21 @@ function verifyApprovedTimingExceptionPolicy({ policy, policyBytes, actualBindin
 
 function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = {}) {
   if (!approvedTimingExceptions) return { status: 'NOT_REQUESTED', entries: [] };
-  if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'].sort();
+  if (!isVerifiedTimingExceptionPolicy(approvedTimingExceptions)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
+  const expectedOwners = [...timingExceptionOwnersFor(approvedTimingExceptions.policySha256)].sort();
   if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const beats = plan.sequences.flatMap(sequence => Array.isArray(sequence.beats) ? sequence.beats : []);
   const owners = new Map(beats.map(beat => [`${beat.actKey}:${beat.beatId}`, beat]));
   if (owners.size !== beats.length) throw new Error('ACTIVATION_TIMING_EXCEPTION_PLAN_DUPLICATE_BEAT');
   const approved = approvedTimingExceptions.exceptions;
   const migrations = approvedTimingExceptions.editorialIntentMigrations?.entries || [];
-  if (migrations.length !== 5) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const excludedIds = approvedTimingExceptions.excludedFormalExceptionIds || [];
+  if (migrations.length !== 5 || !Array.isArray(excludedIds)
+      || (approvedTimingExceptions.policySha256 === REFRESHED_TIMING_EXCEPTION_POLICY_SHA256
+        ? !equal(excludedIds, ['act3:ACT3_B025']) : excludedIds.length !== 0)) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const excluded = new Set(excludedIds);
   const allowed = new Set([...approved, ...migrations].map(item => `${item.actKey}:${item.beatId}`));
+  for (const key of excluded) allowed.add(key);
   for (const beat of beats) {
     const key = `${beat.actKey}:${beat.beatId}`;
     if (typeof beat.timingExceptionReason === 'string' && beat.timingExceptionReason.trim() && !allowed.has(key)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_UNAPPROVED:${key}`);
@@ -553,17 +860,41 @@ function verifyTimingExceptionApplications({ plan, approvedTimingExceptions } = 
         || beat.rhythmIntent !== item.rhythmIntent || beat.visualClass !== item.visualClass) throw new Error(`ACTIVATION_EDITORIAL_INTENT_MIGRATION_APPLICATION_MISMATCH:${key}`);
     return { migrationId: item.migrationId, actKey: item.actKey, beatId: item.beatId, status: 'VERIFIED', durationSec: beat.durationSec, postNarrationHoldSec: beat.postNarrationHoldSec ?? 0, intentionalStillness: beat.intentionalStillness === true, rhythmIntent: beat.rhythmIntent, productionMethod: item.productionMethod, productionObligationsSha256: item.productionObligationsSha256 };
   });
-  return { status: 'PASS', policySha256: approvedTimingExceptions.policySha256, entries, editorialIntentMigrations: migrationResults };
+  const exclusionResults = [...excluded].map(key => {
+    const beat = owners.get(key);
+    if (!beat || beat.timingExceptionReason !== null || !Number.isFinite(beat.durationSec)
+        || beat.durationSec < 2 || beat.durationSec > 6) throw new Error(`ACTIVATION_TIMING_EXCEPTION_EXCLUSION_APPLICATION_MISMATCH:${key}`);
+    return { actKey: beat.actKey, beatId: beat.beatId, status: 'VERIFIED_NON_EXCEPTION', durationSec: beat.durationSec,
+      intentionalStillness: beat.intentionalStillness === true, rhythmIntent: beat.rhythmIntent };
+  });
+  return { status: 'PASS', policySha256: approvedTimingExceptions.policySha256, entries, editorialIntentMigrations: migrationResults,
+    excludedFormalExceptionClosures: exclusionResults };
 }
 
 function applyApprovedTimingExceptions(plan, approvedTimingExceptions) {
   if (!approvedTimingExceptions) return plan;
-  if (approvedTimingExceptions.verified !== true || approvedTimingExceptions.policySha256 !== APPROVED_TIMING_EXCEPTION_POLICY_SHA256) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
-  const expectedOwners = ['act1:ACT1_B030','act2:ACT2_B006','act2:ACT2_B023','act3:ACT3_B004','act3:ACT3_B025','act3b:ACT3B_B008','act3b:ACT3B_B012','act4:ACT4_B022','act4:ACT4_B024','act5:ACT5_B012'].sort();
+  if (!isVerifiedTimingExceptionPolicy(approvedTimingExceptions)) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
+  const expectedOwners = [...timingExceptionOwnersFor(approvedTimingExceptions.policySha256)].sort();
   if (!Array.isArray(approvedTimingExceptions.exceptions) || !equal(approvedTimingExceptions.exceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), expectedOwners)) throw new Error('ACTIVATION_TIMING_EXCEPTION_APPROVED_SET_INVALID');
   const entries = new Map(approvedTimingExceptions.exceptions.map(item => [`${item.actKey}:${item.beatId}`, item]));
   const migrations = approvedTimingExceptions.editorialIntentMigrations?.entries || [];
   if (migrations.length !== 5) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
+  const excludedIds = approvedTimingExceptions.excludedFormalExceptionIds || [];
+  if (!Array.isArray(excludedIds) || (approvedTimingExceptions.policySha256 === REFRESHED_TIMING_EXCEPTION_POLICY_SHA256
+      ? !equal(excludedIds, ['act3:ACT3_B025']) : excludedIds.length !== 0)) throw new Error('ACTIVATION_TIMING_EXCEPTION_EXCLUSION_SET_INVALID');
+  const excluded = new Set(excludedIds);
+  for (const sequence of plan.sequences) for (const beat of sequence.beats) {
+    const key = `${beat.actKey}:${beat.beatId}`;
+    if (!excluded.has(key)) continue;
+    if (!Number.isFinite(beat.durationSec) || beat.durationSec < 2 || beat.durationSec > 6
+        || typeof beat.timingExceptionReason !== 'string' || !beat.timingExceptionReason.trim()) {
+      throw new Error(`ACTIVATION_TIMING_EXCEPTION_EXCLUSION_SCOPE_MISMATCH:${key}`);
+    }
+    beat.timingExceptionReason = null;
+  }
+  if ([...excluded].some(key => plan.sequences.flatMap(sequence => sequence.beats).filter(beat => `${beat.actKey}:${beat.beatId}` === key).length !== 1)) {
+    throw new Error('ACTIVATION_TIMING_EXCEPTION_EXCLUSION_BEAT_MISSING_OR_DUPLICATE');
+  }
   const migrationOwners = new Set(migrations.map(item => `${item.actKey}:${item.beatId}`));
   for (const sequence of plan.sequences) for (const beat of sequence.beats) {
     const key = `${beat.actKey}:${beat.beatId}`, item = entries.get(key);
@@ -709,7 +1040,19 @@ function verifyPolicyBoundaryAuthorization({ authorization, source, scriptText, 
 }
 
 function mapActBoundaryMappings({ source, scriptText, words, reviewedAct, actKey, approvedBoundaryPolicy, boundaryInputHashes }) {
-  if (approvedBoundaryPolicy && (approvedBoundaryPolicy.verified !== true || approvedBoundaryPolicy.policySha256 !== APPROVED_BOUNDARY_POLICY_SHA256)) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_UNVERIFIED');
+  if (approvedBoundaryPolicy && (approvedBoundaryPolicy.verified !== true || ![APPROVED_BOUNDARY_POLICY_SHA256, REFRESHED_BOUNDARY_POLICY_SHA256].includes(approvedBoundaryPolicy.policySha256))) throw new Error('ACTIVATION_APPROVED_BOUNDARY_POLICY_UNVERIFIED');
+  if (approvedBoundaryPolicy?.policySha256 === REFRESHED_BOUNDARY_POLICY_SHA256) {
+    const expectedInputs = {
+      lockedEditPlanSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.lockedEditPlanSha256,
+      candidatePreTimingEditPlanSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.candidatePreTimingEditPlanSha256,
+      candidateScriptSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.candidateScriptSha256,
+      retainedTranscriptSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.combinedTranscriptSha256,
+      alignmentProposalSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.alignmentProposalSha256,
+      alignmentApprovalSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.alignmentApprovalSha256,
+      candidateAmendmentSha256: REFRESHED_BOUNDARY_POLICY_BINDINGS.candidateAmendmentSha256,
+    };
+    if (!equal(boundaryInputHashes, expectedInputs)) throw new Error('ACTIVATION_REFRESHED_BOUNDARY_RUNTIME_INPUT_MISMATCH');
+  }
   const retirements = approvedBoundaryPolicy?.retirements.filter(item => item.actKey === actKey) || [];
   const retiredIds = new Set(retirements.map(item => item.beatId));
   const sourceBeats = source.beats.filter(beat => !retiredIds.has(beat.beatId));
@@ -1385,6 +1728,92 @@ async function chooseTimingTranscript({ resumeOnly = false, readExisting, transc
   return transcribe();
 }
 
+function applyApprovedB017AmendmentToPlan({ plan, sourcePlanSha256, amendmentLedgerBytes, approvedTimingExceptions } = {}) {
+  if (!Buffer.isBuffer(amendmentLedgerBytes)
+      || !isVerifiedTimingExceptionPolicy(approvedTimingExceptions)
+      || approvedTimingExceptions.policySha256 !== REFRESHED_TIMING_EXCEPTION_POLICY_SHA256
+      || sourcePlanSha256 !== approvedTimingExceptions.binding?.candidatePreTimingEditPlanSha256
+      || !Array.isArray(plan?.sequences)) throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_BINDING_INVALID');
+  if (sha256(amendmentLedgerBytes) !== REFRESHED_B017_REVISION_LEDGER_SHA256) throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_LEDGER_HASH_MISMATCH');
+  let amendmentLedger;
+  try { amendmentLedger = JSON.parse(amendmentLedgerBytes.toString('utf8')); }
+  catch (_) { throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_LEDGER_INVALID'); }
+  if (!amendmentLedger || typeof amendmentLedger !== 'object' || Array.isArray(amendmentLedger)
+      || amendmentLedger.revisionId !== 'phase2.3b-b017-factual-correction' || !Array.isArray(amendmentLedger.entries)) {
+    throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_LEDGER_INVALID');
+  }
+  const planFingerprint = value => sha256(Buffer.from(JSON.stringify(value), 'utf8'));
+  const result = deepClone(plan);
+  const beats = result.sequences.flatMap(sequence => sequence.beats || []);
+  const sourceBeats = new Map(beats.map(beat => [beat.beatId, beat]));
+  if (sourceBeats.size !== beats.length) throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_BEAT_AMBIGUOUS');
+  const expectedEntries = new Set([
+    'ACT3_B016:endWordIndex', 'ACT3_B016:narrationExcerpt',
+    'ACT3_B017:startWordIndex', 'ACT3_B017:narrationExcerpt', 'ACT3_B017:visualIntent',
+    'ACT3_B017:visual.description', 'ACT3_B017:evidenceRequirement', 'ACT3_B017:sourceSearchInstruction',
+    'ACT3_B018:endWordIndex', 'ACT3_B018:narrationExcerpt', 'ACT3_B018:visualIntent',
+    'ACT3_B018:visual.description', 'ACT3_B018:graphics', 'ACT3_B018:overlaySpecification',
+    'ACT3_B019:startWordIndex', 'ACT3_B019:narrationExcerpt',
+  ]);
+  const seen = new Set();
+  const changes = [];
+  const graphicsAfter = new Map();
+  for (const entry of amendmentLedger.entries) {
+    const key = `${entry.beatId}:${entry.fieldPath}`;
+    if (!expectedEntries.has(key) || seen.has(key) || !['ACT3_B016','ACT3_B017','ACT3_B018','ACT3_B019'].includes(entry.beatId)) {
+      throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_SCOPE_INVALID');
+    }
+    seen.add(key);
+    if (entry.beatId === 'ACT3_B018' && ['graphics','overlaySpecification'].includes(entry.fieldPath)) graphicsAfter.set(entry.fieldPath, entry.afterValue);
+    if (entry.fieldPath === 'sourceSearchInstruction' || entry.fieldPath === 'overlaySpecification'
+        || entry.fieldPath === 'narrationExcerpt') continue;
+    const beat = sourceBeats.get(entry.beatId);
+    const act = result.sequences.find(sequence => (sequence.actKey || sequence.act) === 'act3' && (sequence.beats || []).includes(beat));
+    if (!beat || !act || (entry.fieldPath.includes('.') && entry.fieldPath.split('.').slice(0, -1).reduce((value, field) => value?.[field], beat) === undefined)) {
+      throw new Error(`ACTIVATION_B017_PLAN_AMENDMENT_TARGET_INVALID:${key}`);
+    }
+    const parts = entry.fieldPath.split('.');
+    const parent = parts.slice(0, -1).reduce((value, field) => value[field], beat);
+    const field = parts.at(-1);
+    const beforeValue = deepClone(parent[field]);
+    if (!equal(parent[field], entry.afterValue)) {
+      parent[field] = deepClone(entry.afterValue);
+      changes.push({ beatId: entry.beatId, fieldPath: entry.fieldPath, beforeValue, afterValue: deepClone(entry.afterValue) });
+    }
+  }
+  if (seen.size !== expectedEntries.size || !equal(graphicsAfter.get('graphics'), graphicsAfter.get('overlaySpecification')))
+    throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_ENTRIES_INCOMPLETE');
+  const allowedPlanPaths = new Set([...expectedEntries].filter(key => !key.endsWith(':sourceSearchInstruction')
+    && !key.endsWith(':overlaySpecification') && !key.endsWith(':narrationExcerpt')));
+  const changed = [];
+  for (const [beatId, beat] of sourceBeats) {
+    const original = plan.sequences.flatMap(sequence => sequence.beats || []).find(item => item.beatId === beatId);
+    for (const fieldPath of allowedPlanPaths) {
+      const [owner, ...fieldParts] = fieldPath.split(':');
+      if (owner !== beatId) continue;
+      const get = value => fieldParts[0].split('.').reduce((current, field) => current?.[field], value);
+      if (!equal(get(original), get(beat))) changed.push(`${beatId}:${fieldParts[0]}`);
+    }
+  }
+  if (!equal(changed.sort(), changes.map(item => `${item.beatId}:${item.fieldPath}`).sort())) {
+    throw new Error('ACTIVATION_B017_PLAN_AMENDMENT_UNRECORDED_CHANGE');
+  }
+  return {
+    plan: result,
+    proof: {
+      schemaVersion: 'phase2.3b-b017-plan-amendment-proof/1.0.0',
+      sourcePlanSha256,
+      inputPlanFingerprint: planFingerprint(plan),
+      childAmendmentSha256: REFRESHED_B017_AMENDMENT_SHA256,
+      revisionLedgerSha256: sha256(amendmentLedgerBytes),
+      outputPlanFingerprint: planFingerprint(result),
+      changes,
+      preservedCandidateNarrationExcerpts: true,
+      status: 'PASS',
+    },
+  };
+}
+
 function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revisionId, retiredBeatIds = [], retirementRecords = [], editorialIntentMigrations = null, approvedTimingExceptions = null }) {
   const shotDefs = deepClone(originalShotDefs);
   const retireSet = new Set(retiredBeatIds);
@@ -1399,20 +1828,28 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
   const migrations = editorialIntentMigrations === null ? [] : editorialIntentMigrations?.verified === true ? editorialIntentMigrations.entries : null;
   if (editorialIntentMigrations !== null && (!Array.isArray(migrations) || !equal(migrations.map(item => `${item.actKey}:${item.beatId}`).sort(), migrationOwners))) throw new Error('ACTIVATION_EDITORIAL_INTENT_MIGRATION_SET_INVALID');
   const migrationMap = new Map((migrations || []).map(item => [`${item.actKey}:${item.beatId}`, item]));
-  const timingExceptionOwners = [
-    'act1:ACT1_B030', 'act2:ACT2_B006', 'act2:ACT2_B023', 'act3:ACT3_B004', 'act3:ACT3_B025',
-    'act3b:ACT3B_B008', 'act3b:ACT3B_B012', 'act4:ACT4_B022', 'act4:ACT4_B024', 'act5:ACT5_B012',
-  ];
-  const timingExceptions = approvedTimingExceptions === null ? [] : approvedTimingExceptions?.verified === true
-    && approvedTimingExceptions.policySha256 === APPROVED_TIMING_EXCEPTION_POLICY_SHA256
+  const timingExceptionOwners = approvedTimingExceptions?.policySha256 ? timingExceptionOwnersFor(approvedTimingExceptions.policySha256) : null;
+  const timingExceptions = approvedTimingExceptions === null ? [] : isVerifiedTimingExceptionPolicy(approvedTimingExceptions)
     && Array.isArray(approvedTimingExceptions.exceptions) ? approvedTimingExceptions.exceptions : null;
   if (approvedTimingExceptions !== null && (!timingExceptions
-      || !equal(timingExceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), timingExceptionOwners.sort()))) {
+      || !equal(timingExceptions.map(item => `${item.actKey}:${item.beatId}`).sort(), [...timingExceptionOwners].sort()))) {
     throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_UNVERIFIED');
   }
   const timingExceptionMap = new Map((timingExceptions || []).map(item => [`${item.actKey}:${item.beatId}`, item]));
   if (timingExceptionMap.size !== (timingExceptions || []).length) throw new Error('ACTIVATION_TIMING_EXCEPTION_POLICY_DUPLICATE');
   for (const key of migrationMap.keys()) if (timingExceptionMap.has(key)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_MIGRATION_CONFLICT:${key}`);
+  const excludedFormalExceptionIds = approvedTimingExceptions?.excludedFormalExceptionIds || [];
+  if (!Array.isArray(excludedFormalExceptionIds)
+      || (approvedTimingExceptions?.policySha256 === REFRESHED_TIMING_EXCEPTION_POLICY_SHA256
+        ? !equal(excludedFormalExceptionIds, ['act3:ACT3_B025']) : excludedFormalExceptionIds.length !== 0)) {
+    throw new Error('ACTIVATION_TIMING_EXCEPTION_EXCLUSION_SET_INVALID');
+  }
+  const excludedFormalOwners = new Set(excludedFormalExceptionIds);
+  if (excludedFormalOwners.size !== excludedFormalExceptionIds.length
+      || [...excludedFormalOwners].some(key => migrationMap.has(key) || timingExceptionMap.has(key))) {
+    throw new Error('ACTIVATION_TIMING_EXCEPTION_EXCLUSION_SCOPE_INVALID');
+  }
+  let excludedFormalClosuresApplied = 0;
   if (retireSet.size) {
     const originalShots = shotDefs.allShots;
     for (const beatId of retireSet) {
@@ -1452,6 +1889,34 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
       entries.push({ shotId: shot.shotId, beatId: shot.beatId, mirrorActKey: shot.actKey, fieldPath: 'timingExceptionReason', beforeValue, afterValue: null, reason: 'Remove the exactly approved normal-duration editorial reason from shot metadata; dedicated hold, stillness, and rhythm fields remain intact.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
     }
     if (!beat || shot.sequenceId !== beat.sequenceId || shot.actKey !== beat.actKey) throw new Error(`ACTIVATION_SHOT_IDENTITY_MISMATCH:${shot.shotId}`);
+    const excludedFormalKey = `${shot.actKey}:${shot.beatId}`;
+    if (excludedFormalOwners.has(excludedFormalKey)) {
+      const mirrors = [];
+      for (const [actKey, actShots] of Object.entries(shotDefs.acts || {})) {
+        if (!Array.isArray(actShots)) throw new Error(`ACTIVATION_TIMING_EXCEPTION_EXCLUSION_MIRROR_INVALID:${excludedFormalKey}`);
+        for (const mirror of actShots) if (mirror?.shotId === shot.shotId || mirror?.beatId === shot.beatId) mirrors.push({ actKey, mirror });
+      }
+      const matching = mirrors.filter(item => item.actKey === shot.actKey && item.mirror?.actKey === shot.actKey
+        && item.mirror?.shotId === shot.shotId && item.mirror?.beatId === shot.beatId);
+      if (mirrors.length !== 1 || matching.length !== 1 || !shot.timingExceptionReason
+          || matching[0].mirror.timingExceptionReason !== shot.timingExceptionReason
+          || beat.timingExceptionReason !== null || !Number.isFinite(beat.durationSec)
+          || beat.durationSec < 2 || beat.durationSec > 6
+          || (shot.postNarrationHoldSec ?? 0) !== (beat.postNarrationHoldSec ?? 0)
+          || (shot.intentionalStillness === true) !== (beat.intentionalStillness === true)
+          || shot.rhythmIntent !== beat.rhythmIntent) {
+        throw new Error(`ACTIVATION_TIMING_EXCEPTION_EXCLUSION_APPLICATION_MISMATCH:${excludedFormalKey}`);
+      }
+      const beforeValue = shot.timingExceptionReason;
+      shot.timingExceptionReason = null;
+      matching[0].mirror.timingExceptionReason = null;
+      permittedImmutablePaths.push(`${shot.shotId}.timingExceptionReason`);
+      entries.push({ shotId: shot.shotId, beatId: shot.beatId, mirrorActKey: shot.actKey,
+        fieldPath: 'timingExceptionReason', beforeValue, afterValue: null,
+        reason: 'Clear the prior formal-exception field only for the exact refreshed-policy exclusion after the beat returns within the unchanged global limits; hold, stillness, and rhythm remain bound and intact.',
+        approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' });
+      excludedFormalClosuresApplied++;
+    }
     if (timingException) {
       const key = `${timingException.actKey}:${timingException.beatId}`;
       if (timingException.actKey !== shot.actKey || timingException.beatId !== shot.beatId
@@ -1498,6 +1963,7 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
     }
   }
   if (timingExceptionReasonsApplied !== timingExceptionMap.size) throw new Error('ACTIVATION_TIMING_EXCEPTION_BEAT_MISSING');
+  if (excludedFormalClosuresApplied !== excludedFormalOwners.size) throw new Error('ACTIVATION_TIMING_EXCEPTION_EXCLUSION_BEAT_MISSING');
   const planSha256 = require('./shot-definitions-validator.cjs').planFingerprint(plan);
   const beforePlanSha = shotDefs.sourceEditPlanSha256;
   shotDefs.sourceEditPlanSha256 = planSha256;
@@ -1509,20 +1975,23 @@ function updateShotDefinitions({ originalShotDefs, plan, revisionChain, revision
     permittedImmutablePaths, entries, ...(retiredShots.length ? { retirements: retiredShots } : {}),
     bindings: [{ fieldPath: 'sourceEditPlanSha256', beforeValue: beforePlanSha, afterValue: planSha256, reason: 'Bind shot definitions to the deterministically retimed approved edit plan.', approvalStatus: 'APPROVED', revisionVersion: '2.3B-P-ACTIVATION' }],
   };
-  return { shotDefs, revisionLedger: ledger, revisionChain: [...revisionChain, ledger] };
+  return { shotDefs, revisionLedger: ledger, revisionChain: [...revisionChain, ledger], excludedFormalClosuresApplied };
 }
 
-function assertCreativePlanFieldsFrozen(before, after, { retiredBeatIds = [], approvedTimingExceptionBeatIds = [], editorialIntentMigrationBeatIds = [] } = {}) {
+function assertCreativePlanFieldsFrozen(before, after, { retiredBeatIds = [], approvedTimingExceptionBeatIds = [], editorialIntentMigrationBeatIds = [], excludedTimingExceptionBeatIds = [] } = {}) {
   if (!equal(Object.keys(before), Object.keys(after))) throw new Error('ACTIVATION_PLAN_TOP_LEVEL_KEYS_CHANGED');
   const beforeBeats = new Map(before.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
   const afterBeats = new Map(after.sequences.flatMap(sequence => sequence.beats.map(beat => [beat.beatId, beat])));
   const retired = new Set(retiredBeatIds);
   const timingExceptions = new Set(approvedTimingExceptionBeatIds);
   const editorialMigrations = new Set(editorialIntentMigrationBeatIds);
+  const excludedTimingExceptions = new Set(excludedTimingExceptionBeatIds);
   if (timingExceptions.size !== approvedTimingExceptionBeatIds.length || editorialMigrations.size !== editorialIntentMigrationBeatIds.length
+      || excludedTimingExceptions.size !== excludedTimingExceptionBeatIds.length
       || [...timingExceptions, ...editorialMigrations].some(id => typeof id !== 'string' || !id)
-      || [...timingExceptions].some(id => editorialMigrations.has(id))) throw new Error('ACTIVATION_TIMING_EXCEPTION_ID_SET_INVALID');
-  const permittedReasonChanges = new Set([...timingExceptions, ...editorialMigrations]);
+      || [...timingExceptions].some(id => editorialMigrations.has(id) || excludedTimingExceptions.has(id))
+      || [...editorialMigrations].some(id => excludedTimingExceptions.has(id))) throw new Error('ACTIVATION_TIMING_EXCEPTION_ID_SET_INVALID');
+  const permittedReasonChanges = new Set([...timingExceptions, ...editorialMigrations, ...excludedTimingExceptions]);
   if (!equal([...beforeBeats.keys()].filter(id => !retired.has(id)), [...afterBeats.keys()])) throw new Error('ACTIVATION_BEAT_SET_CHANGED');
   for (const [beatId, oldBeat] of beforeBeats) {
     if (retired.has(beatId)) continue;
@@ -1604,11 +2073,12 @@ function restoreBackup({ fs: fsImpl = fs, episodeDirectory, backupDirectory, man
 }
 
 module.exports = {
-  PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, APPROVED_BOUNDARY_POLICY_SHA256, APPROVED_TIMING_EXCEPTION_POLICY_SHA256, sha256, jsonHash, tokens, reserveWhisperAttempt,
-  verifyApprovedBoundaryPolicy, approvedTimingProductionObligations, verifyApprovedTimingExceptionPolicy, verifyTimingExceptionApplications, updateProductionManifestForRetirements,
+  PLAN_DYNAMIC_FIELDS, SHOT_DYNAMIC_FIELDS, TARGET_FILES, APPROVED_BOUNDARY_POLICY_SHA256, REFRESHED_BOUNDARY_POLICY_SHA256, REFRESHED_BOUNDARY_POLICY_BINDINGS, APPROVED_TIMING_EXCEPTION_POLICY_SHA256, sha256, jsonHash, tokens, lexicalTokens, reserveWhisperAttempt,
+  verifyApprovedBoundaryPolicy, deriveRefreshedWhitespaceRange, approvedTimingProductionObligations, verifyApprovedTimingExceptionPolicy, verifyTimingExceptionApplications, updateProductionManifestForRetirements,
+  REFRESHED_TIMING_EXCEPTION_POLICY_SHA256,
   groupWordTimestamps, auditEditPlanBoundaries, retimeEditPlan, assertOnlyApprovedActTextChanges, assertScriptTimestampParity,
   alignActNarration, analyzeScriptTimestampAlignment, verifyCompletedTimingArtifacts,
   classifyReviewMismatch, exactReviewException, buildAlignmentReviewProposal, applyAlignmentReviewApproval,
   chooseTimingTranscript,
-  updateShotDefinitions, assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, atomicWrite,
+  updateShotDefinitions, applyApprovedB017AmendmentToPlan, assertCreativePlanFieldsFrozen, verifyReplacementSet, makeBackup, verifyBackup, restoreBackup, atomicWrite,
 };

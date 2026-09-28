@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "phase2.3b-p-audio-binding-invalidation/1.0.0",
+  "status": "INVALID_AUDIO_BINDING_NOT_APPROVABLE",
+  "reason": "The prior package index asserted five unchanged-audio hashes that conflict with the verified timing-source receipt; its approval records were bound to that conflicting index. The original bytes are preserved in the r2 package.",
+  "invalidatedArtifacts": [
+    {
+      "path": "phase2.3b-act3-refresh-bindings-20260927-r2/outputs/package-hash-index.json",
+      "sha256": "213bba86adbf6eead32d94d8a9733339e3b95b3e7712300c23e1a8cd5877132f"
+    },
+    {
+      "path": "phase2.3b-act3-refresh-bindings-20260927-r2/approvals/alignment-review-approval.v1.json",
+      "sha256": "0da49df15cd6858903729915bdd73e258140f0420d7613b9fdebf8e2f7a884c9"
+    },
+    {
+      "path": "phase2.3b-act3-refresh-bindings-20260927-r2/approvals/boundary-policy-approval.v1.json",
+      "sha256": "38020df4eb5910bf1441d59640c56664b28bf794e5e44a55a3103e0d156868b4"
+    }
+  ],
+  "correctedAudioManifestPath": "outputs/six-act-audio-manifest.json",
+  "receiptAudioSha256": {
+    "act1": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986",
+    "act2": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32",
+    "act3b": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e",
+    "act4": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0",
+    "act5": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+  }
+}

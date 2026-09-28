@@ -1,0 +1,169 @@
+{
+  "schemaVersion": "phase2.3b-p-alignment-exception-delta/1.0.0",
+  "status": "REVIEW_REQUIRED",
+  "oldProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+  "oldApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+  "oldReviewedReportSha256": "682a6f8e6e3264aa37286d10d4968764a1c2d355b2f97ed707f23458f0529c0a",
+  "oldApprovedExceptionCount": 19,
+  "newProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+  "newProposalCount": 18,
+  "unchangedOccurrencesRequiringRenewal": [
+    {
+      "actKey": "act1",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "15b207b7717d5112db0016e6aafab18d58904a6cbd37dff3ca7d3289ca7bc5a4",
+      "previousExceptionId": "15b207b7717d5112db0016e6aafab18d58904a6cbd37dff3ca7d3289ca7bc5a4",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act1",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "1683b345ffee539fe400379ba9b6b8571927e717f877fa1538f63e53ae0aef37",
+      "previousExceptionId": "1683b345ffee539fe400379ba9b6b8571927e717f877fa1538f63e53ae0aef37",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act2",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "9cd2d3d53c1a9e1603bddf6eb3e79b94423eeae80caee54d70f489cb61746be8",
+      "previousExceptionId": "9cd2d3d53c1a9e1603bddf6eb3e79b94423eeae80caee54d70f489cb61746be8",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act2",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "3fcd66e8a362d47e5824a5eb70707ce74f5b6ce595aeac323f6bb09fb2c37bc7",
+      "previousExceptionId": "3fcd66e8a362d47e5824a5eb70707ce74f5b6ce595aeac323f6bb09fb2c37bc7",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act3b",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "7e1cea788845c29a790f5167248f49f66457131bc84e1c2b2cec0e0625cd6d9e",
+      "previousExceptionId": "7e1cea788845c29a790f5167248f49f66457131bc84e1c2b2cec0e0625cd6d9e",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "df325b4d33f2afcd8a61abca25ced48176b46bfb62a3ed9e1a77f12c53b638f9",
+      "previousExceptionId": "df325b4d33f2afcd8a61abca25ced48176b46bfb62a3ed9e1a77f12c53b638f9",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "231525d7d9b1c0236faf5b9885616b7c7b03ed00ef7868df4eba3cf934adab68",
+      "previousExceptionId": "231525d7d9b1c0236faf5b9885616b7c7b03ed00ef7868df4eba3cf934adab68",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "58e6389c3dc8c9b3b2ea5332645fe4c74788e40b833a61907dc87b4bd689540b",
+      "previousExceptionId": "58e6389c3dc8c9b3b2ea5332645fe4c74788e40b833a61907dc87b4bd689540b",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "ac86ce1560af0c236bdfb6704f26b9c8abb8b8c5f9b8eb484ace02f33e3cd8b5",
+      "previousExceptionId": "ac86ce1560af0c236bdfb6704f26b9c8abb8b8c5f9b8eb484ace02f33e3cd8b5",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "cce2fa668a147f869cdfad0b994709d2d58dafa0f344c83e107e7222dbb804e8",
+      "previousExceptionId": "cce2fa668a147f869cdfad0b994709d2d58dafa0f344c83e107e7222dbb804e8",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "e94f857620b903a074db011046e8a593ad23c9173553b0b063780894a3bf3b0a",
+      "previousExceptionId": "e94f857620b903a074db011046e8a593ad23c9173553b0b063780894a3bf3b0a",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "4ed4bdf18bc36e8b83afe116ac08b74ff8e382ce878ccd991a297214fafe2427",
+      "previousExceptionId": "4ed4bdf18bc36e8b83afe116ac08b74ff8e382ce878ccd991a297214fafe2427",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act4",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "401f06f85cfbca3130978db8e152a8cc101401a7767e8567d0bbec7c11b760b2",
+      "previousExceptionId": "401f06f85cfbca3130978db8e152a8cc101401a7767e8567d0bbec7c11b760b2",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act5",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "df000c750442a295e5e1f789a0cd4f8d3d9916b215c7253a4287321cc6ead530",
+      "previousExceptionId": "df000c750442a295e5e1f789a0cd4f8d3d9916b215c7253a4287321cc6ead530",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act5",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "629f212ccb9eee86bbe7b8cd875452f2a51939c72c398b9e48978d7a1b414fae",
+      "previousExceptionId": "629f212ccb9eee86bbe7b8cd875452f2a51939c72c398b9e48978d7a1b414fae",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act5",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "e043bc43b51c26f3cbd90622dd72d3b5974beb3ce7d67aac851e8321ed7ca859",
+      "previousExceptionId": "e043bc43b51c26f3cbd90622dd72d3b5974beb3ce7d67aac851e8321ed7ca859",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act5",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "a23f3a2f2dbca4ee2f4bfcd6fc5a4959030674c5af5534edc8bc70f0c5832604",
+      "previousExceptionId": "a23f3a2f2dbca4ee2f4bfcd6fc5a4959030674c5af5534edc8bc70f0c5832604",
+      "requiresRenewal": true
+    },
+    {
+      "actKey": "act5",
+      "classification": "ASR_CURRENCY_UNIT_OMISSION",
+      "exceptionId": "93ee3d443d003a29a9f298f0e7268b3491d51692ccbe500dade90498c33fe430",
+      "previousExceptionId": "93ee3d443d003a29a9f298f0e7268b3491d51692ccbe500dade90498c33fe430",
+      "requiresRenewal": true
+    }
+  ],
+  "removedByAct3Refresh": [
+    {
+      "actKey": "act3",
+      "classification": "ASR_PHONETIC_VARIANT",
+      "exceptionId": "e37370d1434af0dcb85458c6baf472c3071be88594af85af962dc2dccac6db0e",
+      "scriptToken": "And",
+      "transcriptToken": "an",
+      "scriptTokenIndex": 47,
+      "transcriptTokenIndex": 47,
+      "reason": "Refreshed Act 3 transcript aligns this occurrence; old exception no longer applies."
+    }
+  ],
+  "genuinelyNew": [],
+  "changedClassificationContextOrRange": [],
+  "act3Alignment": {
+    "status": "PASS",
+    "scriptTokenCount": 234,
+    "transcriptTokenCount": 235,
+    "matchedTokenCount": 243,
+    "alignmentUnits": 243,
+    "transcriptAlignmentUnits": 243,
+    "normalizedEquivalentSpans": 24,
+    "substitutions": 0,
+    "transcriptInsertions": 0,
+    "scriptDeletions": 0,
+    "explanation": "The shared span mapper aligns 234 lexical script tokens across 235 timestamp rows; there are no script deletions, transcript insertions, or substitutions. Matched alignment units can exceed lexical token count because normalized/multi-token spans are represented as units."
+  },
+  "decision": "No old approval is reused. All 18 remaining occurrences require explicit renewed approval because transcript and audio package bindings changed.",
+  "rekeyedOccurrenceCount": 18,
+  "unchangedOccurrenceIdsPreserved": false,
+  "idNote": "Occurrence content is unchanged, but exception IDs are recomputed under the refreshed binding and are not reusable approval IDs."
+}

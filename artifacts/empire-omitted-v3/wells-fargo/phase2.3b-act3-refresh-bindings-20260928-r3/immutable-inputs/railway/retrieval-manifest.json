@@ -1,0 +1,98 @@
+{
+  "schema": "phase2.3b-act3-refresh-immutable-input-retrieval/1.0.0",
+  "runId": "phase2-3b-p-act-20260925",
+  "files": [
+    {
+      "relativePath": "alignment-report.reviewed.v1.json",
+      "bytes": 444250,
+      "sha256": "682a6f8e6e3264aa37286d10d4968764a1c2d355b2f97ed707f23458f0529c0a"
+    },
+    {
+      "relativePath": "alignment-review-approval.v1.json",
+      "bytes": 18982,
+      "sha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369"
+    },
+    {
+      "relativePath": "alignment-review-proposal.v1.json",
+      "bytes": 18717,
+      "sha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0"
+    },
+    {
+      "relativePath": "fresh-whisper/timing-source-receipt.json",
+      "bytes": 1091,
+      "sha256": "a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1"
+    },
+    {
+      "relativePath": "fresh-whisper/word-timestamps.json",
+      "bytes": 179174,
+      "sha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1"
+    }
+  ],
+  "timestampTopLevelType": "array",
+  "timestampRows": 1352,
+  "timestampFirstRowProperties": [
+    "vo_file",
+    "word",
+    "start_seconds",
+    "end_seconds"
+  ],
+  "timestampActField": "vo_file",
+  "actCounts": {
+    "Act1": 230,
+    "Act2": 220,
+    "Act3": 235,
+    "Act3B": 156,
+    "Act4": 229,
+    "Act5": 282
+  },
+  "proposalExceptionCount": 19,
+  "approvalExceptionCount": 19,
+  "proposalApprovalIdsExact": true,
+  "reviewedApprovalIdsExact": true,
+  "approvalStatus": "USER_APPROVED",
+  "proposalHashInApprovalBindings": true,
+  "receiptAudioMatchesProposal": true,
+  "receiptSchema": "phase2.3b-p-timing-source/1.0.0",
+  "receiptState": "TRANSCRIPTION_IN_PROGRESS",
+  "proposalTranscriptSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+  "proposalReceiptSha256": "a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1",
+  "reviewStatus": "PASS",
+  "reviewActStatuses": [
+    {
+      "actKey": "act1",
+      "status": "PASS",
+      "approvedCount": 2,
+      "unapprovedCount": 0
+    },
+    {
+      "actKey": "act2",
+      "status": "PASS",
+      "approvedCount": 2,
+      "unapprovedCount": 0
+    },
+    {
+      "actKey": "act3",
+      "status": "PASS",
+      "approvedCount": 1,
+      "unapprovedCount": 0
+    },
+    {
+      "actKey": "act3b",
+      "status": "PASS",
+      "approvedCount": 1,
+      "unapprovedCount": 0
+    },
+    {
+      "actKey": "act4",
+      "status": "PASS",
+      "approvedCount": 8,
+      "unapprovedCount": 0
+    },
+    {
+      "actKey": "act5",
+      "status": "PASS",
+      "approvedCount": 5,
+      "unapprovedCount": 0
+    }
+  ]
+}

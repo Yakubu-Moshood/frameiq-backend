@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "phase2.3b-act3-audio-refresh-result/1.0.0",
+  "runId": "phase2.3b-act3-audio-refresh-20260927-r3",
+  "state": "SUCCESS",
+  "planSha256": "b1186ec7a5c261902fd498b03ddd850447a13f117b029cea5bedbe6f23b070b8",
+  "providerRequests": [
+    {},
+    {},
+    {},
+    {}
+  ],
+  "requestLedger": {
+    "beforeSha256": "f7fb854b1c982712aeef5e8a518806ec9a1380990373e550a227bf9f3480f453",
+    "afterSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "recordsAppended": 4,
+    "appendHashes": [
+      "0da4aabb7858d62306809c84a7c2c66db4ad83f9654b0d590a74e3e05d1e8574",
+      "afb18db784404527d3aca6278ccb025286da21af3ded4a119f27f5c78e3fc7e3",
+      "023cd16551735d342f1c72de58daa7fd913886b2659d17042ce5a7e081ebdf13",
+      "a3a09cc521ede769b6ab054594fa5572b8782d4738b31697b27a3c604795ea65"
+    ]
+  },
+  "audio": {
+    "segments": [
+      {
+        "segmentId": "act3.segment-001",
+        "textSha256": "2b45595bce1244dadab09df7a47a7e413a0e9b9d9d90f94efb83e757a3f88cee",
+        "characters": 668,
+        "words": 104,
+        "audioSha256": "cdc9cdc789b68bcd7d79788233cd257901bf10032449fe8aad71f50af6573003",
+        "audioBytes": 776612,
+        "durationSec": 48.509388,
+        "providerRequestId": "5Z31nvKqRYCNTiBAU39P",
+        "relativeAudioPath": "audio/segments/act3.segment-001-2b45595bce12.mp3"
+      },
+      {
+        "segmentId": "act3.segment-002",
+        "textSha256": "8c2c096d07cea581a013303f5b4a73533d782f09238e3c64b9568c3bffe25d55",
+        "characters": 699,
+        "words": 106,
+        "audioSha256": "96791a9994beb61dc23d8a640f48f9f3bd06629f53586b91a83253d43741e6f1",
+        "audioBytes": 735234,
+        "durationSec": 45.923265,
+        "providerRequestId": "BxhRCfsF28L9fII1g1i2",
+        "relativeAudioPath": "audio/segments/act3.segment-002-8c2c096d07ce.mp3"
+      },
+      {
+        "segmentId": "act3.segment-003",
+        "textSha256": "db1a25805d58610401983f8b8b73b05b33f680781a061871a52ea92be8fd4d26",
+        "characters": 149,
+        "words": 24,
+        "audioSha256": "935b39f198dde9aea0787f2e80d5c9ab5a4ea0970fe5085fbb129f3c879c1848",
+        "audioBytes": 151345,
+        "durationSec": 9.430204,
+        "providerRequestId": "mAPZ3fblNGGYjhCCABbh",
+        "relativeAudioPath": "audio/segments/act3.segment-003-db1a25805d58.mp3"
+      }
+    ],
+    "assembled": {
+      "file": "audio/VO_Act3.mp3",
+      "sha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+      "bytes": 1672298,
+      "codec": "mp3",
+      "sampleRate": 44100,
+      "bitrate": 128000,
+      "durationSec": 104.489796,
+      "joinPauseMs": 350
+    }
+  },
+  "transcription": {
+    "receiptSha256": "3d687baa580faee5df597f718dac8ca8456eaec59c444d0707992a5cbcd8f36b",
+    "rawResponseSha256": "6caa52f690c567c6ef9fdcb212a5f754765b6430c0e905cf3999cc91aae3f35b",
+    "wordTimestampsSha256": "b8bac22161ee4f07ec99e230eb277c58bb9f39450d6caa64e256aee80a3d8e84",
+    "wordCount": 235
+  },
+  "alignment": {
+    "status": "PASS",
+    "mismatchCount": 0,
+    "scriptTokenCount": 234,
+    "transcriptTokenCount": 235,
+    "matchedTokenCount": 243,
+    "normalizedEquivalents": 24,
+    "beats": [
+      {
+        "beatId": "ACT3_B016",
+        "sourceRange": [
+          115,
+          123
+        ],
+        "narration": "They would create accounts for people who had died.",
+        "mappedTranscriptRange": [
+          115,
+          123
+        ],
+        "firstWord": "they",
+        "lastWord": "died"
+      },
+      {
+        "beatId": "ACT3_B017",
+        "sourceRange": [
+          124,
+          135
+        ],
+        "narration": "The board’s investigation found a branch manager’s teenage daughter had 24 accounts,",
+        "mappedTranscriptRange": [
+          124,
+          135
+        ],
+        "firstWord": "the",
+        "lastWord": "accounts"
+      },
+      {
+        "beatId": "ACT3_B018",
+        "sourceRange": [
+          136,
+          146
+        ],
+        "narration": "an adult daughter had 18, and the manager’s spouse had 21.",
+        "mappedTranscriptRange": [
+          136,
+          146
+        ],
+        "firstWord": "an",
+        "lastWord": "21"
+      },
+      {
+        "beatId": "ACT3_B019",
+        "sourceRange": [
+          147,
+          154
+        ],
+        "narration": "The pressure was relentless. Employees received multiple emails",
+        "mappedTranscriptRange": [
+          147,
+          154
+        ],
+        "firstWord": "the",
+        "lastWord": "emails"
+      }
+    ],
+    "continuous": true,
+    "correctedB017B018FullyRepresented": true
+  },
+  "otherFiveAudioUnchanged": {
+    "VO_Act1.mp3": true,
+    "VO_Act2.mp3": true,
+    "VO_Act3B.mp3": true,
+    "VO_Act4.mp3": true,
+    "VO_Act5.mp3": true
+  },
+  "episodeRootWrites": 0
+}

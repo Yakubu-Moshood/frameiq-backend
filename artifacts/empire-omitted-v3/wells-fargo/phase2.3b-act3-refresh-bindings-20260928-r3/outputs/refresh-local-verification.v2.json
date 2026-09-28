@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "phase2.3b-act3-refresh-local-verification/2.0.0",
+  "status": "LOCAL_VALIDATION_COMPLETE_PENDING_TIMING_APPROVAL",
+  "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+  "packageIndexFileCount": 39,
+  "packageIndexVerifiedFiles": 39,
+  "alignment": {
+    "freshExceptionCount": 18,
+    "approvedExceptionCount": 18,
+    "unchangedOccurrences": 18,
+    "removedOccurrences": [
+      {
+        "actKey": "act3",
+        "scriptToken": "And",
+        "transcriptToken": "an",
+        "exceptionId": "e37370d1434af0dcb85458c6baf472c3071be88594af85af962dc2dccac6db0e"
+      }
+    ],
+    "newOrChangedOccurrences": 0,
+    "approvalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42"
+  },
+  "boundary": {
+    "proposalSha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e",
+    "approvalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+    "policySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+    "audit": {
+      "schemaVersion": "phase2.3b-p-refreshed-boundary-audit/1.0.0",
+      "status": "BOUNDARY_AUDIT_PASS",
+      "acts": [
+        {
+          "actKey": "act1",
+          "activeBeatCount": 30,
+          "mappedBoundaries": 60,
+          "expectedBoundaries": 60,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        },
+        {
+          "actKey": "act2",
+          "activeBeatCount": 26,
+          "mappedBoundaries": 52,
+          "expectedBoundaries": 52,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        },
+        {
+          "actKey": "act3",
+          "activeBeatCount": 29,
+          "mappedBoundaries": 58,
+          "expectedBoundaries": 58,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        },
+        {
+          "actKey": "act3b",
+          "activeBeatCount": 17,
+          "mappedBoundaries": 34,
+          "expectedBoundaries": 34,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        },
+        {
+          "actKey": "act4",
+          "activeBeatCount": 24,
+          "mappedBoundaries": 48,
+          "expectedBoundaries": 48,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        },
+        {
+          "actKey": "act5",
+          "activeBeatCount": 27,
+          "mappedBoundaries": 54,
+          "expectedBoundaries": 54,
+          "gaps": 0,
+          "overlaps": 0,
+          "ambiguousMappings": 0,
+          "unmappedBoundaries": 0,
+          "errorCount": 0
+        }
+      ],
+      "errorCount": 0,
+      "retiredAct3B_B010": true,
+      "activeAct3BBeatCount": 17,
+      "safety": {
+        "providerRequests": 0,
+        "candidateWrites": 0,
+        "episodeRootWrites": 0
+      }
+    }
+  },
+  "audio": {
+    "manifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+    "mediaDurationTotalSeconds": 633.782449,
+    "audio": [
+      {
+        "actKey": "act1",
+        "file": "VO_Act1.mp3",
+        "sha256": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986",
+        "bytes": 1825271,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 114.013379,
+        "decode": "ffprobe+full-decode-pass"
+      },
+      {
+        "actKey": "act2",
+        "file": "VO_Act2.mp3",
+        "sha256": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32",
+        "bytes": 1582019,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 98.802608,
+        "decode": "ffprobe+full-decode-pass"
+      },
+      {
+        "actKey": "act3",
+        "file": "VO_Act3.mp3",
+        "sha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+        "bytes": 1672298,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 104.446757,
+        "decode": "ffprobe+full-decode-pass"
+      },
+      {
+        "actKey": "act3b",
+        "file": "VO_Act3B.mp3",
+        "sha256": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e",
+        "bytes": 1104710,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 68.988186,
+        "decode": "ffprobe+full-decode-pass"
+      },
+      {
+        "actKey": "act4",
+        "file": "VO_Act4.mp3",
+        "sha256": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0",
+        "bytes": 1787237,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 111.644943,
+        "decode": "ffprobe+full-decode-pass"
+      },
+      {
+        "actKey": "act5",
+        "file": "VO_Act5.mp3",
+        "sha256": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db",
+        "bytes": 2175103,
+        "codec": "mp3",
+        "sampleRateHz": 44100,
+        "bitrate": 128000,
+        "durationSeconds": 135.886576,
+        "decode": "ffprobe+full-decode-pass"
+      }
+    ]
+  },
+  "invalidatedPrior": {
+    "status": "INVALID_AUDIO_BINDING_NOT_APPROVABLE",
+    "priorIndexSha256": "213bba86adbf6eead32d94d8a9733339e3b95b3e7712300c23e1a8cd5877132f",
+    "priorAlignmentApprovalSha256": "0da49df15cd6858903729915bdd73e258140f0420d7613b9fdebf8e2f7a884c9",
+    "priorBoundaryApprovalSha256": "38020df4eb5910bf1441d59640c56664b28bf794e5e44a55a3103e0d156868b4"
+  },
+  "prohibitedOperations": {
+    "railwayCalls": 0,
+    "providerCalls": 0,
+    "episodeRootWrites": 0,
+    "gitCommit": 0,
+    "gitPush": 0,
+    "candidateConstruction": 0,
+    "promotion": 0,
+    "rendering": 0
+  }
+}

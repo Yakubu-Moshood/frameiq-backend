@@ -1,0 +1,2479 @@
+{
+  "schemaVersion": "phase2.3b-p-script-audio-alignment/1.0.0",
+  "status": "PASS",
+  "actOrder": [
+    "act3"
+  ],
+  "acts": [
+    {
+      "actKey": "act3",
+      "voKey": "VO_Act3.mp3",
+      "status": "PASS",
+      "scriptTokenCount": 234,
+      "transcriptTokenCount": 235,
+      "matchedTokens": [
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 0,
+          "scriptTokenEndIndex": 0,
+          "transcriptTokenIndex": 0,
+          "transcriptTokenEndIndex": 0
+        },
+        {
+          "scriptToken": "employees",
+          "transcriptToken": "employees",
+          "normalizedToken": "word:employees",
+          "scriptTokenIndex": 1,
+          "scriptTokenEndIndex": 1,
+          "transcriptTokenIndex": 1,
+          "transcriptTokenEndIndex": 1
+        },
+        {
+          "scriptToken": "called",
+          "transcriptToken": "called",
+          "normalizedToken": "word:called",
+          "scriptTokenIndex": 2,
+          "scriptTokenEndIndex": 2,
+          "transcriptTokenIndex": 2,
+          "transcriptTokenEndIndex": 2
+        },
+        {
+          "scriptToken": "them",
+          "transcriptToken": "them",
+          "normalizedToken": "word:them",
+          "scriptTokenIndex": 3,
+          "scriptTokenEndIndex": 3,
+          "transcriptTokenIndex": 3,
+          "transcriptTokenEndIndex": 3
+        },
+        {
+          "scriptToken": "gaming",
+          "transcriptToken": "gaming",
+          "normalizedToken": "word:gaming",
+          "scriptTokenIndex": 4,
+          "scriptTokenEndIndex": 4,
+          "transcriptTokenIndex": 4,
+          "transcriptTokenEndIndex": 4
+        },
+        {
+          "scriptToken": "strategies",
+          "transcriptToken": "strategies",
+          "normalizedToken": "word:strategies",
+          "scriptTokenIndex": 5,
+          "scriptTokenEndIndex": 5,
+          "transcriptTokenIndex": 5,
+          "transcriptTokenEndIndex": 5
+        },
+        {
+          "scriptToken": "Management",
+          "transcriptToken": "management",
+          "normalizedToken": "word:management",
+          "scriptTokenIndex": 6,
+          "scriptTokenEndIndex": 6,
+          "transcriptTokenIndex": 6,
+          "transcriptTokenEndIndex": 6
+        },
+        {
+          "scriptToken": "called",
+          "transcriptToken": "called",
+          "normalizedToken": "word:called",
+          "scriptTokenIndex": 7,
+          "scriptTokenEndIndex": 7,
+          "transcriptTokenIndex": 7,
+          "transcriptTokenEndIndex": 7
+        },
+        {
+          "scriptToken": "them",
+          "transcriptToken": "them",
+          "normalizedToken": "word:them",
+          "scriptTokenIndex": 8,
+          "scriptTokenEndIndex": 8,
+          "transcriptTokenIndex": 8,
+          "transcriptTokenEndIndex": 8
+        },
+        {
+          "scriptToken": "sales",
+          "transcriptToken": "sales",
+          "normalizedToken": "word:sales",
+          "scriptTokenIndex": 9,
+          "scriptTokenEndIndex": 9,
+          "transcriptTokenIndex": 9,
+          "transcriptTokenEndIndex": 9
+        },
+        {
+          "scriptToken": "practices",
+          "transcriptToken": "practices",
+          "normalizedToken": "word:practices",
+          "scriptTokenIndex": 10,
+          "scriptTokenEndIndex": 10,
+          "transcriptTokenIndex": 10,
+          "transcriptTokenEndIndex": 10
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 11,
+          "scriptTokenEndIndex": 11,
+          "transcriptTokenIndex": 11,
+          "transcriptTokenEndIndex": 11
+        },
+        {
+          "scriptToken": "lawyers",
+          "transcriptToken": "lawyers",
+          "normalizedToken": "word:lawyers",
+          "scriptTokenIndex": 12,
+          "scriptTokenEndIndex": 12,
+          "transcriptTokenIndex": 12,
+          "transcriptTokenEndIndex": 12
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 13,
+          "scriptTokenEndIndex": 13,
+          "transcriptTokenIndex": 13,
+          "transcriptTokenEndIndex": 13
+        },
+        {
+          "scriptToken": "eventually",
+          "transcriptToken": "eventually",
+          "normalizedToken": "word:eventually",
+          "scriptTokenIndex": 14,
+          "scriptTokenEndIndex": 14,
+          "transcriptTokenIndex": 14,
+          "transcriptTokenEndIndex": 14
+        },
+        {
+          "scriptToken": "call",
+          "transcriptToken": "call",
+          "normalizedToken": "word:call",
+          "scriptTokenIndex": 15,
+          "scriptTokenEndIndex": 15,
+          "transcriptTokenIndex": 15,
+          "transcriptTokenEndIndex": 15
+        },
+        {
+          "scriptToken": "them",
+          "transcriptToken": "them",
+          "normalizedToken": "word:them",
+          "scriptTokenIndex": 16,
+          "scriptTokenEndIndex": 16,
+          "transcriptTokenIndex": 16,
+          "transcriptTokenEndIndex": 16
+        },
+        {
+          "scriptToken": "fraud",
+          "transcriptToken": "fraud",
+          "normalizedToken": "word:fraud",
+          "scriptTokenIndex": 17,
+          "scriptTokenEndIndex": 17,
+          "transcriptTokenIndex": 17,
+          "transcriptTokenEndIndex": 17
+        },
+        {
+          "scriptToken": "Here's",
+          "transcriptToken": "here's",
+          "normalizedToken": "word:here",
+          "scriptTokenIndex": 18,
+          "scriptTokenEndIndex": 18,
+          "transcriptTokenIndex": 18,
+          "transcriptTokenEndIndex": 18,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "Here's",
+          "transcriptToken": "here's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 18,
+          "scriptTokenEndIndex": 18,
+          "transcriptTokenIndex": 18,
+          "transcriptTokenEndIndex": 18,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "how",
+          "transcriptToken": "how",
+          "normalizedToken": "word:how",
+          "scriptTokenIndex": 19,
+          "scriptTokenEndIndex": 19,
+          "transcriptTokenIndex": 19,
+          "transcriptTokenEndIndex": 19
+        },
+        {
+          "scriptToken": "it",
+          "transcriptToken": "it",
+          "normalizedToken": "word:it",
+          "scriptTokenIndex": 20,
+          "scriptTokenEndIndex": 20,
+          "transcriptTokenIndex": 20,
+          "transcriptTokenEndIndex": 20
+        },
+        {
+          "scriptToken": "worked",
+          "transcriptToken": "worked",
+          "normalizedToken": "word:worked",
+          "scriptTokenIndex": 21,
+          "scriptTokenEndIndex": 21,
+          "transcriptTokenIndex": 21,
+          "transcriptTokenEndIndex": 21
+        },
+        {
+          "scriptToken": "A",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 22,
+          "scriptTokenEndIndex": 22,
+          "transcriptTokenIndex": 22,
+          "transcriptTokenEndIndex": 22
+        },
+        {
+          "scriptToken": "customer",
+          "transcriptToken": "customer",
+          "normalizedToken": "word:customer",
+          "scriptTokenIndex": 23,
+          "scriptTokenEndIndex": 23,
+          "transcriptTokenIndex": 23,
+          "transcriptTokenEndIndex": 23
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 24,
+          "scriptTokenEndIndex": 24,
+          "transcriptTokenIndex": 24,
+          "transcriptTokenEndIndex": 24
+        },
+        {
+          "scriptToken": "come",
+          "transcriptToken": "come",
+          "normalizedToken": "word:come",
+          "scriptTokenIndex": 25,
+          "scriptTokenEndIndex": 25,
+          "transcriptTokenIndex": 25,
+          "transcriptTokenEndIndex": 25
+        },
+        {
+          "scriptToken": "in",
+          "transcriptToken": "in",
+          "normalizedToken": "word:in",
+          "scriptTokenIndex": 26,
+          "scriptTokenEndIndex": 26,
+          "transcriptTokenIndex": 26,
+          "transcriptTokenEndIndex": 26
+        },
+        {
+          "scriptToken": "to",
+          "transcriptToken": "to",
+          "normalizedToken": "word:to",
+          "scriptTokenIndex": 27,
+          "scriptTokenEndIndex": 27,
+          "transcriptTokenIndex": 27,
+          "transcriptTokenEndIndex": 27
+        },
+        {
+          "scriptToken": "open",
+          "transcriptToken": "open",
+          "normalizedToken": "word:open",
+          "scriptTokenIndex": 28,
+          "scriptTokenEndIndex": 28,
+          "transcriptTokenIndex": 28,
+          "transcriptTokenEndIndex": 28
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 29,
+          "scriptTokenEndIndex": 29,
+          "transcriptTokenIndex": 29,
+          "transcriptTokenEndIndex": 29
+        },
+        {
+          "scriptToken": "checking",
+          "transcriptToken": "checking",
+          "normalizedToken": "word:checking",
+          "scriptTokenIndex": 30,
+          "scriptTokenEndIndex": 30,
+          "transcriptTokenIndex": 30,
+          "transcriptTokenEndIndex": 30
+        },
+        {
+          "scriptToken": "account",
+          "transcriptToken": "account",
+          "normalizedToken": "word:account",
+          "scriptTokenIndex": 31,
+          "scriptTokenEndIndex": 31,
+          "transcriptTokenIndex": 31,
+          "transcriptTokenEndIndex": 31
+        },
+        {
+          "scriptToken": "Simple",
+          "transcriptToken": "simple",
+          "normalizedToken": "word:simple",
+          "scriptTokenIndex": 32,
+          "scriptTokenEndIndex": 32,
+          "transcriptTokenIndex": 32,
+          "transcriptTokenEndIndex": 32
+        },
+        {
+          "scriptToken": "enough",
+          "transcriptToken": "enough",
+          "normalizedToken": "word:enough",
+          "scriptTokenIndex": 33,
+          "scriptTokenEndIndex": 33,
+          "transcriptTokenIndex": 33,
+          "transcriptTokenEndIndex": 33
+        },
+        {
+          "scriptToken": "But",
+          "transcriptToken": "but",
+          "normalizedToken": "word:but",
+          "scriptTokenIndex": 34,
+          "scriptTokenEndIndex": 34,
+          "transcriptTokenIndex": 34,
+          "transcriptTokenEndIndex": 34
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 35,
+          "scriptTokenEndIndex": 35,
+          "transcriptTokenIndex": 35,
+          "transcriptTokenEndIndex": 35
+        },
+        {
+          "scriptToken": "banker",
+          "transcriptToken": "banker",
+          "normalizedToken": "word:banker",
+          "scriptTokenIndex": 36,
+          "scriptTokenEndIndex": 36,
+          "transcriptTokenIndex": 36,
+          "transcriptTokenEndIndex": 36
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 37,
+          "scriptTokenEndIndex": 37,
+          "transcriptTokenIndex": 37,
+          "transcriptTokenEndIndex": 37
+        },
+        {
+          "scriptToken": "also",
+          "transcriptToken": "also",
+          "normalizedToken": "word:also",
+          "scriptTokenIndex": 38,
+          "scriptTokenEndIndex": 38,
+          "transcriptTokenIndex": 38,
+          "transcriptTokenEndIndex": 38
+        },
+        {
+          "scriptToken": "open",
+          "transcriptToken": "open",
+          "normalizedToken": "word:open",
+          "scriptTokenIndex": 39,
+          "scriptTokenEndIndex": 39,
+          "transcriptTokenIndex": 39,
+          "transcriptTokenEndIndex": 39
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 40,
+          "scriptTokenEndIndex": 40,
+          "transcriptTokenIndex": 40,
+          "transcriptTokenEndIndex": 40
+        },
+        {
+          "scriptToken": "savings",
+          "transcriptToken": "savings",
+          "normalizedToken": "word:savings",
+          "scriptTokenIndex": 41,
+          "scriptTokenEndIndex": 41,
+          "transcriptTokenIndex": 41,
+          "transcriptTokenEndIndex": 41
+        },
+        {
+          "scriptToken": "account",
+          "transcriptToken": "account",
+          "normalizedToken": "word:account",
+          "scriptTokenIndex": 42,
+          "scriptTokenEndIndex": 42,
+          "transcriptTokenIndex": 42,
+          "transcriptTokenEndIndex": 42
+        },
+        {
+          "scriptToken": "And",
+          "transcriptToken": "and",
+          "normalizedToken": "word:and",
+          "scriptTokenIndex": 43,
+          "scriptTokenEndIndex": 43,
+          "transcriptTokenIndex": 43,
+          "transcriptTokenEndIndex": 43
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 44,
+          "scriptTokenEndIndex": 44,
+          "transcriptTokenIndex": 44,
+          "transcriptTokenEndIndex": 44
+        },
+        {
+          "scriptToken": "credit",
+          "transcriptToken": "credit",
+          "normalizedToken": "word:credit",
+          "scriptTokenIndex": 45,
+          "scriptTokenEndIndex": 45,
+          "transcriptTokenIndex": 45,
+          "transcriptTokenEndIndex": 45
+        },
+        {
+          "scriptToken": "card",
+          "transcriptToken": "card",
+          "normalizedToken": "word:card",
+          "scriptTokenIndex": 46,
+          "scriptTokenEndIndex": 46,
+          "transcriptTokenIndex": 46,
+          "transcriptTokenEndIndex": 46
+        },
+        {
+          "scriptToken": "And",
+          "transcriptToken": "and",
+          "normalizedToken": "word:and",
+          "scriptTokenIndex": 47,
+          "scriptTokenEndIndex": 47,
+          "transcriptTokenIndex": 47,
+          "transcriptTokenEndIndex": 47
+        },
+        {
+          "scriptToken": "online",
+          "transcriptToken": "online",
+          "normalizedToken": "word:online",
+          "scriptTokenIndex": 48,
+          "scriptTokenEndIndex": 48,
+          "transcriptTokenIndex": 48,
+          "transcriptTokenEndIndex": 48
+        },
+        {
+          "scriptToken": "banking",
+          "transcriptToken": "banking",
+          "normalizedToken": "word:banking",
+          "scriptTokenIndex": 49,
+          "scriptTokenEndIndex": 49,
+          "transcriptTokenIndex": 49,
+          "transcriptTokenEndIndex": 49
+        },
+        {
+          "scriptToken": "with",
+          "transcriptToken": "with",
+          "normalizedToken": "word:with",
+          "scriptTokenIndex": 50,
+          "scriptTokenEndIndex": 50,
+          "transcriptTokenIndex": 50,
+          "transcriptTokenEndIndex": 50
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 51,
+          "scriptTokenEndIndex": 51,
+          "transcriptTokenIndex": 51,
+          "transcriptTokenEndIndex": 51
+        },
+        {
+          "scriptToken": "new",
+          "transcriptToken": "new",
+          "normalizedToken": "word:new",
+          "scriptTokenIndex": 52,
+          "scriptTokenEndIndex": 52,
+          "transcriptTokenIndex": 52,
+          "transcriptTokenEndIndex": 52
+        },
+        {
+          "scriptToken": "password",
+          "transcriptToken": "password",
+          "normalizedToken": "word:password",
+          "scriptTokenIndex": 53,
+          "scriptTokenEndIndex": 53,
+          "transcriptTokenIndex": 53,
+          "transcriptTokenEndIndex": 53
+        },
+        {
+          "scriptToken": "All",
+          "transcriptToken": "all",
+          "normalizedToken": "word:all",
+          "scriptTokenIndex": 54,
+          "scriptTokenEndIndex": 54,
+          "transcriptTokenIndex": 54,
+          "transcriptTokenEndIndex": 54
+        },
+        {
+          "scriptToken": "without",
+          "transcriptToken": "without",
+          "normalizedToken": "word:without",
+          "scriptTokenIndex": 55,
+          "scriptTokenEndIndex": 55,
+          "transcriptTokenIndex": 55,
+          "transcriptTokenEndIndex": 55
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 56,
+          "scriptTokenEndIndex": 56,
+          "transcriptTokenIndex": 56,
+          "transcriptTokenEndIndex": 56
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:customer",
+          "scriptTokenIndex": 57,
+          "scriptTokenEndIndex": 57,
+          "transcriptTokenIndex": 57,
+          "transcriptTokenEndIndex": 57,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 57,
+          "scriptTokenEndIndex": 57,
+          "transcriptTokenIndex": 57,
+          "transcriptTokenEndIndex": 57,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "knowledge",
+          "transcriptToken": "knowledge",
+          "normalizedToken": "word:knowledge",
+          "scriptTokenIndex": 58,
+          "scriptTokenEndIndex": 58,
+          "transcriptTokenIndex": 58,
+          "transcriptTokenEndIndex": 58
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 59,
+          "scriptTokenEndIndex": 59,
+          "transcriptTokenIndex": 59,
+          "transcriptTokenEndIndex": 59
+        },
+        {
+          "scriptToken": "signatures",
+          "transcriptToken": "signatures",
+          "normalizedToken": "word:signatures",
+          "scriptTokenIndex": 60,
+          "scriptTokenEndIndex": 60,
+          "transcriptTokenIndex": 60,
+          "transcriptTokenEndIndex": 60
+        },
+        {
+          "scriptToken": "were",
+          "transcriptToken": "were",
+          "normalizedToken": "word:were",
+          "scriptTokenIndex": 61,
+          "scriptTokenEndIndex": 61,
+          "transcriptTokenIndex": 61,
+          "transcriptTokenEndIndex": 61
+        },
+        {
+          "scriptToken": "forged",
+          "transcriptToken": "forged",
+          "normalizedToken": "word:forged",
+          "scriptTokenIndex": 62,
+          "scriptTokenEndIndex": 62,
+          "transcriptTokenIndex": 62,
+          "transcriptTokenEndIndex": 62
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 63,
+          "scriptTokenEndIndex": 63,
+          "transcriptTokenIndex": 63,
+          "transcriptTokenEndIndex": 63
+        },
+        {
+          "scriptToken": "email",
+          "transcriptToken": "email",
+          "normalizedToken": "word:email",
+          "scriptTokenIndex": 64,
+          "scriptTokenEndIndex": 64,
+          "transcriptTokenIndex": 64,
+          "transcriptTokenEndIndex": 64
+        },
+        {
+          "scriptToken": "addresses",
+          "transcriptToken": "addresses",
+          "normalizedToken": "word:addresses",
+          "scriptTokenIndex": 65,
+          "scriptTokenEndIndex": 65,
+          "transcriptTokenIndex": 65,
+          "transcriptTokenEndIndex": 65
+        },
+        {
+          "scriptToken": "were",
+          "transcriptToken": "were",
+          "normalizedToken": "word:were",
+          "scriptTokenIndex": 66,
+          "scriptTokenEndIndex": 66,
+          "transcriptTokenIndex": 66,
+          "transcriptTokenEndIndex": 66
+        },
+        {
+          "scriptToken": "fake",
+          "transcriptToken": "fake",
+          "normalizedToken": "word:fake",
+          "scriptTokenIndex": 67,
+          "scriptTokenEndIndex": 67,
+          "transcriptTokenIndex": 67,
+          "transcriptTokenEndIndex": 67
+        },
+        {
+          "scriptToken": "often",
+          "transcriptToken": "often",
+          "normalizedToken": "word:often",
+          "scriptTokenIndex": 68,
+          "scriptTokenEndIndex": 68,
+          "transcriptTokenIndex": 68,
+          "transcriptTokenEndIndex": 68
+        },
+        {
+          "scriptToken": "just",
+          "transcriptToken": "just",
+          "normalizedToken": "word:just",
+          "scriptTokenIndex": 69,
+          "scriptTokenEndIndex": 69,
+          "transcriptTokenIndex": 69,
+          "transcriptTokenEndIndex": 69
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 70,
+          "scriptTokenEndIndex": 70,
+          "transcriptTokenIndex": 70,
+          "transcriptTokenEndIndex": 70
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:customer",
+          "scriptTokenIndex": 71,
+          "scriptTokenEndIndex": 71,
+          "transcriptTokenIndex": 71,
+          "transcriptTokenEndIndex": 71,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 71,
+          "scriptTokenEndIndex": 71,
+          "transcriptTokenIndex": 71,
+          "transcriptTokenEndIndex": 71,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "real",
+          "transcriptToken": "real",
+          "normalizedToken": "word:real",
+          "scriptTokenIndex": 72,
+          "scriptTokenEndIndex": 72,
+          "transcriptTokenIndex": 72,
+          "transcriptTokenEndIndex": 72
+        },
+        {
+          "scriptToken": "email",
+          "transcriptToken": "email",
+          "normalizedToken": "word:email",
+          "scriptTokenIndex": 73,
+          "scriptTokenEndIndex": 73,
+          "transcriptTokenIndex": 73,
+          "transcriptTokenEndIndex": 73
+        },
+        {
+          "scriptToken": "with",
+          "transcriptToken": "with",
+          "normalizedToken": "word:with",
+          "scriptTokenIndex": 74,
+          "scriptTokenEndIndex": 74,
+          "transcriptTokenIndex": 74,
+          "transcriptTokenEndIndex": 74
+        },
+        {
+          "scriptToken": "extra",
+          "transcriptToken": "extra",
+          "normalizedToken": "word:extra",
+          "scriptTokenIndex": 75,
+          "scriptTokenEndIndex": 75,
+          "transcriptTokenIndex": 75,
+          "transcriptTokenEndIndex": 75
+        },
+        {
+          "scriptToken": "numbers",
+          "transcriptToken": "numbers",
+          "normalizedToken": "word:numbers",
+          "scriptTokenIndex": 76,
+          "scriptTokenEndIndex": 76,
+          "transcriptTokenIndex": 76,
+          "transcriptTokenEndIndex": 76
+        },
+        {
+          "scriptToken": "added",
+          "transcriptToken": "added",
+          "normalizedToken": "word:added",
+          "scriptTokenIndex": 77,
+          "scriptTokenEndIndex": 77,
+          "transcriptTokenIndex": 77,
+          "transcriptTokenEndIndex": 77
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 78,
+          "scriptTokenEndIndex": 78,
+          "transcriptTokenIndex": 78,
+          "transcriptTokenEndIndex": 78
+        },
+        {
+          "scriptToken": "PINs",
+          "transcriptToken": "pins",
+          "normalizedToken": "word:pins",
+          "scriptTokenIndex": 79,
+          "scriptTokenEndIndex": 79,
+          "transcriptTokenIndex": 79,
+          "transcriptTokenEndIndex": 79
+        },
+        {
+          "scriptToken": "for",
+          "transcriptToken": "for",
+          "normalizedToken": "word:for",
+          "scriptTokenIndex": 80,
+          "scriptTokenEndIndex": 80,
+          "transcriptTokenIndex": 80,
+          "transcriptTokenEndIndex": 80
+        },
+        {
+          "scriptToken": "debit",
+          "transcriptToken": "debit",
+          "normalizedToken": "word:debit",
+          "scriptTokenIndex": 81,
+          "scriptTokenEndIndex": 81,
+          "transcriptTokenIndex": 81,
+          "transcriptTokenEndIndex": 81
+        },
+        {
+          "scriptToken": "cards",
+          "transcriptToken": "cards",
+          "normalizedToken": "word:cards",
+          "scriptTokenIndex": 82,
+          "scriptTokenEndIndex": 82,
+          "transcriptTokenIndex": 82,
+          "transcriptTokenEndIndex": 82
+        },
+        {
+          "scriptToken": "were",
+          "transcriptToken": "were",
+          "normalizedToken": "word:were",
+          "scriptTokenIndex": 83,
+          "scriptTokenEndIndex": 83,
+          "transcriptTokenIndex": 83,
+          "transcriptTokenEndIndex": 83
+        },
+        {
+          "scriptToken": "set",
+          "transcriptToken": "set",
+          "normalizedToken": "word:set",
+          "scriptTokenIndex": 84,
+          "scriptTokenEndIndex": 84,
+          "transcriptTokenIndex": 84,
+          "transcriptTokenEndIndex": 84
+        },
+        {
+          "scriptToken": "to",
+          "transcriptToken": "to",
+          "normalizedToken": "word:to",
+          "scriptTokenIndex": 85,
+          "scriptTokenEndIndex": 85,
+          "transcriptTokenIndex": 85,
+          "transcriptTokenEndIndex": 85
+        },
+        {
+          "scriptToken": "0000",
+          "transcriptToken": "000",
+          "normalizedToken": "number:0",
+          "scriptTokenIndex": 86,
+          "scriptTokenEndIndex": 86,
+          "transcriptTokenIndex": 86,
+          "transcriptTokenEndIndex": 86,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "Some",
+          "transcriptToken": "some",
+          "normalizedToken": "word:some",
+          "scriptTokenIndex": 87,
+          "scriptTokenEndIndex": 87,
+          "transcriptTokenIndex": 87,
+          "transcriptTokenEndIndex": 87
+        },
+        {
+          "scriptToken": "employees",
+          "transcriptToken": "employees",
+          "normalizedToken": "word:employees",
+          "scriptTokenIndex": 88,
+          "scriptTokenEndIndex": 88,
+          "transcriptTokenIndex": 88,
+          "transcriptTokenEndIndex": 88
+        },
+        {
+          "scriptToken": "got",
+          "transcriptToken": "got",
+          "normalizedToken": "word:got",
+          "scriptTokenIndex": 89,
+          "scriptTokenEndIndex": 89,
+          "transcriptTokenIndex": 89,
+          "transcriptTokenEndIndex": 89
+        },
+        {
+          "scriptToken": "creative",
+          "transcriptToken": "creative",
+          "normalizedToken": "word:creative",
+          "scriptTokenIndex": 90,
+          "scriptTokenEndIndex": 90,
+          "transcriptTokenIndex": 90,
+          "transcriptTokenEndIndex": 90
+        },
+        {
+          "scriptToken": "They",
+          "transcriptToken": "they",
+          "normalizedToken": "word:they",
+          "scriptTokenIndex": 91,
+          "scriptTokenEndIndex": 91,
+          "transcriptTokenIndex": 91,
+          "transcriptTokenEndIndex": 91
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 92,
+          "scriptTokenEndIndex": 92,
+          "transcriptTokenIndex": 92,
+          "transcriptTokenEndIndex": 92
+        },
+        {
+          "scriptToken": "open",
+          "transcriptToken": "open",
+          "normalizedToken": "word:open",
+          "scriptTokenIndex": 93,
+          "scriptTokenEndIndex": 93,
+          "transcriptTokenIndex": 93,
+          "transcriptTokenEndIndex": 93
+        },
+        {
+          "scriptToken": "accounts",
+          "transcriptToken": "accounts",
+          "normalizedToken": "word:accounts",
+          "scriptTokenIndex": 94,
+          "scriptTokenEndIndex": 94,
+          "transcriptTokenIndex": 94,
+          "transcriptTokenEndIndex": 94
+        },
+        {
+          "scriptToken": "using",
+          "transcriptToken": "using",
+          "normalizedToken": "word:using",
+          "scriptTokenIndex": 95,
+          "scriptTokenEndIndex": 95,
+          "transcriptTokenIndex": 95,
+          "transcriptTokenEndIndex": 95
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 96,
+          "scriptTokenEndIndex": 96,
+          "transcriptTokenIndex": 96,
+          "transcriptTokenEndIndex": 96
+        },
+        {
+          "scriptToken": "identities",
+          "transcriptToken": "identities",
+          "normalizedToken": "word:identities",
+          "scriptTokenIndex": 97,
+          "scriptTokenEndIndex": 97,
+          "transcriptTokenIndex": 97,
+          "transcriptTokenEndIndex": 97
+        },
+        {
+          "scriptToken": "of",
+          "transcriptToken": "of",
+          "normalizedToken": "word:of",
+          "scriptTokenIndex": 98,
+          "scriptTokenEndIndex": 98,
+          "transcriptTokenIndex": 98,
+          "transcriptTokenEndIndex": 98
+        },
+        {
+          "scriptToken": "elderly",
+          "transcriptToken": "elderly",
+          "normalizedToken": "word:elderly",
+          "scriptTokenIndex": 99,
+          "scriptTokenEndIndex": 99,
+          "transcriptTokenIndex": 99,
+          "transcriptTokenEndIndex": 99
+        },
+        {
+          "scriptToken": "customers",
+          "transcriptToken": "customers",
+          "normalizedToken": "word:customers",
+          "scriptTokenIndex": 100,
+          "scriptTokenEndIndex": 100,
+          "transcriptTokenIndex": 100,
+          "transcriptTokenEndIndex": 100
+        },
+        {
+          "scriptToken": "who",
+          "transcriptToken": "who",
+          "normalizedToken": "word:who",
+          "scriptTokenIndex": 101,
+          "scriptTokenEndIndex": 101,
+          "transcriptTokenIndex": 101,
+          "transcriptTokenEndIndex": 101
+        },
+        {
+          "scriptToken": "wouldn't",
+          "transcriptToken": "wouldn't",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 102,
+          "scriptTokenEndIndex": 102,
+          "transcriptTokenIndex": 102,
+          "transcriptTokenEndIndex": 102,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "wouldn't",
+          "transcriptToken": "wouldn't",
+          "normalizedToken": "word:not",
+          "scriptTokenIndex": 102,
+          "scriptTokenEndIndex": 102,
+          "transcriptTokenIndex": 102,
+          "transcriptTokenEndIndex": 102,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "notice",
+          "transcriptToken": "notice",
+          "normalizedToken": "word:notice",
+          "scriptTokenIndex": 103,
+          "scriptTokenEndIndex": 103,
+          "transcriptTokenIndex": 103,
+          "transcriptTokenEndIndex": 103
+        },
+        {
+          "scriptToken": "They",
+          "transcriptToken": "they",
+          "normalizedToken": "word:they",
+          "scriptTokenIndex": 104,
+          "scriptTokenEndIndex": 104,
+          "transcriptTokenIndex": 104,
+          "transcriptTokenEndIndex": 104
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 105,
+          "scriptTokenEndIndex": 105,
+          "transcriptTokenIndex": 105,
+          "transcriptTokenEndIndex": 105
+        },
+        {
+          "scriptToken": "sign",
+          "transcriptToken": "sign",
+          "normalizedToken": "word:sign",
+          "scriptTokenIndex": 106,
+          "scriptTokenEndIndex": 106,
+          "transcriptTokenIndex": 106,
+          "transcriptTokenEndIndex": 106
+        },
+        {
+          "scriptToken": "up",
+          "transcriptToken": "up",
+          "normalizedToken": "word:up",
+          "scriptTokenIndex": 107,
+          "scriptTokenEndIndex": 107,
+          "transcriptTokenIndex": 107,
+          "transcriptTokenEndIndex": 107
+        },
+        {
+          "scriptToken": "immigrants",
+          "transcriptToken": "immigrants",
+          "normalizedToken": "word:immigrants",
+          "scriptTokenIndex": 108,
+          "scriptTokenEndIndex": 108,
+          "transcriptTokenIndex": 108,
+          "transcriptTokenEndIndex": 108
+        },
+        {
+          "scriptToken": "who",
+          "transcriptToken": "who",
+          "normalizedToken": "word:who",
+          "scriptTokenIndex": 109,
+          "scriptTokenEndIndex": 109,
+          "transcriptTokenIndex": 109,
+          "transcriptTokenEndIndex": 109
+        },
+        {
+          "scriptToken": "couldn't",
+          "transcriptToken": "couldn't",
+          "normalizedToken": "word:could",
+          "scriptTokenIndex": 110,
+          "scriptTokenEndIndex": 110,
+          "transcriptTokenIndex": 110,
+          "transcriptTokenEndIndex": 110,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "couldn't",
+          "transcriptToken": "couldn't",
+          "normalizedToken": "word:not",
+          "scriptTokenIndex": 110,
+          "scriptTokenEndIndex": 110,
+          "transcriptTokenIndex": 110,
+          "transcriptTokenEndIndex": 110,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "read",
+          "transcriptToken": "read",
+          "normalizedToken": "word:read",
+          "scriptTokenIndex": 111,
+          "scriptTokenEndIndex": 111,
+          "transcriptTokenIndex": 111,
+          "transcriptTokenEndIndex": 111
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 112,
+          "scriptTokenEndIndex": 112,
+          "transcriptTokenIndex": 112,
+          "transcriptTokenEndIndex": 112
+        },
+        {
+          "scriptToken": "English",
+          "transcriptToken": "english",
+          "normalizedToken": "word:english",
+          "scriptTokenIndex": 113,
+          "scriptTokenEndIndex": 113,
+          "transcriptTokenIndex": 113,
+          "transcriptTokenEndIndex": 113
+        },
+        {
+          "scriptToken": "paperwork",
+          "transcriptToken": "paperwork",
+          "normalizedToken": "word:paperwork",
+          "scriptTokenIndex": 114,
+          "scriptTokenEndIndex": 114,
+          "transcriptTokenIndex": 114,
+          "transcriptTokenEndIndex": 114
+        },
+        {
+          "scriptToken": "They",
+          "transcriptToken": "they",
+          "normalizedToken": "word:they",
+          "scriptTokenIndex": 115,
+          "scriptTokenEndIndex": 115,
+          "transcriptTokenIndex": 115,
+          "transcriptTokenEndIndex": 115
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 116,
+          "scriptTokenEndIndex": 116,
+          "transcriptTokenIndex": 116,
+          "transcriptTokenEndIndex": 116
+        },
+        {
+          "scriptToken": "create",
+          "transcriptToken": "create",
+          "normalizedToken": "word:create",
+          "scriptTokenIndex": 117,
+          "scriptTokenEndIndex": 117,
+          "transcriptTokenIndex": 117,
+          "transcriptTokenEndIndex": 117
+        },
+        {
+          "scriptToken": "accounts",
+          "transcriptToken": "accounts",
+          "normalizedToken": "word:accounts",
+          "scriptTokenIndex": 118,
+          "scriptTokenEndIndex": 118,
+          "transcriptTokenIndex": 118,
+          "transcriptTokenEndIndex": 118
+        },
+        {
+          "scriptToken": "for",
+          "transcriptToken": "for",
+          "normalizedToken": "word:for",
+          "scriptTokenIndex": 119,
+          "scriptTokenEndIndex": 119,
+          "transcriptTokenIndex": 119,
+          "transcriptTokenEndIndex": 119
+        },
+        {
+          "scriptToken": "people",
+          "transcriptToken": "people",
+          "normalizedToken": "word:people",
+          "scriptTokenIndex": 120,
+          "scriptTokenEndIndex": 120,
+          "transcriptTokenIndex": 120,
+          "transcriptTokenEndIndex": 120
+        },
+        {
+          "scriptToken": "who",
+          "transcriptToken": "who",
+          "normalizedToken": "word:who",
+          "scriptTokenIndex": 121,
+          "scriptTokenEndIndex": 121,
+          "transcriptTokenIndex": 121,
+          "transcriptTokenEndIndex": 121
+        },
+        {
+          "scriptToken": "had",
+          "transcriptToken": "had",
+          "normalizedToken": "word:had",
+          "scriptTokenIndex": 122,
+          "scriptTokenEndIndex": 122,
+          "transcriptTokenIndex": 122,
+          "transcriptTokenEndIndex": 122
+        },
+        {
+          "scriptToken": "died",
+          "transcriptToken": "died",
+          "normalizedToken": "word:died",
+          "scriptTokenIndex": 123,
+          "scriptTokenEndIndex": 123,
+          "transcriptTokenIndex": 123,
+          "transcriptTokenEndIndex": 123
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 124,
+          "scriptTokenEndIndex": 124,
+          "transcriptTokenIndex": 124,
+          "transcriptTokenEndIndex": 124
+        },
+        {
+          "scriptToken": "board's",
+          "transcriptToken": "board's",
+          "normalizedToken": "word:board",
+          "scriptTokenIndex": 125,
+          "scriptTokenEndIndex": 125,
+          "transcriptTokenIndex": 125,
+          "transcriptTokenEndIndex": 125,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "board's",
+          "transcriptToken": "board's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 125,
+          "scriptTokenEndIndex": 125,
+          "transcriptTokenIndex": 125,
+          "transcriptTokenEndIndex": 125,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "investigation",
+          "transcriptToken": "investigation",
+          "normalizedToken": "word:investigation",
+          "scriptTokenIndex": 126,
+          "scriptTokenEndIndex": 126,
+          "transcriptTokenIndex": 126,
+          "transcriptTokenEndIndex": 126
+        },
+        {
+          "scriptToken": "found",
+          "transcriptToken": "found",
+          "normalizedToken": "word:found",
+          "scriptTokenIndex": 127,
+          "scriptTokenEndIndex": 127,
+          "transcriptTokenIndex": 127,
+          "transcriptTokenEndIndex": 127
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 128,
+          "scriptTokenEndIndex": 128,
+          "transcriptTokenIndex": 128,
+          "transcriptTokenEndIndex": 128
+        },
+        {
+          "scriptToken": "branch",
+          "transcriptToken": "branch",
+          "normalizedToken": "word:branch",
+          "scriptTokenIndex": 129,
+          "scriptTokenEndIndex": 129,
+          "transcriptTokenIndex": 129,
+          "transcriptTokenEndIndex": 129
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:manager",
+          "scriptTokenIndex": 130,
+          "scriptTokenEndIndex": 130,
+          "transcriptTokenIndex": 130,
+          "transcriptTokenEndIndex": 130,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 130,
+          "scriptTokenEndIndex": 130,
+          "transcriptTokenIndex": 130,
+          "transcriptTokenEndIndex": 130,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "teenage",
+          "transcriptToken": "teenage",
+          "normalizedToken": "word:teenage",
+          "scriptTokenIndex": 131,
+          "scriptTokenEndIndex": 131,
+          "transcriptTokenIndex": 131,
+          "transcriptTokenEndIndex": 131
+        },
+        {
+          "scriptToken": "daughter",
+          "transcriptToken": "daughter",
+          "normalizedToken": "word:daughter",
+          "scriptTokenIndex": 132,
+          "scriptTokenEndIndex": 132,
+          "transcriptTokenIndex": 132,
+          "transcriptTokenEndIndex": 132
+        },
+        {
+          "scriptToken": "had",
+          "transcriptToken": "had",
+          "normalizedToken": "word:had",
+          "scriptTokenIndex": 133,
+          "scriptTokenEndIndex": 133,
+          "transcriptTokenIndex": 133,
+          "transcriptTokenEndIndex": 133
+        },
+        {
+          "scriptToken": "24",
+          "transcriptToken": "24",
+          "normalizedToken": "number:24",
+          "scriptTokenIndex": 134,
+          "scriptTokenEndIndex": 134,
+          "transcriptTokenIndex": 134,
+          "transcriptTokenEndIndex": 134,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "accounts",
+          "transcriptToken": "accounts",
+          "normalizedToken": "word:accounts",
+          "scriptTokenIndex": 135,
+          "scriptTokenEndIndex": 135,
+          "transcriptTokenIndex": 135,
+          "transcriptTokenEndIndex": 135
+        },
+        {
+          "scriptToken": "an",
+          "transcriptToken": "an",
+          "normalizedToken": "word:an",
+          "scriptTokenIndex": 136,
+          "scriptTokenEndIndex": 136,
+          "transcriptTokenIndex": 136,
+          "transcriptTokenEndIndex": 136
+        },
+        {
+          "scriptToken": "adult",
+          "transcriptToken": "adult",
+          "normalizedToken": "word:adult",
+          "scriptTokenIndex": 137,
+          "scriptTokenEndIndex": 137,
+          "transcriptTokenIndex": 137,
+          "transcriptTokenEndIndex": 137
+        },
+        {
+          "scriptToken": "daughter",
+          "transcriptToken": "daughter",
+          "normalizedToken": "word:daughter",
+          "scriptTokenIndex": 138,
+          "scriptTokenEndIndex": 138,
+          "transcriptTokenIndex": 138,
+          "transcriptTokenEndIndex": 138
+        },
+        {
+          "scriptToken": "had",
+          "transcriptToken": "had",
+          "normalizedToken": "word:had",
+          "scriptTokenIndex": 139,
+          "scriptTokenEndIndex": 139,
+          "transcriptTokenIndex": 139,
+          "transcriptTokenEndIndex": 139
+        },
+        {
+          "scriptToken": "18",
+          "transcriptToken": "18",
+          "normalizedToken": "number:18",
+          "scriptTokenIndex": 140,
+          "scriptTokenEndIndex": 140,
+          "transcriptTokenIndex": 140,
+          "transcriptTokenEndIndex": 140,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "and",
+          "transcriptToken": "and",
+          "normalizedToken": "word:and",
+          "scriptTokenIndex": 141,
+          "scriptTokenEndIndex": 141,
+          "transcriptTokenIndex": 141,
+          "transcriptTokenEndIndex": 141
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 142,
+          "scriptTokenEndIndex": 142,
+          "transcriptTokenIndex": 142,
+          "transcriptTokenEndIndex": 142
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:manager",
+          "scriptTokenIndex": 143,
+          "scriptTokenEndIndex": 143,
+          "transcriptTokenIndex": 143,
+          "transcriptTokenEndIndex": 143,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 143,
+          "scriptTokenEndIndex": 143,
+          "transcriptTokenIndex": 143,
+          "transcriptTokenEndIndex": 143,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "spouse",
+          "transcriptToken": "spouse",
+          "normalizedToken": "word:spouse",
+          "scriptTokenIndex": 144,
+          "scriptTokenEndIndex": 144,
+          "transcriptTokenIndex": 144,
+          "transcriptTokenEndIndex": 144
+        },
+        {
+          "scriptToken": "had",
+          "transcriptToken": "had",
+          "normalizedToken": "word:had",
+          "scriptTokenIndex": 145,
+          "scriptTokenEndIndex": 145,
+          "transcriptTokenIndex": 145,
+          "transcriptTokenEndIndex": 145
+        },
+        {
+          "scriptToken": "21",
+          "transcriptToken": "21",
+          "normalizedToken": "number:21",
+          "scriptTokenIndex": 146,
+          "scriptTokenEndIndex": 146,
+          "transcriptTokenIndex": 146,
+          "transcriptTokenEndIndex": 146,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 147,
+          "scriptTokenEndIndex": 147,
+          "transcriptTokenIndex": 147,
+          "transcriptTokenEndIndex": 147
+        },
+        {
+          "scriptToken": "pressure",
+          "transcriptToken": "pressure",
+          "normalizedToken": "word:pressure",
+          "scriptTokenIndex": 148,
+          "scriptTokenEndIndex": 148,
+          "transcriptTokenIndex": 148,
+          "transcriptTokenEndIndex": 148
+        },
+        {
+          "scriptToken": "was",
+          "transcriptToken": "was",
+          "normalizedToken": "word:was",
+          "scriptTokenIndex": 149,
+          "scriptTokenEndIndex": 149,
+          "transcriptTokenIndex": 149,
+          "transcriptTokenEndIndex": 149
+        },
+        {
+          "scriptToken": "relentless",
+          "transcriptToken": "relentless",
+          "normalizedToken": "word:relentless",
+          "scriptTokenIndex": 150,
+          "scriptTokenEndIndex": 150,
+          "transcriptTokenIndex": 150,
+          "transcriptTokenEndIndex": 150
+        },
+        {
+          "scriptToken": "Employees",
+          "transcriptToken": "employees",
+          "normalizedToken": "word:employees",
+          "scriptTokenIndex": 151,
+          "scriptTokenEndIndex": 151,
+          "transcriptTokenIndex": 151,
+          "transcriptTokenEndIndex": 151
+        },
+        {
+          "scriptToken": "received",
+          "transcriptToken": "received",
+          "normalizedToken": "word:received",
+          "scriptTokenIndex": 152,
+          "scriptTokenEndIndex": 152,
+          "transcriptTokenIndex": 152,
+          "transcriptTokenEndIndex": 152
+        },
+        {
+          "scriptToken": "multiple",
+          "transcriptToken": "multiple",
+          "normalizedToken": "word:multiple",
+          "scriptTokenIndex": 153,
+          "scriptTokenEndIndex": 153,
+          "transcriptTokenIndex": 153,
+          "transcriptTokenEndIndex": 153
+        },
+        {
+          "scriptToken": "emails",
+          "transcriptToken": "emails",
+          "normalizedToken": "word:emails",
+          "scriptTokenIndex": 154,
+          "scriptTokenEndIndex": 154,
+          "transcriptTokenIndex": 154,
+          "transcriptTokenEndIndex": 154
+        },
+        {
+          "scriptToken": "per",
+          "transcriptToken": "per",
+          "normalizedToken": "word:per",
+          "scriptTokenIndex": 155,
+          "scriptTokenEndIndex": 155,
+          "transcriptTokenIndex": 155,
+          "transcriptTokenEndIndex": 155
+        },
+        {
+          "scriptToken": "day",
+          "transcriptToken": "day",
+          "normalizedToken": "word:day",
+          "scriptTokenIndex": 156,
+          "scriptTokenEndIndex": 156,
+          "transcriptTokenIndex": 156,
+          "transcriptTokenEndIndex": 156
+        },
+        {
+          "scriptToken": "tracking",
+          "transcriptToken": "tracking",
+          "normalizedToken": "word:tracking",
+          "scriptTokenIndex": 157,
+          "scriptTokenEndIndex": 157,
+          "transcriptTokenIndex": 157,
+          "transcriptTokenEndIndex": 157
+        },
+        {
+          "scriptToken": "their",
+          "transcriptToken": "their",
+          "normalizedToken": "word:their",
+          "scriptTokenIndex": 158,
+          "scriptTokenEndIndex": 158,
+          "transcriptTokenIndex": 158,
+          "transcriptTokenEndIndex": 158
+        },
+        {
+          "scriptToken": "progress",
+          "transcriptToken": "progress",
+          "normalizedToken": "word:progress",
+          "scriptTokenIndex": 159,
+          "scriptTokenEndIndex": 159,
+          "transcriptTokenIndex": 159,
+          "transcriptTokenEndIndex": 159
+        },
+        {
+          "scriptToken": "toward",
+          "transcriptToken": "toward",
+          "normalizedToken": "word:toward",
+          "scriptTokenIndex": 160,
+          "scriptTokenEndIndex": 160,
+          "transcriptTokenIndex": 160,
+          "transcriptTokenEndIndex": 160
+        },
+        {
+          "scriptToken": "quotas",
+          "transcriptToken": "quotas",
+          "normalizedToken": "word:quotas",
+          "scriptTokenIndex": 161,
+          "scriptTokenEndIndex": 161,
+          "transcriptTokenIndex": 161,
+          "transcriptTokenEndIndex": 161
+        },
+        {
+          "scriptToken": "Managers",
+          "transcriptToken": "managers",
+          "normalizedToken": "word:managers",
+          "scriptTokenIndex": 162,
+          "scriptTokenEndIndex": 162,
+          "transcriptTokenIndex": 162,
+          "transcriptTokenEndIndex": 162
+        },
+        {
+          "scriptToken": "held",
+          "transcriptToken": "held",
+          "normalizedToken": "word:held",
+          "scriptTokenIndex": 163,
+          "scriptTokenEndIndex": 163,
+          "transcriptTokenIndex": 163,
+          "transcriptTokenEndIndex": 163
+        },
+        {
+          "scriptToken": "4",
+          "transcriptToken": "four",
+          "normalizedToken": "number:4",
+          "scriptTokenIndex": 164,
+          "scriptTokenEndIndex": 164,
+          "transcriptTokenIndex": 164,
+          "transcriptTokenEndIndex": 164,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "o'clock",
+          "transcriptToken": "o",
+          "normalizedToken": "word:o",
+          "scriptTokenIndex": 165,
+          "scriptTokenEndIndex": 165,
+          "transcriptTokenIndex": 165,
+          "transcriptTokenEndIndex": 165,
+          "normalizationClass": "ORTHOGRAPHIC_VARIANT"
+        },
+        {
+          "scriptToken": "o'clock",
+          "transcriptToken": "clock",
+          "normalizedToken": "word:clock",
+          "scriptTokenIndex": 165,
+          "scriptTokenEndIndex": 165,
+          "transcriptTokenIndex": 166,
+          "transcriptTokenEndIndex": 166,
+          "normalizationClass": "ORTHOGRAPHIC_VARIANT"
+        },
+        {
+          "scriptToken": "huddles",
+          "transcriptToken": "huddles",
+          "normalizedToken": "word:huddles",
+          "scriptTokenIndex": 166,
+          "scriptTokenEndIndex": 166,
+          "transcriptTokenIndex": 167,
+          "transcriptTokenEndIndex": 167
+        },
+        {
+          "scriptToken": "where",
+          "transcriptToken": "where",
+          "normalizedToken": "word:where",
+          "scriptTokenIndex": 167,
+          "scriptTokenEndIndex": 167,
+          "transcriptTokenIndex": 168,
+          "transcriptTokenEndIndex": 168
+        },
+        {
+          "scriptToken": "they",
+          "transcriptToken": "they",
+          "normalizedToken": "word:they",
+          "scriptTokenIndex": 168,
+          "scriptTokenEndIndex": 168,
+          "transcriptTokenIndex": 169,
+          "transcriptTokenEndIndex": 169
+        },
+        {
+          "scriptToken": "would",
+          "transcriptToken": "would",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 169,
+          "scriptTokenEndIndex": 169,
+          "transcriptTokenIndex": 170,
+          "transcriptTokenEndIndex": 170
+        },
+        {
+          "scriptToken": "berate",
+          "transcriptToken": "berate",
+          "normalizedToken": "word:berate",
+          "scriptTokenIndex": 170,
+          "scriptTokenEndIndex": 170,
+          "transcriptTokenIndex": 171,
+          "transcriptTokenEndIndex": 171
+        },
+        {
+          "scriptToken": "underperformers",
+          "transcriptToken": "underperformers",
+          "normalizedToken": "word:underperformers",
+          "scriptTokenIndex": 171,
+          "scriptTokenEndIndex": 171,
+          "transcriptTokenIndex": 172,
+          "transcriptTokenEndIndex": 172
+        },
+        {
+          "scriptToken": "in",
+          "transcriptToken": "in",
+          "normalizedToken": "word:in",
+          "scriptTokenIndex": 172,
+          "scriptTokenEndIndex": 172,
+          "transcriptTokenIndex": 173,
+          "transcriptTokenEndIndex": 173
+        },
+        {
+          "scriptToken": "front",
+          "transcriptToken": "front",
+          "normalizedToken": "word:front",
+          "scriptTokenIndex": 173,
+          "scriptTokenEndIndex": 173,
+          "transcriptTokenIndex": 174,
+          "transcriptTokenEndIndex": 174
+        },
+        {
+          "scriptToken": "of",
+          "transcriptToken": "of",
+          "normalizedToken": "word:of",
+          "scriptTokenIndex": 174,
+          "scriptTokenEndIndex": 174,
+          "transcriptTokenIndex": 175,
+          "transcriptTokenEndIndex": 175
+        },
+        {
+          "scriptToken": "their",
+          "transcriptToken": "their",
+          "normalizedToken": "word:their",
+          "scriptTokenIndex": 175,
+          "scriptTokenEndIndex": 175,
+          "transcriptTokenIndex": 176,
+          "transcriptTokenEndIndex": 176
+        },
+        {
+          "scriptToken": "colleagues",
+          "transcriptToken": "colleagues",
+          "normalizedToken": "word:colleagues",
+          "scriptTokenIndex": 176,
+          "scriptTokenEndIndex": 176,
+          "transcriptTokenIndex": 177,
+          "transcriptTokenEndIndex": 177
+        },
+        {
+          "scriptToken": "Those",
+          "transcriptToken": "those",
+          "normalizedToken": "word:those",
+          "scriptTokenIndex": 177,
+          "scriptTokenEndIndex": 177,
+          "transcriptTokenIndex": 178,
+          "transcriptTokenEndIndex": 178
+        },
+        {
+          "scriptToken": "who",
+          "transcriptToken": "who",
+          "normalizedToken": "word:who",
+          "scriptTokenIndex": 178,
+          "scriptTokenEndIndex": 178,
+          "transcriptTokenIndex": 179,
+          "transcriptTokenEndIndex": 179
+        },
+        {
+          "scriptToken": "missed",
+          "transcriptToken": "missed",
+          "normalizedToken": "word:missed",
+          "scriptTokenIndex": 179,
+          "scriptTokenEndIndex": 179,
+          "transcriptTokenIndex": 180,
+          "transcriptTokenEndIndex": 180
+        },
+        {
+          "scriptToken": "their",
+          "transcriptToken": "their",
+          "normalizedToken": "word:their",
+          "scriptTokenIndex": 180,
+          "scriptTokenEndIndex": 180,
+          "transcriptTokenIndex": 181,
+          "transcriptTokenEndIndex": 181
+        },
+        {
+          "scriptToken": "numbers",
+          "transcriptToken": "numbers",
+          "normalizedToken": "word:numbers",
+          "scriptTokenIndex": 181,
+          "scriptTokenEndIndex": 181,
+          "transcriptTokenIndex": 182,
+          "transcriptTokenEndIndex": 182
+        },
+        {
+          "scriptToken": "were",
+          "transcriptToken": "were",
+          "normalizedToken": "word:were",
+          "scriptTokenIndex": 182,
+          "scriptTokenEndIndex": 182,
+          "transcriptTokenIndex": 183,
+          "transcriptTokenEndIndex": 183
+        },
+        {
+          "scriptToken": "put",
+          "transcriptToken": "put",
+          "normalizedToken": "word:put",
+          "scriptTokenIndex": 183,
+          "scriptTokenEndIndex": 183,
+          "transcriptTokenIndex": 184,
+          "transcriptTokenEndIndex": 184
+        },
+        {
+          "scriptToken": "on",
+          "transcriptToken": "on",
+          "normalizedToken": "word:on",
+          "scriptTokenIndex": 184,
+          "scriptTokenEndIndex": 184,
+          "transcriptTokenIndex": 185,
+          "transcriptTokenEndIndex": 185
+        },
+        {
+          "scriptToken": "performance",
+          "transcriptToken": "performance",
+          "normalizedToken": "word:performance",
+          "scriptTokenIndex": 185,
+          "scriptTokenEndIndex": 185,
+          "transcriptTokenIndex": 186,
+          "transcriptTokenEndIndex": 186
+        },
+        {
+          "scriptToken": "improvement",
+          "transcriptToken": "improvement",
+          "normalizedToken": "word:improvement",
+          "scriptTokenIndex": 186,
+          "scriptTokenEndIndex": 186,
+          "transcriptTokenIndex": 187,
+          "transcriptTokenEndIndex": 187
+        },
+        {
+          "scriptToken": "plans",
+          "transcriptToken": "plans",
+          "normalizedToken": "word:plans",
+          "scriptTokenIndex": 187,
+          "scriptTokenEndIndex": 187,
+          "transcriptTokenIndex": 188,
+          "transcriptTokenEndIndex": 188
+        },
+        {
+          "scriptToken": "the",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 188,
+          "scriptTokenEndIndex": 188,
+          "transcriptTokenIndex": 189,
+          "transcriptTokenEndIndex": 189
+        },
+        {
+          "scriptToken": "first",
+          "transcriptToken": "first",
+          "normalizedToken": "word:first",
+          "scriptTokenIndex": 189,
+          "scriptTokenEndIndex": 189,
+          "transcriptTokenIndex": 190,
+          "transcriptTokenEndIndex": 190
+        },
+        {
+          "scriptToken": "step",
+          "transcriptToken": "step",
+          "normalizedToken": "word:step",
+          "scriptTokenIndex": 190,
+          "scriptTokenEndIndex": 190,
+          "transcriptTokenIndex": 191,
+          "transcriptTokenEndIndex": 191
+        },
+        {
+          "scriptToken": "toward",
+          "transcriptToken": "toward",
+          "normalizedToken": "word:toward",
+          "scriptTokenIndex": 191,
+          "scriptTokenEndIndex": 191,
+          "transcriptTokenIndex": 192,
+          "transcriptTokenEndIndex": 192
+        },
+        {
+          "scriptToken": "termination",
+          "transcriptToken": "termination",
+          "normalizedToken": "word:termination",
+          "scriptTokenIndex": 192,
+          "scriptTokenEndIndex": 192,
+          "transcriptTokenIndex": 193,
+          "transcriptTokenEndIndex": 193
+        },
+        {
+          "scriptToken": "One",
+          "transcriptToken": "one",
+          "normalizedToken": "number:1",
+          "scriptTokenIndex": 193,
+          "scriptTokenEndIndex": 193,
+          "transcriptTokenIndex": 194,
+          "transcriptTokenEndIndex": 194,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "former",
+          "transcriptToken": "former",
+          "normalizedToken": "word:former",
+          "scriptTokenIndex": 194,
+          "scriptTokenEndIndex": 194,
+          "transcriptTokenIndex": 195,
+          "transcriptTokenEndIndex": 195
+        },
+        {
+          "scriptToken": "employee",
+          "transcriptToken": "employee",
+          "normalizedToken": "word:employee",
+          "scriptTokenIndex": 195,
+          "scriptTokenEndIndex": 195,
+          "transcriptTokenIndex": 196,
+          "transcriptTokenEndIndex": 196
+        },
+        {
+          "scriptToken": "described",
+          "transcriptToken": "described",
+          "normalizedToken": "word:described",
+          "scriptTokenIndex": 196,
+          "scriptTokenEndIndex": 196,
+          "transcriptTokenIndex": 197,
+          "transcriptTokenEndIndex": 197
+        },
+        {
+          "scriptToken": "it",
+          "transcriptToken": "it",
+          "normalizedToken": "word:it",
+          "scriptTokenIndex": 197,
+          "scriptTokenEndIndex": 197,
+          "transcriptTokenIndex": 198,
+          "transcriptTokenEndIndex": 198
+        },
+        {
+          "scriptToken": "as",
+          "transcriptToken": "as",
+          "normalizedToken": "word:as",
+          "scriptTokenIndex": 198,
+          "scriptTokenEndIndex": 198,
+          "transcriptTokenIndex": 199,
+          "transcriptTokenEndIndex": 199
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 199,
+          "scriptTokenEndIndex": 199,
+          "transcriptTokenIndex": 200,
+          "transcriptTokenEndIndex": 200
+        },
+        {
+          "scriptToken": "choice",
+          "transcriptToken": "choice",
+          "normalizedToken": "word:choice",
+          "scriptTokenIndex": 200,
+          "scriptTokenEndIndex": 200,
+          "transcriptTokenIndex": 201,
+          "transcriptTokenEndIndex": 201
+        },
+        {
+          "scriptToken": "cheat",
+          "transcriptToken": "cheat",
+          "normalizedToken": "word:cheat",
+          "scriptTokenIndex": 201,
+          "scriptTokenEndIndex": 201,
+          "transcriptTokenIndex": 202,
+          "transcriptTokenEndIndex": 202
+        },
+        {
+          "scriptToken": "or",
+          "transcriptToken": "or",
+          "normalizedToken": "word:or",
+          "scriptTokenIndex": 202,
+          "scriptTokenEndIndex": 202,
+          "transcriptTokenIndex": 203,
+          "transcriptTokenEndIndex": 203
+        },
+        {
+          "scriptToken": "starve",
+          "transcriptToken": "starve",
+          "normalizedToken": "word:starve",
+          "scriptTokenIndex": 203,
+          "scriptTokenEndIndex": 203,
+          "transcriptTokenIndex": 204,
+          "transcriptTokenEndIndex": 204
+        },
+        {
+          "scriptToken": "Another",
+          "transcriptToken": "another",
+          "normalizedToken": "word:another",
+          "scriptTokenIndex": 204,
+          "scriptTokenEndIndex": 204,
+          "transcriptTokenIndex": 205,
+          "transcriptTokenEndIndex": 205
+        },
+        {
+          "scriptToken": "said",
+          "transcriptToken": "said",
+          "normalizedToken": "word:said",
+          "scriptTokenIndex": 205,
+          "scriptTokenEndIndex": 205,
+          "transcriptTokenIndex": 206,
+          "transcriptTokenEndIndex": 206
+        },
+        {
+          "scriptToken": "she",
+          "transcriptToken": "she",
+          "normalizedToken": "word:she",
+          "scriptTokenIndex": 206,
+          "scriptTokenEndIndex": 206,
+          "transcriptTokenIndex": 207,
+          "transcriptTokenEndIndex": 207
+        },
+        {
+          "scriptToken": "developed",
+          "transcriptToken": "developed",
+          "normalizedToken": "word:developed",
+          "scriptTokenIndex": 207,
+          "scriptTokenEndIndex": 207,
+          "transcriptTokenIndex": 208,
+          "transcriptTokenEndIndex": 208
+        },
+        {
+          "scriptToken": "an",
+          "transcriptToken": "an",
+          "normalizedToken": "word:an",
+          "scriptTokenIndex": 208,
+          "scriptTokenEndIndex": 208,
+          "transcriptTokenIndex": 209,
+          "transcriptTokenEndIndex": 209
+        },
+        {
+          "scriptToken": "ulcer",
+          "transcriptToken": "ulcer",
+          "normalizedToken": "word:ulcer",
+          "scriptTokenIndex": 209,
+          "scriptTokenEndIndex": 209,
+          "transcriptTokenIndex": 210,
+          "transcriptTokenEndIndex": 210
+        },
+        {
+          "scriptToken": "A",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 210,
+          "scriptTokenEndIndex": 210,
+          "transcriptTokenIndex": 211,
+          "transcriptTokenEndIndex": 211
+        },
+        {
+          "scriptToken": "third",
+          "transcriptToken": "third",
+          "normalizedToken": "word:third",
+          "scriptTokenIndex": 211,
+          "scriptTokenEndIndex": 211,
+          "transcriptTokenIndex": 212,
+          "transcriptTokenEndIndex": 212
+        },
+        {
+          "scriptToken": "said",
+          "transcriptToken": "said",
+          "normalizedToken": "word:said",
+          "scriptTokenIndex": 212,
+          "scriptTokenEndIndex": 212,
+          "transcriptTokenIndex": 213,
+          "transcriptTokenEndIndex": 213
+        },
+        {
+          "scriptToken": "he",
+          "transcriptToken": "he",
+          "normalizedToken": "word:he",
+          "scriptTokenIndex": 213,
+          "scriptTokenEndIndex": 213,
+          "transcriptTokenIndex": 214,
+          "transcriptTokenEndIndex": 214
+        },
+        {
+          "scriptToken": "vomited",
+          "transcriptToken": "vomited",
+          "normalizedToken": "word:vomited",
+          "scriptTokenIndex": 214,
+          "scriptTokenEndIndex": 214,
+          "transcriptTokenIndex": 215,
+          "transcriptTokenEndIndex": 215
+        },
+        {
+          "scriptToken": "before",
+          "transcriptToken": "before",
+          "normalizedToken": "word:before",
+          "scriptTokenIndex": 215,
+          "scriptTokenEndIndex": 215,
+          "transcriptTokenIndex": 216,
+          "transcriptTokenEndIndex": 216
+        },
+        {
+          "scriptToken": "work",
+          "transcriptToken": "work",
+          "normalizedToken": "word:work",
+          "scriptTokenIndex": 216,
+          "scriptTokenEndIndex": 216,
+          "transcriptTokenIndex": 217,
+          "transcriptTokenEndIndex": 217
+        },
+        {
+          "scriptToken": "every",
+          "transcriptToken": "every",
+          "normalizedToken": "word:every",
+          "scriptTokenIndex": 217,
+          "scriptTokenEndIndex": 217,
+          "transcriptTokenIndex": 218,
+          "transcriptTokenEndIndex": 218
+        },
+        {
+          "scriptToken": "morning",
+          "transcriptToken": "morning",
+          "normalizedToken": "word:morning",
+          "scriptTokenIndex": 218,
+          "scriptTokenEndIndex": 218,
+          "transcriptTokenIndex": 219,
+          "transcriptTokenEndIndex": 219
+        },
+        {
+          "scriptToken": "And",
+          "transcriptToken": "and",
+          "normalizedToken": "word:and",
+          "scriptTokenIndex": 219,
+          "scriptTokenEndIndex": 219,
+          "transcriptTokenIndex": 220,
+          "transcriptTokenEndIndex": 220
+        },
+        {
+          "scriptToken": "when",
+          "transcriptToken": "when",
+          "normalizedToken": "word:when",
+          "scriptTokenIndex": 220,
+          "scriptTokenEndIndex": 220,
+          "transcriptTokenIndex": 221,
+          "transcriptTokenEndIndex": 221
+        },
+        {
+          "scriptToken": "they",
+          "transcriptToken": "they",
+          "normalizedToken": "word:they",
+          "scriptTokenIndex": 221,
+          "scriptTokenEndIndex": 221,
+          "transcriptTokenIndex": 222,
+          "transcriptTokenEndIndex": 222
+        },
+        {
+          "scriptToken": "reported",
+          "transcriptToken": "reported",
+          "normalizedToken": "word:reported",
+          "scriptTokenIndex": 222,
+          "scriptTokenEndIndex": 222,
+          "transcriptTokenIndex": 223,
+          "transcriptTokenEndIndex": 223
+        },
+        {
+          "scriptToken": "what",
+          "transcriptToken": "what",
+          "normalizedToken": "word:what",
+          "scriptTokenIndex": 223,
+          "scriptTokenEndIndex": 223,
+          "transcriptTokenIndex": 224,
+          "transcriptTokenEndIndex": 224
+        },
+        {
+          "scriptToken": "was",
+          "transcriptToken": "was",
+          "normalizedToken": "word:was",
+          "scriptTokenIndex": 224,
+          "scriptTokenEndIndex": 224,
+          "transcriptTokenIndex": 225,
+          "transcriptTokenEndIndex": 225
+        },
+        {
+          "scriptToken": "happening",
+          "transcriptToken": "happening",
+          "normalizedToken": "word:happening",
+          "scriptTokenIndex": 225,
+          "scriptTokenEndIndex": 225,
+          "transcriptTokenIndex": 226,
+          "transcriptTokenEndIndex": 226
+        },
+        {
+          "scriptToken": "The",
+          "transcriptToken": "the",
+          "normalizedToken": "word:the",
+          "scriptTokenIndex": 226,
+          "scriptTokenEndIndex": 226,
+          "transcriptTokenIndex": 227,
+          "transcriptTokenEndIndex": 227
+        },
+        {
+          "scriptToken": "ethics",
+          "transcriptToken": "ethics",
+          "normalizedToken": "word:ethics",
+          "scriptTokenIndex": 227,
+          "scriptTokenEndIndex": 227,
+          "transcriptTokenIndex": 228,
+          "transcriptTokenEndIndex": 228
+        },
+        {
+          "scriptToken": "hotline",
+          "transcriptToken": "hotline",
+          "normalizedToken": "word:hotline",
+          "scriptTokenIndex": 228,
+          "scriptTokenEndIndex": 228,
+          "transcriptTokenIndex": 229,
+          "transcriptTokenEndIndex": 229
+        },
+        {
+          "scriptToken": "became",
+          "transcriptToken": "became",
+          "normalizedToken": "word:became",
+          "scriptTokenIndex": 229,
+          "scriptTokenEndIndex": 229,
+          "transcriptTokenIndex": 230,
+          "transcriptTokenEndIndex": 230
+        },
+        {
+          "scriptToken": "a",
+          "transcriptToken": "a",
+          "normalizedToken": "word:a",
+          "scriptTokenIndex": 230,
+          "scriptTokenEndIndex": 230,
+          "transcriptTokenIndex": 231,
+          "transcriptTokenEndIndex": 231
+        },
+        {
+          "scriptToken": "pipeline",
+          "transcriptToken": "pipeline",
+          "normalizedToken": "word:pipeline",
+          "scriptTokenIndex": 231,
+          "scriptTokenEndIndex": 231,
+          "transcriptTokenIndex": 232,
+          "transcriptTokenEndIndex": 232
+        },
+        {
+          "scriptToken": "to",
+          "transcriptToken": "to",
+          "normalizedToken": "word:to",
+          "scriptTokenIndex": 232,
+          "scriptTokenEndIndex": 232,
+          "transcriptTokenIndex": 233,
+          "transcriptTokenEndIndex": 233
+        },
+        {
+          "scriptToken": "unemployment",
+          "transcriptToken": "unemployment",
+          "normalizedToken": "word:unemployment",
+          "scriptTokenIndex": 233,
+          "scriptTokenEndIndex": 233,
+          "transcriptTokenIndex": 234,
+          "transcriptTokenEndIndex": 234
+        }
+      ],
+      "matchedTokenCount": 243,
+      "normalizedEquivalents": [
+        {
+          "scriptToken": "Here's",
+          "transcriptToken": "here's",
+          "normalizedToken": "word:here",
+          "scriptTokenIndex": 18,
+          "scriptTokenEndIndex": 18,
+          "transcriptTokenIndex": 18,
+          "transcriptTokenEndIndex": 18,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "Here's",
+          "transcriptToken": "here's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 18,
+          "scriptTokenEndIndex": 18,
+          "transcriptTokenIndex": 18,
+          "transcriptTokenEndIndex": 18,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:customer",
+          "scriptTokenIndex": 57,
+          "scriptTokenEndIndex": 57,
+          "transcriptTokenIndex": 57,
+          "transcriptTokenEndIndex": 57,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 57,
+          "scriptTokenEndIndex": 57,
+          "transcriptTokenIndex": 57,
+          "transcriptTokenEndIndex": 57,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:customer",
+          "scriptTokenIndex": 71,
+          "scriptTokenEndIndex": 71,
+          "transcriptTokenIndex": 71,
+          "transcriptTokenEndIndex": 71,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "customer's",
+          "transcriptToken": "customer's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 71,
+          "scriptTokenEndIndex": 71,
+          "transcriptTokenIndex": 71,
+          "transcriptTokenEndIndex": 71,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "0000",
+          "transcriptToken": "000",
+          "normalizedToken": "number:0",
+          "scriptTokenIndex": 86,
+          "scriptTokenEndIndex": 86,
+          "transcriptTokenIndex": 86,
+          "transcriptTokenEndIndex": 86,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "wouldn't",
+          "transcriptToken": "wouldn't",
+          "normalizedToken": "word:would",
+          "scriptTokenIndex": 102,
+          "scriptTokenEndIndex": 102,
+          "transcriptTokenIndex": 102,
+          "transcriptTokenEndIndex": 102,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "wouldn't",
+          "transcriptToken": "wouldn't",
+          "normalizedToken": "word:not",
+          "scriptTokenIndex": 102,
+          "scriptTokenEndIndex": 102,
+          "transcriptTokenIndex": 102,
+          "transcriptTokenEndIndex": 102,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "couldn't",
+          "transcriptToken": "couldn't",
+          "normalizedToken": "word:could",
+          "scriptTokenIndex": 110,
+          "scriptTokenEndIndex": 110,
+          "transcriptTokenIndex": 110,
+          "transcriptTokenEndIndex": 110,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "couldn't",
+          "transcriptToken": "couldn't",
+          "normalizedToken": "word:not",
+          "scriptTokenIndex": 110,
+          "scriptTokenEndIndex": 110,
+          "transcriptTokenIndex": 110,
+          "transcriptTokenEndIndex": 110,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "board's",
+          "transcriptToken": "board's",
+          "normalizedToken": "word:board",
+          "scriptTokenIndex": 125,
+          "scriptTokenEndIndex": 125,
+          "transcriptTokenIndex": 125,
+          "transcriptTokenEndIndex": 125,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "board's",
+          "transcriptToken": "board's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 125,
+          "scriptTokenEndIndex": 125,
+          "transcriptTokenIndex": 125,
+          "transcriptTokenEndIndex": 125,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:manager",
+          "scriptTokenIndex": 130,
+          "scriptTokenEndIndex": 130,
+          "transcriptTokenIndex": 130,
+          "transcriptTokenEndIndex": 130,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 130,
+          "scriptTokenEndIndex": 130,
+          "transcriptTokenIndex": 130,
+          "transcriptTokenEndIndex": 130,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "24",
+          "transcriptToken": "24",
+          "normalizedToken": "number:24",
+          "scriptTokenIndex": 134,
+          "scriptTokenEndIndex": 134,
+          "transcriptTokenIndex": 134,
+          "transcriptTokenEndIndex": 134,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "18",
+          "transcriptToken": "18",
+          "normalizedToken": "number:18",
+          "scriptTokenIndex": 140,
+          "scriptTokenEndIndex": 140,
+          "transcriptTokenIndex": 140,
+          "transcriptTokenEndIndex": 140,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:manager",
+          "scriptTokenIndex": 143,
+          "scriptTokenEndIndex": 143,
+          "transcriptTokenIndex": 143,
+          "transcriptTokenEndIndex": 143,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "manager's",
+          "transcriptToken": "manager's",
+          "normalizedToken": "word:s",
+          "scriptTokenIndex": 143,
+          "scriptTokenEndIndex": 143,
+          "transcriptTokenIndex": 143,
+          "transcriptTokenEndIndex": 143,
+          "normalizationClass": "NORMALIZED_EQUIVALENT"
+        },
+        {
+          "scriptToken": "21",
+          "transcriptToken": "21",
+          "normalizedToken": "number:21",
+          "scriptTokenIndex": 146,
+          "scriptTokenEndIndex": 146,
+          "transcriptTokenIndex": 146,
+          "transcriptTokenEndIndex": 146,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "4",
+          "transcriptToken": "four",
+          "normalizedToken": "number:4",
+          "scriptTokenIndex": 164,
+          "scriptTokenEndIndex": 164,
+          "transcriptTokenIndex": 164,
+          "transcriptTokenEndIndex": 164,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        },
+        {
+          "scriptToken": "o'clock",
+          "transcriptToken": "o",
+          "normalizedToken": "word:o",
+          "scriptTokenIndex": 165,
+          "scriptTokenEndIndex": 165,
+          "transcriptTokenIndex": 165,
+          "transcriptTokenEndIndex": 165,
+          "normalizationClass": "ORTHOGRAPHIC_VARIANT"
+        },
+        {
+          "scriptToken": "o'clock",
+          "transcriptToken": "clock",
+          "normalizedToken": "word:clock",
+          "scriptTokenIndex": 165,
+          "scriptTokenEndIndex": 165,
+          "transcriptTokenIndex": 166,
+          "transcriptTokenEndIndex": 166,
+          "normalizationClass": "ORTHOGRAPHIC_VARIANT"
+        },
+        {
+          "scriptToken": "One",
+          "transcriptToken": "one",
+          "normalizedToken": "number:1",
+          "scriptTokenIndex": 193,
+          "scriptTokenEndIndex": 193,
+          "transcriptTokenIndex": 194,
+          "transcriptTokenEndIndex": 194,
+          "normalizationClass": "NUMERIC_TOKENIZATION"
+        }
+      ],
+      "substitutions": [],
+      "transcriptInsertions": [],
+      "scriptDeletions": [],
+      "alignmentCoverage": 100,
+      "alignmentCoverageMatchedScriptTokens": 234,
+      "alignmentUnitCount": 243,
+      "transcriptAlignmentUnitCount": 243
+    }
+  ]
+}
