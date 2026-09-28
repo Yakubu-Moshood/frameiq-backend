@@ -1742,41 +1742,157 @@ function verifyCandidate(runId) {
   }
   return report;
 }
+function buildPromotionWriteSet({ candidateDirectory, report, stagedIndex, fsImpl = fs,
+  assetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs') } = {}) {
+  assert(report && Array.isArray(report.candidateFiles), 'ACTIVATION_CANDIDATE_WRITE_SET_INVALID');
+  const indexFiles = stagedIndex?.files;
+  const indexed = Array.isArray(indexFiles) ? new Map(indexFiles.map(item => [item.path, item])) : null;
+  if (indexed) assert(indexed.size === indexFiles.length, 'ACTIVATION_STAGED_INDEX_DUPLICATE_PATH');
+  const destinations = new Set(), writeSet = [];
+  const add = item => {
+    assert(safePackagePath(item?.path), `ACTIVATION_PROMOTION_PATH_INVALID:${item?.path}`);
+    assert(!destinations.has(item.path), `ACTIVATION_PROMOTION_DUPLICATE_DESTINATION:${item.path}`);
+    destinations.add(item.path);
+    const destination = path.resolve(ROOT, ...item.path.split('/'));
+    assert(destination.startsWith(`${path.resolve(ROOT)}${path.sep}`), `ACTIVATION_PROMOTION_PATH_ESCAPES_ROOT:${item.path}`);
+    const candidateFile = path.resolve(candidateDirectory, ...item.path.split('/'));
+    assert(candidateFile.startsWith(`${path.resolve(candidateDirectory)}${path.sep}`), `ACTIVATION_PROMOTION_SOURCE_PATH_INVALID:${item.path}`);
+    const stat = fsImpl.lstatSync(candidateFile);
+    assert(stat.isFile() && !stat.isSymbolicLink(), `ACTIVATION_PROMOTION_SOURCE_NOT_REGULAR:${item.path}`);
+    const bytes = fsImpl.readFileSync(candidateFile);
+    assert(bytes.length === item.bytes && sha(bytes) === item.sha256, `ACTIVATION_PROMOTION_SOURCE_HASH_MISMATCH:${item.path}`);
+    if (indexed) {
+      const binding = indexed.get(item.path);
+      assert(binding && binding.bytes === item.bytes && binding.sha256 === item.sha256,
+        `ACTIVATION_PROMOTION_SOURCE_NOT_INDEXED:${item.path}`);
+    }
+    writeSet.push({ path: item.path, bytes: item.bytes, sha256: item.sha256 });
+  };
+  for (const item of report.candidateFiles) add(item);
+  if (report.stageSchemaVersion === VERIFIED_STAGE_RECORD_SCHEMA) {
+    assert(indexed, 'ACTIVATION_PROMOTION_STAGED_INDEX_REQUIRED');
+    const graphicsDirectory = path.join(candidateDirectory, 'assets', 'graphics');
+    const manifest = assetReadiness.assertV3GraphicsReady({ episodeDir: candidateDirectory,
+      shotDefsPath: path.join(candidateDirectory, 'shot-definitions.json'), fsImpl });
+    assert(Array.isArray(manifest.entries) && manifest.entries.length === 76, 'ACTIVATION_GRAPHIC_RECORD_COUNT_INVALID');
+    const records = new Set(), filenames = new Set(), graphicPaths = [];
+    for (const entry of manifest.entries) {
+      const recordId = `${entry?.shotId}:${entry?.graphicIndex}`;
+      assert(typeof entry?.shotId === 'string' && Number.isInteger(entry.graphicIndex) && !records.has(recordId),
+        `ACTIVATION_GRAPHIC_RECORD_DUPLICATE:${recordId}`);
+      records.add(recordId);
+      assert(typeof entry.filename === 'string' && entry.filename === path.posix.basename(entry.filename)
+        && safePackagePath(`assets/graphics/${entry.filename}`) && !filenames.has(entry.filename),
+      `ACTIVATION_GRAPHIC_FILENAME_INVALID:${entry?.filename}`);
+      filenames.add(entry.filename);
+      const relative = `assets/graphics/${entry.filename}`, binding = indexed.get(relative);
+      assert(binding && binding.sha256 === entry.sha256, `ACTIVATION_GRAPHIC_INDEX_BINDING_MISMATCH:${relative}`);
+      graphicPaths.push(relative);
+    }
+    const manifestBinding = indexed.get('graphic-asset-manifest.json');
+    assert(manifestBinding, 'ACTIVATION_GRAPHIC_MANIFEST_NOT_INDEXED');
+    add(manifestBinding);
+    const actualGraphicPaths = indexFiles.map(item => item.path).filter(item => item.startsWith('assets/graphics/')).sort();
+    assert(actualGraphicPaths.length === 76 && new Set(actualGraphicPaths).size === 76
+      && JSON.stringify(actualGraphicPaths) === JSON.stringify(graphicPaths.slice().sort()), 'ACTIVATION_GRAPHIC_ASSET_SET_MISMATCH');
+    const directoryStat = fsImpl.lstatSync(graphicsDirectory);
+    assert(directoryStat.isDirectory() && !directoryStat.isSymbolicLink(), 'ACTIVATION_GRAPHIC_DIRECTORY_INVALID');
+    const actualDirectoryFiles = fsImpl.readdirSync(graphicsDirectory, { withFileTypes: true });
+    assert(actualDirectoryFiles.length === 76 && actualDirectoryFiles.every(entry => entry.isFile() && !entry.isSymbolicLink()),
+      'ACTIVATION_GRAPHIC_DIRECTORY_CONTENTS_INVALID');
+    for (const relative of graphicPaths) add(indexed.get(relative));
+  }
+  return writeSet;
+}
+function verifyRestoredPromotionTree(root, backupManifest, fsImpl = fs) {
+  assert(Array.isArray(backupManifest?.files), 'ACTIVATION_BACKUP_MANIFEST_INVALID');
+  for (const item of backupManifest.files) {
+    assert(safePackagePath(item?.path), `ACTIVATION_BACKUP_PATH_INVALID:${item?.path}`);
+    const file = path.resolve(root, ...item.path.split('/'));
+    assert(file.startsWith(`${path.resolve(root)}${path.sep}`), `ACTIVATION_BACKUP_PATH_INVALID:${item.path}`);
+    if (!item.existed) assert(!fsImpl.existsSync(file), `ACTIVATION_ROLLBACK_NEW_FILE_REMAINS:${item.path}`);
+    else {
+      assert(fsImpl.existsSync(file), `ACTIVATION_ROLLBACK_RESTORED_FILE_MISSING:${item.path}`);
+      const bytes = fsImpl.readFileSync(file);
+      assert(bytes.length === item.bytes && sha(bytes) === item.sha256, `ACTIVATION_ROLLBACK_RESTORED_HASH_MISMATCH:${item.path}`);
+    }
+  }
+  return true;
+}
+function assertPromotionRunUnfinalized({ recordPath, fsImpl = fs } = {}) {
+  if (!fsImpl.existsSync(recordPath)) return true;
+  const record = JSON.parse(fsImpl.readFileSync(recordPath, 'utf8'));
+  assert(record.status !== 'ROLLED_BACK', 'ACTIVATION_RUN_ALREADY_ROLLED_BACK');
+  throw new Error('ACTIVATION_RUN_ALREADY_FINALIZED');
+}
+function exchangePromotionWriteSet({ candidateDirectory, episodeDirectory, stageDirectory, writeSet,
+  backupManifest, fsImpl = fs, createStage = (source, target) => execFileSync('cp', ['-al', source, target], { stdio: 'ignore' }),
+  exchangeDirectories = (left, right) => execFileSync('python3',
+    [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), left, right], { stdio: 'ignore' }),
+  verifyTree = (root, files) => verifyPromotedTree(root, files), afterPromotion = () => {} } = {}) {
+  assert(Array.isArray(writeSet) && writeSet.length > 0, 'ACTIVATION_PROMOTION_WRITE_SET_EMPTY');
+  createStage(episodeDirectory, stageDirectory);
+  let exchanged = false;
+  try {
+    for (const item of writeSet) {
+      const target = path.join(stageDirectory, ...item.path.split('/'));
+      fsImpl.mkdirSync(path.dirname(target), { recursive: true });
+      const bytes = fsImpl.readFileSync(path.join(candidateDirectory, ...item.path.split('/')));
+      activation.atomicWrite(fsImpl, target, bytes);
+    }
+    verifyTree(stageDirectory, writeSet);
+    exchangeDirectories(episodeDirectory, stageDirectory); exchanged = true;
+    try { verifyTree(episodeDirectory, writeSet); }
+    catch (error) {
+      exchangeDirectories(episodeDirectory, stageDirectory); exchanged = false;
+      verifyRestoredPromotionTree(episodeDirectory, backupManifest, fsImpl);
+      throw error;
+    }
+    afterPromotion();
+    return true;
+  } catch (error) {
+    if (exchanged && fsImpl.existsSync(stageDirectory)) {
+      try {
+        exchangeDirectories(episodeDirectory, stageDirectory); exchanged = false;
+        verifyRestoredPromotionTree(episodeDirectory, backupManifest, fsImpl);
+      } catch (_) { console.error(`ACTIVATION_RECOVERY_REQUIRED: preserve active=${episodeDirectory} prior=${stageDirectory}`); }
+    }
+    if (!exchanged && fsImpl.existsSync(stageDirectory)) fsImpl.rmSync(stageDirectory, { recursive: true, force: true });
+    throw error;
+  }
+}
 function promoteLocked(runId) {
   ensureRailwayTarget(); requireCurrentPreflight(runId); verifyCandidate(runId); verifyLockedEpisode(); verifyRuntimeSync();
   require('./phase2.3b-p-run.cjs').inspectProductionActivity({ db: require('/app/db').db, episodeId: approval.episodeId, episodeDirectory: ROOT, fs });
   const review = reviewPath(runId); const candidateDir = path.join(review, 'candidate');
   const report = readJson(path.join(candidateDir, 'candidate-report.json'));
   const backupDir = path.join(review, 'backup');
+  assertPromotionRunUnfinalized({ recordPath: path.join(review, 'activation-record.json') });
+  const stagedProof = report.stageSchemaVersion === VERIFIED_STAGE_RECORD_SCHEMA
+    ? verifyStagedCandidateIndexes({ runId, candidateDirectory: candidateDir, reviewDirectory: review }) : null;
+  const promotionFiles = buildPromotionWriteSet({ candidateDirectory: candidateDir, report, stagedIndex: stagedProof?.index });
   assert(!fs.existsSync(backupDir), 'ACTIVATION_BACKUP_ALREADY_EXISTS');
-  const backupManifest = activation.makeBackup({ episodeDirectory: ROOT, backupDirectory: backupDir, targets: report.candidateFiles.map(item => item.path) });
+  const backupManifest = activation.makeBackup({ episodeDirectory: ROOT, backupDirectory: backupDir, targets: promotionFiles.map(item => item.path) });
   atomicJson(path.join(backupDir, 'backup-manifest.json'), backupManifest);
   const parent = path.dirname(ROOT); const stage = path.join(parent, `.eo-v3-activation-${runId}`);
   assert(!fs.existsSync(stage), 'ACTIVATION_STAGE_ALREADY_EXISTS');
-  execFileSync('cp', ['-al', ROOT, stage], { stdio: 'ignore' });
-  let exchanged = false;
-  try {
-    for (const item of report.candidateFiles) {
-      const target = path.join(stage, item.path); fs.mkdirSync(path.dirname(target), { recursive: true });
-      const bytes = fs.readFileSync(path.join(candidateDir, item.path)); activation.atomicWrite(fs, target, bytes);
-    }
-    verifyPromotedTree(stage, report);
-    const activationRecord = { schemaVersion: 'phase2.3b-p-activation-record/1.0.0', status: 'READY_TO_EXCHANGE', runId, createdAt: new Date().toISOString(), priorHashes: verifyLockedEpisode(), candidateFiles: report.candidateFiles, backupManifestSha256: hashFile(path.join(backupDir, 'backup-manifest.json')) };
-    atomicJson(path.join(review, 'activation-record.json'), activationRecord);
-    execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' });
-    exchanged = true;
-    try { verifyPromotedTree(ROOT, report); }
-    catch (error) { execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' }); throw error; }
-    activationRecord.status = 'PROMOTED'; activationRecord.promotedAt = new Date().toISOString(); atomicJson(path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`, 'activation-record.json'), activationRecord);
-    return activationRecord;
-  } catch (error) {
-    if (exchanged && fs.existsSync(stage)) {
-      try { execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, stage], { stdio: 'ignore' }); exchanged = false; }
-      catch (_) { console.error(`ACTIVATION_RECOVERY_REQUIRED: preserve active=${ROOT} prior=${stage}`); throw error; }
-    }
-    if (!exchanged && fs.existsSync(stage)) fs.rmSync(stage, { recursive: true, force: true });
-    throw error;
-  }
+  const activationRecord = { schemaVersion: 'phase2.3b-p-activation-record/1.0.0', status: 'READY_TO_EXCHANGE', runId,
+    createdAt: new Date().toISOString(), priorHashes: verifyLockedEpisode(), candidateFiles: promotionFiles,
+    promotionPreflight: { status: 'PASS', writePathCount: promotionFiles.length,
+      graphicManifestSha256: report.stageSchemaVersion === VERIFIED_STAGE_RECORD_SCHEMA
+        ? promotionFiles.find(item => item.path === 'graphic-asset-manifest.json')?.sha256 || null : null,
+      graphicAssetCount: report.stageSchemaVersion === VERIFIED_STAGE_RECORD_SCHEMA
+        ? promotionFiles.filter(item => item.path.startsWith('assets/graphics/')).length : 0,
+      writeSetSha256: sha(jsonBytes(promotionFiles)) },
+    backupManifestSha256: hashFile(path.join(backupDir, 'backup-manifest.json')) };
+  atomicJson(path.join(review, 'activation-record.json'), activationRecord);
+  exchangePromotionWriteSet({ candidateDirectory: candidateDir, episodeDirectory: ROOT, stageDirectory: stage,
+    writeSet: promotionFiles, backupManifest, verifyTree: (root, files) => verifyPromotedTree(root, files),
+    afterPromotion: () => {
+      activationRecord.status = 'PROMOTED'; activationRecord.promotedAt = new Date().toISOString();
+      atomicJson(path.join(ROOT, '.review', `phase2.3b-p-activation-${runId}`, 'activation-record.json'), activationRecord);
+    } });
+  return activationRecord;
 }
 function withGlobalActivationLock(runId, mode, fn) {
   fs.mkdirSync(path.dirname(reviewPath(runId)), { recursive: true });
@@ -1786,9 +1902,14 @@ function withGlobalActivationLock(runId, mode, fn) {
   try { fs.writeFileSync(fd, JSON.stringify({ runId, pid: process.pid, startedAt: new Date().toISOString(), mode }), 'utf8'); return fn(); }
   finally { try { fs.closeSync(fd); } catch (_) {} try { fs.rmSync(GLOBAL_LOCK_PATH, { force: true }); } catch (_) {} }
 }
-function promote(runId) { return withGlobalActivationLock(runId, 'PROMOTE', () => promoteLocked(runId)); }
-function verifyPromotedTree(root, report) {
-  for (const item of report.candidateFiles) {
+function promote(runId) {
+  assertPromotionRunUnfinalized({ recordPath: path.join(reviewPath(runId), 'activation-record.json') });
+  return withGlobalActivationLock(runId, 'PROMOTE', () => promoteLocked(runId));
+}
+function verifyPromotedTree(root, reportOrFiles) {
+  const files = Array.isArray(reportOrFiles) ? reportOrFiles : reportOrFiles?.candidateFiles;
+  assert(Array.isArray(files), 'ACTIVATION_PROMOTION_WRITE_SET_INVALID');
+  for (const item of files) {
     const file = path.resolve(root, item.path); assert(file.startsWith(`${path.resolve(root)}${path.sep}`) && fs.existsSync(file), `PROMOTED_FILE_MISSING:${item.path}`);
     const bytes = fs.readFileSync(file); assert(bytes.length === item.bytes && sha(bytes) === item.sha256, `PROMOTED_HASH_MISMATCH:${item.path}`);
   }
@@ -1802,7 +1923,9 @@ function rollbackLocked(runId) {
   const restored = path.join(path.dirname(ROOT), `.eo-v3-rollback-${runId}`);
   assert(!fs.existsSync(restored), 'ROLLBACK_STAGE_EXISTS'); execFileSync('cp', ['-al', ROOT, restored], { stdio: 'ignore' });
   activation.restoreBackup({ episodeDirectory: restored, backupDirectory: backupDir, manifest: backup });
+  verifyRestoredPromotionTree(restored, backup);
   execFileSync('python3', [path.join(__dirname, 'phase2.3b-sg-atomic-exchange.py'), ROOT, restored], { stdio: 'ignore' });
+  verifyRestoredPromotionTree(ROOT, backup);
   record.status = 'ROLLED_BACK'; record.rolledBackAt = new Date().toISOString(); atomicJson(path.join(review, 'activation-record.json'), record);
   return record;
 }
@@ -1860,6 +1983,7 @@ if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_
 module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REFRESHED_BINDING_PACKAGE_DIR,
   REFRESHED_BINDING_PACKAGE_INDEX_SHA256, REFRESHED_BINDING_PACKAGE_COMPANION_HASHES,
   VERIFIED_STAGE_SOURCE_DIR, VERIFIED_STAGE_SOURCE_INDEX_SHA256,
+  VERIFIED_STAGE_RECORD_SCHEMA, VERIFIED_STAGE_INDEX_SCHEMA,
   REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION,
   verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio,
   verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes,
@@ -1871,4 +1995,5 @@ module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, REFRESHED_B
   retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight,
   transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyIndexedCandidateDirectory,
   validateVerifiedCandidate, verifyStagedCandidateIndexes, stageVerifiedCandidate, verifyCandidate,
+  buildPromotionWriteSet, verifyRestoredPromotionTree, assertPromotionRunUnfinalized, exchangePromotionWriteSet,
   verifyPromotedTree, promote, rollback, usage, formatCliReport, main };
