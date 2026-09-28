@@ -1957,3 +1957,44 @@ test('staging cleans partial copies and promotion integrity rejects changed sour
   assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: b.runId, candidateDirectory: b.candidateDirectory, reviewDirectory: b.reviewDirectory, sourceDirectory: stagedChange.source, expectedSourceIndexSha256: stagedChange.indexSha, expectedSourceFileCount: 2 }), /STAGED_CANDIDATE_RECORD_INVALID/u);
   assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: 'phase2-3b-p-act3-refresh-wrong-run', candidateDirectory: b.candidateDirectory, reviewDirectory: b.reviewDirectory, sourceDirectory: stagedChange.source, expectedSourceIndexSha256: stagedChange.indexSha, expectedSourceFileCount: 2 }), /STAGED_CANDIDATE_RECORD_INVALID/u);
 });
+
+test('real staging CLI dispatch resolves the canonical review root before refusing a missing review volume', async () => {
+  const runId = 'phase2-3b-p-act3-refresh-cli-path-test';
+  const reviewRoot = path.resolve(path.join(activationCli.ROOT, '.review'));
+  const runDirectory = path.resolve(path.join(reviewRoot, `phase2.3b-p-activation-${runId}`));
+  const fsWithoutReviewVolume = new Proxy(fs, { get(target, property) {
+    if (property === 'existsSync') return value => {
+      const resolved = path.resolve(String(value));
+      if (resolved === reviewRoot || resolved === runDirectory) return false;
+      return target.existsSync(value);
+    };
+    const value = target[property]; return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  await assert.rejects(activationCli.main([
+    '--stage-verified-candidate', '--run-id', runId,
+    '--source-dir', activationCli.VERIFIED_STAGE_SOURCE_DIR,
+    '--expected-source-index-sha256', activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256,
+  ], {
+    ensureRailwayTargetFn: () => true,
+    verifyPackageFn: () => true,
+    verifyRuntimeSyncFn: () => true,
+    assertNoActivationLocksFn: () => true,
+    fsImpl: fsWithoutReviewVolume,
+  }), /STAGE_VERIFIED_CANDIDATE_REVIEW_ROOT_MISSING/u);
+});
+
+test('staging report formatter does not echo configuration-like values', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-report-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const f = makeVerifiedStageFixture(root), secretSentinel = 'STAGING_SECRET_SENTINEL_MUST_NOT_BE_REPORTED';
+  const result = f.stage('phase2-3b-p-act3-refresh-report-test', { preparePreflight: () => ({
+    lockedHashes: { fixture: secretSentinel }, evidencePackageBinding: { fixture: secretSentinel },
+  }) });
+  const stagedPreflight = JSON.parse(fs.readFileSync(path.join(result.reviewDirectory, 'preflight.json'), 'utf8'));
+  assert.equal(stagedPreflight.lockedHashes.fixture, secretSentinel);
+  const output = activationCli.formatCliReport(result);
+  assert.match(output, /VERIFIED_CANDIDATE_STAGED/u);
+  assert.doesNotMatch(output, /STAGING_SECRET_SENTINEL_MUST_NOT_BE_REPORTED/u);
+  assert.doesNotMatch(output, /RAILWAY_API_TOKEN|ANTHROPIC_API_KEY|OPENAI_API_KEY|ELEVENLABS_API_KEY/u);
+  const runnerSource = fs.readFileSync(require.resolve('../scripts/phase2.3b-p-activate.cjs'), 'utf8');
+  assert.doesNotMatch(runnerSource, /\bprintenv\b|console\.(?:log|info|debug)\s*\(\s*(?:process\.env|Object\.entries\s*\(\s*process\.env)/iu);
+});

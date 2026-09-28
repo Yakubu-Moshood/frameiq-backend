@@ -1504,7 +1504,7 @@ function verifyStagedCandidateIndexes({ runId, candidateDirectory, reviewDirecto
   return { sourceIndexSha256: source.indexSha256, stagedIndexSha256: sha(fsImpl.readFileSync(stagedIndexFile)),
     sourceFileCount: source.fileCount, stagedFileCount: index.fileCount, record, index };
 }
-function stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha256, reviewRoot = GLOBAL_REVIEW,
+function stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha256, reviewRoot = path.dirname(reviewPath(runId)),
   canonicalSourceDirectory = VERIFIED_STAGE_SOURCE_DIR, expectedIndexSha256 = VERIFIED_STAGE_SOURCE_INDEX_SHA256,
   trustedSourceIndexSha256 = VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedSourceFileCount = 150, fsImpl = fs, validateCandidateFn = validateVerifiedCandidate,
   preparePreflight = () => ({ lockedHashes: verifyLockedEpisode(), evidencePackageBinding: createActivationEvidenceBinding() }) } = {}) {
@@ -1647,7 +1647,7 @@ function promoteLocked(runId) {
   }
 }
 function withGlobalActivationLock(runId, mode, fn) {
-  fs.mkdirSync(GLOBAL_REVIEW, { recursive: true });
+  fs.mkdirSync(path.dirname(reviewPath(runId)), { recursive: true });
   let fd;
   try { fd = fs.openSync(GLOBAL_LOCK_PATH, 'wx', 0o600); }
   catch (error) { if (error?.code === 'EEXIST') throw new Error('ACTIVATION_GLOBAL_RUN_ALREADY_LOCKED'); throw error; }
@@ -1676,7 +1676,8 @@ function rollbackLocked(runId) {
 }
 function rollback(runId) { return withGlobalActivationLock(runId, 'ROLLBACK', () => rollbackLocked(runId)); }
 function usage() { return 'Usage: node /app/scripts/phase2.3b-p-activate.cjs --stage-verified-candidate --run-id <phase2-3b-p-act3-refresh-...> --source-dir <committed-v2-candidate-directory> --expected-source-index-sha256 8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac | --preflight --run-id <id> | --transcribe-build --run-id <id> | --diagnose-resume --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --audit-resume-boundaries --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --approve-alignment-review --run-id <id> --approved-by <name> --approval-ref <reference> [--exception-id <id> ...] | --resume-build --run-id <id> --expected-runner-sha256 <64-lowercase-hex> | --status --run-id <id> | --promote --run-id <id> | --rollback --run-id <id>'; }
-async function main(argv = process.argv.slice(2)) {
+function formatCliReport(result) { return JSON.stringify(result, null, 2); }
+async function main(argv = process.argv.slice(2), dispatchTestHooks = {}) {
   const mode = argv[0]; const idAt = argv.indexOf('--run-id'); const runId = idAt >= 0 ? argv[idAt + 1] : null;
   if (mode === '--help' || mode === '-h') { console.log(usage()); return; }
   assert(SAFE_ID.test(runId || ''), 'RUN_ID_REQUIRED');
@@ -1696,8 +1697,13 @@ async function main(argv = process.argv.slice(2)) {
     const sourceDirectory = readRequiredOption('--source-dir');
     const expectedSourceIndexSha256 = readRequiredOption('--expected-source-index-sha256');
     assert(expectedSourceIndexSha256 === VERIFIED_STAGE_SOURCE_INDEX_SHA256, 'STAGE_VERIFIED_CANDIDATE_SOURCE_HASH_NOT_AUTHORIZED');
-    ensureRailwayTarget(); verifyPackage(); verifyRuntimeSync(); assertNoActivationLocks({ runId });
-    result = stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha256 });
+    (dispatchTestHooks.ensureRailwayTargetFn || ensureRailwayTarget)();
+    (dispatchTestHooks.verifyPackageFn || verifyPackage)();
+    (dispatchTestHooks.verifyRuntimeSyncFn || verifyRuntimeSync)();
+    (dispatchTestHooks.assertNoActivationLocksFn || assertNoActivationLocks)({ runId,
+      ...(dispatchTestHooks.fsImpl ? { fs: dispatchTestHooks.fsImpl } : {}) });
+    result = stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha256,
+      ...(dispatchTestHooks.fsImpl ? { fsImpl: dispatchTestHooks.fsImpl } : {}) });
   }
   else if (mode === '--preflight') result = await preflight({ runId });
   else if (mode === '--transcribe-build') result = await transcribeAndBuild({ runId });
@@ -1712,7 +1718,7 @@ async function main(argv = process.argv.slice(2)) {
   else if (mode === '--promote') result = promote(runId);
   else if (mode === '--rollback') result = rollback(runId);
   else throw new Error('MODE_REQUIRED');
-  console.log(JSON.stringify(result, null, 2));
+  console.log(formatCliReport(result));
 }
 if (require.main === module) main().catch(error => { console.error(`PHASE2_3B_P_ACTIVATION_FAILED:${String(error.message || error)}`); process.exitCode = 1; });
-module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, VERIFIED_STAGE_SOURCE_DIR, VERIFIED_STAGE_SOURCE_INDEX_SHA256, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadRefreshedTimingLineageEvidence, loadRefreshedTimingBindingHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, createActivationEvidenceBinding, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyIndexedCandidateDirectory, validateVerifiedCandidate, verifyStagedCandidateIndexes, stageVerifiedCandidate, verifyCandidate, verifyPromotedTree, promote, rollback, usage, main };
+module.exports = { APPROVAL_PATH, approval, ROOT, CANDIDATE_PACKAGE, VERIFIED_STAGE_SOURCE_DIR, VERIFIED_STAGE_SOURCE_INDEX_SHA256, REQUIRED_TIMING_EXCEPTION_RUN_ID, LINEAGE_REMEDIATION_FAILURE, RUNNER_PROOF_SCHEMA_VERSION, verifyActivationRunnerIntegrity, verifyResumePreflightRunnerBinding, verifyResumeExecutionIntegrity, verifyApprovalAudio, verifyPackage, verifyRuntimeSync, verifyLockedEpisode, verifyApprovedScript, loadApprovedBoundaryPolicy, loadBoundaryInputHashes, loadRefreshedTimingLineageEvidence, loadRefreshedTimingBindingHashes, loadApprovedTimingExceptions, verifyTimingRemediation, verifyLineageRemediation, verifyExpectedFailureStatus, verifyRetainedAlignmentApproval, expectedTimingAudioManifest, createActivationEvidenceBinding, readAndVerifyCompletedTranscript, createVerifiedResumeEligibility, diagnoseResume, auditResumeBoundaries, recordAlignmentReviewApproval, verifyResumableAlignmentFailure, assertNoActivationLocks, assertOwnedActivationLocks, assertResumeImmutableBinding, retimeBeforeCandidateOutput, assertFailedRunProcessInactive, requireResumePreflight, preflight, transcribeAndBuildInternal, transcribeAndBuild, resumeAndBuild, verifyIndexedCandidateDirectory, validateVerifiedCandidate, verifyStagedCandidateIndexes, stageVerifiedCandidate, verifyCandidate, verifyPromotedTree, promote, rollback, usage, formatCliReport, main };
