@@ -571,7 +571,12 @@ function requireCurrentPreflight(runId) {
   ensureRailwayTarget();
   const record = readJson(path.join(reviewPath(runId), 'preflight.json'));
   assert(record.status === 'PREFLIGHT_PASS' && record.runId === runId, 'ACTIVATION_PREFLIGHT_NOT_CURRENT');
-  verifyEvidencePackageBinding({ expected: record.evidencePackageBinding, manifestPath: path.join(ROOT, 'evidence-source-manifest.json'), shotDefsPath: path.join(ROOT, 'shot-definitions.json'), evidenceAssetDir: path.join(ROOT, 'assets', 'evidence') });
+  const evidenceDirectory = record.stageMode === VERIFIED_STAGE_RECORD_SCHEMA
+    ? path.join(reviewPath(runId), 'candidate') : ROOT;
+  verifyEvidencePackageBinding({ expected: record.evidencePackageBinding,
+    manifestPath: path.join(evidenceDirectory, 'evidence-source-manifest.json'),
+    shotDefsPath: path.join(evidenceDirectory, 'shot-definitions.json'),
+    evidenceAssetDir: path.join(evidenceDirectory, 'assets', 'evidence') });
   const hashes = verifyLockedEpisode();
   assert(JSON.stringify(hashes) === JSON.stringify(record.lockedHashes), 'ACTIVATION_LOCKED_HASHES_CHANGED');
   return record;
@@ -1526,7 +1531,8 @@ function validateVerifiedCandidate(candidateDir, { expectedRunId, approvedPackag
 }
 function verifyStagedCandidateIndexes({ runId, candidateDirectory, reviewDirectory, sourceDirectory = VERIFIED_STAGE_SOURCE_DIR,
   approvedPackageDirectory, expectedSourceIndexSha256 = VERIFIED_STAGE_SOURCE_INDEX_SHA256,
-  expectedSourceFileCount = 150, fsImpl = fs } = {}) {
+  expectedSourceFileCount = 150, fsImpl = fs, validateCandidateFn = validateVerifiedCandidate,
+  validationOptions = {} } = {}) {
   const stagedRecordFile = path.join(reviewDirectory, 'staged-candidate-record.json');
   const stagedIndexFile = path.join(reviewDirectory, 'staged-candidate-index.json');
   assert(fsImpl.existsSync(stagedRecordFile) && fsImpl.existsSync(stagedIndexFile), 'STAGED_CANDIDATE_PROOF_MISSING');
@@ -1607,6 +1613,16 @@ function verifyStagedCandidateIndexes({ runId, candidateDirectory, reviewDirecto
     && runStatus.approvedPackageIndexSha256 === approvedPackage.packageIndexSha256
     && runStatus.stagedCandidateIndexSha256 === record.stagedCandidateIndexSha256
     && JSON.stringify(runStatus.completedActs) === JSON.stringify(ACT_ORDER), 'STAGED_CANDIDATE_RUN_STATUS_INVALID');
+  const validation = validateCandidateFn(candidateDirectory, { expectedRunId: runId,
+    approvedPackageDirectory: boundApprovedPackageDirectory, fsImpl, ...validationOptions });
+  assert(validation.boundaryAudit?.status === 'BOUNDARY_AUDIT_PASS'
+    && validation.editPlanValidation?.status === 'PASS' && validation.shotValidation?.status === 'PASS'
+    && validation.revisionValidation?.status === 'PASS' && validation.productionValidation?.status === 'PASS'
+    && validation.evidenceValidation?.status === 'PASS' && validation.graphicEntries === 76
+    && validation.timingExceptionAudit?.entries?.length === 9
+    && validation.timingExceptionAudit?.editorialIntentMigrations?.length === 5
+    && Math.abs(Number(validation.totalRetimedDurationSec) - 633.782449) <= 0.000001,
+  'STAGED_CANDIDATE_PROMOTION_REVALIDATION_FAILED');
   return { sourceIndexSha256: source.indexSha256, stagedIndexSha256: sha(fsImpl.readFileSync(stagedIndexFile)),
     sourceFileCount: source.fileCount, stagedFileCount: index.fileCount, record, index };
 }
@@ -1614,7 +1630,8 @@ function stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha
   expectedApprovedPackageIndexSha256, reviewRoot = path.dirname(reviewPath(runId)),
   canonicalSourceDirectory = VERIFIED_STAGE_SOURCE_DIR, expectedIndexSha256 = VERIFIED_STAGE_SOURCE_INDEX_SHA256,
   trustedSourceIndexSha256 = VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedSourceFileCount = 150, fsImpl = fs, validateCandidateFn = validateVerifiedCandidate,
-  preparePreflight = () => ({ lockedHashes: verifyLockedEpisode(), evidencePackageBinding: createActivationEvidenceBinding() }) } = {}) {
+  preparePreflight = ({ candidateDirectory } = {}) => ({ lockedHashes: verifyLockedEpisode(),
+    evidencePackageBinding: createActivationEvidenceBinding({ episodeDirectory: candidateDirectory }) }) } = {}) {
   assert(/^phase2-3b-p-act3-refresh-[A-Za-z0-9_-]{1,40}$/u.test(runId || ''), 'STAGE_VERIFIED_CANDIDATE_RUN_ID_INVALID');
   assert(typeof sourceDirectory === 'string' && path.resolve(sourceDirectory) === path.resolve(canonicalSourceDirectory), 'STAGE_VERIFIED_CANDIDATE_SOURCE_PATH_MISMATCH');
   assert(expectedSourceIndexSha256 === expectedIndexSha256 && expectedSourceIndexSha256 === trustedSourceIndexSha256,
@@ -1665,7 +1682,7 @@ function stageVerifiedCandidate({ runId, sourceDirectory, expectedSourceIndexSha
       sourceIndexedFileCount: initial.fileCount, approvedPackageIndexSha256: approvedPackage.packageIndexSha256,
       fileCount: indexedFiles.length, files: indexedFiles };
     const stagedIndexBytes = jsonBytes(stagedIndex), stagedIndexSha256 = sha(stagedIndexBytes);
-    const prepared = preparePreflight({ runId, candidateDirectory: path.join(finalDirectory, 'candidate'), source: initial,
+    const prepared = preparePreflight({ runId, candidateDirectory: tempCandidate, source: initial,
       stagedCandidateIndexSha256: stagedIndexSha256 });
     const createdAt = new Date().toISOString();
     const preflight = { schemaVersion: 'phase2.3b-p-activation-preflight/1.0.0', status: 'PREFLIGHT_PASS', runId,

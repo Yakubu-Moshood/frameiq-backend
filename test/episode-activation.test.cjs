@@ -1893,7 +1893,7 @@ function makeVerifiedStageFixture(root) {
     expectedApprovedPackageIndexSha256: activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
     reviewRoot: review, validateCandidateFn, preparePreflight: () => ({ lockedHashes: { locked: 'abc' }, evidencePackageBinding: { bound: true } }), ...overrides,
   });
-  return { source, review, indexSha, stage };
+  return { source, review, indexSha, stage, validateCandidateFn };
 }
 
 test('verified candidate staging copies indexed bytes into a run-bound atomic package', t => {
@@ -1901,7 +1901,8 @@ test('verified candidate staging copies indexed bytes into a run-bound atomic pa
   const f = makeVerifiedStageFixture(root), result = f.stage();
   assert.equal(result.status, 'VERIFIED_CANDIDATE_STAGED'); assert.equal(result.sourceFileCount, 2);
   const verified = activationCli.verifyStagedCandidateIndexes({ runId: result.runId, candidateDirectory: result.candidateDirectory,
-    reviewDirectory: result.reviewDirectory, sourceDirectory: f.source, expectedSourceIndexSha256: f.indexSha, expectedSourceFileCount: 2 });
+    reviewDirectory: result.reviewDirectory, sourceDirectory: f.source, expectedSourceIndexSha256: f.indexSha,
+    expectedSourceFileCount: 2, validateCandidateFn: f.validateCandidateFn });
   assert.equal(verified.stagedFileCount, 3);
   assert.equal(JSON.parse(fs.readFileSync(path.join(result.candidateDirectory, 'candidate-report.json'), 'utf8')).runId, result.runId);
 });
@@ -2005,14 +2006,20 @@ test('committed v2 candidate and hash-bound r3 approval package pass full stagin
     proofSectionPlanner: require('../pipeline-updates/proof-section-planner.cjs'),
   };
   const runId = 'phase2-3b-p-act3-refresh-real-package-test';
+  let fullValidationCount = 0;
+  const validateCandidateFn = (candidateDirectory, options) => {
+    fullValidationCount += 1;
+    return activationCli.validateVerifiedCandidate(candidateDirectory, {
+      ...options, approvedPackageDirectory, lineagePackageDirectory, lockedEpisodeRoot, runtimeModules,
+    });
+  };
   const result = activationCli.stageVerifiedCandidate({ runId, sourceDirectory,
     expectedSourceIndexSha256: activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256,
     approvedPackageDirectory, expectedApprovedPackageIndexSha256: activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
     reviewRoot, lineagePackageDirectory,
-    validateCandidateFn: (candidateDirectory, options) => activationCli.validateVerifiedCandidate(candidateDirectory, {
-      ...options, approvedPackageDirectory, lineagePackageDirectory, lockedEpisodeRoot, runtimeModules,
-    }),
-    preparePreflight: () => ({ lockedHashes: { fixture: 'read-only' }, evidencePackageBinding: { fixture: 'verified' } }),
+    validateCandidateFn,
+    preparePreflight: ({ candidateDirectory }) => ({ lockedHashes: { fixture: 'read-only' },
+      evidencePackageBinding: activationCli.createActivationEvidenceBinding({ episodeDirectory: candidateDirectory }) }),
   });
   assert.equal(result.status, 'VERIFIED_CANDIDATE_STAGED');
   assert.equal(result.sourceFileCount, 150);
@@ -2026,11 +2033,56 @@ test('committed v2 candidate and hash-bound r3 approval package pass full stagin
   assert.equal(result.validation.formalTimingExceptions, 9);
   assert.equal(result.validation.editorialIntentMigrations, 5);
   assert.equal(result.validation.totalDurationSec, 633.782449);
+  assert.equal(fullValidationCount, 1);
+  assert.equal(fs.existsSync(path.join(lockedEpisodeRoot, 'evidence-source-manifest.json')), false,
+    'the staging fixture must not provide an episode-root evidence manifest');
+  const preflight = JSON.parse(fs.readFileSync(path.join(result.reviewDirectory, 'preflight.json'), 'utf8'));
+  assert.equal(preflight.evidencePackageBinding.manifestSha256,
+    sha256(fs.readFileSync(path.join(sourceDirectory, 'evidence-source-manifest.json'))));
+  assert.equal(preflight.evidencePackageBinding.assetCount, 29);
+  const sourceIndex = JSON.parse(fs.readFileSync(path.join(sourceDirectory, 'candidate-package-sha256.json'), 'utf8'));
+  assert(sourceIndex.files.some(item => item.path === 'evidence-source-manifest.json'));
+  assert.equal(sourceIndex.files.filter(item => item.path.startsWith('assets/evidence/')).length, 29);
   const verified = activationCli.verifyStagedCandidateIndexes({ runId, candidateDirectory: result.candidateDirectory,
     reviewDirectory: result.reviewDirectory, sourceDirectory,
-    expectedSourceIndexSha256: activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedSourceFileCount: 150 });
+    expectedSourceIndexSha256: activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedSourceFileCount: 150,
+    validateCandidateFn });
   assert.equal(verified.record.approvedPackageIndexSha256, activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256);
+  assert(verified.index.files.some(item => item.path === 'evidence-source-manifest.json'));
+  assert.equal(verified.index.files.filter(item => item.path.startsWith('assets/evidence/')).length, 29);
   assert.equal(JSON.parse(fs.readFileSync(path.join(result.candidateDirectory, 'candidate-report.json'), 'utf8')).runId, runId);
+  assert.equal(fullValidationCount, 2, 'staged-candidate verification must rerun full validation immediately before promotion can proceed');
+
+  const cloneCandidate = suffix => {
+    const directory = path.join(reviewRoot, `candidate-${suffix}`);
+    fs.cpSync(result.candidateDirectory, directory, { recursive: true, errorOnExist: true });
+    return directory;
+  };
+  const evidence = JSON.parse(fs.readFileSync(path.join(result.candidateDirectory, 'evidence-source-manifest.json'), 'utf8'));
+  const firstEvidence = evidence.entries[0];
+  const firstAssetRelative = path.join('assets', 'evidence', firstEvidence.localFilename);
+
+  const missingManifestCandidate = cloneCandidate('missing-manifest');
+  fs.rmSync(path.join(missingManifestCandidate, 'evidence-source-manifest.json'));
+  assert.throws(() => validateCandidateFn(missingManifestCandidate, { expectedRunId: runId, approvedPackageDirectory }), /ENOENT/);
+
+  const modifiedManifestCandidate = cloneCandidate('modified-manifest');
+  const modifiedManifestPath = path.join(modifiedManifestCandidate, 'evidence-source-manifest.json');
+  const modifiedManifest = JSON.parse(fs.readFileSync(modifiedManifestPath, 'utf8'));
+  modifiedManifest.entries[0].sha256 = '0'.repeat(64);
+  fs.writeFileSync(modifiedManifestPath, JSON.stringify(modifiedManifest));
+  assert.throws(() => validateCandidateFn(modifiedManifestCandidate, { expectedRunId: runId, approvedPackageDirectory }),
+    /STAGED_EVIDENCE_MANIFEST_INVALID/);
+
+  const missingAssetCandidate = cloneCandidate('missing-asset');
+  fs.rmSync(path.join(missingAssetCandidate, firstAssetRelative));
+  assert.throws(() => validateCandidateFn(missingAssetCandidate, { expectedRunId: runId, approvedPackageDirectory }),
+    /STAGED_EVIDENCE_MANIFEST_INVALID/);
+
+  const alteredAssetCandidate = cloneCandidate('altered-asset');
+  fs.appendFileSync(path.join(alteredAssetCandidate, firstAssetRelative), Buffer.from('tampered'));
+  assert.throws(() => validateCandidateFn(alteredAssetCandidate, { expectedRunId: runId, approvedPackageDirectory }),
+    /STAGED_EVIDENCE_MANIFEST_INVALID/);
 });
 
 test('real staging CLI dispatch resolves the canonical review root before refusing a missing review volume', async () => {
