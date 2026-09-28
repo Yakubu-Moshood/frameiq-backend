@@ -1871,3 +1871,89 @@ test('revision lineage restores an approved retired shot before validating its p
   const tampered = structuredClone(retirement); tampered.retirements[0].shot.visual.description = 'tampered';
   assert.equal(validateRevisionChain({ shotDefs: result, revisionChain: [amendment, tampered] }).status, 'FAIL');
 });
+
+function makeVerifiedStageFixture(root) {
+  const source = path.join(root, 'committed-v2'), review = path.join(root, 'review');
+  fs.mkdirSync(source, { recursive: true }); fs.mkdirSync(review, { recursive: true });
+  const payload = Buffer.from('approved immutable candidate payload'); fs.writeFileSync(path.join(source, 'payload.bin'), payload);
+  const payloadSha = crypto.createHash('sha256').update(payload).digest('hex');
+  fs.writeFileSync(path.join(source, 'candidate-report.json'), JSON.stringify({ status: 'VALIDATED_NOT_PROMOTED', candidateFiles: [{ path: 'payload.bin', bytes: payload.length, sha256: payloadSha }] }));
+  const files = ['candidate-report.json', 'payload.bin'].map(relative => { const b = fs.readFileSync(path.join(source, relative)); return { path: relative, bytes: b.length, sha256: crypto.createHash('sha256').update(b).digest('hex') }; });
+  const indexBytes = Buffer.from(`${JSON.stringify({ schemaVersion: 'phase2.3b-act3-refresh-candidate-index/1.0.0', status: 'COMPLETE_NOT_PROMOTED', selfHashExcluded: true, fileCount: files.length, files }, null, 2)}\n`);
+  fs.writeFileSync(path.join(source, 'candidate-package-sha256.json'), indexBytes);
+  const indexSha = crypto.createHash('sha256').update(indexBytes).digest('hex');
+  const validateCandidateFn = (candidateDir, { expectedRunId }) => {
+    assert.equal(JSON.parse(fs.readFileSync(path.join(candidateDir, 'candidate-report.json'), 'utf8')).runId, expectedRunId);
+    return { boundaryAudit: { status: 'BOUNDARY_AUDIT_PASS' }, editPlanValidation: { status: 'PASS' }, shotValidation: { status: 'PASS' }, revisionValidation: { status: 'PASS' }, productionValidation: { status: 'PASS' }, evidenceValidation: { status: 'PASS' }, graphicEntries: 76, timingExceptionAudit: { entries: Array(9), editorialIntentMigrations: Array(5) }, totalRetimedDurationSec: 633.782449 };
+  };
+  const stage = (runId = 'phase2-3b-p-act3-refresh-test-run', overrides = {}) => activationCli.stageVerifiedCandidate({
+    runId, sourceDirectory: source, expectedSourceIndexSha256: indexSha, expectedIndexSha256: indexSha,
+    trustedSourceIndexSha256: indexSha, canonicalSourceDirectory: source, expectedSourceFileCount: files.length,
+    reviewRoot: review, validateCandidateFn, preparePreflight: () => ({ lockedHashes: { locked: 'abc' }, evidencePackageBinding: { bound: true } }), ...overrides,
+  });
+  return { source, review, indexSha, stage };
+}
+
+test('verified candidate staging copies indexed bytes into a run-bound atomic package', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-candidate-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const f = makeVerifiedStageFixture(root), result = f.stage();
+  assert.equal(result.status, 'VERIFIED_CANDIDATE_STAGED'); assert.equal(result.sourceFileCount, 2);
+  const verified = activationCli.verifyStagedCandidateIndexes({ runId: result.runId, candidateDirectory: result.candidateDirectory,
+    reviewDirectory: result.reviewDirectory, sourceDirectory: f.source, expectedSourceIndexSha256: f.indexSha, expectedSourceFileCount: 2 });
+  assert.equal(verified.stagedFileCount, 3);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(result.candidateDirectory, 'candidate-report.json'), 'utf8')).runId, result.runId);
+});
+
+test('verified staging rejects a wrong source hash, altered indexed file and invalid run ID', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-reject-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const f = makeVerifiedStageFixture(root);
+  assert.throws(() => f.stage('phase2-3b-p-act3-refresh-hash-test', { expectedSourceIndexSha256: '0'.repeat(64) }), /STAGE_VERIFIED_CANDIDATE_SOURCE_HASH_NOT_AUTHORIZED/u);
+  fs.writeFileSync(path.join(f.source, 'payload.bin'), 'changed');
+  assert.throws(() => f.stage('phase2-3b-p-act3-refresh-altered-test'), /VERIFIED_CANDIDATE_SOURCE_FILE_HASH_MISMATCH/u);
+  assert.throws(() => f.stage('bad-run-id'), /STAGE_VERIFIED_CANDIDATE_RUN_ID_INVALID/u);
+});
+
+test('verified staging rejects traversal, symlinks and existing run targets', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-paths-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const traversal = makeVerifiedStageFixture(path.join(root, 'traversal'));
+  const index = JSON.parse(fs.readFileSync(path.join(traversal.source, 'candidate-package-sha256.json'), 'utf8')); index.files[0].path = '../escape';
+  const bytes = Buffer.from(`${JSON.stringify(index, null, 2)}\n`), digest = crypto.createHash('sha256').update(bytes).digest('hex');
+  fs.writeFileSync(path.join(traversal.source, 'candidate-package-sha256.json'), bytes);
+  assert.throws(() => traversal.stage('phase2-3b-p-act3-refresh-traversal-test', { expectedSourceIndexSha256: digest, expectedIndexSha256: digest, trustedSourceIndexSha256: digest }), /VERIFIED_CANDIDATE_SOURCE_INDEX_ENTRY_INVALID/u);
+  const symlink = makeVerifiedStageFixture(path.join(root, 'symlink'));
+  fs.writeFileSync(path.join(symlink.source, 'extra-link'), 'link fixture');
+  const fsWithSymlink = new Proxy(fs, { get(target, property) {
+    if (property === 'lstatSync') return file => path.resolve(String(file)) === path.resolve(path.join(symlink.source, 'extra-link'))
+      ? { isSymbolicLink: () => true, isDirectory: () => false, isFile: () => false }
+      : target.lstatSync(file);
+    const value = target[property]; return typeof value === 'function' ? value.bind(target) : value;
+  } });
+  assert.throws(() => activationCli.verifyIndexedCandidateDirectory({ directory: symlink.source,
+    expectedIndexSha256: symlink.indexSha, expectedCount: 2, fsImpl: fsWithSymlink }), /VERIFIED_CANDIDATE_SYMLINK_REFUSED/u);
+  const target = makeVerifiedStageFixture(path.join(root, 'target'));
+  fs.mkdirSync(path.join(target.review, 'phase2.3b-p-activation-phase2-3b-p-act3-refresh-existing-test'));
+  assert.throws(() => target.stage('phase2-3b-p-act3-refresh-existing-test'), /STAGE_VERIFIED_CANDIDATE_RUN_ALREADY_EXISTS/u);
+});
+
+test('staging cleans partial copies and promotion integrity rejects changed source or staged indexes', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-integrity-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const cleanup = makeVerifiedStageFixture(path.join(root, 'cleanup'));
+  assert.throws(() => cleanup.stage('phase2-3b-p-act3-refresh-cleanup-test', { validateCandidateFn: () => { throw new Error('forced validation stop'); } }), /forced validation stop/u);
+  assert.deepEqual(fs.readdirSync(cleanup.review), []);
+  const sourceChange = makeVerifiedStageFixture(path.join(root, 'source-change'));
+  const a = sourceChange.stage('phase2-3b-p-act3-refresh-source-index-test');
+  fs.writeFileSync(path.join(sourceChange.source, 'payload.bin'), 'mutated');
+  assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: a.runId, candidateDirectory: a.candidateDirectory, reviewDirectory: a.reviewDirectory, sourceDirectory: sourceChange.source, expectedSourceIndexSha256: sourceChange.indexSha, expectedSourceFileCount: 2 }), /VERIFIED_CANDIDATE_SOURCE_FILE_HASH_MISMATCH/u);
+  const sourceIndexChange = makeVerifiedStageFixture(path.join(root, 'source-index-change'));
+  const sourceIndexStage = sourceIndexChange.stage('phase2-3b-p-act3-refresh-source-index-tamper-test');
+  fs.appendFileSync(path.join(sourceIndexChange.source, 'candidate-package-sha256.json'), ' ');
+  assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: sourceIndexStage.runId,
+    candidateDirectory: sourceIndexStage.candidateDirectory, reviewDirectory: sourceIndexStage.reviewDirectory,
+    sourceDirectory: sourceIndexChange.source, expectedSourceIndexSha256: sourceIndexChange.indexSha, expectedSourceFileCount: 2 }),
+  /VERIFIED_CANDIDATE_SOURCE_INDEX_HASH_MISMATCH/u);
+  const stagedChange = makeVerifiedStageFixture(path.join(root, 'staged-change'));
+  const b = stagedChange.stage('phase2-3b-p-act3-refresh-staged-index-test');
+  fs.appendFileSync(path.join(b.reviewDirectory, 'staged-candidate-index.json'), ' ');
+  assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: b.runId, candidateDirectory: b.candidateDirectory, reviewDirectory: b.reviewDirectory, sourceDirectory: stagedChange.source, expectedSourceIndexSha256: stagedChange.indexSha, expectedSourceFileCount: 2 }), /STAGED_CANDIDATE_RECORD_INVALID/u);
+  assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: 'phase2-3b-p-act3-refresh-wrong-run', candidateDirectory: b.candidateDirectory, reviewDirectory: b.reviewDirectory, sourceDirectory: stagedChange.source, expectedSourceIndexSha256: stagedChange.indexSha, expectedSourceFileCount: 2 }), /STAGED_CANDIDATE_RECORD_INVALID/u);
+});
