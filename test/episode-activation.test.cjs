@@ -1889,6 +1889,8 @@ function makeVerifiedStageFixture(root) {
   const stage = (runId = 'phase2-3b-p-act3-refresh-test-run', overrides = {}) => activationCli.stageVerifiedCandidate({
     runId, sourceDirectory: source, expectedSourceIndexSha256: indexSha, expectedIndexSha256: indexSha,
     trustedSourceIndexSha256: indexSha, canonicalSourceDirectory: source, expectedSourceFileCount: files.length,
+    approvedPackageDirectory: activationCli.REFRESHED_BINDING_PACKAGE_DIR,
+    expectedApprovedPackageIndexSha256: activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
     reviewRoot: review, validateCandidateFn, preparePreflight: () => ({ lockedHashes: { locked: 'abc' }, evidencePackageBinding: { bound: true } }), ...overrides,
   });
   return { source, review, indexSha, stage };
@@ -1958,6 +1960,79 @@ test('staging cleans partial copies and promotion integrity rejects changed sour
   assert.throws(() => activationCli.verifyStagedCandidateIndexes({ runId: 'phase2-3b-p-act3-refresh-wrong-run', candidateDirectory: b.candidateDirectory, reviewDirectory: b.reviewDirectory, sourceDirectory: stagedChange.source, expectedSourceIndexSha256: stagedChange.indexSha, expectedSourceFileCount: 2 }), /STAGED_CANDIDATE_RECORD_INVALID/u);
 });
 
+test('verified staging requires the exact indexed r3 approval package and rejects altered approval or policy bytes', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-approved-package-')); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const f = makeVerifiedStageFixture(path.join(root, 'source'));
+  assert.throws(() => f.stage('phase2-3b-p-act3-refresh-no-package-test', {
+    approvedPackageDirectory: path.join(root, 'missing'),
+  }), /STAGE_APPROVED_PACKAGE_DIRECTORY_INVALID/u);
+  assert.throws(() => f.stage('phase2-3b-p-act3-refresh-wrong-package-index-test', {
+    expectedApprovedPackageIndexSha256: '0'.repeat(64),
+  }), /STAGE_APPROVED_PACKAGE_HASH_NOT_AUTHORIZED/u);
+
+  const originalPackage = activationCli.REFRESHED_BINDING_PACKAGE_DIR;
+  let alteration = 0;
+  for (const relative of ['approvals/boundary-policy-approval.v1.json', 'approvals/refreshed-boundary-policy.v2.json']) {
+    alteration += 1;
+    const copiedPackage = path.join(root, `copy-${path.basename(relative, '.json')}`);
+    fs.cpSync(originalPackage, copiedPackage, { recursive: true });
+    fs.appendFileSync(path.join(copiedPackage, relative), '\n');
+    assert.throws(() => f.stage(`phase2-3b-p-act3-refresh-alt-${alteration}`, {
+      approvedPackageDirectory: copiedPackage,
+    }), error => error.message === `ACTIVATION_REFRESHED_PACKAGE_COMPANION_HASH_MISMATCH:${relative}`);
+  }
+  assert.deepEqual(fs.readdirSync(f.review), [], 'package failures occur before any staging write');
+});
+
+test('committed v2 candidate and hash-bound r3 approval package pass full staging validation', t => {
+  const repositoryRoot = path.resolve(__dirname, '..');
+  const sourceDirectory = activationCli.VERIFIED_STAGE_SOURCE_DIR;
+  const approvedPackageDirectory = activationCli.REFRESHED_BINDING_PACKAGE_DIR;
+  const lineagePackageDirectory = activationCli.CANDIDATE_PACKAGE;
+  const reviewRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'phase2-stage-real-package-'));
+  t.after(() => fs.rmSync(reviewRoot, { recursive: true, force: true }));
+  const lockedEpisodeRoot = path.join(reviewRoot, 'locked-episode-snapshot');
+  fs.mkdirSync(lockedEpisodeRoot);
+  fs.copyFileSync(path.join(repositoryRoot, 'artifacts/empire-omitted-v3/wells-fargo/phase2.3b-s-authoritative-input/authoritative-edit-plan.json'),
+    path.join(lockedEpisodeRoot, 'edit-plan.json'));
+  const runtimeModules = {
+    editPlanValidator: require('../pipeline-updates/edit-plan-validator.cjs'),
+    shotDefinitionsValidator: require('../pipeline-updates/shot-definitions-validator.cjs'),
+    revisionLineage: require('../pipeline-updates/revision-lineage.cjs'),
+    productionManifest: require('../pipeline-updates/production-method-manifest.cjs'),
+    evidenceSource: require('../pipeline-updates/evidence-source-validator.cjs'),
+    assetReadiness: require('../pipeline-updates/v3-asset-readiness.cjs'),
+    proofSectionPlanner: require('../pipeline-updates/proof-section-planner.cjs'),
+  };
+  const runId = 'phase2-3b-p-act3-refresh-real-package-test';
+  const result = activationCli.stageVerifiedCandidate({ runId, sourceDirectory,
+    expectedSourceIndexSha256: activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256,
+    approvedPackageDirectory, expectedApprovedPackageIndexSha256: activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
+    reviewRoot, lineagePackageDirectory,
+    validateCandidateFn: (candidateDirectory, options) => activationCli.validateVerifiedCandidate(candidateDirectory, {
+      ...options, approvedPackageDirectory, lineagePackageDirectory, lockedEpisodeRoot, runtimeModules,
+    }),
+    preparePreflight: () => ({ lockedHashes: { fixture: 'read-only' }, evidencePackageBinding: { fixture: 'verified' } }),
+  });
+  assert.equal(result.status, 'VERIFIED_CANDIDATE_STAGED');
+  assert.equal(result.sourceFileCount, 150);
+  assert.equal(result.validation.boundaryAudit, 'BOUNDARY_AUDIT_PASS');
+  assert.equal(result.validation.editPlan, 'PASS');
+  assert.equal(result.validation.shotDefinitions, 'PASS');
+  assert.equal(result.validation.revisionLineage, 'PASS');
+  assert.equal(result.validation.productionManifest, 'PASS');
+  assert.equal(result.validation.evidence, 'PASS');
+  assert.equal(result.validation.graphics, 76);
+  assert.equal(result.validation.formalTimingExceptions, 9);
+  assert.equal(result.validation.editorialIntentMigrations, 5);
+  assert.equal(result.validation.totalDurationSec, 633.782449);
+  const verified = activationCli.verifyStagedCandidateIndexes({ runId, candidateDirectory: result.candidateDirectory,
+    reviewDirectory: result.reviewDirectory, sourceDirectory,
+    expectedSourceIndexSha256: activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedSourceFileCount: 150 });
+  assert.equal(verified.record.approvedPackageIndexSha256, activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(result.candidateDirectory, 'candidate-report.json'), 'utf8')).runId, runId);
+});
+
 test('real staging CLI dispatch resolves the canonical review root before refusing a missing review volume', async () => {
   const runId = 'phase2-3b-p-act3-refresh-cli-path-test';
   const reviewRoot = path.resolve(path.join(activationCli.ROOT, '.review'));
@@ -1974,6 +2049,8 @@ test('real staging CLI dispatch resolves the canonical review root before refusi
     '--stage-verified-candidate', '--run-id', runId,
     '--source-dir', activationCli.VERIFIED_STAGE_SOURCE_DIR,
     '--expected-source-index-sha256', activationCli.VERIFIED_STAGE_SOURCE_INDEX_SHA256,
+    '--approval-package-dir', activationCli.REFRESHED_BINDING_PACKAGE_DIR,
+    '--expected-approval-package-index-sha256', activationCli.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
   ], {
     ensureRailwayTargetFn: () => true,
     verifyPackageFn: () => true,
