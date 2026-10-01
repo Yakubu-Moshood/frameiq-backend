@@ -284,6 +284,7 @@ function fullPreflightStage04Fixture() {
     status: 'VERIFIED_STAGED', runId: PHASE2_RUN, sourceCandidateIndexSha256: source.indexSha256,
     approvedPackageIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
     fileCount: stagedIndex.files.length, files: stagedIndex.files };
+  const stagedIndexSha256 = sha(Buffer.from(JSON.stringify(phase3CandidateIndex)));
   const stageVerifier = ({ candidateDirectory: candidate, runId }) => {
     assert.equal(runId, PHASE2_RUN);
     assert.equal(path.resolve(candidate), path.resolve(candidateDirectory));
@@ -309,7 +310,8 @@ function fullPreflightStage04Fixture() {
     assert.equal(lineageValidation.status, 'PASS');
     assert.equal(shotValidation.status, 'PASS');
     assert.equal(shotValidation.errors.length, 0);
-    return { status: 'PASS', index: phase3CandidateIndex };
+    return { status: 'PASS', index: phase3CandidateIndex, sourceIndexSha256: source.indexSha256,
+      stagedIndexSha256, record: { approvedPackageIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256 } };
   };
   return { root, candidateDirectory, reviewDirectory, activationRecord, stagedIndex: phase3CandidateIndex,
     sourceIndexSha256: source.indexSha256, promotionPaths, stageVerifier,
@@ -349,6 +351,127 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
       activationRecord: { candidateFiles: [{ path: 'timing/word-timestamps.json', bytes: stagedBytes.length,
         sha256: sha(stagedBytes) }] } }, runDirectory: renderInputDirectory });
     assert.deepEqual(fs.readFileSync(path.join(renderInputDirectory, 'timing/word-timestamps.json')), stagedBytes);
+  } finally { f.cleanup(); }
+});
+
+test('Stage04 edit-script generation validates the promoted package and atomically publishes parity-bound outputs', () => {
+  const f = fullPreflightStage04Fixture();
+  try {
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+    fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const service = preview.createPhase3Preview({ root: f.root, runner, verifyStageFn: f.stageVerifier,
+      verifyBackupFn: () => true, expectedLedgerSha256: ledgerHash, runCommand: toolCommand,
+      capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath },
+      renderFn: () => { throw new Error('edit-script generation must not render'); } });
+    const result = service.generateEditScript({ promotedRunId: PHASE2_RUN, editScriptRunId: 'phase3-edit-script-test01' });
+    const runDir = path.join(f.root, '.review', 'phase3-edit-scripts', 'phase3-edit-script-test01');
+    assert.equal(result.status, 'PHASE3_EDIT_SCRIPT_GENERATED');
+    assert.equal(result.activeBeats, 153);
+    assert.equal(result.durationSec, 633.782449);
+    const document = JSON.parse(fs.readFileSync(path.join(runDir, 'edit-script.json'), 'utf8'));
+    const markdown = fs.readFileSync(path.join(runDir, 'EDIT_SCRIPT.md'), 'utf8');
+    const receipt = JSON.parse(fs.readFileSync(path.join(runDir, 'edit-script-receipt.json'), 'utf8'));
+    const index = JSON.parse(fs.readFileSync(path.join(runDir, 'edit-script-index.json'), 'utf8'));
+    assert.equal(document.beats.length, 153);
+    assert.equal(document.summary.promotedStage04RunId, PHASE2_RUN);
+    assert.equal(document.summary.approvedEvidenceEntries, 46);
+    assert.equal(document.summary.evidenceAssets, 29);
+    assert.equal(document.summary.graphics, 76);
+    assert.equal(document.summary.formalTimingExceptions, 9);
+    assert.equal(document.summary.editorialIntentMigrations, 5);
+    assert.deepEqual(document.retiredBeats, [{ beatId: 'ACT3B_B010', status: 'RETIRED', active: false }]);
+    assert.ok(document.beats.every(beat => beat.qcStatus === 'NOT_REVIEWED' && beat.qcNotes === ''));
+    assert.ok(document.beats.every(beat => markdown.includes(`### ${beat.act} / ${beat.beatId}`)));
+    const markdownBeatObjects = [...markdown.matchAll(/```json\r?\n([\s\S]*?)\r?\n```/gu)].map(match => JSON.parse(match[1]));
+    assert.deepEqual(markdownBeatObjects, document.beats);
+    assert.equal(receipt.status, 'GENERATED');
+    assert.equal(receipt.requestLedgerSha256Before, ledgerHash);
+    assert.equal(receipt.requestLedgerSha256After, ledgerHash);
+    assert.equal(receipt.providerRequests, 0);
+    assert.equal(receipt.episodeRootWrites, 0);
+    assert.equal(index.files.length, 3);
+    for (const entry of index.files) {
+      const bytes = fs.readFileSync(path.join(runDir, entry.path));
+      assert.equal(bytes.length, entry.bytes);
+      assert.equal(sha(bytes), entry.sha256);
+    }
+    assert.equal(fs.readdirSync(path.join(f.root, '.review', 'phase3-edit-scripts')).some(name => name.startsWith('.tmp-')), false);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
+    assert.equal(fs.existsSync(path.join(f.root, 'edit-plan.json')), true);
+  } finally { f.cleanup(); }
+});
+
+test('edit-script generation refuses completed runs, invalid owners, bad timing, narration and asset bindings', () => {
+  const f = fullPreflightStage04Fixture();
+  try {
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true }); fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const service = preview.createPhase3Preview({ root: f.root, runner, verifyStageFn: f.stageVerifier,
+      verifyBackupFn: () => true, expectedLedgerSha256: ledgerHash, runCommand: toolCommand,
+      capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath } });
+    const args = { promotedRunId: PHASE2_RUN, editScriptRunId: 'phase3-edit-script-guards01' };
+    const first = service.generateEditScript(args);
+    assert.equal(first.status, 'PHASE3_EDIT_SCRIPT_GENERATED');
+    assert.throws(() => service.generateEditScript(args), /PHASE3_EDIT_SCRIPT_RUN_ALREADY_EXISTS/);
+    for (const [label, mutate] of [
+      ['missing beat', value => { value.editPlan.sequences[0].beats.pop(); }],
+      ['duplicate beat', value => { value.editPlan.sequences[0].beats.push(structuredClone(value.editPlan.sequences[0].beats[0])); }],
+      ['non-monotonic timing', value => { value.editPlan.sequences[0].beats[0].startSec = 1; }],
+      ['missing narration', value => { value.editPlan.sequences[0].beats[0].narrationExcerpt = ''; }],
+      ['wrong shot owner', value => { value.shotDefs.allShots[0].beatId = 'wrong-owner'; }],
+      ['unsupported production method', value => { value.productionManifest.shots[0].productionMethod = 'UNSUPPORTED'; }],
+      ['missing evidence owner', value => { value.evidenceManifest.entries.pop(); }],
+      ['missing graphic owner', value => { value.graphicAssetManifest.entries.pop(); }],
+    ]) {
+      const verifiedInput = preview.verifyActualEpisode({ root: f.root, promotedRunId: PHASE2_RUN, runner,
+        verifyBackupFn: () => true, verifyStageFn: f.stageVerifier, expectedLedgerSha256: ledgerHash,
+        runCommand: toolCommand });
+      const changed = { ...verifiedInput, editPlan: structuredClone(verifiedInput.editPlan),
+        shotDefs: structuredClone(verifiedInput.shotDefs), productionManifest: structuredClone(verifiedInput.productionManifest),
+        evidenceManifest: structuredClone(verifiedInput.evidenceManifest), graphicAssetManifest: structuredClone(verifiedInput.graphicAssetManifest) };
+      mutate(changed);
+      assert.throws(() => preview.buildEditScriptDocument(changed, { editScriptRunId: 'phase3-edit-script-guard02' }), label);
+    }
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-edit-scripts', 'phase3-edit-script-guard02')), false);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
+  } finally { f.cleanup(); }
+});
+
+test('edit-script publication removes temporary output after an atomic-write failure', () => {
+  const f = fullPreflightStage04Fixture();
+  try {
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true }); fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const realVerified = preview.verifyActualEpisode({ root: f.root, promotedRunId: PHASE2_RUN, runner,
+      verifyBackupFn: () => true, verifyStageFn: f.stageVerifier, expectedLedgerSha256: ledgerHash,
+      runCommand: toolCommand });
+    const fsImpl = new Proxy(fs, { get(target, property) {
+      if (property === 'writeFileSync') return (file, ...args) => {
+        if (String(file).includes('.tmp-phase3-edit-script-failwrite') && String(file).endsWith('EDIT_SCRIPT.md')) {
+          throw new Error('SIMULATED_ATOMIC_WRITE_FAILURE');
+        }
+        return target.writeFileSync(file, ...args);
+      };
+      const value = target[property]; return typeof value === 'function' ? value.bind(target) : value;
+    } });
+    const service = preview.createPhase3Preview({ root: f.root, fsImpl, verifyInputsFn: () => realVerified,
+      expectedLedgerSha256: ledgerHash, clock: () => new Date('2026-10-01T12:00:00.000Z') });
+    assert.throws(() => service.generateEditScript({ promotedRunId: PHASE2_RUN,
+      editScriptRunId: 'phase3-edit-script-failwrite' }), /SIMULATED_ATOMIC_WRITE_FAILURE/);
+    const parent = path.join(f.root, '.review', 'phase3-edit-scripts');
+    assert.equal(fs.existsSync(path.join(parent, 'phase3-edit-script-failwrite')), false);
+    assert.equal(fs.readdirSync(parent).some(name => name.startsWith('.tmp-phase3-edit-script-failwrite')), false);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
   } finally { f.cleanup(); }
 });
 
@@ -618,7 +741,8 @@ test('preview renderer loads no timing/provider module and cannot continue the n
   assert.equal(child.status, 0, child.stderr);
   const source = fs.readFileSync(path.resolve(__dirname, '../scripts/phase3-render-preview.cjs'), 'utf8');
   assert.doesNotMatch(source, /jobs[\\/]runner/);
-  assert.match(source, /options\.mode === 'preflight' \? service\.preflight\(options\) : await service\.render\(options\)/);
+  assert.match(source, /options\.mode === 'preflight' \? service\.preflight\(options\)/);
+  assert.match(source, /options\.mode === 'generate-edit-script' \? service\.generateEditScript\(options\)/);
 });
 
 test('CLI requires an explicit single mode, both run IDs, and output directory', () => {
@@ -626,6 +750,34 @@ test('CLI requires an explicit single mode, both run IDs, and output directory',
   assert.throws(() => preview.parseArgs(['--preflight', '--render-preview']), /PHASE3_MODE_AMBIGUOUS/);
   assert.deepEqual(preview.parseArgs(['--render-preview', '--promoted-run-id', PHASE2_RUN,
     '--phase3-run-id', PHASE3_RUN, '--output-dir', 'X']), {
-    mode: 'render', promotedRunId: PHASE2_RUN, phase3RunId: PHASE3_RUN, outputDir: 'X',
+    mode: 'render', promotedRunId: PHASE2_RUN, phase3RunId: PHASE3_RUN, outputDir: 'X', editScriptRunId: null,
   });
+  assert.deepEqual(preview.parseArgs(['--generate-edit-script', '--promoted-run-id', PHASE2_RUN,
+    '--edit-script-run-id', 'phase3-edit-script-final01']), {
+    mode: 'generate-edit-script', promotedRunId: PHASE2_RUN, phase3RunId: null, outputDir: null,
+    editScriptRunId: 'phase3-edit-script-final01',
+  });
+  assert.throws(() => preview.parseArgs(['--generate-edit-script', '--promoted-run-id', PHASE2_RUN,
+    '--edit-script-run-id', '../outside']), /PHASE3_EDIT_SCRIPT_RUN_ID_INVALID/);
+  assert.throws(() => preview.parseArgs(['--generate-edit-script', '--promoted-run-id', 'other-run',
+    '--edit-script-run-id', 'phase3-edit-script-x']), /PHASE3_EDIT_SCRIPT_ARGUMENTS_INVALID/);
+});
+
+test('edit-script CLI dispatch never invokes the render path', async () => {
+  let generated = 0, rendered = 0;
+  const originalWrite = process.stdout.write;
+  let stdout = '';
+  process.stdout.write = chunk => { stdout += String(chunk); return true; };
+  try {
+    await preview.main(['--generate-edit-script', '--promoted-run-id', PHASE2_RUN,
+      '--edit-script-run-id', 'phase3-edit-script-dispatch01'], {
+      serviceFactory: () => ({ generateEditScript: options => { generated += 1;
+        assert.equal(options.editScriptRunId, 'phase3-edit-script-dispatch01'); return { status: 'GENERATED' }; },
+      preflight: () => { throw new Error('unexpected preflight'); },
+      render: () => { rendered += 1; throw new Error('unexpected render'); } }),
+    });
+  } finally { process.stdout.write = originalWrite; }
+  assert.equal(generated, 1);
+  assert.equal(rendered, 0);
+  assert.match(stdout, /GENERATED/);
 });

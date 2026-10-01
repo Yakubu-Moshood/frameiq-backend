@@ -21,6 +21,10 @@ const EXPECTED_PROMOTED_PATHS = 147;
 const EXPECTED_LEDGER_SHA256 = 'c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf';
 const OUTPUT_FILENAME = 'empire-omitted-v3-phase3-preview-01.mp4';
 const PHASE3_ROOT = path.join(activation.ROOT, '.review', 'phase3-renders');
+const EDIT_SCRIPT_ROOT = path.join(activation.ROOT, '.review', 'phase3-edit-scripts');
+const EDIT_SCRIPT_SCHEMA = 'empire-omitted-v3-phase3-edit-script/1.0.0';
+const EDIT_SCRIPT_RUN_RE = /^phase3-edit-script-[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/u;
+const STAGE04_RUN_ID = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PROMOTED_RUN_RE = /^phase2-3b-p-act3-refresh-20260928-stage\d{2}$/u;
 const PHASE3_RUN_RE = /^phase3-[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/u;
 const STAGED_SHOT_LINEAGE_FILES = [
@@ -502,6 +506,10 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
     && validation.renderReadiness === 'PASS', 'PHASE3_PROMOTED_INPUT_VALIDATION_FAILED');
   return {
     root, reviewDirectory, activationRecordPath, activationRecord, activationRecordSha256: sha256(recordBytes), editPlan,
+    script: parseJson(path.join(candidateDirectory, 'script.json'), fsImpl), shotDefs,
+    alignmentReport: parseJson(path.join(candidateDirectory, 'timing', 'alignment-report.json'), fsImpl),
+    evidenceManifest: assets.evidenceManifest, graphicAssetManifest: assets.graphicAssetManifest,
+    boundaryTimingReport: boundaryReport, stagedShotValidation,
     candidateDirectory, candidateReport, staged, boundaryBackup, promotedPaths, audioManifest, audioInputs,
     timestampsPath: timestampPath, timestampsBytes, timestampsSha256: sha256(timestampsBytes), timestampRows: timestampRows.length,
     evidenceCount: assetCounts.evidenceEntries, evidenceAssetCount: assetCounts.evidenceAssets,
@@ -534,6 +542,263 @@ function checkPhase3PathPolicy({ root, phase3RunId, outputDir, fsImpl = fs }) {
   }
   assertNoSymlinkPath(runDirectory, { stopAt: root, allowMissing: true, fsImpl });
   return { phase3Root, runDirectory, outputDir: expectedOutputDir };
+}
+function EDIT_SCRIPT_ROOT_FOR(root) { return path.join(root, '.review', 'phase3-edit-scripts'); }
+function checkEditScriptPathPolicy({ root, editScriptRunId, fsImpl = fs }) {
+  fail(EDIT_SCRIPT_RUN_RE.test(editScriptRunId || ''), 'PHASE3_EDIT_SCRIPT_RUN_ID_INVALID');
+  const rootDirectory = EDIT_SCRIPT_ROOT_FOR(root);
+  const runDirectory = path.join(rootDirectory, editScriptRunId);
+  fail(isInside(rootDirectory, runDirectory) && path.dirname(runDirectory) === path.resolve(rootDirectory),
+    'PHASE3_EDIT_SCRIPT_OUTPUT_OUTSIDE_ROOT');
+  assertNoSymlinkPath(rootDirectory, { stopAt: root, allowMissing: true, fsImpl });
+  assertNoSymlinkPath(runDirectory, { stopAt: root, allowMissing: true, fsImpl });
+  fail(!fsImpl.existsSync(runDirectory), 'PHASE3_EDIT_SCRIPT_RUN_ALREADY_EXISTS');
+  return { rootDirectory, runDirectory };
+}
+function normalizedWords(value) { return episodeActivation.lexicalTokens(value).map(token => token.text); }
+function buildActSourceRanges(scriptText, alignmentAct, actBeats, actKey) {
+  const sourceTokens = episodeActivation.lexicalTokens(scriptText);
+  const matched = alignmentAct?.matchedTokens;
+  fail(Array.isArray(matched) && alignmentAct.status === 'PASS', `PHASE3_EDIT_SCRIPT_ALIGNMENT_MISSING:${actKey}`);
+  const ordered = [...actBeats].sort((a, b) => a.startWordIndex - b.startWordIndex || a.endWordIndex - b.endWordIndex);
+  const starts = ordered.map((beat, index) => {
+    if (index === 0) return 0;
+    const candidates = matched.filter(item => item.transcriptTokenEndIndex >= beat.startWordIndex)
+      .sort((a, b) => a.transcriptTokenIndex - b.transcriptTokenIndex || a.scriptTokenIndex - b.scriptTokenIndex);
+    fail(candidates.length > 0, `PHASE3_EDIT_SCRIPT_ALIGNMENT_BOUNDARY_UNMAPPED:${actKey}:${beat.beatId}`);
+    return candidates[0].scriptTokenIndex;
+  });
+  fail(starts[0] === 0 && starts.every((start, index) => Number.isInteger(start)
+    && start >= 0 && start < sourceTokens.length && (index === 0 || start > starts[index - 1])),
+  `PHASE3_EDIT_SCRIPT_ALIGNMENT_RANGE_INVALID:${actKey}`);
+  return new Map(ordered.map((beat, index) => [beat.beatId,
+    [starts[index], index + 1 < starts.length ? starts[index + 1] - 1 : sourceTokens.length - 1]]));
+}
+function alignedScriptNarration(scriptText, sourceRange, actKey, beatId) {
+  const sourceTokens = episodeActivation.lexicalTokens(scriptText);
+  const [start, end] = sourceRange;
+  fail(Number.isInteger(start) && Number.isInteger(end) && start <= end && end < sourceTokens.length,
+    `PHASE3_EDIT_SCRIPT_ALIGNMENT_RANGE_INVALID:${actKey}:${beatId}`);
+  const excerptStart = sourceTokens[start].offset;
+  const excerptEnd = end + 1 < sourceTokens.length ? sourceTokens[end + 1].offset : scriptText.length;
+  const narration = scriptText.slice(excerptStart, excerptEnd).trim();
+  fail(narration.length > 0, `PHASE3_EDIT_SCRIPT_NARRATION_MISSING:${beatId}`);
+  return { range: [start, end], narration };
+}
+function collectEditScriptInputHashes(verified) {
+  const files = verified.staged?.index?.files;
+  fail(Array.isArray(files) && files.length === 151, 'PHASE3_EDIT_SCRIPT_STAGED_INDEX_INVALID');
+  return [
+    { path: 'activation-record.json', sha256: verified.activationRecordSha256 },
+    { path: 'r3-approval-package/package-hash-index.json',
+      sha256: verified.staged.record.approvedPackageIndexSha256 },
+    ...files.map(item => ({ path: `candidate/${item.path}`, bytes: item.bytes, sha256: item.sha256 })),
+    ...verified.promotedPaths.map(relative => {
+      const item = verified.activationRecord.candidateFiles.find(entry => entry.path === relative);
+      return { path: `episode-root/${relative}`, bytes: item.bytes, sha256: item.sha256 };
+    }),
+  ];
+}
+function buildEditScriptDocument(verified, { editScriptRunId, fsImpl = fs }) {
+  fail(verified.activationRecord?.status === 'PROMOTED' && verified.activationRecord.runId === STAGE04_RUN_ID
+    && verified.promotedPaths?.length === 147, 'PHASE3_EDIT_SCRIPT_PROMOTION_NOT_VERIFIED');
+  fail(verified.staged?.sourceIndexSha256 === activation.VERIFIED_STAGE_SOURCE_INDEX_SHA256
+    && /^[a-f0-9]{64}$/u.test(verified.staged?.stagedIndexSha256 || '')
+    && verified.staged?.record?.approvedPackageIndexSha256 === activation.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
+  'PHASE3_EDIT_SCRIPT_INDEX_BINDING_INVALID');
+  const plan = verified.editPlan, shots = verified.shotDefs?.allShots;
+  const script = verified.script, production = verified.productionManifest?.shots;
+  const evidence = verified.evidenceManifest?.entries, graphics = verified.graphicAssetManifest?.entries;
+  fail(Array.isArray(plan?.sequences) && Array.isArray(shots) && shots.length === 153
+    && Array.isArray(production) && Array.isArray(evidence) && Array.isArray(graphics),
+  'PHASE3_EDIT_SCRIPT_INPUTS_MISSING');
+  const shotMap = new Map(), productionMap = new Map(), evidenceMap = new Map(), graphicsByOwner = new Map();
+  for (const shot of shots) {
+    fail(shot?.shotId && shot.beatId && !shotMap.has(shot.beatId), `PHASE3_EDIT_SCRIPT_SHOT_DUPLICATE:${shot?.beatId || ''}`);
+    shotMap.set(shot.beatId, shot);
+  }
+  for (const item of production) {
+    fail(item?.shotId && !productionMap.has(item.shotId), `PHASE3_EDIT_SCRIPT_PRODUCTION_DUPLICATE:${item?.shotId || ''}`);
+    productionMap.set(item.shotId, item);
+  }
+  for (const item of evidence) {
+    fail(item?.shotId && !evidenceMap.has(item.shotId), `PHASE3_EDIT_SCRIPT_EVIDENCE_DUPLICATE:${item?.shotId || ''}`);
+    evidenceMap.set(item.shotId, item);
+  }
+  for (const item of graphics) {
+    const key = `${item?.shotId}:${item?.graphicIndex}`;
+    fail(item?.shotId && !graphicsByOwner.has(key), `PHASE3_EDIT_SCRIPT_GRAPHIC_DUPLICATE:${key}`);
+    graphicsByOwner.set(key, item);
+  }
+  const actOrder = ['act1', 'act2', 'act3', 'act3b', 'act4', 'act5'];
+  const planBeats = plan.sequences.flatMap(sequence => sequence.beats || []);
+  fail(planBeats.length === 153 && new Set(planBeats.map(beat => beat.beatId)).size === 153,
+    'PHASE3_EDIT_SCRIPT_ACTIVE_BEAT_SET_INVALID');
+  const sequenceOrder = new Map(plan.sequences.map((sequence, index) => [sequence.sequenceId, index]));
+  const ordered = [...planBeats].sort((a, b) => actOrder.indexOf(a.actKey) - actOrder.indexOf(b.actKey)
+    || (sequenceOrder.get(a.sequenceId) - sequenceOrder.get(b.sequenceId))
+    || Number(a.startSec) - Number(b.startSec));
+  fail(ordered.every(beat => actOrder.includes(beat.actKey)), 'PHASE3_EDIT_SCRIPT_ACT_INVALID');
+  const actObjects = script.acts || {};
+  const timestampRows = JSON.parse(verified.timestampsBytes.toString('utf8'));
+  const alignmentByAct = new Map((verified.alignmentReport?.acts || []).map(item => [item.actKey, item]));
+  const sourceRangesByBeat = new Map();
+  for (const actKey of actOrder) {
+    const actBeats = planBeats.filter(beat => beat.actKey === actKey);
+    const ranges = buildActSourceRanges(actObjects[actKey]?.voScript || '', alignmentByAct.get(actKey), actBeats, actKey);
+    for (const [beatId, range] of ranges) sourceRangesByBeat.set(beatId, range);
+  }
+  const actsTiming = new Map((verified.audioManifest?.timingBinding?.acts || verified.editPlan.timing?.acts || [])
+    .map(item => [item.actKey, item]));
+  const revisionFiles = verified.staged.index.files.filter(item => item.path.startsWith('revision-lineage/'))
+    .map(item => ({ ...item, artifact: JSON.parse(fsImpl.readFileSync(path.join(verified.candidateDirectory, ...item.path.split('/')),
+      'utf8')) }));
+  const beatRecords = [];
+  let previous = null;
+  for (const beat of ordered) {
+    const { actKey, beatId } = beat;
+    const shot = shotMap.get(beatId), method = productionMap.get(beatId);
+    fail(shot && method && shot.actKey === actKey && method.actKey === actKey
+      && shot.beatId === beatId && method.shotId === shot.shotId,
+    `PHASE3_EDIT_SCRIPT_OWNER_MISMATCH:${actKey}:${beatId}`);
+    fail(typeof beat.narrationExcerpt === 'string' && beat.narrationExcerpt.trim()
+      && typeof shot.narrationExcerpt === 'string' && shot.narrationExcerpt.trim(),
+    `PHASE3_EDIT_SCRIPT_NARRATION_MISSING:${beatId}`);
+    fail(JSON.stringify(normalizedWords(beat.narrationExcerpt)) === JSON.stringify(normalizedWords(shot.narrationExcerpt)),
+      `PHASE3_EDIT_SCRIPT_NARRATION_PLAN_SHOT_MISMATCH:${beatId}`);
+    const act = actObjects[actKey];
+    fail(act && typeof act.voScript === 'string', `PHASE3_EDIT_SCRIPT_SOURCE_ACT_MISSING:${actKey}`);
+    const startSec = Number(beat.startSec), endSec = Number(beat.endSec), durationSec = Number(beat.durationSec);
+    fail([startSec, endSec, durationSec].every(Number.isFinite) && endSec > startSec
+      && Math.abs((endSec - startSec) - durationSec) <= 0.000001,
+    `PHASE3_EDIT_SCRIPT_TIMING_INVALID:${beatId}`);
+    if (previous) {
+      fail(actOrder.indexOf(actKey) >= actOrder.indexOf(previous.actKey), 'PHASE3_EDIT_SCRIPT_ACT_ORDER_INVALID');
+      fail(Math.abs(startSec - previous.endSec) <= 0.000001,
+        `PHASE3_EDIT_SCRIPT_TIMELINE_GAP_OR_OVERLAP:${beatId}`);
+    } else fail(Math.abs(startSec) <= 0.000001, 'PHASE3_EDIT_SCRIPT_TIMELINE_START_INVALID');
+    fail(Math.abs(Number(shot.startSec) - startSec) <= 0.000001
+      && Math.abs(Number(shot.endSec) - endSec) <= 0.000001
+      && Math.abs(Number(shot.durationSec) - durationSec) <= 0.000001,
+    `PHASE3_EDIT_SCRIPT_PLAN_SHOT_TIMING_MISMATCH:${beatId}`);
+    const timing = actsTiming.get(actKey);
+    fail(timing && Number.isInteger(beat.startWordIndex) && Number.isInteger(beat.endWordIndex)
+      && beat.startWordIndex >= 0 && beat.endWordIndex >= beat.startWordIndex,
+    `PHASE3_EDIT_SCRIPT_TRANSCRIPT_RANGE_INVALID:${beatId}`);
+    const voKey = timing.voKey || timing.vo_file || timing.voFile;
+    const actRows = timestampRows.filter(row => row.vo_file === voKey);
+    const first = actRows[beat.startWordIndex], last = actRows[beat.endWordIndex];
+    fail(first && last && typeof first.word === 'string' && typeof last.word === 'string',
+      `PHASE3_EDIT_SCRIPT_TRANSCRIPT_ANCHOR_MISSING:${beatId}`);
+    fail(method.productionMethod && method.productionMethod === (verified.productionManifest.shots
+      .find(item => item.shotId === shot.shotId)?.productionMethod),
+    `PHASE3_EDIT_SCRIPT_PRODUCTION_METHOD_MISMATCH:${beatId}`);
+    fail(BUILTIN_RENDER_METHODS.has(method.productionMethod)
+      || ['EVIDENCE_REFERENCE', 'GRAPHIC_COMPILATION'].includes(method.productionMethod),
+    `PHASE3_EDIT_SCRIPT_PRODUCTION_METHOD_UNSUPPORTED:${beatId}`);
+    const source = alignedScriptNarration(act.voScript, sourceRangesByBeat.get(beatId), actKey, beatId);
+    const evidenceEntry = evidenceMap.get(shot.shotId) || null;
+    if (shot.assetType === 'evidence_reference') fail(evidenceEntry?.approvalStatus === 'APPROVED'
+      && evidenceEntry.factualSupportStatus === 'SUPPORTED' && evidenceEntry.localFilename,
+    `PHASE3_EDIT_SCRIPT_EVIDENCE_OWNERSHIP_MISSING:${beatId}`);
+    const shotGraphics = shot.graphics || [];
+    const graphicRecords = shotGraphics.map((graphic, graphicIndex) => {
+      const entry = graphicsByOwner.get(`${shot.shotId}:${graphicIndex}`);
+      fail(entry && entry.beatId === beatId && entry.actKey === actKey
+        && JSON.stringify(entry.sourceGraphic) === JSON.stringify(graphic),
+      `PHASE3_EDIT_SCRIPT_GRAPHIC_OWNERSHIP_MISMATCH:${beatId}:${graphicIndex}`);
+      return { graphicId: entry.graphicId, text: entry.sourceGraphic.text || '', role: entry.role,
+        type: entry.sourceGraphic.type, intent: entry.sourceGraphic.intent,
+        asset: { path: `assets/graphics/${entry.filename}`, sha256: entry.sha256, bytes: entry.byteSize } };
+    });
+    const revisionLineageReferences = revisionFiles.map(item => ({ path: item.path,
+      sha256: item.sha256, revisionId: item.artifact.revisionId || item.artifact.amendmentId || item.artifact.schemaVersion,
+      entryIds: (item.artifact.entries || item.artifact.changes || []).filter(entry => entry.beatId === beatId
+        || entry.shotId === shot.shotId).map(entry => entry.entryId || entry.changeId || entry.fieldPath || entry.beatId) }));
+    const record = {
+      act: actKey, beatId, startTimeSec: startSec, endTimeSec: endSec, durationSec,
+      transcriptWordRange: { start: beat.startWordIndex, end: beat.endWordIndex,
+        indexConvention: 'zero-based-inclusive-act-local-retained-transcript-word' },
+      sourceWordRange: { start: source.range[0], end: source.range[1],
+        indexConvention: 'zero-based-inclusive-act-local-candidate-script-lexical-token' },
+      transcriptAnchors: [first.word, last.word], narration: source.narration,
+      productionMethod: method.productionMethod, visualClass: shot.visualClass,
+      visualDirection: { intent: shot.visualIntent || beat.visualIntent || '', visual: shot.visual || beat.visual || null,
+        reconstructionSafeguards: shot.reconstructionSafeguards || null, reconstructionMode: shot.reconstructionMode || null,
+        colorGrade: shot.colorGrade || null, negativePrompt: shot.negativePrompt || null },
+      evidence: evidenceEntry ? { entryId: evidenceEntry.entryId || evidenceEntry.shotId,
+        source: { title: evidenceEntry.sourceTitle, publisher: evidenceEntry.publisher,
+          url: evidenceEntry.selectedSourceUrl, excerpt: evidenceEntry.excerptOrTimecode },
+        approvedAsset: { path: `assets/evidence/${evidenceEntry.localFilename}`,
+          sha256: evidenceEntry.sha256, mimeType: evidenceEntry.mimeType } } : null,
+      graphics: graphicRecords,
+      onScreenText: [...graphicRecords.map(item => item.text).filter(Boolean),
+        ...(Array.isArray(shot.overlaySpecification) ? shot.overlaySpecification.map(item => item.text).filter(Boolean)
+          : shot.overlaySpecification?.text ? [shot.overlaySpecification.text] : [])],
+      overlays: shot.overlaySpecification || null,
+      animationOrCameraDirection: { motionIntent: shot.motionIntent || beat.motionIntent || null,
+        motionTreatment: shot.motionTreatment || null, animationPrompt: shot.animationPrompt || null },
+      transition: shot.transition ?? shot.transitionIntent ?? beat.transition ?? beat.transitionIntent ?? null,
+      music: shot.audioDirection?.musicCue || beat.audioDirection?.musicCue || null,
+      soundEffects: shot.sfx ?? shot.audioDirection?.sfx ?? beat.audioDirection?.sfx ?? [],
+      audioDirection: shot.audioDirection || beat.audioDirection || null,
+      postNarrationHoldSec: Number(shot.postNarrationHoldSec || 0),
+      intentionalStillness: shot.intentionalStillness === true,
+      rhythmIntent: shot.rhythmIntent || beat.rhythmIntent || null,
+      formalTimingException: verified.boundaryTimingReport.formalExceptions.find(item => item.beatId === beatId) || null,
+      editorialIntentMigration: verified.boundaryTimingReport.editorialIntentMigrations.find(item => item.beatId === beatId) || null,
+      revisionLineageReferences, qcStatus: 'NOT_REVIEWED', qcNotes: '',
+    };
+    beatRecords.push(record);
+    previous = { actKey, endSec };
+  }
+  fail(shotMap.size === 153 && productionMap.size === 153 && graphicsByOwner.size === 76
+    && evidenceMap.size === shots.filter(shot => shot.assetType === 'evidence_reference').length
+    && beatRecords.length === 153,
+    'PHASE3_EDIT_SCRIPT_BEAT_OWNER_SET_MISMATCH');
+  fail(!beatRecords.some(item => item.beatId === 'ACT3B_B010')
+    && verified.candidateReport.retiredBeatIds?.includes('ACT3B_B010'), 'PHASE3_EDIT_SCRIPT_RETIRED_BEAT_INVALID');
+  fail(beatRecords.filter(item => item.formalTimingException).length === 9
+    && beatRecords.filter(item => item.editorialIntentMigration).length === 5,
+  'PHASE3_EDIT_SCRIPT_TIMING_METADATA_INVALID');
+  const finalEnd = beatRecords.at(-1)?.endTimeSec;
+  fail(Math.abs(finalEnd - EXPECTED_DURATION_SEC) <= 0.000001, 'PHASE3_EDIT_SCRIPT_TOTAL_DURATION_INVALID');
+  return {
+    schemaVersion: EDIT_SCRIPT_SCHEMA,
+    summary: { episodeId: plan.episodeId, title: plan.title, promotedStage04RunId: STAGE04_RUN_ID,
+      activationRecordSha256: verified.activationRecordSha256,
+      candidateSourceIndexSha256: verified.staged.sourceIndexSha256,
+      stagedIndexSha256: verified.staged.stagedIndexSha256,
+      approvedR3PackageIndexSha256: verified.staged.record.approvedPackageIndexSha256,
+      activeBeatCount: 153, actCount: 6, durationSec: EXPECTED_DURATION_SEC,
+      approvedEvidenceEntries: verified.evidenceCount, evidenceAssets: verified.evidenceAssetCount,
+      graphics: verified.graphicsCount, formalTimingExceptions: 9, editorialIntentMigrations: 5,
+      retiredBeatIds: ['ACT3B_B010'], editScriptRunId },
+    beats: beatRecords,
+    retiredBeats: [{ beatId: 'ACT3B_B010', status: 'RETIRED', active: false }],
+  };
+}
+function renderEditScriptMarkdown(document) {
+  const lines = ['# Production and QC Edit Script', '', `Episode: ${document.summary.title} (${document.summary.episodeId})`,
+    `Promoted Stage04 run: ${document.summary.promotedStage04RunId}`,
+    `Activation record SHA-256: ${document.summary.activationRecordSha256}`,
+    `Candidate source index SHA-256: ${document.summary.candidateSourceIndexSha256}`,
+    `Staged index SHA-256: ${document.summary.stagedIndexSha256}`,
+    `Active beats: ${document.summary.activeBeatCount} | Acts: ${document.summary.actCount} | Duration: ${document.summary.durationSec} seconds`,
+    `Approved evidence: ${document.summary.approvedEvidenceEntries} entries / ${document.summary.evidenceAssets} assets | Graphics: ${document.summary.graphics}`,
+    `Timing: ${document.summary.formalTimingExceptions} formal exceptions / ${document.summary.editorialIntentMigrations} migrations`,
+    'Retired separately: ACT3B_B010', '', '## Beat order', ''];
+  for (const beat of document.beats) {
+    lines.push(`### ${beat.act} / ${beat.beatId}`, '',
+      `**Time:** ${beat.startTimeSec.toFixed(6)}–${beat.endTimeSec.toFixed(6)} (${beat.durationSec.toFixed(6)} sec)  `,
+      `**Words:** source ${beat.sourceWordRange.start}–${beat.sourceWordRange.end}; transcript ${beat.transcriptWordRange.start}–${beat.transcriptWordRange.end} (${beat.transcriptAnchors.join(' … ')})  `,
+      `**Production:** ${beat.productionMethod}; ${beat.visualClass}`, '',
+      `**Narration:** ${beat.narration}`, '',
+      `**Visual direction:** ${beat.visualDirection.intent}`, '',
+      '```json', JSON.stringify(beat, null, 2), '```', '');
+  }
+  lines.push('## Retired beats', '', '- ACT3B_B010 — RETIRED; excluded from active timeline.', '');
+  return `${lines.join('\n')}\n`;
 }
 function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = activation,
   runCommand = execFileSync, capabilities = renderer.getRendererCapabilities(), renderFn = renderer.renderEpisode,
@@ -569,6 +834,85 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
         phasePaths.outputDir, path.join(phasePaths.runDirectory, 'temp'),
         path.join(phasePaths.runDirectory, 'render-receipt.json'), path.join(phasePaths.runDirectory, 'phase3-render.lock (temporary)')],
       providerRequests: 0, episodeRootWrites: 0 };
+  }
+  function generateEditScript(options = {}) {
+    fail(options.promotedRunId === STAGE04_RUN_ID, 'PHASE3_EDIT_SCRIPT_STAGE04_REQUIRED');
+    fail(EDIT_SCRIPT_RUN_RE.test(options.editScriptRunId || ''), 'PHASE3_EDIT_SCRIPT_RUN_ID_INVALID');
+    const paths = checkEditScriptPathPolicy({ root, editScriptRunId: options.editScriptRunId, fsImpl });
+    const verified = verifyInputs({ promotedRunId: options.promotedRunId });
+    const document = buildEditScriptDocument(verified, { editScriptRunId: options.editScriptRunId, fsImpl });
+    fsImpl.mkdirSync(EDIT_SCRIPT_ROOT_FOR(root), { recursive: true });
+    assertNoSymlinkPath(paths.runDirectory, { stopAt: root, allowMissing: true, fsImpl });
+    fail(!fsImpl.existsSync(paths.runDirectory), 'PHASE3_EDIT_SCRIPT_RUN_ALREADY_EXISTS');
+    const temporaryDirectory = path.join(paths.rootDirectory,
+      `.tmp-${options.editScriptRunId}-${process.pid}-${crypto.randomBytes(6).toString('hex')}`);
+    fail(isInside(paths.rootDirectory, temporaryDirectory), 'PHASE3_EDIT_SCRIPT_TEMP_OUTSIDE_ROOT');
+    let published = false;
+    try {
+      fsImpl.mkdirSync(temporaryDirectory, { recursive: false, mode: 0o700 });
+      const jsonBytes = Buffer.from(`${JSON.stringify(document, null, 2)}\n`);
+      const markdownBytes = Buffer.from(renderEditScriptMarkdown(document));
+      const generatedAt = clock().toISOString();
+      const ledgerBefore = hashFile(path.join(root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl'), fsImpl);
+      fail(ledgerBefore === verified.requestLedgerSha256, 'PHASE3_EDIT_SCRIPT_LEDGER_CHANGED_BEFORE_PUBLICATION');
+      const payloadFiles = [
+        { path: 'edit-script.json', bytes: jsonBytes.length, sha256: sha256(jsonBytes) },
+        { path: 'EDIT_SCRIPT.md', bytes: markdownBytes.length, sha256: sha256(markdownBytes) },
+      ];
+      const receipt = {
+        schemaVersion: 'empire-omitted-v3-phase3-edit-script-receipt/1.0.0', status: 'GENERATED',
+        editScriptRunId: options.editScriptRunId, promotedRunId: options.promotedRunId,
+        activationRecordSha256: verified.activationRecordSha256,
+        candidateSourceIndexSha256: verified.staged.sourceIndexSha256,
+        stagedIndexSha256: verified.staged.stagedIndexSha256,
+        approvedR3PackageIndexSha256: verified.staged.record?.approvedPackageIndexSha256
+          || verified.staged.index?.approvedPackageIndexSha256,
+        inputHashes: collectEditScriptInputHashes(verified), outputFiles: payloadFiles,
+        activeBeatCount: document.beats.length, durationSec: document.summary.durationSec,
+        providerRequests: 0, episodeRootWrites: 0,
+        requestLedgerSha256Before: ledgerBefore, requestLedgerSha256After: ledgerBefore,
+        generatedAt, completionStatus: 'SUCCESS',
+      };
+      const receiptBytes = Buffer.from(`${JSON.stringify(receipt, null, 2)}\n`);
+      const receiptFile = { path: 'edit-script-receipt.json', bytes: receiptBytes.length, sha256: sha256(receiptBytes) };
+      const index = { schemaVersion: 'empire-omitted-v3-phase3-edit-script-index/1.0.0',
+        editScriptRunId: options.editScriptRunId, files: [...payloadFiles, receiptFile], indexExcludesSelf: true };
+      const indexBytes = Buffer.from(`${JSON.stringify(index, null, 2)}\n`);
+      for (const [name, bytes] of [['edit-script.json', jsonBytes], ['EDIT_SCRIPT.md', markdownBytes],
+        ['edit-script-receipt.json', receiptBytes], ['edit-script-index.json', indexBytes]]) {
+        fsImpl.writeFileSync(path.join(temporaryDirectory, name), bytes, { flag: 'wx', mode: 0o444 });
+      }
+      for (const item of index.files) {
+        const filePath = path.join(temporaryDirectory, item.path);
+        assertNoSymlinkPath(filePath, { stopAt: temporaryDirectory, fsImpl });
+        const bytes = fsImpl.readFileSync(filePath);
+        fail(bytes.length === item.bytes && sha256(bytes) === item.sha256,
+          `PHASE3_EDIT_SCRIPT_OUTPUT_HASH_MISMATCH:${item.path}`);
+      }
+      const finalVerified = verifyInputs({ promotedRunId: options.promotedRunId });
+      fail(finalVerified.activationRecordSha256 === verified.activationRecordSha256
+        && finalVerified.staged.sourceIndexSha256 === verified.staged.sourceIndexSha256
+        && finalVerified.staged.stagedIndexSha256 === verified.staged.stagedIndexSha256
+        && JSON.stringify(collectEditScriptInputHashes(finalVerified)) === JSON.stringify(collectEditScriptInputHashes(verified)),
+      'PHASE3_EDIT_SCRIPT_INPUTS_CHANGED_DURING_PUBLICATION');
+      for (const item of verified.staged.index.files) {
+        readIndexedFileBytes(verified.candidateDirectory, verified.staged.index.files, item.path, { fsImpl });
+      }
+      verifyIndexedFiles(root, verified.activationRecord.candidateFiles, { fsImpl });
+      verifyIndexedFiles(verified.candidateDirectory, verified.activationRecord.candidateFiles, { fsImpl });
+      fail(hashFile(path.join(root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl'), fsImpl) === ledgerBefore,
+        'PHASE3_EDIT_SCRIPT_LEDGER_CHANGED_DURING_PUBLICATION');
+      fail(!fsImpl.existsSync(paths.runDirectory), 'PHASE3_EDIT_SCRIPT_RUN_ALREADY_EXISTS');
+      fsImpl.renameSync(temporaryDirectory, paths.runDirectory);
+      published = true;
+      return { status: 'PHASE3_EDIT_SCRIPT_GENERATED', runDirectory: paths.runDirectory,
+        editScriptSha256: sha256(jsonBytes), markdownSha256: sha256(markdownBytes),
+        receiptSha256: receiptFile.sha256, indexSha256: sha256(indexBytes),
+        indexedFileCount: index.files.length, activeBeats: document.beats.length,
+        durationSec: document.summary.durationSec, providerRequests: 0, episodeRootWrites: 0 };
+    } finally {
+      if (!published) { try { fsImpl.rmSync(temporaryDirectory, { recursive: true, force: true }); } catch {} }
+    }
   }
   async function render(options = {}) {
     const check = preflight(options);
@@ -615,7 +959,7 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
       if (!successful) { try { fsImpl.rmSync(runDirectory, { recursive: true, force: true }); } catch {} }
     }
   }
-  return { preflight, render };
+  return { preflight, render, generateEditScript };
 }
 function copyPromotedInputs({ verified, runDirectory, fsImpl = fs }) {
   const copied = [];
@@ -680,27 +1024,36 @@ function finishRender({ rendered, options, verified, inputHashes, runDirectory, 
   return { status: 'PHASE3_RENDER_SUCCESS', receiptPath, receiptSha256: hashFile(receiptPath, fsImpl), receipt };
 }
 function parseArgs(args) {
-  const options = { mode: null, promotedRunId: null, phase3RunId: null, outputDir: null };
+  const options = { mode: null, promotedRunId: null, phase3RunId: null, outputDir: null, editScriptRunId: null };
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
-    if (arg === '--preflight' || arg === '--render-preview') {
+    if (arg === '--preflight' || arg === '--render-preview' || arg === '--generate-edit-script') {
       fail(options.mode === null, 'PHASE3_MODE_AMBIGUOUS');
-      options.mode = arg === '--preflight' ? 'preflight' : 'render';
+      options.mode = arg === '--preflight' ? 'preflight'
+        : arg === '--render-preview' ? 'render' : 'generate-edit-script';
       continue;
     }
-    const keyMap = { '--promoted-run-id': 'promotedRunId', '--phase3-run-id': 'phase3RunId', '--output-dir': 'outputDir' };
+    const keyMap = { '--promoted-run-id': 'promotedRunId', '--phase3-run-id': 'phase3RunId',
+      '--output-dir': 'outputDir', '--edit-script-run-id': 'editScriptRunId' };
     fail(Object.hasOwn(keyMap, arg) && options[keyMap[arg]] === null, 'PHASE3_ARGUMENT_INVALID');
     const value = args[++i];
     fail(typeof value === 'string' && value.length > 0 && !value.startsWith('--'), 'PHASE3_ARGUMENT_VALUE_MISSING');
     options[keyMap[arg]] = value;
   }
-  fail(options.mode && options.promotedRunId && options.phase3RunId && options.outputDir, 'PHASE3_ARGUMENTS_REQUIRED');
+  fail(options.mode && options.promotedRunId, 'PHASE3_ARGUMENTS_REQUIRED');
+  if (options.mode === 'generate-edit-script') {
+    fail(options.promotedRunId === STAGE04_RUN_ID && options.editScriptRunId
+      && options.phase3RunId === null && options.outputDir === null, 'PHASE3_EDIT_SCRIPT_ARGUMENTS_INVALID');
+    fail(EDIT_SCRIPT_RUN_RE.test(options.editScriptRunId), 'PHASE3_EDIT_SCRIPT_RUN_ID_INVALID');
+  } else fail(options.phase3RunId && options.outputDir && options.editScriptRunId === null,
+    'PHASE3_ARGUMENTS_REQUIRED');
   return options;
 }
-async function main(args = process.argv.slice(2)) {
+async function main(args = process.argv.slice(2), { serviceFactory = createPhase3Preview } = {}) {
   const options = parseArgs(args);
-  const service = createPhase3Preview();
-  const result = options.mode === 'preflight' ? service.preflight(options) : await service.render(options);
+  const service = serviceFactory();
+  const result = options.mode === 'preflight' ? service.preflight(options)
+    : options.mode === 'generate-edit-script' ? service.generateEditScript(options) : await service.render(options);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 }
 
@@ -708,8 +1061,9 @@ if (require.main === module) {
   main().catch(error => { process.stderr.write(`PHASE3_RENDER_FAILED:${error.message}\n`); process.exitCode = 1; });
 }
 
-module.exports = { PHASE3_SCHEMA, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECTED_PROMOTED_PATHS,
+module.exports = { PHASE3_SCHEMA, EDIT_SCRIPT_SCHEMA, EDIT_SCRIPT_ROOT, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECTED_PROMOTED_PATHS,
   EXPECTED_LEDGER_SHA256, OUTPUT_FILENAME, PHASE3_ROOT, parseArgs, safeRelativePath, isInside,
   verifyIndexedFiles, readIndexedFileBytes, verifyStageBoundaryBackup, verifyStagedValidationContext, STAGED_SHOT_LINEAGE_FILES,
   readIndexedShotContextFile, validateStagedShotDefinitions, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
-  assertAssetManifestCounts, resolvePhase3RenderManifest, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };
+  assertAssetManifestCounts, resolvePhase3RenderManifest, assertNoSymlinkPath, checkEditScriptPathPolicy,
+  buildEditScriptDocument, renderEditScriptMarkdown, createPhase3Preview, validatePromotedEpisode, main };
