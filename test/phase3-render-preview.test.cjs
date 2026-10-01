@@ -9,6 +9,7 @@ const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const preview = require('../scripts/phase3-render-preview.cjs');
 const activationRunner = require('../scripts/phase2.3b-p-activate.cjs');
+const productionMethods = require('../pipeline-updates/production-method-manifest.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -214,6 +215,78 @@ test('Stage04 shot validation rejects altered indexed plans, shots, lineage and 
       staged: { index: source.index }, promotedFiles, fsImpl: fakeFs }),
     new RegExp(`PHASE3_STAGED_SHOT_CONTEXT_FILE_HASH_MISMATCH:${relative.replaceAll('/', '\\/')}`, 'u'));
   }
+});
+
+function realStage04RenderPackage() {
+  const candidateDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
+  const shotDefs = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'shot-definitions.json'), 'utf8'));
+  const productionManifest = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'production-manifest.json'), 'utf8'));
+  const evidenceManifest = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'evidence-source-manifest.json'), 'utf8'));
+  const graphicAssetManifest = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'graphic-asset-manifest.json'), 'utf8'));
+  return { candidateDirectory, shotDefs, productionManifest, evidenceManifest, graphicAssetManifest };
+}
+
+test('Phase 3 resolves the real Stage04 evidence and graphics without mutating stored production status', () => {
+  const value = realStage04RenderPackage();
+  const before = JSON.stringify(value.productionManifest);
+  assert.throws(() => productionMethods.assertManifestReadyForRender(value.productionManifest), /86 pending production method/);
+  const resolved = preview.resolvePhase3RenderManifest({ ...value, episodeDir: value.candidateDirectory });
+  assert.equal(resolved.shots.length, 153);
+  assert.equal(resolved.shots.filter(item => item.status === 'APPROVED').length, 153);
+  assert.equal(value.evidenceManifest.entries.length, 46);
+  assert.equal(new Set(value.evidenceManifest.entries.map(item => item.localFilename)).size, 29);
+  assert.equal(value.graphicAssetManifest.entries.length, 76);
+  assert.equal(JSON.stringify(value.productionManifest), before);
+  assert.equal(resolved.shots.filter(item => item.productionMethod === 'EVIDENCE_REFERENCE' && item.sourceStatus === 'VERIFIED').length, 46);
+  assert.equal(resolved.shots.filter(item => item.graphicObjectCount > 0 && item.graphicStatus === 'COMPLETE').reduce((sum, item) => sum + item.graphicObjectCount, 0), 76);
+});
+
+function copyRealRenderInputs() {
+  const value = realStage04RenderPackage();
+  const root = tempRoot();
+  fs.copyFileSync(path.join(value.candidateDirectory, 'shot-definitions.json'), path.join(root, 'shot-definitions.json'));
+  for (const dir of ['evidence', 'graphics']) {
+    fs.cpSync(path.join(value.candidateDirectory, 'assets', dir), path.join(root, 'assets', dir), { recursive: true });
+  }
+  return { ...value, episodeDir: root, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
+}
+
+test('Phase 3 resolver rejects missing and altered evidence assets', () => {
+  for (const altered of [false, true]) {
+    const value = copyRealRenderInputs();
+    try {
+      const entry = value.evidenceManifest.entries.find(item => item.localFilename);
+      const file = path.join(value.episodeDir, 'assets', 'evidence', entry.localFilename);
+      if (altered) fs.writeFileSync(file, Buffer.concat([fs.readFileSync(file), Buffer.from('tamper')]));
+      else fs.unlinkSync(file);
+      assert.throws(() => preview.resolvePhase3RenderManifest(value), /EVIDENCE_|PHASE3_EVIDENCE_/);
+    } finally { value.cleanup(); }
+  }
+});
+
+test('Phase 3 resolver rejects missing and altered graphic assets', () => {
+  for (const altered of [false, true]) {
+    const value = copyRealRenderInputs();
+    try {
+      const entry = value.graphicAssetManifest.entries[0];
+      const file = path.join(value.episodeDir, 'assets', 'graphics', entry.filename);
+      if (altered) fs.writeFileSync(file, Buffer.concat([fs.readFileSync(file), Buffer.from('tamper')]));
+      else fs.unlinkSync(file);
+      assert.throws(() => preview.resolvePhase3RenderManifest(value), /GRAPHIC_|PHASE3_GRAPHIC_/);
+    } finally { value.cleanup(); }
+  }
+});
+
+test('Phase 3 resolver rejects wrong owners, duplicate records and unsupported methods', () => {
+  const owner = realStage04RenderPackage();
+  owner.evidenceManifest.entries[0].shotId = 'UNKNOWN_SHOT';
+  assert.throws(() => preview.resolvePhase3RenderManifest({ ...owner, episodeDir: owner.candidateDirectory }), /PHASE3_EVIDENCE_OWNER_UNKNOWN/);
+  const duplicate = realStage04RenderPackage();
+  duplicate.graphicAssetManifest.entries.push({ ...duplicate.graphicAssetManifest.entries[0] });
+  assert.throws(() => preview.resolvePhase3RenderManifest({ ...duplicate, episodeDir: duplicate.candidateDirectory }), /PHASE3_GRAPHIC_OWNER_DUPLICATE/);
+  const unsupported = realStage04RenderPackage();
+  unsupported.productionManifest.shots[0].productionMethod = 'UNSUPPORTED_METHOD';
+  assert.throws(() => preview.resolvePhase3RenderManifest({ ...unsupported, episodeDir: unsupported.candidateDirectory }), /PHASE3_PRODUCTION_METHOD_UNSUPPORTED/);
 });
 
 test('Stage04 shot validation rejects a missing mirror owner and retired B010 reappearance', () => {

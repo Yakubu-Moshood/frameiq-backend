@@ -984,6 +984,7 @@ async function renderEpisodeInternal({
   approvalCallback = null,
   productionManifestPath = null,
   phase3Preview = false,
+  phase3ResolvedProductionManifest = null,
   publicDirOverride = null,
   verifiedEditPlan = null,
 }) {
@@ -1014,7 +1015,11 @@ async function renderEpisodeInternal({
   if (shotDefs.mode === 'empire-omitted-v3') {
     if (channel !== 'EmpireOmitted') throw new Error('[renderer] V3 shot definitions are restricted to Empire Omitted.');
     const manifestPath = productionManifestPath || path.join(episodeDir, 'production-manifest.json');
-    const productionManifest = loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs });
+    if (phase3Preview && !phase3ResolvedProductionManifest) throw new Error('PHASE3_RESOLVED_PRODUCTION_MANIFEST_REQUIRED');
+    if (!phase3Preview && phase3ResolvedProductionManifest) throw new Error('PHASE3_MANIFEST_OUTSIDE_PREVIEW_FORBIDDEN');
+    const productionManifest = phase3Preview
+      ? phase3ResolvedProductionManifest
+      : loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs });
     assertManifestReadyForRender(productionManifest);
     const v3Assets = assertV3AssetsReadyForRender({ episodeDir, shotDefsPath, shotDefs });
     const editPlan = phase3Preview

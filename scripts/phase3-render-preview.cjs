@@ -11,6 +11,8 @@ const { validateShotDefinitions } = require('../pipeline-updates/shot-definition
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
 const { loadProductionMethodManifest, assertManifestReadyForRender } = require('../pipeline-updates/production-method-manifest.cjs');
 const { assertV3AssetsReadyForRender } = require('../pipeline-updates/v3-asset-readiness.cjs');
+const { validateEvidenceSourceManifest } = require('../pipeline-updates/evidence-source-validator.cjs');
+const { validateGraphicAssetManifest } = require('../pipeline-updates/graphic-compiler.cjs');
 
 const PHASE3_SCHEMA = 'empire-omitted-v3-phase3-render-receipt/1.0.0';
 const EXPECTED_DURATION_SEC = 633.782449;
@@ -31,6 +33,139 @@ const STAGED_SHOT_LINEAGE_FILES = [
 function fail(condition, code) { if (!condition) throw new Error(code); }
 function sha256(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
 function hashFile(filePath, fsImpl = fs) { return sha256(fsImpl.readFileSync(filePath)); }
+const BUILTIN_RENDER_METHODS = new Set(['ESSENTIAL_ANIMATION', 'CONTROLLED_STILL', 'GENERATED_STILL']);
+function listFilesStrict(root, fsImpl = fs, prefix = '') {
+  if (!prefix) {
+    fail(fsImpl.existsSync(root), 'PHASE3_ASSET_DIRECTORY_MISSING:' + path.basename(root));
+    const rootStat = fsImpl.lstatSync(root);
+    fail(!rootStat.isSymbolicLink() && rootStat.isDirectory(), 'PHASE3_ASSET_DIRECTORY_INVALID:' + path.basename(root));
+  }
+  const output = [];
+  for (const name of fsImpl.readdirSync(root).sort()) {
+    const rel = prefix ? `${prefix}/${name}` : name;
+    const full = path.join(root, name);
+    const stat = fsImpl.lstatSync(full);
+    fail(!stat.isSymbolicLink(), `PHASE3_ASSET_SYMLINK_FORBIDDEN:${rel}`);
+    if (stat.isDirectory()) output.push(...listFilesStrict(full, fsImpl, rel));
+    else { fail(stat.isFile(), `PHASE3_ASSET_TYPE_UNSUPPORTED:${rel}`); output.push(rel.replace(/\\/gu, '/')); }
+  }
+  return output;
+}
+function resolvePhase3RenderManifest({ productionManifest, shotDefs, evidenceManifest, graphicAssetManifest,
+  episodeDir, fsImpl = fs }) {
+  const originalBytes = Buffer.from(JSON.stringify(productionManifest));
+  const allShots = shotDefs?.allShots;
+  fail(Array.isArray(allShots), 'PHASE3_SHOT_DEFINITIONS_INVALID');
+  const shotById = new Map();
+  for (const shot of allShots) {
+    fail(shot?.shotId && !shotById.has(shot.shotId), `PHASE3_SHOT_OWNER_DUPLICATE:${shot?.shotId || ''}`);
+    shotById.set(shot.shotId, shot);
+  }
+  const evidenceExpected = allShots.filter(shot => shot.assetType === 'evidence_reference');
+  const evidenceEntries = evidenceManifest?.entries;
+  fail(Array.isArray(evidenceEntries), 'PHASE3_EVIDENCE_MANIFEST_INVALID');
+  const evidenceByShot = new Map();
+  for (const entry of evidenceEntries) {
+    fail(shotById.has(entry?.shotId), `PHASE3_EVIDENCE_OWNER_UNKNOWN:${entry?.shotId || ''}`);
+    fail(!evidenceByShot.has(entry.shotId), `PHASE3_EVIDENCE_OWNER_DUPLICATE:${entry.shotId}`);
+    evidenceByShot.set(entry.shotId, entry);
+  }
+  fail(evidenceByShot.size === evidenceExpected.length
+    && evidenceExpected.every(shot => evidenceByShot.has(shot.shotId)), 'PHASE3_EVIDENCE_OWNER_SET_MISMATCH');
+  const evidenceDir = path.join(episodeDir, 'assets', 'evidence');
+  const shotDefinitionBytes = fsImpl.readFileSync(path.join(episodeDir, 'shot-definitions.json'));
+  fail(evidenceManifest.shotDefinitionsSha256 === sha256(shotDefinitionBytes), 'PHASE3_EVIDENCE_SHOT_HASH_MISMATCH');
+  const evidenceFiles = listFilesStrict(evidenceDir, fsImpl).sort();
+  const declaredEvidenceFiles = [...new Set(evidenceEntries.map(entry => entry.localFilename).filter(Boolean))].sort();
+  fail(JSON.stringify(evidenceFiles) === JSON.stringify(declaredEvidenceFiles), 'PHASE3_EVIDENCE_ASSET_SET_MISMATCH');
+  const evidenceValidation = validateEvidenceSourceManifest({ manifest: evidenceManifest, shotDefs,
+    evidenceAssetDir: evidenceDir, fsImpl, requireApproved: true, requireLocalAssets: true });
+  fail(evidenceValidation.status === 'PASS' && evidenceValidation.errors.length === 0,
+    `PHASE3_EVIDENCE_ASSET_VALIDATION_FAILED:${evidenceValidation.errors[0]?.code || 'UNKNOWN'}`);
+  for (const entry of evidenceEntries) {
+    const shot = shotById.get(entry.shotId);
+    fail(entry.exactSourceRequirement === shot.evidenceRequirement?.description
+      && entry.approvalStatus === 'APPROVED' && entry.sourceAccessStatus === 'ACCESSIBLE'
+      && entry.factualSupportStatus === 'SUPPORTED' && entry.localFilename,
+    `PHASE3_EVIDENCE_BINDING_INVALID:${entry.shotId}`);
+  }
+  const expectedGraphics = [];
+  for (const shot of allShots) for (let graphicIndex = 0; graphicIndex < (shot.graphics || []).length; graphicIndex += 1) {
+    expectedGraphics.push({ shot, graphicIndex, sourceGraphic: shot.graphics[graphicIndex] });
+  }
+  const graphicEntries = graphicAssetManifest?.entries;
+  fail(Array.isArray(graphicEntries), 'PHASE3_GRAPHIC_MANIFEST_INVALID');
+  const graphicsByKey = new Map();
+  for (const entry of graphicEntries) {
+    const key = `${entry?.shotId}:${entry?.graphicIndex}`;
+    fail(shotById.has(entry?.shotId), `PHASE3_GRAPHIC_OWNER_UNKNOWN:${entry?.shotId || ''}`);
+    fail(!graphicsByKey.has(key), `PHASE3_GRAPHIC_OWNER_DUPLICATE:${key}`);
+    graphicsByKey.set(key, entry);
+  }
+  fail(graphicsByKey.size === expectedGraphics.length && expectedGraphics.length === 76,
+    'PHASE3_GRAPHIC_OWNER_SET_MISMATCH');
+  const graphicDir = path.join(episodeDir, 'assets', 'graphics');
+  const graphicFiles = listFilesStrict(graphicDir, fsImpl).sort();
+  const declaredGraphicFiles = graphicEntries.map(entry => entry.filename).sort();
+  fail(new Set(declaredGraphicFiles).size === declaredGraphicFiles.length
+    && JSON.stringify(graphicFiles) === JSON.stringify(declaredGraphicFiles), 'PHASE3_GRAPHIC_ASSET_SET_MISMATCH');
+  const graphicsValidation = validateGraphicAssetManifest({ manifest: graphicAssetManifest, shotDefs,
+    graphicAssetDir: graphicDir, shotDefinitionsSha256: sha256(shotDefinitionBytes), fsImpl });
+  fail(graphicsValidation.status === 'PASS' && graphicsValidation.errors.length === 0,
+    `PHASE3_GRAPHIC_ASSET_VALIDATION_FAILED:${graphicsValidation.errors[0]?.code || 'UNKNOWN'}`);
+  for (const item of expectedGraphics) {
+    const entry = graphicsByKey.get(`${item.shot.shotId}:${item.graphicIndex}`);
+    fail(entry && entry.sourceGraphic && JSON.stringify(entry.sourceGraphic) === JSON.stringify(item.sourceGraphic),
+      `PHASE3_GRAPHIC_BINDING_INVALID:${item.shot.shotId}:${item.graphicIndex}`);
+    const bytes = fsImpl.readFileSync(path.join(graphicDir, entry.filename));
+    fail(sha256(bytes) === entry.sha256, `PHASE3_GRAPHIC_HASH_MISMATCH:${entry.filename}`);
+  }
+  const resolved = structuredClone(productionManifest);
+  const productionShots = resolved.shots;
+  fail(Array.isArray(productionShots) && productionShots.length === allShots.length, 'PHASE3_PRODUCTION_SHOT_SET_INVALID');
+  const seenProduction = new Set();
+  for (const entry of productionShots) {
+    const shot = shotById.get(entry.shotId);
+    fail(shot && !seenProduction.has(entry.shotId) && entry.actKey === shot.actKey
+      && entry.sequenceId === shot.sequenceId && entry.assetType === shot.assetType,
+    `PHASE3_PRODUCTION_SHOT_OWNER_MISMATCH:${entry.shotId || ''}`);
+    seenProduction.add(entry.shotId);
+    const supportedBuiltin = BUILTIN_RENDER_METHODS.has(entry.productionMethod);
+    fail(supportedBuiltin || entry.productionMethod === 'EVIDENCE_REFERENCE'
+      || entry.productionMethod === 'GRAPHIC_COMPILATION', `PHASE3_PRODUCTION_METHOD_UNSUPPORTED:${entry.shotId}`);
+    const sourceReady = entry.productionMethod !== 'EVIDENCE_REFERENCE'
+      || Boolean(evidenceByShot.get(entry.shotId)?.localFilename && evidenceByShot.get(entry.shotId)?.approvalStatus === 'APPROVED');
+    const requiredGraphicCount = (shot.graphics || []).length;
+    const graphicsReady = expectedGraphics.filter(item => item.shot.shotId === entry.shotId)
+      .every(item => graphicsByKey.has(`${entry.shotId}:${item.graphicIndex}`));
+    const graphicRequired = entry.productionMethod === 'GRAPHIC_COMPILATION' || requiredGraphicCount > 0;
+    fail(entry.productionMethod !== 'GRAPHIC_COMPILATION' || requiredGraphicCount > 0,
+      `PHASE3_PRIMARY_GRAPHIC_REQUIREMENT_MISSING:${entry.shotId}`);
+    const sourceRequired = entry.productionMethod === 'EVIDENCE_REFERENCE';
+    fail(sourceRequired ? ['PENDING', 'VERIFIED'].includes(entry.sourceStatus)
+      : entry.sourceStatus === 'NOT_REQUIRED', `PHASE3_PRODUCTION_SOURCE_STATE_INVALID:${entry.shotId}`);
+    fail(graphicRequired ? ['PENDING', 'COMPLETE'].includes(entry.graphicStatus)
+      : entry.graphicStatus === 'NOT_REQUIRED', `PHASE3_PRODUCTION_GRAPHIC_STATE_INVALID:${entry.shotId}`);
+    const planningBlockers = [];
+    if (entry.sourceStatus === 'PENDING') planningBlockers.push('EVIDENCE_SOURCE_PENDING');
+    if (graphicRequired && entry.graphicStatus === 'PENDING') planningBlockers.push('GRAPHIC_COMPILATION_PENDING');
+    fail(JSON.stringify([...(entry.blockerCodes || [])].sort()) === JSON.stringify(planningBlockers.slice().sort()),
+      `PHASE3_PRODUCTION_BLOCKER_MISMATCH:${entry.shotId}`);
+    fail(sourceReady && graphicsReady, `PHASE3_PRODUCTION_ASSET_UNRESOLVED:${entry.shotId}`);
+    fail((entry.sourceStatus === 'VERIFIED' || entry.sourceStatus === 'NOT_REQUIRED' || entry.sourceStatus === 'PENDING')
+      && (entry.graphicStatus === 'COMPLETE' || entry.graphicStatus === 'NOT_REQUIRED'
+        || entry.graphicStatus === 'PENDING'), `PHASE3_PRODUCTION_STATUS_INVALID:${entry.shotId}`);
+    if (entry.productionMethod === 'EVIDENCE_REFERENCE') entry.sourceStatus = 'VERIFIED';
+    if (graphicRequired) entry.graphicStatus = 'COMPLETE';
+    entry.status = 'APPROVED';
+    entry.blockerCodes = [];
+  }
+  fail(seenProduction.size === allShots.length, 'PHASE3_PRODUCTION_SHOT_SET_MISMATCH');
+  assertManifestReadyForRender(resolved);
+  fail(Buffer.compare(originalBytes, Buffer.from(JSON.stringify(productionManifest))) === 0,
+    'PHASE3_STORED_PRODUCTION_MANIFEST_MUTATED');
+  return resolved;
+}
 function parseJson(filePath, fsImpl = fs) {
   try { return JSON.parse(fsImpl.readFileSync(filePath, 'utf8')); }
   catch (error) { throw new Error(`PHASE3_JSON_INVALID:${path.basename(filePath)}:${error.message}`); }
@@ -283,10 +418,12 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   // Candidate and promoted copies were independently matched to the promotion record above.
   // The Stage04 indexed lineage chain is required to authorize historical shot transformations.
   const shotValidation = stagedShotValidation;
-  const productionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath,
+  const storedProductionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath,
     shotDefsPath, shotDefs });
-  assertManifestReadyForRender(productionManifest);
   const assets = assertV3AssetsReadyForRender({ episodeDir: root, shotDefsPath, shotDefs });
+  const productionManifest = resolvePhase3RenderManifest({ productionManifest: storedProductionManifest,
+    shotDefs, evidenceManifest: assets.evidenceManifest, graphicAssetManifest: assets.graphicAssetManifest,
+    episodeDir: root, fsImpl });
   const evidenceEntries = assets.evidenceManifest.entries;
   const assetCounts = assertAssetManifestCounts(assets.evidenceManifest, assets.graphicAssetManifest);
   const activeActShots = Array.isArray(shotDefs.acts) ? shotDefs.acts : Object.values(shotDefs.acts || {});
@@ -346,6 +483,7 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
     evidenceCount: assetCounts.evidenceEntries, evidenceAssetCount: assetCounts.evidenceAssets,
     graphicsCount: assetCounts.graphics, shotCount: shotDefs.allShots.length,
     sourceDurationSec, expectedFrames, validation, ledgerSha256, requestLedgerSha256: ledgerSha256,
+    productionManifest, storedProductionManifest,
   };
 }
 function validatePromotedEpisode({ candidateReport, evidenceManifest, graphicAssetManifest, productionManifest,
@@ -409,6 +547,7 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
   }
   async function render(options = {}) {
     const check = preflight(options);
+    const renderVerified = verifyInputs(options);
     const runDirectory = path.join(root, '.review', 'phase3-renders', options.phase3RunId);
     const outputDir = path.join(runDirectory, 'output');
     fsImpl.mkdirSync(path.dirname(runDirectory), { recursive: true });
@@ -419,7 +558,7 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
     try {
       lockFd = fsImpl.openSync(lockPath, 'wx', 0o600);
       fsImpl.writeFileSync(lockFd, JSON.stringify({ phase3RunId: options.phase3RunId, startedAt: clock().toISOString() }));
-      const inputHashes = copyPromotedInputs({ verified: verifyInputs(options), runDirectory, fsImpl });
+      const inputHashes = copyPromotedInputs({ verified: renderVerified, runDirectory, fsImpl });
       const episodeDir = runDirectory;
       const publicDir = path.join(runDirectory, 'public');
       fsImpl.mkdirSync(publicDir, { recursive: true });
@@ -437,7 +576,8 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
         channel: 'EmpireOmitted', phase3Preview: true, outputFilename: OUTPUT_FILENAME,
         publicDirOverride: publicDir, approvalCallback: async () => true,
         productionManifestPath: path.join(episodeDir, 'production-manifest.json'),
-        verifiedEditPlan: check.editPlan,
+        verifiedEditPlan: renderVerified.editPlan,
+        phase3ResolvedProductionManifest: renderVerified.productionManifest,
         renderProfile: renderer.PHASE3_PREVIEW_SETTINGS });
       return finishRender({ rendered, options, verified: check, inputHashes, runDirectory, outputDir,
         lockPath, fsImpl, clock, runCommand, renderStartedAt,
@@ -544,4 +684,4 @@ module.exports = { PHASE3_SCHEMA, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECT
   EXPECTED_LEDGER_SHA256, OUTPUT_FILENAME, PHASE3_ROOT, parseArgs, safeRelativePath, isInside,
   verifyIndexedFiles, verifyStageBoundaryBackup, verifyStagedValidationContext, STAGED_SHOT_LINEAGE_FILES,
   readIndexedShotContextFile, validateStagedShotDefinitions, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
-  assertAssetManifestCounts, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };
+  assertAssetManifestCounts, resolvePhase3RenderManifest, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };
