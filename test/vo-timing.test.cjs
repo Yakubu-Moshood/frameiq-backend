@@ -61,10 +61,17 @@ function fixture(t, replies = [], env = { OPENAI_API_KEY: 'test-only' }) {
         if (name === 'dotenv') return { config() {} };
         if (name === 'readline') return {};
         if (name === 'child_process') return { execSync() { throw new Error('Unexpected external command'); } };
+        if (name === 'node:async_hooks') return { AsyncLocalStorage: class {
+          run(_store, callback) { return callback(); }
+          getStore() { return undefined; }
+        } };
         if (name === './vo-timing.cjs') return load('vo-timing.cjs');
         if (name === './shot-definitions-validator.cjs') return {
           loadValidatedV3Plan() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
           validateShotDefinitions() { throw new Error('V3 validation is not expected in the legacy renderer test'); },
+        };
+        if (name === './edit-plan-validator.cjs') return {
+          validateEditPlan() { throw new Error('V3 edit-plan validation is not expected in the legacy renderer test'); },
         };
         if (name === './production-method-manifest.cjs') return {
           loadProductionMethodManifest() { throw new Error('V3 manifest loading is not expected in the legacy renderer test'); },

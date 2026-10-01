@@ -1,0 +1,248 @@
+'use strict';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
+const preview = require('../scripts/phase3-render-preview.cjs');
+
+const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
+const PHASE3_RUN = 'phase3-preview-test01';
+const PHASE3_PROFILE = require('../pipeline-updates/surface-renderer.cjs').PHASE3_PREVIEW_SETTINGS;
+const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
+
+function tempRoot() { return fs.mkdtempSync(path.join(os.tmpdir(), 'eo-phase3-')); }
+function fixture() {
+  const root = tempRoot();
+  const review = path.join(root, '.review', `phase2.3b-p-activation-${PHASE2_RUN}`);
+  const candidate = path.join(review, 'candidate');
+  const files = [];
+  for (let i = 0; i < 147; i += 1) {
+    const relative = i === 0 ? 'assets/evidence/evidence.svg'
+      : i === 1 ? 'assets/graphics/graphic.svg'
+        : `fixture/input-${String(i).padStart(3, '0')}.json`;
+    const bytes = Buffer.from(`fixture-${i}`);
+    const target = path.join(root, ...relative.split('/'));
+    const staged = path.join(candidate, ...relative.split('/'));
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.mkdirSync(path.dirname(staged), { recursive: true });
+    fs.writeFileSync(target, bytes);
+    fs.writeFileSync(staged, bytes);
+    files.push({ path: relative, bytes: bytes.length, sha256: sha(bytes) });
+  }
+  fs.mkdirSync(review, { recursive: true });
+  const ledgerPath = path.join(root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+  fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+  fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+  const ledgerSha = sha(fs.readFileSync(ledgerPath));
+  return { root, review, candidate, files, ledgerPath, ledgerSha };
+}
+function verified(f) {
+  return {
+    root: f.root,
+    activationRecord: { status: 'PROMOTED', runId: PHASE2_RUN, candidateFiles: f.files },
+    activationRecordSha256: 'a'.repeat(64), promotedPaths: f.files.map(file => file.path),
+    candidateReport: { retiredBeatIds: ['ACT3B_B010'] }, durationSec: 633.782449, sourceDurationSec: 633.782449,
+    expectedFrames: 19020, shotCount: 153, evidenceCount: 46, evidenceAssetCount: 29,
+    graphicsCount: 76, timestampRows: 1352, timestampsSha256: 'b'.repeat(64),
+    audioInputs: [], requestLedgerSha256: f.ledgerSha, ledgerSha256: f.ledgerSha,
+    editPlan: { episodeId: 'test-episode' },
+  };
+}
+function toolCommand(_command, args) {
+  if (args.includes('-encoders')) return ' V.... libx264\n A.... aac\n';
+  if (args.includes('-count_frames')) return JSON.stringify({
+    streams: [
+      { codec_type: 'video', codec_name: 'h264', profile: 'High', width: 1280, height: 720,
+        avg_frame_rate: '30/1', nb_read_frames: '19020', pix_fmt: 'yuv420p' },
+      { codec_type: 'audio', codec_name: 'aac', sample_rate: '44100', bit_rate: '128000' },
+    ], format: { duration: '634.000000' },
+  });
+  if (args.includes('-version')) return `${args[0] === '-version' ? 'tool' : 'ffprobe'} version test\n`;
+  return JSON.stringify({ streams: [{ codec_name: 'mp3', sample_rate: '44100', bit_rate: '128000' }], format: { duration: '1' } });
+}
+function makeService(f, overrides = {}) {
+  const verifiedResult = verified(f);
+  let renderCalls = 0;
+  const service = preview.createPhase3Preview({
+    root: f.root,
+    expectedLedgerSha256: f.ledgerSha,
+    runCommand: overrides.runCommand || toolCommand,
+    capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath },
+    verifyInputsFn: overrides.verifyInputsFn || (() => verifiedResult),
+    renderFn: overrides.renderFn || (async ({ episodeDir, outputFilename }) => {
+      renderCalls += 1;
+      fs.writeFileSync(path.join(episodeDir, 'output', outputFilename), Buffer.from('rendered-preview'));
+      return { ffmpegArguments: ['ffmpeg -y -v error -c:v libx264 -preset veryfast -crf 26 -r 30'] };
+    }),
+    clock: () => new Date('2026-10-01T12:00:00.000Z'),
+  });
+  return { service, verifiedResult, renderCalls: () => renderCalls };
+}
+function options(root, runId = PHASE3_RUN) {
+  return { promotedRunId: PHASE2_RUN, phase3RunId: runId,
+    outputDir: path.join(root, '.review', 'phase3-renders', runId, 'output') };
+}
+
+test('read-only preflight validates without creating a run directory or invoking the renderer', () => {
+  const f = fixture();
+  try {
+    const { service, renderCalls } = makeService(f);
+    const report = service.preflight(options(f.root));
+    assert.equal(report.status, 'PHASE3_RENDER_PREFLIGHT_PASS');
+    assert.equal(report.expectedFrames, 19020);
+    assert.equal(report.width, 1280);
+    assert.equal(renderCalls(), 0);
+    assert.equal(fs.existsSync(path.dirname(report.outputPath)), false);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('render succeeds in isolation, writes a bound receipt, and releases its lock', async () => {
+  const f = fixture();
+  try {
+    const { service } = makeService(f);
+    const result = await service.render(options(f.root));
+    assert.equal(result.status, 'PHASE3_RENDER_SUCCESS');
+    assert.equal(result.receipt.status, 'RENDER_COMPLETE');
+    assert.equal(result.receipt.output.path, 'output/empire-omitted-v3-phase3-preview-01.mp4');
+    assert.equal(result.receipt.expectedFrames, 19020);
+    assert.equal(result.receipt.requestLedgerSha256Before, f.ledgerSha);
+    assert.equal(result.receipt.requestLedgerSha256After, f.ledgerSha);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN, 'phase3-render.lock')), false);
+    assert.deepEqual(PHASE3_PROFILE, { width: 1280, height: 720, fps: 30, preset: 'veryfast', crf: 26, audioBitrate: '128k' });
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('non-promoted activation record is rejected', () => {
+  const f = fixture();
+  try {
+    const recordPath = path.join(f.review, 'activation-record.json');
+    fs.writeFileSync(recordPath, JSON.stringify({ schemaVersion: 'phase2.3b-p-activation-record/1.0.0',
+      status: 'CANDIDATE_STAGED', runId: PHASE2_RUN, candidateFiles: f.files }));
+    assert.throws(() => preview.verifyActualEpisode({ root: f.root, promotedRunId: PHASE2_RUN,
+      runner: { assertNoActivationLocks() {} } }), /PHASE3_PROMOTION_RECORD_NOT_PROMOTED/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('altered promoted file is rejected by the 147-file hash verification', () => {
+  const f = fixture();
+  try {
+    fs.writeFileSync(path.join(f.root, ...f.files[4].path.split('/')), 'altered');
+    assert.throws(() => preview.verifyIndexedFiles(f.root, f.files), /PHASE3_PROMOTED_INPUT_HASH_MISMATCH/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('missing evidence or graphic assets fail indexed verification', () => {
+  for (const index of [0, 1]) {
+    const f = fixture();
+    try {
+      fs.rmSync(path.join(f.root, ...f.files[index].path.split('/')));
+      assert.throws(() => preview.verifyIndexedFiles(f.root, f.files), /PHASE3_PATH_MISSING/);
+    } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+  }
+});
+
+test('evidence and graphic manifests must contain the complete approved asset sets', () => {
+  const evidence = { entries: Array.from({ length: 46 }, (_, i) => ({ localFilename: i < 29 ? `e${i}` : null })),
+    humanApproval: { approvedEntryCount: 46, isApproved: true } };
+  const graphics = { entries: Array.from({ length: 76 }, (_, i) => ({ filename: `g${i}.svg` })) };
+  assert.deepEqual(preview.assertAssetManifestCounts(evidence, graphics), { evidenceEntries: 46, evidenceAssets: 29, graphics: 76 });
+  assert.throws(() => preview.assertAssetManifestCounts({ ...evidence, entries: evidence.entries.slice(1) }, graphics), /PHASE3_EVIDENCE_ASSETS_INVALID/);
+  assert.throws(() => preview.assertAssetManifestCounts(evidence, { entries: graphics.entries.slice(1) }), /PHASE3_GRAPHIC_ASSET_COUNT_INVALID/);
+});
+
+test('symlinked promoted paths are rejected', () => {
+  const f = fixture();
+  try {
+    const target = path.resolve(f.root, ...f.files[2].path.split('/'));
+    const fakeFs = Object.create(fs);
+    fakeFs.lstatSync = candidate => candidate === target
+      ? { isSymbolicLink: () => true, isFile: () => false }
+      : fs.lstatSync(candidate);
+    assert.throws(() => preview.verifyIndexedFiles(f.root, f.files, { fsImpl: fakeFs }), /PHASE3_SYMLINK_PATH_REJECTED/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('path traversal and external output directories are rejected', () => {
+  const f = fixture();
+  try {
+    assert.throws(() => preview.safeRelativePath('../episode-root/script.json'), /PHASE3_INPUT_PATH_TRAVERSAL/);
+    const outside = options(f.root);
+    outside.outputDir = path.join(f.root, 'output');
+    assert.throws(() => makeService(f).service.preflight(outside), /PHASE3_OUTPUT_DIRECTORY_OUTSIDE_RUN/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('duplicate phase3 run IDs and stale locks are refused', () => {
+  const f = fixture();
+  try {
+    const phase3Dir = path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN);
+    fs.mkdirSync(phase3Dir, { recursive: true });
+    assert.throws(() => makeService(f).service.preflight(options(f.root)), /PHASE3_RUN_ID_ALREADY_EXISTS/);
+    fs.writeFileSync(path.join(phase3Dir, 'phase3-render.lock'), 'stale');
+    assert.throws(() => makeService(f).service.preflight(options(f.root)), /PHASE3_RENDER_LOCK_PRESENT/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('render failure removes partial preview data and releases the separate lock', async () => {
+  const f = fixture();
+  try {
+    const { service } = makeService(f, { renderFn: async () => { throw new Error('fixture render failure'); } });
+    await assert.rejects(service.render(options(f.root)), /fixture render failure/);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN)), false);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('frame-count and duration mismatches fail closed and clean up the run', async () => {
+  for (const mismatch of ['frames', 'duration']) {
+    const f = fixture();
+    try {
+      const { service } = makeService(f, { runCommand: (_cmd, args) => {
+        const output = toolCommand(_cmd, args);
+        if (!args.includes('-count_frames')) return output;
+        const data = JSON.parse(output);
+        if (mismatch === 'frames') data.streams[0].nb_read_frames = '19019';
+        if (mismatch === 'duration') data.format.duration = '600';
+        return JSON.stringify(data);
+      } });
+      await assert.rejects(service.render(options(f.root)), mismatch === 'frames'
+        ? /PHASE3_RENDER_VIDEO_METADATA_MISMATCH/ : /PHASE3_RENDER_DURATION_MISMATCH/);
+      assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN)), false);
+    } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+  }
+});
+
+test('request-ledger mutation during preview blocks receipt and cleans the run', async () => {
+  const f = fixture();
+  try {
+    const { service } = makeService(f, { renderFn: async ({ episodeDir, outputFilename }) => {
+      fs.writeFileSync(path.join(episodeDir, 'output', outputFilename), 'preview');
+      fs.writeFileSync(f.ledgerPath, 'changed ledger');
+      return { ffmpegArguments: ['ffmpeg fixture'] };
+    } });
+    await assert.rejects(service.render(options(f.root)), /PHASE3_REQUEST_LEDGER_CHANGED/);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN)), false);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('preview renderer loads no timing/provider module and cannot continue the normal workflow', () => {
+  const rendererPath = path.resolve(__dirname, '../pipeline-updates/surface-renderer.cjs');
+  const hook = `const Module=require('node:module');const old=Module._load;Module._load=function(request,parent,isMain){if(/vo-timing|@anthropic|@fal-ai|openai/.test(String(request)))throw new Error('PROVIDER_MODULE_ATTEMPT:'+request);return old.call(this,request,parent,isMain)};require(${JSON.stringify(rendererPath)});`;
+  const child = spawnSync(process.execPath, ['-e', hook], { encoding: 'utf8', env: { PATH: process.env.PATH || '' } });
+  assert.equal(child.status, 0, child.stderr);
+  const source = fs.readFileSync(path.resolve(__dirname, '../scripts/phase3-render-preview.cjs'), 'utf8');
+  assert.doesNotMatch(source, /jobs[\\/]runner/);
+  assert.match(source, /options\.mode === 'preflight' \? service\.preflight\(options\) : await service\.render\(options\)/);
+});
+
+test('CLI requires an explicit single mode, both run IDs, and output directory', () => {
+  assert.throws(() => preview.parseArgs(['--preflight']), /PHASE3_ARGUMENTS_REQUIRED/);
+  assert.throws(() => preview.parseArgs(['--preflight', '--render-preview']), /PHASE3_MODE_AMBIGUOUS/);
+  assert.deepEqual(preview.parseArgs(['--render-preview', '--promoted-run-id', PHASE2_RUN,
+    '--phase3-run-id', PHASE3_RUN, '--output-dir', 'X']), {
+    mode: 'render', promotedRunId: PHASE2_RUN, phase3RunId: PHASE3_RUN, outputDir: 'X',
+  });
+});

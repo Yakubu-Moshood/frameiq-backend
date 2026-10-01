@@ -20,14 +20,15 @@
  *   Every visual cut is hardcoded to the EXACT SECOND the trigger word
  *   is spoken in the VO audio. Cursor step is 0.1s (NOT 0.5s).
  */
-require('dotenv').config();
 'use strict';
+if (require.main === module) require('dotenv').config();
 const fs            = require('fs');
 const path          = require('path');
 const readline      = require('readline');
 const { execSync }  = require('child_process');
-const { runWhisper } = require('./vo-timing.cjs');
+const { AsyncLocalStorage } = require('node:async_hooks');
 const { loadValidatedV3Plan, validateShotDefinitions } = require('./shot-definitions-validator.cjs');
+const { validateEditPlan } = require('./edit-plan-validator.cjs');
 const { loadProductionMethodManifest, assertManifestReadyForRender, resolveProductionAssetLocation } = require('./production-method-manifest.cjs');
 const { assertV3AssetsReadyForRender } = require('./v3-asset-readiness.cjs');
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -81,7 +82,6 @@ const TEXT_ENABLED = !!(FONT_BOLD_PATH && FONT_IMPACT_PATH);
 function fontParam(p) { return p.replace(/:/g, '\\:'); }
 const FONT_BOLD   = TEXT_ENABLED ? fontParam(FONT_BOLD_PATH)   : null;
 const FONT_IMPACT = TEXT_ENABLED ? fontParam(FONT_IMPACT_PATH) : null;
-const SCALE = `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}`;
 const GRADE = {
   cold_blue:   'eq=contrast=1.05:saturation=0.85:brightness=0.18',
   gold_warm:   'eq=contrast=1.05:saturation=1.05:brightness=0.22',
@@ -122,10 +122,16 @@ const FFPROBE_TIMEOUT_MS = 30 * 1000; // ffprobe metadata reads are near-instant
 function run(cmd, label) {
   log(`  → ${label}`);
   try {
+    const context = RENDER_CONTEXT.getStore();
+    if (context?.ffmpegCommands) context.ffmpegCommands.push(cmd);
+    const safeEnv = context?.providerBlocked
+      ? { PATH: process.env.PATH || '/usr/bin:/bin', LANG: 'C.UTF-8', LC_ALL: 'C.UTF-8' }
+      : undefined;
     execSync(cmd, {
       stdio:     ['ignore', 'pipe', 'pipe'],
       maxBuffer: 64 * 1024 * 1024,
       timeout:   FFMPEG_TIMEOUT_MS,
+      ...(safeEnv ? { env: safeEnv } : {}),
     });
   } catch (err) {
     if (err.signal || err.killed) {
@@ -140,6 +146,19 @@ function run(cmd, label) {
 }
 // Quiet flags keep FFmpeg's stderr small (prevents giant exec buffers)
 const FF = 'ffmpeg -y -v error -hide_banner -nostats';
+const RENDER_CONTEXT = new AsyncLocalStorage();
+const DEFAULT_RENDER_SETTINGS = Object.freeze({ width: W, height: H, fps: FPS, preset: 'fast', crf: null, audioBitrate: '192k' });
+const PHASE3_PREVIEW_SETTINGS = Object.freeze({ width: 1280, height: 720, fps: 30, preset: 'veryfast', crf: 26, audioBitrate: '128k' });
+function renderSettings() { return RENDER_CONTEXT.getStore()?.settings || DEFAULT_RENDER_SETTINGS; }
+function scaleFilter() {
+  const { width, height } = renderSettings();
+  return `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`;
+}
+function videoEncoderArgs() {
+  const settings = renderSettings();
+  return `-c:v libx264 -preset ${settings.preset}${settings.crf === null ? '' : ` -crf ${settings.crf}`} -pix_fmt yuv420p`;
+}
+function audioEncoderArgs() { return `-c:a aac -b:a ${renderSettings().audioBitrate}`; }
 // FFmpeg's -f concat demuxer parses `file '<path>'` lines using the same
 // single-quote escaping convention as POSIX shell: a literal `'` inside a
 // quoted string must be written as `'\''` (close-quote, escaped-quote,
@@ -284,7 +303,7 @@ function slideInFilter(text, colour, size, totalFrames, yPos) {
 function stampFilter(text, colour, size, totalFrames, yPos) {
   if (!TEXT_ENABLED) return null;
   const col     = (colour || '#8B0000').replace('#', '');
-  const sz      = fitFontSize(text, size || 88, 1920 * 0.90);
+  const sz      = fitFontSize(text, size || 88, renderSettings().width * 0.90);
   const holdEnd = totalFrames - 16;
   const fadeOut = 16;
   const alphaExp = `if(lt(n\\,2)\\,0\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/${fadeOut}\\,1))`;
@@ -303,7 +322,7 @@ function cinematicOverlay(cinematic, totalFrames) {
 }
 function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
   if (!TEXT_ENABLED) return null;
-  const totalFrames = Math.round(durSec * FPS);
+  const totalFrames = Math.round(durSec * renderSettings().fps);
   const holdEnd     = totalFrames - 12;
   const alpha       = `if(lt(n\\,8)\\,n/8\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/12\\,1))`;
   const nameF = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(name)}':fontcolor=0x${accent}:fontsize=48:x=60:y=h-120:shadowcolor=black:shadowx=3:shadowy=3:alpha='${alpha}'`;
@@ -328,8 +347,8 @@ function lowerThirdFilter(name, title, durSec, accent = 'C9A84C') {
 // with the video.
 function closingCtaFilter(brand, width, height, durSec) {
   if (!TEXT_ENABLED) return null;
-  const totalFrames = Math.round(durSec * FPS);
-  const fadeInFrames = Math.min(30, Math.round(FPS * 1)); // ~1s fade-in
+  const totalFrames = Math.round(durSec * renderSettings().fps);
+  const fadeInFrames = Math.min(renderSettings().fps, Math.round(renderSettings().fps * 1)); // ~1s fade-in
   const alpha = `if(lt(n\\,${fadeInFrames})\\,n/${fadeInFrames}\\,1)`;
   const line1Size = Math.round(height * 0.045);
   const line2Size = Math.round(height * 0.058);
@@ -379,7 +398,7 @@ function applyClosingCta(outroPath, brand, tempDir) {
 // colour instead of silently inheriting Empire Omitted's.
 function statCardFilter(label, value, sub, durSec, accent = 'C9A84C') {
   if (!TEXT_ENABLED) return null;
-  const totalFrames = Math.round(durSec * FPS);
+  const totalFrames = Math.round(durSec * renderSettings().fps);
   const holdEnd     = totalFrames - 12;
   const alpha       = `if(lt(n\\,8)\\,n/8\\,if(gt(n\\,${holdEnd})\\,(${totalFrames}-n)/12\\,1))`;
   const valF  = `drawtext=fontfile='${FONT_IMPACT}':text='${esc(value)}':fontcolor=0x${accent}:fontsize=88:x=(w-text_w)/2:y=(h-text_h)/2-30:shadowcolor=black:shadowx=4:shadowy=4:alpha='${alpha}'`;
@@ -620,6 +639,7 @@ function resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec = nu
 }
 // ─── Step 3: Render segments ──────────────────────────────────────────────────
 function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureGates = false }) {
+  const settings = renderSettings();
   log('');
   log('[render] Rendering FFmpeg segments...');
   log(`[render] Text overlays: ${TEXT_ENABLED ? `ENABLED (${FONT_BOLD_PATH})` : 'DISABLED — no usable font found on this system'}`);
@@ -660,7 +680,7 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         if (strictFailureGates) throw new Error(message);
         log(`  ⚠️  ${message} — using black frame placeholder for this non-strict channel`);
         run(
-          `${FF} -f lavfi -i "color=black:size=${W}x${H}:rate=${FPS}" -t ${shot.durSec.toFixed(3)} -c:v libx264 -pix_fmt yuv420p "${segFile}"`,
+          `${FF} -f lavfi -i "color=black:size=${settings.width}x${settings.height}:rate=${settings.fps}" -t ${shot.durSec.toFixed(3)} ${videoEncoderArgs()} "${segFile}"`,
           `black placeholder ${shot.shotId}`
         );
         continue;
@@ -692,8 +712,8 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
       });
       const isImg       = assetPath.endsWith('.png') || assetPath.endsWith('.jpg');
       const isZoom      = shot.visualType === 'STILL_ZOOM';
-      const totalFrames  = Math.round(shot.durSec * FPS);
-      const motionFrames = Math.max(1, Math.round((shot.motionDurSec || shot.durSec) * FPS));
+      const totalFrames  = Math.round(shot.durSec * settings.fps);
+      const motionFrames = Math.max(1, Math.round((shot.motionDurSec || shot.durSec) * settings.fps));
       const freezeDurSec = shot.freezeDurSec || 0;
       const filterParts = [];
       if (isImg) {
@@ -710,10 +730,10 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         const zoomFrames = freezeDurSec > 0 ? totalFrames : motionFrames;
         filterParts.push(
           `scale=2112:-2`,
-          `zoompan=z='${zoomExpr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${zoomFrames}:s=${W}x${H}:fps=${FPS}`
+          `zoompan=z='${zoomExpr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=${zoomFrames}:s=${settings.width}x${settings.height}:fps=${settings.fps}`
         );
       } else {
-        filterParts.push(SCALE);
+        filterParts.push(scaleFilter());
         if (freezeDurSec > 0) {
           // Kling clips are five seconds natively. Do not loop them to fill
           // a narration gap; extend the source by cloning its final frame.
@@ -731,7 +751,7 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
       const vf = filterParts.filter(Boolean).join(',');
       let cmd;
       if (overlayPngs.length > 0) {
-        const inputs = overlayPngs.map(file => `-loop 1 -framerate ${FPS} -i "${file}"`).join(' ');
+        const inputs = overlayPngs.map(file => `-loop 1 -framerate ${settings.fps} -i "${file}"`).join(' ');
         const filters = [`[0:v]${vf}[base]`];
         let current = 'base';
         overlayPngs.forEach((_, index) => {
@@ -742,14 +762,14 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         });
         if (WM) filters.push(`[${current}]${WM}[vout]`);
         else filters.push(`[${current}]null[vout]`);
-        cmd = `${FF} ${isImg ? `-loop 1 -i "${assetPath}"` : `-stream_loop -1 -i "${assetPath}"`} ${inputs} -t ${shot.durSec.toFixed(3)} -filter_complex "${filters.join(';')}" -map "[vout]" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+        cmd = `${FF} ${isImg ? `-loop 1 -i "${assetPath}"` : `-stream_loop -1 -i "${assetPath}"`} ${inputs} -t ${shot.durSec.toFixed(3)} -filter_complex "${filters.join(';')}" -map "[vout]" ${videoEncoderArgs()} -r ${settings.fps} "${segFile}"`;
       } else if (isImg) {
         const input = freezeDurSec > 0 ? `-i "${assetPath}"` : `-loop 1 -i "${assetPath}"`;
-        cmd = `${FF} ${input} -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+        cmd = `${FF} ${input} -t ${shot.durSec.toFixed(3)} -vf "${vf}" ${videoEncoderArgs()} -r ${settings.fps} "${segFile}"`;
       } else if (freezeDurSec > 0) {
-        cmd = `${FF} -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+        cmd = `${FF} -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" ${videoEncoderArgs()} -r ${settings.fps} "${segFile}"`;
       } else {
-        cmd = `${FF} -stream_loop -1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" -c:v libx264 -preset fast -pix_fmt yuv420p -r ${FPS} "${segFile}"`;
+        cmd = `${FF} -stream_loop -1 -i "${assetPath}" -t ${shot.durSec.toFixed(3)} -vf "${vf}" ${videoEncoderArgs()} -r ${settings.fps} "${segFile}"`;
       }
       run(cmd, `${shot.shotId} [${shot.triggerWord}] ${shot.visualType} ${shot.durSec.toFixed(1)}s`);
     }
@@ -897,7 +917,7 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
     fs.mkdirSync(path.dirname(actOutput), { recursive: true });
     if (musicFile && fs.existsSync(musicFile)) {
       run(
-        `${FF} -stream_loop -1 -i "${musicFile}" -i "${voPath}" -filter_complex "[0:a]volume=${musicVol}[music];[1:a]volume=1.0[vo];[music][vo]amix=inputs=2:duration=shortest:normalize=0[aout]" -map "[aout]" -c:a aac -b:a 192k "${mixedAudio}"`,
+        `${FF} -stream_loop -1 -i "${musicFile}" -i "${voPath}" -filter_complex "[0:a]volume=${musicVol}[music];[1:a]volume=1.0[vo];[music][vo]amix=inputs=2:duration=shortest:normalize=0[aout]" -map "[aout]" ${audioEncoderArgs()} "${mixedAudio}"`,
         `${actKey} — mixing VO + music (vol ${musicVol})`
       );
       run(
@@ -906,7 +926,7 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
       );
     } else {
       run(
-        `${FF} -i "${silentVideo}" -i "${voPath}" -c:v copy -c:a aac -b:a 192k -shortest "${actOutput}"`,
+        `${FF} -i "${silentVideo}" -i "${voPath}" -c:v copy ${audioEncoderArgs()} -shortest "${actOutput}"`,
         `${actKey} — locking VO to video`
       );
     }
@@ -935,7 +955,8 @@ async function buildActVideos({ actSegFiles, episodeDir, audioDir, musicFile, ap
 function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
   log('');
   log('[join] All acts approved. Joining into final documentary...');
-  const finalOutput = path.join(episodeDir, 'output', `${channel}_${episodeId}_FINAL.mp4`);
+  const outputFilename = RENDER_CONTEXT.getStore()?.outputFilename || `${channel}_${episodeId}_FINAL.mp4`;
+  const finalOutput = path.join(episodeDir, 'output', outputFilename);
   if (actVideos.length === 0) throw new Error('[join] No act videos to join');
   const concatFile = path.join(episodeDir, 'temp', 'final_concat.txt');
   fs.mkdirSync(path.dirname(concatFile), { recursive: true });
@@ -954,7 +975,7 @@ function joinAllActs({ actVideos, episodeDir, episodeId, channel }) {
   return { path: finalOutput, durationSeconds: totalDur };
 }
 // ─── Main export ──────────────────────────────────────────────────────────────
-async function renderEpisode({
+async function renderEpisodeInternal({
   episodeDir,
   episodeId,
   channel = 'EmpireOmitted',
@@ -962,10 +983,13 @@ async function renderEpisode({
   maxShotDurationSec = null,
   approvalCallback = null,
   productionManifestPath = null,
+  phase3Preview = false,
+  publicDirOverride = null,
+  verifiedEditPlan = null,
 }) {
   const audioDir     = path.join(episodeDir, 'assets', 'audio');
   const assetsDir    = path.join(episodeDir, 'assets');
-  const publicDir    = path.join(episodeDir, '..', '..', 'public');
+  const publicDir    = publicDirOverride ? path.resolve(publicDirOverride) : path.join(episodeDir, '..', '..', 'public');
   const musicFile    = path.join(publicDir, 'background_music.mp3');
   const shotDefsPath = path.join(episodeDir, 'shot-definitions.json');
   brand = brand || deriveFallbackBrand(channel);
@@ -993,7 +1017,15 @@ async function renderEpisode({
     const productionManifest = loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs });
     assertManifestReadyForRender(productionManifest);
     const v3Assets = assertV3AssetsReadyForRender({ episodeDir, shotDefsPath, shotDefs });
-    const { editPlan } = loadValidatedV3Plan({ episodeDir, episodeId });
+    const editPlan = phase3Preview
+      ? verifiedEditPlan
+      : loadValidatedV3Plan({ episodeDir, episodeId }).editPlan;
+    if (phase3Preview) {
+      if (!editPlan) throw new Error('[renderer] Phase 3 requires an explicitly verified edit plan.');
+      const timestamps = JSON.parse(fs.readFileSync(path.join(episodeDir, 'timing', 'word-timestamps.json'), 'utf8'));
+      const timingReport = validateEditPlan({ plan: editPlan, wordTimestamps: timestamps });
+      if (timingReport.status !== 'PASS' || timingReport.errors.length) throw new Error('[renderer] Phase 3 edit-plan validation failed.');
+    }
     const report = validateShotDefinitions({ plan: editPlan, shotDefs });
     if (report.status !== 'PASS') throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
     resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec, productionManifest });
@@ -1017,6 +1049,7 @@ async function renderEpisode({
   log('══════════════════════════════════════════');
   log('STEP 1 — WHISPER TRANSCRIPTION');
   log('══════════════════════════════════════════');
+  const { runWhisper } = require('./vo-timing.cjs');
   const wordTimestamps = await runWhisper({ audioDir, episodeDir });
   // Step 1B — Auto-fix trigger words
   log('');
@@ -1059,6 +1092,11 @@ async function renderEpisode({
   log('STEP 5 — JOINING FINAL DOCUMENTARY');
   log('══════════════════════════════════════════');
   const result = joinAllActs({ actVideos, episodeDir, episodeId, channel });
+  if (phase3Preview) {
+    return { ...result, expectedFrames: renderSettings().fps > 0
+      ? Math.round(resolved.reduce((total, shot) => total + Math.round(shot.durSec * renderSettings().fps), 0))
+      : 0 };
+  }
   // Step 6 — Append branded outro
   log('');
   log('══════════════════════════════════════════');
@@ -1103,6 +1141,37 @@ async function renderEpisode({
   log('╚══════════════════════════════════════════════════════╝');
   return finalResult;
 }
+async function renderEpisode(options = {}) {
+  if (options.phase3Preview !== true) return renderEpisodeInternal(options);
+  if (options.channel !== 'EmpireOmitted') throw new Error('PHASE3_PREVIEW_CHANNEL_UNSUPPORTED');
+  if (options.outputFilename !== 'empire-omitted-v3-phase3-preview-01.mp4') throw new Error('PHASE3_PREVIEW_OUTPUT_NAME_INVALID');
+  const requested = options.renderProfile || PHASE3_PREVIEW_SETTINGS;
+  if (JSON.stringify(requested) !== JSON.stringify(PHASE3_PREVIEW_SETTINGS)) throw new Error('PHASE3_PREVIEW_PROFILE_MISMATCH');
+  const context = {
+    settings: PHASE3_PREVIEW_SETTINGS,
+    ffmpegCommands: [],
+    providerBlocked: true,
+    outputFilename: options.outputFilename,
+  };
+  const result = await RENDER_CONTEXT.run(context, () => renderEpisodeInternal(options));
+  return {
+    ...result,
+    ffmpegArguments: context.ffmpegCommands.slice(),
+    renderProfile: { ...PHASE3_PREVIEW_SETTINGS },
+  };
+}
+
+function getRendererCapabilities() {
+  return {
+    ffmpeg: 'ffmpeg',
+    ffprobe: 'ffprobe',
+    fontBoldPath: FONT_BOLD_PATH,
+    fontImpactPath: FONT_IMPACT_PATH,
+    textEnabled: TEXT_ENABLED,
+    phase3PreviewProfile: { ...PHASE3_PREVIEW_SETTINGS },
+  };
+}
+
 // ─── CLI runner ───────────────────────────────────────────────────────────────
 if (require.main === module) {
   const args = process.argv.slice(2);
@@ -1122,4 +1191,4 @@ if (require.main === module) {
       process.exit(1);
     });
 }
-module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath };
+module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath, getRendererCapabilities, PHASE3_PREVIEW_SETTINGS };
