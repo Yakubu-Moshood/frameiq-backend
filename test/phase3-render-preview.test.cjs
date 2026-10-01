@@ -51,6 +51,7 @@ function verified(f) {
     expectedFrames: 19020, shotCount: 153, evidenceCount: 46, evidenceAssetCount: 29,
     graphicsCount: 76, timestampRows: 1352, timestampsSha256: 'b'.repeat(64),
     audioInputs: [], requestLedgerSha256: f.ledgerSha, ledgerSha256: f.ledgerSha,
+    stagedShotValidation: { revisionChain: [] },
     editPlan: { episodeId: 'test-episode' },
   };
 }
@@ -341,6 +342,12 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
     assert.equal(report.evidenceAssets, 29);
     assert.equal(report.graphics, 76);
     assert.equal(report.expectedFrames, 19020);
+    const shotContext = preview.validateStagedShotDefinitions({ candidateDirectory: f.candidateDirectory,
+      staged: { index: f.stagedIndex }, promotedFiles: f.promotionPaths });
+    const rendererShotReport = renderer.validateV3ShotDefinitionsForRender({ plan: shotContext.plan,
+      shotDefs: shotContext.shotDefs, revisionChain: shotContext.revisionChain, requireVerifiedRevisionChain: true });
+    assert.equal(rendererShotReport.status, 'PASS');
+    assert.equal(shotContext.lineage.counts.approvedHistoricalRevisions, 23);
     const stagedBytes = fs.readFileSync(path.join(f.candidateDirectory, 'timing/word-timestamps.json'));
     assert.equal(report.timestampsSha256, sha(stagedBytes));
     assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', 'phase3-real-stage04-test')), false);
@@ -352,6 +359,99 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
         sha256: sha(stagedBytes) }] } }, runDirectory: renderInputDirectory });
     assert.deepEqual(fs.readFileSync(path.join(renderInputDirectory, 'timing/word-timestamps.json')), stagedBytes);
   } finally { f.cleanup(); }
+});
+
+test('Phase 3 renderer revalidates Stage04 shots with the complete ordered revision chain', async () => {
+  const f = fullPreflightStage04Fixture();
+  const rendererPath = require.resolve('../pipeline-updates/surface-renderer.cjs');
+  const cachedRendererModule = require.cache[rendererPath];
+  const childProcess = require('node:child_process');
+  const originalExecSync = childProcess.execSync;
+  const externalCommands = [];
+  try {
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+    fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const verifiedInput = preview.verifyActualEpisode({ root: f.root, promotedRunId: PHASE2_RUN, runner,
+      verifyBackupFn: () => true, verifyStageFn: f.stageVerifier, expectedLedgerSha256: ledgerHash,
+      runCommand: toolCommand });
+    const shotContext = verifiedInput.stagedShotValidation;
+    assert.equal(shotContext.status, 'PASS');
+    assert.equal(shotContext.lineage.counts.approvedHistoricalRevisions, 23);
+    assert.equal(shotContext.revisionChain.length, preview.STAGED_SHOT_LINEAGE_FILES.length);
+
+    const renderer = require('../pipeline-updates/surface-renderer.cjs');
+    const report = renderer.validateV3ShotDefinitionsForRender({ plan: verifiedInput.editPlan,
+      shotDefs: verifiedInput.shotDefs, revisionChain: shotContext.revisionChain,
+      requireVerifiedRevisionChain: true });
+    assert.equal(report.status, 'PASS');
+    assert.equal(report.lineage.counts.approvedHistoricalRevisions, 23);
+
+    assert.throws(() => renderer.validateV3ShotDefinitionsForRender({ plan: verifiedInput.editPlan,
+      shotDefs: verifiedInput.shotDefs }), /EDITORIAL_FIELD_MISMATCH \/allShots\/14\/visual/u);
+    assert.throws(() => renderer.validateV3ShotDefinitionsForRender({ plan: verifiedInput.editPlan,
+      shotDefs: verifiedInput.shotDefs, requireVerifiedRevisionChain: true }), /PHASE3_VERIFIED_REVISION_CHAIN_REQUIRED/u);
+
+    const alteredCases = [
+      ['missing final entry', chain => chain.slice(0, -1), /REVISION_RESULT_HASH/u],
+      ['reordered entries', chain => chain.slice().reverse(), /REVISION_CHAIN_LINK/u],
+      ['altered parent hash', chain => chain.map((entry, index) => index === 0
+        ? { ...entry, parentArtifactSha256: '0'.repeat(64) } : entry), /REVISION_PARENT_HASH/u],
+      ['altered result hash', chain => chain.map((entry, index) => index === 3
+        ? { ...entry, resultArtifactSha256: '0'.repeat(64) } : entry), /REVISION_RESULT_HASH/u],
+      ['altered field change', chain => chain.map((entry, index) => index === 0
+        ? { ...entry, entries: entry.entries.map((item, itemIndex) => itemIndex === 0
+          ? { ...item, afterValue: 'unapproved visual change' } : item) } : entry), /REVISION_AFTER_VALUE/u],
+    ];
+    for (const [label, mutate, expected] of alteredCases) {
+      assert.throws(() => renderer.validateV3ShotDefinitionsForRender({ plan: verifiedInput.editPlan,
+        shotDefs: verifiedInput.shotDefs, revisionChain: mutate(shotContext.revisionChain),
+        requireVerifiedRevisionChain: true }), expected, label);
+    }
+
+    const retiredB010 = shotContext.revisionChain.flatMap(item => item.retirements || [])
+      .find(item => item.beatId === 'ACT3B_B010');
+    assert.ok(retiredB010);
+    const revivedShots = structuredClone(verifiedInput.shotDefs);
+    revivedShots.allShots.push(structuredClone(retiredB010.shot));
+    revivedShots.acts.act3b.push(structuredClone(retiredB010.actShot || retiredB010.shot));
+    assert.throws(() => renderer.validateV3ShotDefinitionsForRender({ plan: verifiedInput.editPlan,
+      shotDefs: revivedShots, revisionChain: shotContext.revisionChain, requireVerifiedRevisionChain: true }),
+    /V3 shot definitions failed validation/u);
+
+    const before = treeIndex(f.root);
+    childProcess.execSync = (...args) => { externalCommands.push(String(args[0]));
+      throw new Error('TEST_FFMPEG_MUST_NOT_START'); };
+    delete require.cache[rendererPath];
+    const isolatedRenderer = require(rendererPath);
+    await assert.rejects(isolatedRenderer.renderEpisode({ episodeDir: f.root,
+      episodeId: 'e59b6b79-96aa-4dcd-92c3-749fd536f55e', channel: 'EmpireOmitted',
+      phase3Preview: true, outputFilename: 'empire-omitted-v3-phase3-preview-01.mp4',
+      renderProfile: isolatedRenderer.PHASE3_PREVIEW_SETTINGS,
+      phase3ResolvedProductionManifest: verifiedInput.productionManifest,
+      verifiedEditPlan: verifiedInput.editPlan }), /PHASE3_VERIFIED_REVISION_CHAIN_REQUIRED/u);
+    assert.equal(externalCommands.length, 0);
+    assert.deepEqual(treeIndex(f.root), before);
+
+    await assert.rejects(isolatedRenderer.renderEpisode({ episodeDir: f.root,
+      episodeId: 'e59b6b79-96aa-4dcd-92c3-749fd536f55e', channel: 'EmpireOmitted',
+      phase3Preview: true, outputFilename: 'empire-omitted-v3-phase3-preview-01.mp4',
+      renderProfile: isolatedRenderer.PHASE3_PREVIEW_SETTINGS,
+      phase3ResolvedProductionManifest: verifiedInput.productionManifest,
+      verifiedEditPlan: verifiedInput.editPlan,
+      phase3VerifiedRevisionChain: shotContext.revisionChain }), /FFmpeg failed \[rasterize verified graphic ACT1_B001\]/u);
+    assert.ok(externalCommands.length > 0);
+    assert.match(externalCommands[0], /^ffmpeg/u);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
+  } finally {
+    childProcess.execSync = originalExecSync;
+    if (cachedRendererModule) require.cache[rendererPath] = cachedRendererModule;
+    else delete require.cache[rendererPath];
+    f.cleanup();
+  }
 });
 
 test('Stage04 edit-script generation validates the promoted package and atomically publishes parity-bound outputs', () => {

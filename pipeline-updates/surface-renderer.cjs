@@ -985,6 +985,7 @@ async function renderEpisodeInternal({
   productionManifestPath = null,
   phase3Preview = false,
   phase3ResolvedProductionManifest = null,
+  phase3VerifiedRevisionChain = null,
   publicDirOverride = null,
   verifiedEditPlan = null,
 }) {
@@ -1031,8 +1032,9 @@ async function renderEpisodeInternal({
       const timingReport = validateEditPlan({ plan: editPlan, wordTimestamps: timestamps });
       if (timingReport.status !== 'PASS' || timingReport.errors.length) throw new Error('[renderer] Phase 3 edit-plan validation failed.');
     }
-    const report = validateShotDefinitions({ plan: editPlan, shotDefs });
-    if (report.status !== 'PASS') throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
+    const report = validateV3ShotDefinitionsForRender({ plan: editPlan, shotDefs,
+      revisionChain: phase3Preview ? phase3VerifiedRevisionChain : undefined,
+      requireVerifiedRevisionChain: phase3Preview });
     resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec, productionManifest });
     const evidenceByShot = new Map(v3Assets.evidenceManifest.entries.map(entry => [entry.shotId, entry]));
     const graphicsByShot = new Map();
@@ -1146,6 +1148,19 @@ async function renderEpisodeInternal({
   log('╚══════════════════════════════════════════════════════╝');
   return finalResult;
 }
+
+function validateV3ShotDefinitionsForRender({ plan, shotDefs, revisionChain,
+  requireVerifiedRevisionChain = false } = {}) {
+  if (requireVerifiedRevisionChain && (!Array.isArray(revisionChain) || revisionChain.length === 0)) {
+    throw new Error('PHASE3_VERIFIED_REVISION_CHAIN_REQUIRED');
+  }
+  const report = validateShotDefinitions({ plan, shotDefs,
+    ...(revisionChain === undefined ? {} : { revisionChain }) });
+  if (report.status !== 'PASS') {
+    throw new Error(`[renderer] V3 shot definitions failed validation: ${report.errors[0].code} ${report.errors[0].path}`);
+  }
+  return report;
+}
 async function renderEpisode(options = {}) {
   if (options.phase3Preview !== true) return renderEpisodeInternal(options);
   if (options.channel !== 'EmpireOmitted') throw new Error('PHASE3_PREVIEW_CHANNEL_UNSUPPORTED');
@@ -1196,4 +1211,5 @@ if (require.main === module) {
       process.exit(1);
     });
 }
-module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath, getRendererCapabilities, PHASE3_PREVIEW_SETTINGS };
+module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath,
+  validateV3ShotDefinitionsForRender, getRendererCapabilities, PHASE3_PREVIEW_SETTINGS };

@@ -955,6 +955,7 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
         publicDirOverride: publicDir, approvalCallback: async () => true,
         productionManifestPath: path.join(episodeDir, 'production-manifest.json'),
         verifiedEditPlan: renderVerified.editPlan,
+        phase3VerifiedRevisionChain: renderVerified.stagedShotValidation.revisionChain,
         phase3ResolvedProductionManifest: renderVerified.productionManifest,
         renderProfile: renderer.PHASE3_PREVIEW_SETTINGS });
       return finishRender({ rendered, options, verified: check, inputHashes, runDirectory, outputDir,
