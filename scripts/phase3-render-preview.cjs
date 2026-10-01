@@ -1023,6 +1023,7 @@ function finishRender({ rendered, options, verified, inputHashes, runDirectory, 
     output: { path: path.relative(runDirectory, output).replace(/\\/g, '/'), bytes: outputBytes.length, sha256: sha256(outputBytes) },
     codecs: { video: video.codec_name, videoProfile: video.profile, pixelFormat: video.pix_fmt,
       audio: audio.codec_name, audioSampleRateHz: Number(audio.sample_rate), audioBitrate: Number(audio.bit_rate) },
+    mediaInputCensus: rendered.phase3MediaCensus || null,
     providerRequests: 0, requestLedgerSha256Before: verified.requestLedgerSha256,
     requestLedgerSha256After: ledgerAfter, startedAt: renderStartedAt, completedAt,
     completionStatus: 'SUCCESS' };

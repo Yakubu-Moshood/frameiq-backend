@@ -695,8 +695,11 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         log(`  ⚠️  ${shot.shotId}: unknown colorGrade "${shot.colorGrade}" — using neutral grade instead`);
       }
       const grade       = GRADE[shot.colorGrade] || GRADE.neutral;
-      const graphicEntries = shot.productionMethod === 'GRAPHIC_COMPILATION' ? (shot.graphicAssetEntries || []) : [];
-      const primarySvg = assetPath.endsWith('.svg');
+      const graphicEntries = shot.graphicAssetEntries && (shot.phase3PreviewAsset
+        || shot.productionMethod === 'GRAPHIC_COMPILATION') ? shot.graphicAssetEntries : [];
+      const primarySvg = shot.phase3PreviewAsset === true
+        ? path.extname(assetPath).toLowerCase() === '.svg'
+        : assetPath.endsWith('.svg');
       const overlayEntries = graphicEntries.filter(entry => entry.role === 'OVERLAY');
       const renderAssetDir = path.join(episodeDir, 'temp', voKey, 'verified-graphics');
       const rasterizeSvg = (svgPath, outputPath, label) => {
@@ -710,7 +713,8 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
         const svgPath = path.join(assetsDir, 'graphics', entry.filename);
         return rasterizeSvg(svgPath, path.join(renderAssetDir, `${shot.shotId}__g${String(entry.graphicIndex).padStart(2, '0')}.png`), `${shot.shotId} overlay ${entry.graphicIndex}`);
       });
-      const isImg       = assetPath.endsWith('.png') || assetPath.endsWith('.jpg');
+      const isImg       = ['.png', '.jpg'].includes(path.extname(assetPath).toLowerCase())
+        || (shot.phase3PreviewAsset === true && shot.phase3StillInput === true);
       const isZoom      = shot.visualType === 'STILL_ZOOM';
       const totalFrames  = Math.round(shot.durSec * settings.fps);
       const motionFrames = Math.max(1, Math.round((shot.motionDurSec || shot.durSec) * settings.fps));
@@ -1013,6 +1017,7 @@ async function renderEpisodeInternal({
   }
   log(`[renderer] Loaded ${shotDefs.allShots.length} shots`);
   let resolved;
+  let phase3MediaCensus = null;
   if (shotDefs.mode === 'empire-omitted-v3') {
     if (channel !== 'EmpireOmitted') throw new Error('[renderer] V3 shot definitions are restricted to Empire Omitted.');
     const manifestPath = productionManifestPath || path.join(episodeDir, 'production-manifest.json');
@@ -1047,9 +1052,20 @@ async function renderEpisodeInternal({
       return {
         ...shot,
         ...(evidence?.localFilename ? { evidenceAssetPath: path.join(episodeDir, 'assets', 'evidence', evidence.localFilename) } : {}),
+        ...(evidence ? { phase3EvidenceEntry: evidence } : {}),
         ...(graphicsByShot.has(shot.shotId) ? { graphicAssetEntries: graphicsByShot.get(shot.shotId) } : {}),
       };
     });
+    if (phase3Preview) {
+      const phase3RenderMedia = require('./phase3-render-media-adapter.cjs');
+      const withBasePaths = resolved.map(shot => ({ ...shot,
+        phase3BaseAssetPath: resolveAssetPath(shot, assetsDir) }));
+      const prepared = phase3RenderMedia.preparePhase3RenderInputs({ resolvedShots: withBasePaths,
+        assetsDir, derivedAssetDir: path.join(episodeDir, 'temp', 'phase3-derived-assets'),
+        isolatedRunDirectory: episodeDir });
+      resolved = prepared.shots;
+      phase3MediaCensus = prepared.census;
+    }
   } else {
   // Step 1 — Whisper
   log('');
@@ -1102,7 +1118,7 @@ async function renderEpisodeInternal({
   if (phase3Preview) {
     return { ...result, expectedFrames: renderSettings().fps > 0
       ? Math.round(resolved.reduce((total, shot) => total + Math.round(shot.durSec * renderSettings().fps), 0))
-      : 0 };
+      : 0, phase3MediaCensus };
   }
   // Step 6 — Append branded outro
   log('');

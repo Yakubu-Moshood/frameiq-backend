@@ -10,6 +10,7 @@ const { spawnSync } = require('node:child_process');
 const preview = require('../scripts/phase3-render-preview.cjs');
 const activationRunner = require('../scripts/phase2.3b-p-activate.cjs');
 const productionMethods = require('../pipeline-updates/production-method-manifest.cjs');
+const phase3Media = require('../pipeline-updates/phase3-render-media-adapter.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -319,6 +320,25 @@ function fullPreflightStage04Fixture() {
     cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
 
+function populateMissingGeneratedRenderAssets(episodeDir, shotDefs, productionManifest) {
+  const assetsDir = path.join(episodeDir, 'assets');
+  const methods = new Map(productionManifest.shots.map(item => [item.shotId, item.productionMethod]));
+  const pngBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j5XcAAAAASUVORK5CYII=', 'base64');
+  const videoBytes = Buffer.from([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d, 0, 0, 0, 0]);
+  const evidenceIds = new Set(JSON.parse(fs.readFileSync(path.join(activationRunner.VERIFIED_STAGE_SOURCE_DIR,
+    'evidence-source-manifest.json'), 'utf8')).entries.map(item => item.shotId));
+  for (const shot of shotDefs.allShots) {
+    const method = methods.get(shot.shotId);
+    if (evidenceIds.has(shot.shotId) || method === 'GRAPHIC_COMPILATION') continue;
+    const location = productionMethods.resolveProductionAssetLocation(method);
+    if (!location) continue;
+    const ext = location.extensions[0];
+    const target = path.join(assetsDir, location.directory, `${shot.shotId}${ext}`);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, ext === '.mp4' ? videoBytes : pngBytes);
+  }
+}
+
 test('complete Stage04 preflight uses one indexed timestamp byte buffer and remains read-only', () => {
   const f = fullPreflightStage04Fixture();
   try {
@@ -422,6 +442,7 @@ test('Phase 3 renderer revalidates Stage04 shots with the complete ordered revis
       shotDefs: revivedShots, revisionChain: shotContext.revisionChain, requireVerifiedRevisionChain: true }),
     /V3 shot definitions failed validation/u);
 
+    populateMissingGeneratedRenderAssets(f.root, verifiedInput.shotDefs, verifiedInput.productionManifest);
     const before = treeIndex(f.root);
     childProcess.execSync = (...args) => { externalCommands.push(String(args[0]));
       throw new Error('TEST_FFMPEG_MUST_NOT_START'); };
@@ -611,6 +632,176 @@ function copyRealRenderInputs() {
   }
   return { ...value, episodeDir: root, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
+
+function buildPhase3MediaFixture({ includeGeneratedAssets = true } = {}) {
+  const value = copyRealRenderInputs();
+  const renderer = require('../pipeline-updates/surface-renderer.cjs');
+  const assetsDir = path.join(value.episodeDir, 'assets');
+  const productionManifest = preview.resolvePhase3RenderManifest({ ...value, episodeDir: value.episodeDir });
+  const plan = JSON.parse(fs.readFileSync(path.join(value.candidateDirectory, 'edit-plan.json'), 'utf8'));
+  const resolved = renderer.resolveEditPlanTimestamps({ shotDefs: value.shotDefs, editPlan: plan, productionManifest });
+  const evidenceByShot = new Map(value.evidenceManifest.entries.map(entry => [entry.shotId, entry]));
+  const graphicsByShot = new Map();
+  for (const entry of value.graphicAssetManifest.entries) {
+    if (!graphicsByShot.has(entry.shotId)) graphicsByShot.set(entry.shotId, []);
+    graphicsByShot.get(entry.shotId).push(entry);
+  }
+  const pngBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j5XcAAAAASUVORK5CYII=', 'base64');
+  const videoBytes = Buffer.from([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70, 0x69, 0x73, 0x6f, 0x6d, 0, 0, 0, 0]);
+  const mediaShots = resolved.map(shot => {
+    const evidence = evidenceByShot.get(shot.shotId);
+    const graphicAssetEntries = graphicsByShot.get(shot.shotId) || [];
+    const withManifests = { ...shot, graphicAssetEntries,
+      ...(evidence ? { phase3EvidenceEntry: evidence,
+        evidenceAssetPath: path.join(assetsDir, 'evidence', evidence.localFilename) } : {}) };
+    let assetPath = renderer.resolveAssetPath(withManifests, assetsDir);
+    if (!assetPath && includeGeneratedAssets) {
+      const location = productionMethods.resolveProductionAssetLocation(shot.productionMethod);
+      if (location) {
+        const ext = location.extensions[0];
+        assetPath = path.join(assetsDir, location.directory, `${shot.shotId}${ext}`);
+        fs.mkdirSync(path.dirname(assetPath), { recursive: true });
+        fs.writeFileSync(assetPath, ext === '.mp4' ? videoBytes : pngBytes);
+      }
+    }
+    return { ...withManifests, phase3BaseAssetPath: assetPath };
+  });
+  return { ...value, assetsDir, mediaShots, cleanup: value.cleanup };
+}
+
+test('complete Stage04 153-shot media census classifies every resolved asset before FFmpeg', () => {
+  const value = buildPhase3MediaFixture({ includeGeneratedAssets: false });
+  try {
+    const census = phase3Media.censusPhase3RenderInputs({ resolvedShots: value.mediaShots,
+      assetsDir: value.assetsDir });
+    assert.equal(census.activeShotCount, 153);
+    assert.equal(census.readyCount, 87);
+    assert.equal(census.unresolved.length, 66);
+    assert.deepEqual(census.strategies, { DOCUMENT_CARD: 16, RASTERIZE_APPROVED_SVG: 71 });
+    assert.equal(census.entries.find(item => item.beatId === 'ACT1_B003').strategy, 'DOCUMENT_CARD');
+    assert.equal(census.entries.find(item => item.beatId === 'ACT1_B003').sourcePath,
+      'assets/evidence/doj-wells-fargo-2020-resolution.html');
+    assert.equal(census.entries.reduce((sum, item) => sum + item.supportingAssets.length, 0), 76);
+    assert.ok(census.entries.filter(item => item.status === 'READY').every(item =>
+      ['DOCUMENT_CARD', 'RASTERIZE_APPROVED_SVG', 'STILL_IMAGE', 'VIDEO_CLIP'].includes(item.strategy)));
+    assert.equal(fs.existsSync(path.join(value.episodeDir, 'temp')), false);
+  } finally { value.cleanup(); }
+});
+
+test('all 153 Stage04 shots receive a compatible strategy and document cards stay in the isolated run', () => {
+  const value = buildPhase3MediaFixture();
+  const isolatedRunDirectory = path.join(value.episodeDir, 'phase3-run');
+  const derivedAssetDir = path.join(isolatedRunDirectory, 'temp', 'phase3-derived-assets');
+  try {
+    const beforeEvidence = treeIndex(path.join(value.assetsDir, 'evidence'));
+    const beforeGraphics = treeIndex(path.join(value.assetsDir, 'graphics'));
+    const prepared = phase3Media.preparePhase3RenderInputs({ resolvedShots: value.mediaShots,
+      assetsDir: value.assetsDir, derivedAssetDir, isolatedRunDirectory });
+    assert.equal(prepared.census.activeShotCount, 153);
+    assert.equal(prepared.census.resolvedAssetCount, 153);
+    assert.deepEqual(prepared.census.strategies, {
+      DOCUMENT_CARD: 16, RASTERIZE_APPROVED_SVG: 71, STILL_IMAGE: 43, VIDEO_CLIP: 23,
+    });
+    const b003 = prepared.shots.find(item => item.beatId === 'ACT1_B003');
+    assert.equal(b003.phase3MediaStrategy, 'DOCUMENT_CARD');
+    assert.equal(b003.phase3StillInput, true);
+    assert.ok(b003.evidenceAssetPath.startsWith(derivedAssetDir));
+    const entry = prepared.census.entries.find(item => item.beatId === 'ACT1_B003');
+    assert.equal(entry.sourcePath, 'assets/evidence/doj-wells-fargo-2020-resolution.html');
+    assert.match(entry.sourceSha256, /^[a-f0-9]{64}$/u);
+    assert.ok(entry.derivedAssetPath.startsWith('temp/phase3-derived-assets/'));
+    assert.match(entry.derivedAssetSha256, /^[a-f0-9]{64}$/u);
+    assert.equal(prepared.shots.find(item => item.beatId === 'ACT2_B018').phase3MediaStrategy, 'DOCUMENT_CARD');
+    assert.deepEqual(treeIndex(path.join(value.assetsDir, 'evidence')), beforeEvidence);
+    assert.deepEqual(treeIndex(path.join(value.assetsDir, 'graphics')), beforeGraphics);
+  } finally { value.cleanup(); }
+});
+
+test('Phase 3 media classifier handles HTML, PDF, approved SVG, raster and actual video only', () => {
+  const cases = [
+    ['source.html', Buffer.from('<!doctype html><html></html>'), 'text/html', false, 'DOCUMENT_CARD'],
+    ['source.pdf', Buffer.from('%PDF-1.7\n'), 'application/pdf', false, 'DOCUMENT_CARD'],
+    ['graphic.svg', Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"></svg>'), 'image/svg+xml', true, 'RASTERIZE_APPROVED_SVG'],
+    ['still.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j5XcAAAAASUVORK5CYII=', 'base64'), null, false, 'STILL_IMAGE'],
+    ['clip.mp4', Buffer.from([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70]), null, false, 'VIDEO_CLIP'],
+  ];
+  for (const [filePath, bytes, expectedMimeType, approvedSvg, strategy] of cases) {
+    assert.equal(phase3Media.classifyMedia({ filePath, bytes, expectedMimeType, approvedSvg }).strategy, strategy);
+  }
+  assert.throws(() => phase3Media.classifyMedia({ filePath: 'audio.mp3', bytes: Buffer.from('ID3') }), /PHASE3_MEDIA_TYPE_UNSUPPORTED/u);
+  assert.throws(() => phase3Media.classifyMedia({ filePath: 'graphic.svg', bytes: Buffer.from('<svg/>'), approvedSvg: false }), /PHASE3_MEDIA_TYPE_UNSUPPORTED/u);
+});
+
+test('document cards fail closed instead of truncating approved titles or excerpts', () => {
+  const base = { shotId: 'ACT1_B003', sourceTitle: 'Approved title', publisher: 'DOJ', excerptOrTimecode: 'Approved excerpt' };
+  assert.throws(() => phase3Media.buildDocumentCardSvg({ ...base, sourceTitle: 'title '.repeat(30) }),
+    /PHASE3_DOCUMENT_CARD_TITLE_OVERFLOW/u);
+  assert.throws(() => phase3Media.buildDocumentCardSvg({ ...base, excerptOrTimecode: 'approved '.repeat(100) }),
+    /PHASE3_DOCUMENT_CARD_EXCERPT_OVERFLOW/u);
+});
+
+test('Phase 3 media census rejects missing or altered evidence and graphic assets', () => {
+  for (const category of ['evidence-missing', 'evidence-altered', 'graphic-missing', 'graphic-altered']) {
+    const value = buildPhase3MediaFixture();
+    try {
+      const isEvidence = category.startsWith('evidence');
+      const entry = isEvidence ? value.evidenceManifest.entries.find(item => item.localFilename)
+        : value.graphicAssetManifest.entries[0];
+      const file = path.join(value.assetsDir, isEvidence ? 'evidence' : 'graphics',
+        isEvidence ? entry.localFilename : entry.filename);
+      if (category.endsWith('missing')) fs.unlinkSync(file);
+      else fs.writeFileSync(file, Buffer.concat([fs.readFileSync(file), Buffer.from('tamper')]));
+      assert.throws(() => phase3Media.censusPhase3RenderInputs({ resolvedShots: value.mediaShots, assetsDir: value.assetsDir }),
+        isEvidence ? /PHASE3_MEDIA_APPROVED_ASSET_HASH_MISMATCH|PHASE3_MEDIA_FILE_MISSING/u
+          : /PHASE3_MEDIA_GRAPHIC_HASH_MISMATCH|PHASE3_MEDIA_FILE_MISSING/u);
+    } finally { value.cleanup(); }
+  }
+});
+
+test('unsupported media fails before derived-file creation or any encoder invocation', async () => {
+  const value = buildPhase3MediaFixture();
+  const isolatedRunDirectory = path.join(value.episodeDir, 'isolated-phase3');
+  const derivedAssetDir = path.join(isolatedRunDirectory, 'temp', 'phase3-derived-assets');
+  const unsupportedPath = path.join(value.assetsDir, 'evidence', 'unsupported.dat');
+  fs.writeFileSync(unsupportedPath, Buffer.from('not a supported visual format'));
+  const alteredShots = value.mediaShots.map(shot => shot.beatId === 'ACT1_B003'
+    ? { ...shot, phase3BaseAssetPath: unsupportedPath, phase3EvidenceEntry: null } : shot);
+  const before = treeIndex(path.join(value.assetsDir));
+  let encoderCalls = 0;
+  try {
+    assert.throws(() => {
+      const census = phase3Media.censusPhase3RenderInputs({ resolvedShots: alteredShots, assetsDir: value.assetsDir });
+      phase3Media.preparePhase3RenderInputs({ resolvedShots: alteredShots, assetsDir: value.assetsDir,
+        derivedAssetDir, isolatedRunDirectory });
+      encoderCalls += census.activeShotCount;
+    }, /PHASE3_MEDIA_TYPE_UNSUPPORTED/u);
+    assert.equal(encoderCalls, 0);
+    assert.deepEqual(treeIndex(path.join(value.assetsDir)), before);
+    assert.equal(fs.existsSync(derivedAssetDir), false);
+  } finally { value.cleanup(); }
+});
+
+test('media adapter failure releases Phase 3 lock and removes its isolated run without external writes', async () => {
+  const f = fixture();
+  let encoderCalls = 0;
+  const { service } = makeService(f, { renderFn: async ({ episodeDir }) => {
+    const badPath = path.join(episodeDir, 'assets', 'evidence', 'bad.unsupported');
+    fs.mkdirSync(path.dirname(badPath), { recursive: true });
+    fs.writeFileSync(badPath, 'bad');
+    const fakeShots = Array.from({ length: 153 }, (_, index) => ({ actKey: 'act1',
+      beatId: `ACT1_B${String(index + 1).padStart(3, '0')}`, shotId: `ACT1_B${String(index + 1).padStart(3, '0')}`,
+      productionMethod: 'EVIDENCE_REFERENCE', phase3BaseAssetPath: badPath }));
+    phase3Media.preparePhase3RenderInputs({ resolvedShots: fakeShots, assetsDir: path.join(episodeDir, 'assets'),
+      derivedAssetDir: path.join(episodeDir, 'temp', 'phase3-derived-assets'), isolatedRunDirectory: episodeDir });
+    encoderCalls += 1;
+  } });
+  try {
+    await assert.rejects(service.render(options(f.root)), /PHASE3_MEDIA_TYPE_UNSUPPORTED/u);
+    assert.equal(encoderCalls, 0);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', PHASE3_RUN)), false);
+    assert.equal(fs.readFileSync(f.ledgerPath, 'utf8'), 'fixture-ledger\n');
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
 
 test('Phase 3 resolver rejects missing and altered evidence assets', () => {
   for (const altered of [false, true]) {
