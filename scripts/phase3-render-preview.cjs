@@ -608,11 +608,14 @@ function buildEditScriptDocument(verified, { editScriptRunId, fsImpl = fs }) {
   'PHASE3_EDIT_SCRIPT_INDEX_BINDING_INVALID');
   const plan = verified.editPlan, shots = verified.shotDefs?.allShots;
   const script = verified.script, production = verified.productionManifest?.shots;
+  const storedProduction = verified.storedProductionManifest?.shots;
   const evidence = verified.evidenceManifest?.entries, graphics = verified.graphicAssetManifest?.entries;
   fail(Array.isArray(plan?.sequences) && Array.isArray(shots) && shots.length === 153
-    && Array.isArray(production) && Array.isArray(evidence) && Array.isArray(graphics),
+    && Array.isArray(production) && Array.isArray(storedProduction)
+    && Array.isArray(evidence) && Array.isArray(graphics),
   'PHASE3_EDIT_SCRIPT_INPUTS_MISSING');
-  const shotMap = new Map(), productionMap = new Map(), evidenceMap = new Map(), graphicsByOwner = new Map();
+  const shotMap = new Map(), productionMap = new Map(), storedProductionMap = new Map();
+  const evidenceMap = new Map(), graphicsByOwner = new Map();
   for (const shot of shots) {
     fail(shot?.shotId && shot.beatId && !shotMap.has(shot.beatId), `PHASE3_EDIT_SCRIPT_SHOT_DUPLICATE:${shot?.beatId || ''}`);
     shotMap.set(shot.beatId, shot);
@@ -620,6 +623,11 @@ function buildEditScriptDocument(verified, { editScriptRunId, fsImpl = fs }) {
   for (const item of production) {
     fail(item?.shotId && !productionMap.has(item.shotId), `PHASE3_EDIT_SCRIPT_PRODUCTION_DUPLICATE:${item?.shotId || ''}`);
     productionMap.set(item.shotId, item);
+  }
+  for (const item of storedProduction) {
+    fail(item?.shotId && !storedProductionMap.has(item.shotId),
+      `PHASE3_EDIT_SCRIPT_STORED_PRODUCTION_DUPLICATE:${item?.shotId || ''}`);
+    storedProductionMap.set(item.shotId, item);
   }
   for (const item of evidence) {
     fail(item?.shotId && !evidenceMap.has(item.shotId), `PHASE3_EDIT_SCRIPT_EVIDENCE_DUPLICATE:${item?.shotId || ''}`);
@@ -690,8 +698,8 @@ function buildEditScriptDocument(verified, { editScriptRunId, fsImpl = fs }) {
     const first = actRows[beat.startWordIndex], last = actRows[beat.endWordIndex];
     fail(first && last && typeof first.word === 'string' && typeof last.word === 'string',
       `PHASE3_EDIT_SCRIPT_TRANSCRIPT_ANCHOR_MISSING:${beatId}`);
-    fail(method.productionMethod && method.productionMethod === (verified.productionManifest.shots
-      .find(item => item.shotId === shot.shotId)?.productionMethod),
+    const storedMethod = storedProductionMap.get(shot.shotId);
+    fail(method.productionMethod && storedMethod?.productionMethod === method.productionMethod,
     `PHASE3_EDIT_SCRIPT_PRODUCTION_METHOD_MISMATCH:${beatId}`);
     fail(BUILTIN_RENDER_METHODS.has(method.productionMethod)
       || ['EVIDENCE_REFERENCE', 'GRAPHIC_COMPILATION'].includes(method.productionMethod),
@@ -752,7 +760,8 @@ function buildEditScriptDocument(verified, { editScriptRunId, fsImpl = fs }) {
     beatRecords.push(record);
     previous = { actKey, endSec };
   }
-  fail(shotMap.size === 153 && productionMap.size === 153 && graphicsByOwner.size === 76
+  fail(shotMap.size === 153 && productionMap.size === 153 && storedProductionMap.size === 153
+    && graphicsByOwner.size === 76
     && evidenceMap.size === shots.filter(shot => shot.assetType === 'evidence_reference').length
     && beatRecords.length === 153,
     'PHASE3_EDIT_SCRIPT_BEAT_OWNER_SET_MISMATCH');

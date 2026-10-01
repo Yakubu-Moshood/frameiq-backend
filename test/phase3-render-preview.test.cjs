@@ -424,9 +424,14 @@ test('edit-script generation refuses completed runs, invalid owners, bad timing,
       ['missing beat', value => { value.editPlan.sequences[0].beats.pop(); }],
       ['duplicate beat', value => { value.editPlan.sequences[0].beats.push(structuredClone(value.editPlan.sequences[0].beats[0])); }],
       ['non-monotonic timing', value => { value.editPlan.sequences[0].beats[0].startSec = 1; }],
+      ['timeline gap', value => { const beat = value.editPlan.sequences[0].beats[1]; beat.startSec += 0.01; beat.endSec += 0.01; }],
+      ['timeline overlap', value => { const beat = value.editPlan.sequences[0].beats[1]; beat.startSec -= 0.01; beat.endSec -= 0.01; }],
       ['missing narration', value => { value.editPlan.sequences[0].beats[0].narrationExcerpt = ''; }],
       ['wrong shot owner', value => { value.shotDefs.allShots[0].beatId = 'wrong-owner'; }],
       ['unsupported production method', value => { value.productionManifest.shots[0].productionMethod = 'UNSUPPORTED'; }],
+      ['stored production disagreement', value => { value.productionManifest.shots[0].productionMethod = 'CONTROLLED_STILL'; }],
+      ['plan and shot timing disagreement', value => { value.shotDefs.allShots[0].endSec += 0.01; }],
+      ['plan and shot narration disagreement', value => { value.shotDefs.allShots[0].narrationExcerpt = 'different narration'; }],
       ['missing evidence owner', value => { value.evidenceManifest.entries.pop(); }],
       ['missing graphic owner', value => { value.graphicAssetManifest.entries.pop(); }],
     ]) {
@@ -435,11 +440,18 @@ test('edit-script generation refuses completed runs, invalid owners, bad timing,
         runCommand: toolCommand });
       const changed = { ...verifiedInput, editPlan: structuredClone(verifiedInput.editPlan),
         shotDefs: structuredClone(verifiedInput.shotDefs), productionManifest: structuredClone(verifiedInput.productionManifest),
+        storedProductionManifest: structuredClone(verifiedInput.storedProductionManifest),
         evidenceManifest: structuredClone(verifiedInput.evidenceManifest), graphicAssetManifest: structuredClone(verifiedInput.graphicAssetManifest) };
       mutate(changed);
       assert.throws(() => preview.buildEditScriptDocument(changed, { editScriptRunId: 'phase3-edit-script-guard02' }), label);
     }
     assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-edit-scripts', 'phase3-edit-script-guard02')), false);
+    const changedAsset = JSON.parse(fs.readFileSync(path.join(f.candidateDirectory, 'evidence-source-manifest.json'), 'utf8'))
+      .entries.find(entry => entry.localFilename).localFilename;
+    fs.appendFileSync(path.join(f.candidateDirectory, 'assets', 'evidence', changedAsset), 'altered');
+    assert.throws(() => service.generateEditScript({ promotedRunId: PHASE2_RUN,
+      editScriptRunId: 'phase3-edit-script-asset-tamper' }), /PHASE3_PROMOTED_INPUT_HASH_MISMATCH/);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-edit-scripts', 'phase3-edit-script-asset-tamper')), false);
     assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
   } finally { f.cleanup(); }
 });
