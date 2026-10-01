@@ -214,6 +214,20 @@ function verifyIndexedFiles(root, files, { fsImpl = fs, requireRegularFile = tru
   }
   return [...seen];
 }
+function readIndexedFileBytes(root, files, relative, { fsImpl = fs } = {}) {
+  const matches = Array.isArray(files) ? files.filter(item => item?.path === relative) : [];
+  fail(matches.length === 1, `PHASE3_INDEXED_INPUT_NOT_UNIQUE:${relative}`);
+  const item = matches[0];
+  const safePath = safeRelativePath(relative);
+  const absolute = path.resolve(root, ...safePath.split('/'));
+  fail(isInside(root, absolute), 'PHASE3_INPUT_PATH_TRAVERSAL');
+  assertNoSymlinkPath(absolute, { stopAt: root, fsImpl });
+  fail(fsImpl.lstatSync(absolute).isFile(), `PHASE3_INDEXED_INPUT_NOT_FILE:${relative}`);
+  const bytes = fsImpl.readFileSync(absolute);
+  fail(Number.isSafeInteger(item.bytes) && bytes.length === item.bytes && sha256(bytes) === item.sha256,
+    `PHASE3_INDEXED_INPUT_HASH_MISMATCH:${relative}`);
+  return { path: absolute, bytes, indexEntry: item };
+}
 function findInPromotion(files, relative) { return files.find(item => item.path === relative) || null; }
 function verifyStageBoundaryBackup({ reviewDirectory, candidateDirectory, activationRecord,
   runner = activation, fsImpl = fs, verifyBackupFn = episodeActivation.verifyBackup } = {}) {
@@ -344,7 +358,8 @@ function probeAudio(filePath, { runCommand = execFileSync } = {}) {
   return { codec: stream.codec_name, sampleRateHz: Number(stream.sample_rate), bitrate: Number(stream.bit_rate), durationSec: Number(data.format?.duration) };
 }
 function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activation, runCommand = execFileSync,
-  validateEpisodeFn = validatePromotedEpisode, expectedLedgerSha256 = EXPECTED_LEDGER_SHA256 }) {
+  validateEpisodeFn = validatePromotedEpisode, expectedLedgerSha256 = EXPECTED_LEDGER_SHA256,
+  verifyBackupFn = episodeActivation.verifyBackup }) {
   fail(PROMOTED_RUN_RE.test(promotedRunId || ''), 'PHASE3_PROMOTED_RUN_ID_INVALID');
   const reviewDirectory = path.join(root, '.review', `phase2.3b-p-activation-${promotedRunId}`);
   const activationRecordPath = path.join(reviewDirectory, 'activation-record.json');
@@ -369,7 +384,17 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   // Promotion replaces root edit-plan.json with the final retimed plan, so Phase 3
   // validates that locked input from the hash-verified Stage04 backup instead.
   const { boundaryBackup, staged } = verifyStagedValidationContext({ runId: promotedRunId, reviewDirectory,
-    candidateDirectory, activationRecord, runner, fsImpl });
+    candidateDirectory, activationRecord, runner, fsImpl, verifyBackupFn });
+  const timestampRelative = 'timing/word-timestamps.json';
+  const stagedTimestamps = readIndexedFileBytes(candidateDirectory, staged?.index?.files, timestampRelative, { fsImpl });
+  const promotedTimestamps = readIndexedFileBytes(candidateDirectory, activationRecord.candidateFiles, timestampRelative, { fsImpl });
+  const rootTimestamps = readIndexedFileBytes(root, activationRecord.candidateFiles, timestampRelative, { fsImpl });
+  fail(stagedTimestamps.indexEntry.bytes === promotedTimestamps.indexEntry.bytes
+    && stagedTimestamps.indexEntry.sha256 === promotedTimestamps.indexEntry.sha256
+    && Buffer.compare(stagedTimestamps.bytes, promotedTimestamps.bytes) === 0
+    && Buffer.compare(stagedTimestamps.bytes, rootTimestamps.bytes) === 0,
+  'PHASE3_TIMESTAMP_SOURCE_PROMOTION_BINDING_MISMATCH');
+  const timestampsBytes = stagedTimestamps.bytes;
   const stagedShotValidation = validateStagedShotDefinitions({ candidateDirectory, staged,
     promotedFiles: activationRecord.candidateFiles, fsImpl });
   fail(stagedShotValidation.status === 'PASS' && stagedShotValidation.errors.length === 0,
@@ -408,9 +433,8 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   fail(boundaryReport.formalExceptions?.length === 9 && boundaryReport.editorialIntentMigrations?.length === 5
     && boundaryReport.totalRetimedDurationSec === EXPECTED_DURATION_SEC,
   'PHASE3_BOUNDARY_TIMING_REPORT_INVALID');
-  const timestampPath = path.join(root, 'timing', 'word-timestamps.json');
-  const timestampBytes = fsImpl.readFileSync(timestampPath);
-  const timestampRows = JSON.parse(timestampBytes.toString('utf8'));
+  const timestampPath = stagedTimestamps.path;
+  const timestampRows = JSON.parse(timestampsBytes.toString('utf8'));
   fail(timestampRows.length === 1352, 'PHASE3_TIMESTAMP_ROW_COUNT_MISMATCH');
   const recomputedPlanValidation = validateEditPlan({ plan: editPlan, wordTimestamps: timestampRows });
   fail(recomputedPlanValidation.status === 'PASS' && recomputedPlanValidation.errors.length === 0,
@@ -479,7 +503,7 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   return {
     root, reviewDirectory, activationRecordPath, activationRecord, activationRecordSha256: sha256(recordBytes), editPlan,
     candidateDirectory, candidateReport, staged, boundaryBackup, promotedPaths, audioManifest, audioInputs,
-    timestampsPath: timestampPath, timestampsSha256: sha256(timestampsBytes), timestampRows: timestampRows.length,
+    timestampsPath: timestampPath, timestampsBytes, timestampsSha256: sha256(timestampsBytes), timestampRows: timestampRows.length,
     evidenceCount: assetCounts.evidenceEntries, evidenceAssetCount: assetCounts.evidenceAssets,
     graphicsCount: assetCounts.graphics, shotCount: shotDefs.allShots.length,
     sourceDurationSec, expectedFrames, validation, ledgerSha256, requestLedgerSha256: ledgerSha256,
@@ -514,13 +538,14 @@ function checkPhase3PathPolicy({ root, phase3RunId, outputDir, fsImpl = fs }) {
 function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = activation,
   runCommand = execFileSync, capabilities = renderer.getRendererCapabilities(), renderFn = renderer.renderEpisode,
   validateEpisodeFn = validatePromotedEpisode, verifyStageFn = null, verifyInputsFn = null,
+  verifyBackupFn = episodeActivation.verifyBackup,
   expectedLedgerSha256 = EXPECTED_LEDGER_SHA256,
   clock = () => new Date() } = {}) {
   const verifyInputs = options => verifyInputsFn
     ? verifyInputsFn({ root, options, fsImpl })
     : verifyActualEpisode({ root, promotedRunId: options.promotedRunId, fsImpl,
       runner: { ...runner, verifyStagedCandidateIndexes: verifyStageFn || runner.verifyStagedCandidateIndexes },
-      runCommand, validateEpisodeFn, expectedLedgerSha256 });
+      runCommand, validateEpisodeFn, expectedLedgerSha256, verifyBackupFn });
   function preflight(options = {}) {
     const phasePaths = checkPhase3PathPolicy({ root, ...options, fsImpl });
     fail(!fsImpl.existsSync(path.join(root, '.review', 'phase2.3b-p-activation-active.lock')),
@@ -600,7 +625,10 @@ function copyPromotedInputs({ verified, runDirectory, fsImpl = fs }) {
     const target = path.resolve(runDirectory, ...relative.split('/'));
     fail(isInside(runDirectory, target), 'PHASE3_COPY_PATH_OUTSIDE_RUN');
     assertNoSymlinkPath(source, { stopAt: verified.root, fsImpl });
-    const bytes = fsImpl.readFileSync(source);
+    const bytes = item.path === 'timing/word-timestamps.json'
+      ? verified.timestampsBytes
+      : fsImpl.readFileSync(source);
+    fail(Buffer.isBuffer(bytes), 'PHASE3_TIMESTAMP_RENDER_INPUT_MISSING');
     fail(bytes.length === item.bytes && sha256(bytes) === item.sha256, `PHASE3_COPY_SOURCE_HASH_MISMATCH:${relative}`);
     fsImpl.mkdirSync(path.dirname(target), { recursive: true });
     fsImpl.writeFileSync(target, bytes, { flag: 'wx' });
@@ -682,6 +710,6 @@ if (require.main === module) {
 
 module.exports = { PHASE3_SCHEMA, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECTED_PROMOTED_PATHS,
   EXPECTED_LEDGER_SHA256, OUTPUT_FILENAME, PHASE3_ROOT, parseArgs, safeRelativePath, isInside,
-  verifyIndexedFiles, verifyStageBoundaryBackup, verifyStagedValidationContext, STAGED_SHOT_LINEAGE_FILES,
+  verifyIndexedFiles, readIndexedFileBytes, verifyStageBoundaryBackup, verifyStagedValidationContext, STAGED_SHOT_LINEAGE_FILES,
   readIndexedShotContextFile, validateStagedShotDefinitions, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
   assertAssetManifestCounts, resolvePhase3RenderManifest, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };

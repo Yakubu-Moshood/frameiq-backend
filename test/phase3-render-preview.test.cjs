@@ -226,6 +226,132 @@ function realStage04RenderPackage() {
   return { candidateDirectory, shotDefs, productionManifest, evidenceManifest, graphicAssetManifest };
 }
 
+function treeIndex(directory) {
+  const files = [];
+  const visit = (current, relative = '') => {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const child = relative ? `${relative}/${entry.name}` : entry.name;
+      const absolute = path.join(current, entry.name);
+      assert.equal(entry.isSymbolicLink(), false);
+      if (entry.isDirectory()) visit(absolute, child);
+      else {
+        const bytes = fs.readFileSync(absolute);
+        files.push({ path: child, bytes: bytes.length, sha256: sha(bytes) });
+      }
+    }
+  };
+  visit(directory);
+  return files.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function fullPreflightStage04Fixture() {
+  const sourceDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
+  const source = activationRunner.verifyIndexedCandidateDirectory({ directory: sourceDirectory,
+    expectedIndexSha256: activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedCount: 150 });
+  const root = tempRoot();
+  const reviewDirectory = path.join(root, '.review', `phase2.3b-p-activation-${PHASE2_RUN}`);
+  const candidateDirectory = path.join(reviewDirectory, 'candidate');
+  fs.mkdirSync(candidateDirectory, { recursive: true });
+  fs.cpSync(sourceDirectory, candidateDirectory, { recursive: true });
+  const candidateReportPath = path.join(candidateDirectory, 'candidate-report.json');
+  const candidateReport = JSON.parse(fs.readFileSync(candidateReportPath, 'utf8'));
+  candidateReport.runId = PHASE2_RUN;
+  candidateReport.stageSchemaVersion = 'phase2.3b-p-staged-candidate/1.0.0';
+  fs.writeFileSync(candidateReportPath, `${JSON.stringify(candidateReport, null, 2)}\n`);
+  const stagedIndex = { files: treeIndex(candidateDirectory) };
+  const promotionPaths = activationRunner.buildPromotionWriteSet({ candidateDirectory,
+    report: candidateReport, stagedIndex, fsImpl: fs });
+  assert.equal(promotionPaths.length, 147);
+  for (const item of promotionPaths) {
+    const sourceFile = path.join(candidateDirectory, ...item.path.split('/'));
+    const destination = path.join(root, ...item.path.split('/'));
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.copyFileSync(sourceFile, destination);
+  }
+  const backupDirectory = path.join(reviewDirectory, 'backup');
+  fs.mkdirSync(backupDirectory, { recursive: true });
+  const lockedPlanHash = activationRunner.approval.lockedEpisodeHashesBeforeActivation['edit-plan.json'];
+  const backupManifest = { schemaVersion: 'phase2.3b-p-backup/1.0.0', files: [
+    { path: 'edit-plan.json', existed: true, bytes: 0, sha256: lockedPlanHash },
+  ] };
+  const backupBytes = Buffer.from(`${JSON.stringify(backupManifest)}\n`);
+  fs.writeFileSync(path.join(backupDirectory, 'backup-manifest.json'), backupBytes);
+  const activationRecord = { schemaVersion: 'phase2.3b-p-activation-record/1.0.0', status: 'PROMOTED',
+    runId: PHASE2_RUN, promotedAt: '2026-10-01T12:00:00.000Z', backupManifestSha256: sha(backupBytes),
+    priorHashes: { 'edit-plan.json': lockedPlanHash }, candidateFiles: promotionPaths };
+  fs.writeFileSync(path.join(reviewDirectory, 'activation-record.json'), JSON.stringify(activationRecord));
+  const phase3CandidateIndex = { schemaVersion: 'phase2.3b-p-staged-candidate-index/1.0.0',
+    status: 'VERIFIED_STAGED', runId: PHASE2_RUN, sourceCandidateIndexSha256: source.indexSha256,
+    approvedPackageIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256,
+    fileCount: stagedIndex.files.length, files: stagedIndex.files };
+  const stageVerifier = ({ candidateDirectory: candidate, runId }) => {
+    assert.equal(runId, PHASE2_RUN);
+    assert.equal(path.resolve(candidate), path.resolve(candidateDirectory));
+    const actual = treeIndex(candidate);
+    assert.deepEqual(actual, stagedIndex.files);
+    for (const item of phase3CandidateIndex.files) {
+      const bytes = fs.readFileSync(path.join(candidate, ...item.path.split('/')));
+      assert.equal(bytes.length, item.bytes);
+      assert.equal(sha(bytes), item.sha256);
+    }
+    const boundaryTiming = JSON.parse(fs.readFileSync(path.join(candidate,
+      'validation/boundary-and-timing-validation.json'), 'utf8'));
+    const editPlanValidation = JSON.parse(fs.readFileSync(path.join(candidate, 'edit-plan-validation.json'), 'utf8'));
+    const lineageValidation = JSON.parse(fs.readFileSync(path.join(candidate,
+      'validation/revision-lineage-validation.json'), 'utf8'));
+    const shotValidation = preview.validateStagedShotDefinitions({ candidateDirectory: candidate,
+      staged: { index: phase3CandidateIndex }, promotedFiles: promotionPaths });
+    assert.equal(boundaryTiming.status, 'PASS');
+    assert.equal(boundaryTiming.formalExceptions.length, 9);
+    assert.equal(boundaryTiming.editorialIntentMigrations.length, 5);
+    assert.equal(boundaryTiming.totalRetimedDurationSec, 633.782449);
+    assert.equal(editPlanValidation.status, 'PASS');
+    assert.equal(lineageValidation.status, 'PASS');
+    assert.equal(shotValidation.status, 'PASS');
+    assert.equal(shotValidation.errors.length, 0);
+    return { status: 'PASS', index: phase3CandidateIndex };
+  };
+  return { root, candidateDirectory, reviewDirectory, activationRecord, stagedIndex: phase3CandidateIndex,
+    sourceIndexSha256: source.indexSha256, promotionPaths, stageVerifier,
+    cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
+}
+
+test('complete Stage04 preflight uses one indexed timestamp byte buffer and remains read-only', () => {
+  const f = fullPreflightStage04Fixture();
+  try {
+    const renderer = require('../pipeline-updates/surface-renderer.cjs');
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+    fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const service = preview.createPhase3Preview({ root: f.root, runner, verifyStageFn: f.stageVerifier,
+      verifyBackupFn: () => true, expectedLedgerSha256: ledgerHash, runCommand: toolCommand,
+      capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath },
+      renderFn: () => { throw new Error('preflight must not invoke renderer'); } });
+    const report = service.preflight(options(f.root, 'phase3-real-stage04-test'));
+    assert.equal(report.status, 'PHASE3_RENDER_PREFLIGHT_PASS');
+    assert.equal(report.promotedPathCount, 147);
+    assert.equal(report.activeShots, 153);
+    assert.equal(report.durationSec, 633.782449);
+    assert.equal(report.evidenceEntries, 46);
+    assert.equal(report.evidenceAssets, 29);
+    assert.equal(report.graphics, 76);
+    assert.equal(report.expectedFrames, 19020);
+    const stagedBytes = fs.readFileSync(path.join(f.candidateDirectory, 'timing/word-timestamps.json'));
+    assert.equal(report.timestampsSha256, sha(stagedBytes));
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', 'phase3-real-stage04-test')), false);
+    assert.equal(fs.existsSync(ledgerPath), true);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
+    const renderInputDirectory = path.join(f.root, 'isolated-render-input-check');
+    preview.copyPromotedInputs({ verified: { root: f.root, timestampsBytes: stagedBytes,
+      activationRecord: { candidateFiles: [{ path: 'timing/word-timestamps.json', bytes: stagedBytes.length,
+        sha256: sha(stagedBytes) }] } }, runDirectory: renderInputDirectory });
+    assert.deepEqual(fs.readFileSync(path.join(renderInputDirectory, 'timing/word-timestamps.json')), stagedBytes);
+  } finally { f.cleanup(); }
+});
+
 test('Phase 3 resolves the real Stage04 evidence and graphics without mutating stored production status', () => {
   const value = realStage04RenderPackage();
   const before = JSON.stringify(value.productionManifest);
