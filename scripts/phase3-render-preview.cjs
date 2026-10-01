@@ -5,6 +5,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const activation = require('./phase2.3b-p-activate.cjs');
+const episodeActivation = require('../pipeline-updates/episode-activation.cjs');
 const renderer = require('../pipeline-updates/surface-renderer.cjs');
 const { validateShotDefinitions } = require('../pipeline-updates/shot-definitions-validator.cjs');
 const { validateEditPlan } = require('../pipeline-updates/edit-plan-validator.cjs');
@@ -73,6 +74,48 @@ function verifyIndexedFiles(root, files, { fsImpl = fs, requireRegularFile = tru
   return [...seen];
 }
 function findInPromotion(files, relative) { return files.find(item => item.path === relative) || null; }
+function verifyStageBoundaryBackup({ reviewDirectory, candidateDirectory, activationRecord,
+  runner = activation, fsImpl = fs, verifyBackupFn = episodeActivation.verifyBackup } = {}) {
+  const backupDirectory = path.join(reviewDirectory, 'backup');
+  const backupManifestPath = path.join(backupDirectory, 'backup-manifest.json');
+  assertNoSymlinkPath(backupManifestPath, { stopAt: runner.ROOT || reviewDirectory, fsImpl });
+  const backupBytes = fsImpl.readFileSync(backupManifestPath);
+  fail(typeof activationRecord?.backupManifestSha256 === 'string'
+    && sha256(backupBytes) === activationRecord.backupManifestSha256,
+  'PHASE3_PROMOTION_BACKUP_MANIFEST_HASH_MISMATCH');
+  const backupManifest = JSON.parse(backupBytes.toString('utf8'));
+  verifyBackupFn({ fs: fsImpl, backupDirectory, manifest: backupManifest });
+
+  const policyPath = path.join(candidateDirectory, 'approvals', 'refreshed-boundary-policy.v2.json');
+  assertNoSymlinkPath(policyPath, { stopAt: candidateDirectory, fsImpl });
+  const policyBytes = fsImpl.readFileSync(policyPath);
+  fail(sha256(policyBytes) === episodeActivation.REFRESHED_BOUNDARY_POLICY_SHA256,
+    'PHASE3_STAGED_BOUNDARY_POLICY_HASH_MISMATCH');
+  const policy = JSON.parse(policyBytes.toString('utf8'));
+  const expectedLockedPlanSha256 = policy.binding?.lockedEditPlanSha256;
+  const lockedPlanApprovalSha256 = runner.approval?.lockedEpisodeHashesBeforeActivation?.['edit-plan.json'];
+  const priorLockedPlanSha256 = activationRecord.priorHashes?.['edit-plan.json'];
+  const backupPlan = backupManifest.files?.find(item => item.path === 'edit-plan.json');
+  fail(/^[a-f0-9]{64}$/u.test(expectedLockedPlanSha256 || '')
+    && expectedLockedPlanSha256 === lockedPlanApprovalSha256
+    && expectedLockedPlanSha256 === priorLockedPlanSha256
+    && backupPlan?.existed === true && backupPlan.sha256 === expectedLockedPlanSha256,
+  'PHASE3_LOCKED_PLAN_PROVENANCE_MISMATCH');
+  return { backupDirectory, backupManifestSha256: sha256(backupBytes),
+    lockedEditPlanPath: path.join(backupDirectory, 'edit-plan.json'),
+    lockedEditPlanSha256: expectedLockedPlanSha256,
+    candidateBoundaryPolicySha256: sha256(policyBytes) };
+}
+function verifyStagedValidationContext({ runId, reviewDirectory, candidateDirectory, activationRecord,
+  runner = activation, fsImpl = fs, verifyBackupFn = episodeActivation.verifyBackup,
+  verifyStageFn = runner.verifyStagedCandidateIndexes } = {}) {
+  fail(typeof verifyStageFn === 'function', 'PHASE3_STAGED_VALIDATOR_UNAVAILABLE');
+  const boundaryBackup = verifyStageBoundaryBackup({ reviewDirectory, candidateDirectory,
+    activationRecord, runner, fsImpl, verifyBackupFn });
+  const staged = verifyStageFn({ runId, candidateDirectory, reviewDirectory, fsImpl,
+    validationOptions: { lockedEpisodeRoot: boundaryBackup.backupDirectory } });
+  return { boundaryBackup, staged };
+}
 function assertAssetManifestCounts(evidenceManifest, graphicAssetManifest) {
   const evidence = evidenceManifest?.entries;
   const graphics = graphicAssetManifest?.entries;
@@ -141,8 +184,11 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   fail(runner.verifyPromotedTree(root, activationRecord.candidateFiles) === true
     && runner.verifyPromotedTree(candidateDirectory, activationRecord.candidateFiles) === true,
   'PHASE3_PROMOTED_PATH_HASH_VERIFICATION_FAILED');
-  const staged = runner.verifyStagedCandidateIndexes({ runId: promotedRunId, candidateDirectory,
-    reviewDirectory, fsImpl });
+  // The staged candidate's boundary approval is bound to the pre-promotion locked plan.
+  // Promotion replaces root edit-plan.json with the final retimed plan, so Phase 3
+  // validates that locked input from the hash-verified Stage04 backup instead.
+  const { boundaryBackup, staged } = verifyStagedValidationContext({ runId: promotedRunId, reviewDirectory,
+    candidateDirectory, activationRecord, runner, fsImpl });
   const candidateReportPath = path.join(candidateDirectory, 'candidate-report.json');
   const candidateReport = parseJson(candidateReportPath, fsImpl);
   fail(candidateReport.runId === promotedRunId && candidateReport.renderReadiness === 'PASS'
@@ -244,7 +290,7 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
     && validation.renderReadiness === 'PASS', 'PHASE3_PROMOTED_INPUT_VALIDATION_FAILED');
   return {
     root, reviewDirectory, activationRecordPath, activationRecord, activationRecordSha256: sha256(recordBytes), editPlan,
-    candidateDirectory, candidateReport, staged, promotedPaths, audioManifest, audioInputs,
+    candidateDirectory, candidateReport, staged, boundaryBackup, promotedPaths, audioManifest, audioInputs,
     timestampsPath: timestampPath, timestampsSha256: sha256(timestampsBytes), timestampRows: timestampRows.length,
     evidenceCount: assetCounts.evidenceEntries, evidenceAssetCount: assetCounts.evidenceAssets,
     graphicsCount: assetCounts.graphics, shotCount: shotDefs.allShots.length,
@@ -445,5 +491,5 @@ if (require.main === module) {
 
 module.exports = { PHASE3_SCHEMA, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECTED_PROMOTED_PATHS,
   EXPECTED_LEDGER_SHA256, OUTPUT_FILENAME, PHASE3_ROOT, parseArgs, safeRelativePath, isInside,
-  verifyIndexedFiles, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
+  verifyIndexedFiles, verifyStageBoundaryBackup, verifyStagedValidationContext, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
   assertAssetManifestCounts, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };

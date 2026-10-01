@@ -8,6 +8,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const preview = require('../scripts/phase3-render-preview.cjs');
+const activationRunner = require('../scripts/phase2.3b-p-activate.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -132,6 +133,119 @@ test('altered promoted file is rejected by the 147-file hash verification', () =
   try {
     fs.writeFileSync(path.join(f.root, ...f.files[4].path.split('/')), 'altered');
     assert.throws(() => preview.verifyIndexedFiles(f.root, f.files), /PHASE3_PROMOTED_INPUT_HASH_MISMATCH/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('Stage04 real package uses the approved locked plan from its promotion backup, not the retimed root plan', () => {
+  const candidateDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
+  const approvedPackageDirectory = activationRunner.REFRESHED_BINDING_PACKAGE_DIR;
+  const source = activationRunner.verifyIndexedCandidateDirectory({ directory: candidateDirectory,
+    expectedIndexSha256: activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedCount: 150 });
+  const approved = activationRunner.verifyRefreshedApprovalPackage({ packageDirectory: approvedPackageDirectory,
+    expectedIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256 });
+  const candidatePlanHash = sha(fs.readFileSync(path.join(candidateDirectory, 'edit-plan.json')));
+  const preTimingPlanPath = path.join(approvedPackageDirectory, 'outputs', 'candidate-edit-plan-pretiming.json');
+  const preTimingPlanHash = sha(fs.readFileSync(preTimingPlanPath));
+  const boundaryPolicyHash = sha(fs.readFileSync(path.join(candidateDirectory, 'approvals', 'refreshed-boundary-policy.v2.json')));
+  const policy = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'approvals', 'refreshed-boundary-policy.v2.json')));
+  const lockedHash = policy.binding.lockedEditPlanSha256;
+  assert.equal(source.indexSha256, activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256);
+  assert.equal(approved.packageIndexSha256, activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256);
+  assert.equal(boundaryPolicyHash, require('../pipeline-updates/episode-activation.cjs').REFRESHED_BOUNDARY_POLICY_SHA256);
+  assert.equal(preTimingPlanHash, policy.binding.candidatePreTimingEditPlanSha256);
+  assert.notEqual(preTimingPlanHash, candidatePlanHash);
+  assert.notEqual(lockedHash, candidatePlanHash);
+
+  const f = fixture();
+  try {
+    const backupDirectory = path.join(f.review, 'backup');
+    fs.mkdirSync(backupDirectory, { recursive: true });
+    const manifest = { schemaVersion: 'phase2.3b-p-backup/1.0.0', files: [
+      { path: 'edit-plan.json', existed: true, bytes: 123, sha256: lockedHash },
+    ] };
+    const manifestBytes = Buffer.from(`${JSON.stringify(manifest)}\n`);
+    fs.writeFileSync(path.join(backupDirectory, 'backup-manifest.json'), manifestBytes);
+    const record = { backupManifestSha256: sha(manifestBytes), priorHashes: { 'edit-plan.json': lockedHash } };
+    let receivedValidationOptions;
+    const result = preview.verifyStagedValidationContext({ runId: PHASE2_RUN, reviewDirectory: f.review,
+      candidateDirectory, activationRecord: record, runner: { ...activationRunner, ROOT: f.root },
+      verifyBackupFn: ({ manifest: value }) => assert.equal(value.files[0].sha256, lockedHash),
+      verifyStageFn: options => { receivedValidationOptions = options.validationOptions; return { status: 'PASS' }; } });
+    assert.equal(result.boundaryBackup.lockedEditPlanSha256, lockedHash);
+    assert.equal(result.boundaryBackup.lockedEditPlanPath, path.join(backupDirectory, 'edit-plan.json'));
+    assert.equal(receivedValidationOptions.lockedEpisodeRoot, backupDirectory);
+    assert.notEqual(receivedValidationOptions.lockedEpisodeRoot, f.root);
+    assert.equal(result.staged.status, 'PASS');
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('Stage04 locked-plan provenance rejects altered policy, approval binding, backup, and missing backup plan', () => {
+  const f = fixture();
+  const policyPath = path.join(f.root, 'refreshed-boundary-policy.v2.json');
+  const reviewDirectory = path.join(f.root, '.review', `phase2.3b-p-activation-${PHASE2_RUN}`);
+  const backupDirectory = path.join(reviewDirectory, 'backup');
+  fs.mkdirSync(backupDirectory, { recursive: true });
+  const lockedHash = activationRunner.approval.lockedEpisodeHashesBeforeActivation['edit-plan.json'];
+  const policyBytes = fs.readFileSync(path.join(activationRunner.VERIFIED_STAGE_SOURCE_DIR,
+    'approvals', 'refreshed-boundary-policy.v2.json'));
+  fs.writeFileSync(policyPath, policyBytes);
+  const manifest = { schemaVersion: 'phase2.3b-p-backup/1.0.0', files: [
+    { path: 'edit-plan.json', existed: true, bytes: 123, sha256: lockedHash },
+  ] };
+  const manifestBytes = Buffer.from(`${JSON.stringify(manifest)}\n`);
+  const manifestPath = path.join(backupDirectory, 'backup-manifest.json');
+  fs.writeFileSync(manifestPath, manifestBytes);
+  const baseRecord = { backupManifestSha256: sha(manifestBytes), priorHashes: { 'edit-plan.json': lockedHash } };
+  const candidateDirectory = f.root;
+  const make = (record, policyFile = policyPath, verifyBackupFn = () => {}) => {
+    const candidate = path.join(f.root, 'candidate');
+    fs.mkdirSync(path.join(candidate, 'approvals'), { recursive: true });
+    fs.copyFileSync(policyFile, path.join(candidate, 'approvals', 'refreshed-boundary-policy.v2.json'));
+    return () => preview.verifyStageBoundaryBackup({ reviewDirectory, candidateDirectory: candidate,
+      activationRecord: record, runner: { ...activationRunner, ROOT: f.root }, verifyBackupFn });
+  };
+  try {
+    assert.throws(make({ ...baseRecord, priorHashes: { 'edit-plan.json': 'f'.repeat(64) } }), /PHASE3_LOCKED_PLAN_PROVENANCE_MISMATCH/);
+    assert.throws(make({ ...baseRecord, backupManifestSha256: 'f'.repeat(64) }), /PHASE3_PROMOTION_BACKUP_MANIFEST_HASH_MISMATCH/);
+    fs.writeFileSync(path.join(f.root, 'altered-policy.json'), Buffer.from(policyBytes.toString('utf8').replace('33f5a89f', '43f5a89f')));
+    assert.throws(make(baseRecord, path.join(f.root, 'altered-policy.json')), /PHASE3_STAGED_BOUNDARY_POLICY_HASH_MISMATCH/);
+    fs.writeFileSync(manifestPath, Buffer.from(JSON.stringify({ schemaVersion: 'phase2.3b-p-backup/1.0.0', files: [] })));
+    const changedBytes = fs.readFileSync(manifestPath);
+    assert.throws(make({ ...baseRecord, backupManifestSha256: sha(changedBytes) }), /PHASE3_LOCKED_PLAN_PROVENANCE_MISMATCH/);
+  } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('Stage04 approved r3 package rejects changed boundary approval and pre-timing plan bytes', () => {
+  const source = activationRunner.REFRESHED_BINDING_PACKAGE_DIR;
+  const f = tempRoot();
+  try {
+    ['approvals/boundary-policy-approval.v1.json', 'outputs/candidate-edit-plan-pretiming.json'].forEach((relative, index) => {
+      const packageCopy = path.join(f, `package-${index}`);
+      fs.cpSync(source, packageCopy, { recursive: true });
+      const file = path.join(packageCopy, ...relative.split('/'));
+      fs.appendFileSync(file, ' ');
+      assert.throws(() => activationRunner.verifyRefreshedApprovalPackage({ packageDirectory: packageCopy,
+        expectedIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256 }), /ACTIVATION_REFRESHED_PACKAGE_/);
+    });
+  } finally { fs.rmSync(f, { recursive: true, force: true }); }
+});
+
+test('altered final retimed edit plan is rejected against its immutable candidate index', () => {
+  const f = fixture();
+  try {
+    for (const item of f.files) fs.rmSync(path.join(f.root, ...item.path.split('/')), { force: true });
+    f.files = [];
+    for (let i = 0; i < 147; i += 1) {
+      const relative = i === 0 ? 'edit-plan.json' : `fixture/input-${String(i).padStart(3, '0')}.json`;
+      const target = path.join(f.root, ...relative.split('/'));
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      const bytes = Buffer.from(i === 0 ? '{"timing":"retimed"}' : `fixture-${i}`);
+      fs.writeFileSync(target, bytes);
+      f.files.push({ path: relative, bytes: bytes.length, sha256: sha(bytes) });
+    }
+    const planFile = path.join(f.root, 'edit-plan.json');
+    fs.writeFileSync(planFile, Buffer.from('{"timing":"altered"}'));
+    assert.throws(() => preview.verifyIndexedFiles(f.root, f.files), /PHASE3_PROMOTED_INPUT_HASH_MISMATCH:edit-plan.json/);
   } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
 });
 
