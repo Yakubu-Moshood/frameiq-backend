@@ -156,6 +156,16 @@ test('Stage04 real package uses the approved locked plan from its promotion back
   assert.notEqual(preTimingPlanHash, candidatePlanHash);
   assert.notEqual(lockedHash, candidatePlanHash);
 
+  const planIndex = source.index.files.find(item => item.path === 'edit-plan.json');
+  const shotIndex = source.index.files.find(item => item.path === 'shot-definitions.json');
+  const shotPackage = preview.validateStagedShotDefinitions({ candidateDirectory,
+    staged: { index: source.index }, promotedFiles: [planIndex, shotIndex] });
+  assert.equal(shotPackage.status, 'PASS');
+  assert.equal(shotPackage.errors.length, 0);
+  assert.equal(shotPackage.revisionChain.length, 4);
+  assert.equal(shotPackage.plan.sequences.some(sequence => sequence.beats.some(beat => beat.beatId === 'ACT3B_B010')), false);
+  assert.equal(shotPackage.shotDefs.allShots.some(shot => shot.beatId === 'ACT3B_B010'), false);
+
   const f = fixture();
   try {
     const backupDirectory = path.join(f.review, 'backup');
@@ -177,6 +187,66 @@ test('Stage04 real package uses the approved locked plan from its promotion back
     assert.notEqual(receivedValidationOptions.lockedEpisodeRoot, f.root);
     assert.equal(result.staged.status, 'PASS');
   } finally { fs.rmSync(f.root, { recursive: true, force: true }); }
+});
+
+test('Stage04 shot validation rejects altered indexed plans, shots, lineage and amendment inputs', () => {
+  const candidateDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
+  const source = activationRunner.verifyIndexedCandidateDirectory({ directory: candidateDirectory,
+    expectedIndexSha256: activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedCount: 150 });
+  const promotedFiles = source.index.files.filter(item => ['edit-plan.json', 'shot-definitions.json'].includes(item.path));
+  const cases = [
+    ['edit-plan.json', value => { value.episodeId = 'changed-episode'; }],
+    ['shot-definitions.json', value => { value.totalShots += 1; }],
+    ['revision-lineage/phase2.3b-p-retiming.v1.json', value => { value.revisionId = 'altered-retiming'; }],
+    ['revision-lineage/phase2.3b-b017-factual-correction.v1.json', value => { value.revisionId = 'altered-amendment'; }],
+  ];
+  for (const [relative, change] of cases) {
+    const absolute = path.resolve(candidateDirectory, ...relative.split('/'));
+    const fakeFs = Object.create(fs);
+    fakeFs.readFileSync = (file, ...args) => {
+      const bytes = fs.readFileSync(file, ...args);
+      if (path.resolve(file) !== absolute) return bytes;
+      const value = JSON.parse(bytes.toString('utf8'));
+      change(value);
+      return Buffer.from(JSON.stringify(value));
+    };
+    assert.throws(() => preview.validateStagedShotDefinitions({ candidateDirectory,
+      staged: { index: source.index }, promotedFiles, fsImpl: fakeFs }),
+    new RegExp(`PHASE3_STAGED_SHOT_CONTEXT_FILE_HASH_MISMATCH:${relative.replaceAll('/', '\\/')}`, 'u'));
+  }
+});
+
+test('Stage04 shot validation rejects a missing mirror owner and retired B010 reappearance', () => {
+  const candidateDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
+  const source = activationRunner.verifyIndexedCandidateDirectory({ directory: candidateDirectory,
+    expectedIndexSha256: activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedCount: 150 });
+  const promotedFiles = source.index.files.filter(item => ['edit-plan.json', 'shot-definitions.json'].includes(item.path));
+  const base = preview.validateStagedShotDefinitions({ candidateDirectory,
+    staged: { index: source.index }, promotedFiles });
+  const mirrorMissing = structuredClone(base.shotDefs);
+  mirrorMissing.acts.act3 = mirrorMissing.acts.act3.filter(shot => shot.beatId !== 'ACT3_B017');
+  const mirrorResult = require('../pipeline-updates/shot-definitions-validator.cjs')
+    .validateShotDefinitions({ plan: base.plan, shotDefs: mirrorMissing, revisionChain: base.revisionChain });
+  assert.equal(mirrorResult.status, 'FAIL');
+  assert.ok(mirrorResult.errors.some(error => error.code === 'ACT_SHOTS_MISMATCH' && error.path === '/acts/act3'));
+
+  const shotPath = path.resolve(candidateDirectory, 'shot-definitions.json');
+  const sourceShotEntry = source.index.files.find(item => item.path === 'shot-definitions.json');
+  const promotedShotEntry = promotedFiles.find(item => item.path === 'shot-definitions.json');
+  const alteredShots = structuredClone(base.shotDefs);
+  const retiredShot = { ...alteredShots.allShots.find(shot => shot.actKey === 'act3b'), beatId: 'ACT3B_B010', shotId: 'ACT3B_B010' };
+  alteredShots.allShots.push(retiredShot);
+  alteredShots.acts.act3b.push(retiredShot);
+  const alteredBytes = Buffer.from(JSON.stringify(alteredShots));
+  const adjusted = entry => ({ ...entry, bytes: alteredBytes.length, sha256: sha(alteredBytes) });
+  const adjustedIndex = { ...source.index, files: source.index.files.map(item => item.path === 'shot-definitions.json' ? adjusted(item) : item) };
+  const adjustedPromotion = promotedFiles.map(item => item.path === 'shot-definitions.json' ? adjusted(item) : item);
+  const fakeFs = Object.create(fs);
+  fakeFs.readFileSync = (file, ...args) => path.resolve(file) === shotPath ? alteredBytes : fs.readFileSync(file, ...args);
+  assert.equal(sourceShotEntry.path, promotedShotEntry.path);
+  assert.throws(() => preview.validateStagedShotDefinitions({ candidateDirectory,
+    staged: { index: adjustedIndex }, promotedFiles: adjustedPromotion, fsImpl: fakeFs }),
+  /PHASE3_RETIRED_BEAT_REAPPEARED/u);
 });
 
 test('Stage04 locked-plan provenance rejects altered policy, approval binding, backup, and missing backup plan', () => {

@@ -21,6 +21,12 @@ const OUTPUT_FILENAME = 'empire-omitted-v3-phase3-preview-01.mp4';
 const PHASE3_ROOT = path.join(activation.ROOT, '.review', 'phase3-renders');
 const PROMOTED_RUN_RE = /^phase2-3b-p-act3-refresh-20260928-stage\d{2}$/u;
 const PHASE3_RUN_RE = /^phase3-[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/u;
+const STAGED_SHOT_LINEAGE_FILES = [
+  'revision-lineage/phase2.2d-lineage.v1.json',
+  'revision-lineage/phase2.3b-sv-amendment.v1.json',
+  'revision-lineage/phase2.3b-b017-factual-correction.v1.json',
+  'revision-lineage/phase2.3b-p-retiming.v1.json',
+];
 
 function fail(condition, code) { if (!condition) throw new Error(code); }
 function sha256(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
@@ -116,6 +122,46 @@ function verifyStagedValidationContext({ runId, reviewDirectory, candidateDirect
     validationOptions: { lockedEpisodeRoot: boundaryBackup.backupDirectory } });
   return { boundaryBackup, staged };
 }
+function readIndexedShotContextFile({ relative, candidateDirectory, stagedIndexFiles, promotedFiles,
+  requirePromotion = false, fsImpl = fs }) {
+  safeRelativePath(relative);
+  const indexed = stagedIndexFiles.filter(item => item?.path === relative);
+  fail(indexed.length === 1, `PHASE3_STAGED_SHOT_CONTEXT_NOT_INDEXED:${relative}`);
+  const indexedFile = indexed[0];
+  const absolute = path.resolve(candidateDirectory, ...relative.split('/'));
+  fail(isInside(candidateDirectory, absolute), 'PHASE3_INPUT_PATH_TRAVERSAL');
+  assertNoSymlinkPath(absolute, { stopAt: candidateDirectory, fsImpl });
+  fail(fsImpl.lstatSync(absolute).isFile(), `PHASE3_STAGED_SHOT_CONTEXT_NOT_FILE:${relative}`);
+  const bytes = fsImpl.readFileSync(absolute);
+  fail(bytes.length === indexedFile.bytes && sha256(bytes) === indexedFile.sha256,
+    `PHASE3_STAGED_SHOT_CONTEXT_FILE_HASH_MISMATCH:${relative}`);
+  if (requirePromotion) {
+    const promoted = promotedFiles.filter(item => item?.path === relative);
+    fail(promoted.length === 1 && promoted[0].bytes === indexedFile.bytes
+      && promoted[0].sha256 === indexedFile.sha256,
+    `PHASE3_SHOT_CONTEXT_PROMOTION_BINDING_MISMATCH:${relative}`);
+  }
+  try { return JSON.parse(bytes.toString('utf8')); }
+  catch (error) { throw new Error(`PHASE3_STAGED_SHOT_CONTEXT_JSON_INVALID:${relative}:${error.message}`); }
+}
+function validateStagedShotDefinitions({ candidateDirectory, staged, promotedFiles, fsImpl = fs } = {}) {
+  const stagedIndexFiles = staged?.index?.files;
+  fail(Array.isArray(stagedIndexFiles), 'PHASE3_STAGED_SHOT_INDEX_MISSING');
+  const plan = readIndexedShotContextFile({ relative: 'edit-plan.json', candidateDirectory,
+    stagedIndexFiles, promotedFiles, requirePromotion: true, fsImpl });
+  const shotDefs = readIndexedShotContextFile({ relative: 'shot-definitions.json', candidateDirectory,
+    stagedIndexFiles, promotedFiles, requirePromotion: true, fsImpl });
+  const revisionChain = STAGED_SHOT_LINEAGE_FILES.map(relative => readIndexedShotContextFile({ relative,
+    candidateDirectory, stagedIndexFiles, promotedFiles, fsImpl }));
+  const shotValidation = validateShotDefinitions({ plan, shotDefs, revisionChain });
+  const activeShots = Array.isArray(shotDefs.acts) ? shotDefs.acts : Object.values(shotDefs.acts || {});
+  fail(!plan.sequences?.some(sequence => sequence.beats?.some(beat => beat.beatId === 'ACT3B_B010'))
+    && !shotDefs.allShots?.some(shot => shot.beatId === 'ACT3B_B010')
+    && activeShots.every(shots => Array.isArray(shots) && !shots.some(shot => shot.beatId === 'ACT3B_B010')),
+  'PHASE3_RETIRED_BEAT_REAPPEARED');
+  return { status: shotValidation.status, errors: shotValidation.errors, plan, shotDefs, revisionChain,
+    lineage: shotValidation.lineage };
+}
 function assertAssetManifestCounts(evidenceManifest, graphicAssetManifest) {
   const evidence = evidenceManifest?.entries;
   const graphics = graphicAssetManifest?.entries;
@@ -189,6 +235,10 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   // validates that locked input from the hash-verified Stage04 backup instead.
   const { boundaryBackup, staged } = verifyStagedValidationContext({ runId: promotedRunId, reviewDirectory,
     candidateDirectory, activationRecord, runner, fsImpl });
+  const stagedShotValidation = validateStagedShotDefinitions({ candidateDirectory, staged,
+    promotedFiles: activationRecord.candidateFiles, fsImpl });
+  fail(stagedShotValidation.status === 'PASS' && stagedShotValidation.errors.length === 0,
+    'PHASE3_SHOT_VALIDATION_FAILED');
   const candidateReportPath = path.join(candidateDirectory, 'candidate-report.json');
   const candidateReport = parseJson(candidateReportPath, fsImpl);
   fail(candidateReport.runId === promotedRunId && candidateReport.renderReadiness === 'PASS'
@@ -230,8 +280,9 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
   const recomputedPlanValidation = validateEditPlan({ plan: editPlan, wordTimestamps: timestampRows });
   fail(recomputedPlanValidation.status === 'PASS' && recomputedPlanValidation.errors.length === 0,
     'PHASE3_EDIT_PLAN_RECOMPUTATION_FAILED');
-  const shotValidation = validateShotDefinitions({ plan: editPlan, shotDefs });
-  fail(shotValidation.status === 'PASS' && shotValidation.errors.length === 0, 'PHASE3_SHOT_VALIDATION_FAILED');
+  // Candidate and promoted copies were independently matched to the promotion record above.
+  // The Stage04 indexed lineage chain is required to authorize historical shot transformations.
+  const shotValidation = stagedShotValidation;
   const productionManifest = loadProductionMethodManifest({ manifestPath: productionManifestPath,
     shotDefsPath, shotDefs });
   assertManifestReadyForRender(productionManifest);
@@ -491,5 +542,6 @@ if (require.main === module) {
 
 module.exports = { PHASE3_SCHEMA, EXPECTED_DURATION_SEC, EXPECTED_FRAMES, EXPECTED_PROMOTED_PATHS,
   EXPECTED_LEDGER_SHA256, OUTPUT_FILENAME, PHASE3_ROOT, parseArgs, safeRelativePath, isInside,
-  verifyIndexedFiles, verifyStageBoundaryBackup, verifyStagedValidationContext, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
+  verifyIndexedFiles, verifyStageBoundaryBackup, verifyStagedValidationContext, STAGED_SHOT_LINEAGE_FILES,
+  readIndexedShotContextFile, validateStagedShotDefinitions, checkToolchain, verifyActualEpisode, checkPhase3PathPolicy, copyPromotedInputs,
   assertAssetManifestCounts, assertNoSymlinkPath, createPhase3Preview, validatePromotedEpisode, main };
