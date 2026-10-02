@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "phase3-media-review-historical-inputs/1.0.0",
+  "status": "UNSIGNED_HISTORICAL_INPUTS_ONLY",
+  "approvalEligible": false,
+  "v2States": [
+    {
+      "packageIndexSha256": "7bfbf8fe9d466fdd0828cdc242ff6aa2505a76553dd0a85f1088a09a498373b7",
+      "status": "UNSIGNED_HISTORICAL_INPUT",
+      "availableSnapshot": "Hash recorded only; superseded in-place before v3 packaging."
+    },
+    {
+      "packageIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+      "status": "UNSIGNED_HISTORICAL_INPUT",
+      "availableSnapshot": "Exact current v2 snapshot copied byte-for-byte to historical-v2/."
+    }
+  ],
+  "onlyApprovalEligiblePackage": "phase3-media-completion-review-20261002-v3"
+}

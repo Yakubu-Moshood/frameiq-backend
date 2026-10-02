@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "phase3-media-pilot-proposal-index/1.0.0",
+  "status": "PROPOSED_UNSIGNED_NOT_AUTHORIZED_FOR_EXECUTION",
+  "packageBindings": {
+    "packageIndex": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+    "approvalProposal": "8a867a6b0a826d97207148ac094fbb7485ae6fe9b445979816c44acac202fb87",
+    "reviewJson": "b6cd1067a3b440d39c2a6de8d8dc1ea2554ab71704bd0c7c5f24fff9eb05c68c",
+    "reviewMarkdown": "37dfe892e0993dec5675db2a36357543e9143693028608f07d45917333cdde33"
+  },
+  "files": [
+    {
+      "path": "phase3-media-pilot-proposal.v1.json",
+      "bytes": 7270,
+      "sha256": "3a7420ffd3474ef1d7e5e90b0a90c9b306a5181bfe1aa79a42138d0b9b491775"
+    },
+    {
+      "path": "phase3-media-pilot-proposal.v1.md",
+      "bytes": 3097,
+      "sha256": "f59507d5ee423586cd76deb57bcc99480ec14d8e94d851cf1fac3464c396d6d0"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "phase3-media-cost-estimate/4.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "providerPriceStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+  "outputCounts": {
+    "controlledStillExistingManualLocal": 34,
+    "act5B009DeterministicControlledGraphic": 1,
+    "generatedFinalStillsCurrentContract": 9,
+    "generatedFinalStillsAfterB009Amendment": 8,
+    "animationBaseStills": 23,
+    "animationClips": 23,
+    "dedicatedReferenceStills": 12,
+    "act5B016CompositionReferenceFromACT5B015": 1
+  },
+  "requestScenarios": {
+    "controlledStillAndControlledGraphicProviderRequests": 0,
+    "baselinePotentialRequestsIfAllPlannedGeneratedAssetsUseProviderBeforeB009Amendment": 55,
+    "additionalReferenceRequestsIfAll12DedicatedReferencesUseProvider": 12,
+    "totalPotentialRequestsBeforeB009Amendment": 67,
+    "totalPotentialRequestsAfterB009Amendment": 66,
+    "localReferenceScenarioRequestsBeforeB009Amendment": 55,
+    "localReferenceScenarioRequestsAfterB009Amendment": 54,
+    "allPotentialRequestsConditionalOnPilotAndSeparateExecutionAuthorization": true
+  },
+  "countDerivation": {
+    "baselineBefore": "9 generated final stills + 23 animation base stills + 23 clips = 55",
+    "referenceStillCount": "14 original references - ACT5_B009 deterministic graphic - ACT5_B016 approved composition reference = 12",
+    "afterAmendment": "8 generated final stills + 23 animation base stills + 23 clips + 12 reference requests = 66",
+    "sameBeatAliasSavings": 0,
+    "crossBeatSharingSavings": 0
+  },
+  "lastKnownHistoricalPlanningConstantsNotCurrentQuotes": {
+    "stillPerSuccessUsd": {
+      "min": 0.0043,
+      "max": 0.08
+    },
+    "animationPerSuccessUsd": {
+      "min": 0.18,
+      "max": 0.35
+    },
+    "basis": "prior v1 committed route constants only; current provider/model/prices unverified"
+  },
+  "illustrativeHistoricalCostExposureUsd": {
+    "beforeB009Amendment": {
+      "min": 4.3292,
+      "max": 11.57
+    },
+    "afterB009Amendment": {
+      "min": 4.3249,
+      "max": 11.49
+    },
+    "basis": "Recomputed from v2 historical per-success constants; not a current quote. Assumes all provider-routed jobs succeed once, no retries, 12 separately generated reference stills, and the stated clip/still request mix."
+  },
+  "providerCallsMade": 0,
+  "retriesIncluded": false,
+  "jobExecutableNow": false,
+  "blockers": [
+    "Exact revised prompts for ACT3_B027 and ACT5_B021 remain unprovided.",
+    "ACT5_B009 requires the unsigned child amendment to be separately signed and applied before use.",
+    "ACT5_B016 source clean-frame path and SHA-256 must be resolved from the approved source package before execution.",
+    "Provider route, terms, output ownership, current price, and returned media properties remain unresolved pending pilot."
+  ]
+}

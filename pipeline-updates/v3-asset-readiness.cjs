@@ -33,9 +33,28 @@ function assertV3GraphicsReady({ episodeDir, shotDefsPath, shotDefs = null, fsIm
   const assetDir = path.join(episodeDir, 'assets', 'graphics');
   return loadGraphicAssetManifest({ manifestPath: graphicsPath, shotDefsPath, shotDefs, graphicAssetDir: assetDir, fsImpl });
 }
+function assertNoDisposablePilotMedia(value, pointer = '$') {
+  const forbidden = 'NON_PRODUCTION_DISPOSABLE_PILOT';
+  if (typeof value === 'string') {
+    if (value.includes('/.review/phase3-media-pilots/') || value.includes('\\.review\\phase3-media-pilots\\') || value === forbidden)
+      throw new Error(`[render-safety][DISPOSABLE_PILOT_ASSET_FORBIDDEN] ${pointer}`);
+  } else if (Array.isArray(value)) value.forEach((item, i) => assertNoDisposablePilotMedia(item, `${pointer}/${i}`));
+  else if (value && typeof value === 'object') {
+    if (value.assetClass === forbidden || value.productionEligibility === forbidden)
+      throw new Error(`[render-safety][DISPOSABLE_PILOT_ASSET_FORBIDDEN] ${pointer}`);
+    for (const [key, item] of Object.entries(value)) assertNoDisposablePilotMedia(item, `${pointer}/${key}`);
+  }
+  return true;
+}
 function assertV3AssetsReadyForRender({ episodeDir, shotDefsPath, shotDefs = null, fsImpl = fs }) {
-  const evidenceManifest = assertV3EvidenceReady({ episodeDir, shotDefsPath, shotDefs, fsImpl });
-  const graphicAssetManifest = assertV3GraphicsReady({ episodeDir, shotDefsPath, shotDefs, fsImpl });
+  const definitions = shotDefs || (shotDefsPath && fsImpl.existsSync(shotDefsPath)
+    ? JSON.parse(fsImpl.readFileSync(shotDefsPath, 'utf8')) : null);
+  if (definitions) assertNoDisposablePilotMedia(definitions);
+  const evidenceManifest = assertV3EvidenceReady({ episodeDir, shotDefsPath, shotDefs: definitions, fsImpl });
+  const graphicAssetManifest = assertV3GraphicsReady({ episodeDir, shotDefsPath, shotDefs: definitions, fsImpl });
+  assertNoDisposablePilotMedia(evidenceManifest);
+  assertNoDisposablePilotMedia(graphicAssetManifest);
   return { evidenceManifest, graphicAssetManifest };
 }
-module.exports = { loadGraphicAssetManifest, assertV3EvidenceReady, assertV3GraphicsReady, assertV3AssetsReadyForRender };
+module.exports = { loadGraphicAssetManifest, assertV3EvidenceReady, assertV3GraphicsReady, assertV3AssetsReadyForRender,
+  assertNoDisposablePilotMedia };

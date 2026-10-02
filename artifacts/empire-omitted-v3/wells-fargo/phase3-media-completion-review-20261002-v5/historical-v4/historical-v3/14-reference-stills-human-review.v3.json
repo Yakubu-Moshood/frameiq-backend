@@ -1,0 +1,1096 @@
+{
+  "schemaVersion": "phase3-media-completion-human-review/3.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v3",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "sourcePackages": {
+    "v6": {
+      "id": "phase3-media-completion-plan-20261002-v6",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    },
+    "v1": {
+      "id": "phase3-media-completion-review-20261002-v1",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    },
+    "v2States": [
+      {
+        "packageIndexSha256": "7bfbf8fe9d466fdd0828cdc242ff6aa2505a76553dd0a85f1088a09a498373b7",
+        "status": "UNSIGNED_HISTORICAL_INPUT",
+        "note": "Earlier v2 package-index state."
+      },
+      {
+        "packageIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+        "status": "UNSIGNED_HISTORICAL_INPUT",
+        "note": "Later v2 package-index state; v2 was updated in place. Neither v2 state is eligible for approval."
+      }
+    ],
+    "currentPackageIsOnlyApprovalEligiblePackage": true
+  },
+  "proposedDecisions": {
+    "continuity": "Propose CREATE_NEW_DEDICATED_REFERENCE_STILL for all 14 beats; no cross-beat sharing.",
+    "controlledStillAmendment": "Propose exactly 34 assetType changes generated_clip -> controlled_image; productionMethod remains CONTROLLED_STILL.",
+    "clipFitPolicy": "Propose five-second source clips with deterministic 30-fps trim for shorter beats and end-frame holds as docketed, including disclosed frame rounding.",
+    "sameBeatAliases": "Conditional only under all five exact-match and dual-review requirements; no alias approved in this unsigned package."
+  },
+  "aliasReview": {
+    "candidateCount": 5,
+    "candidates": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "approvedAliases": []
+  },
+  "entries": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B005",
+      "narration": "customer would come in to open a checking account Simple enough",
+      "timing": {
+        "startSec": 224.83598745776368,
+        "endSec": 228.4959873051758,
+        "durationSec": 3.6599998474121094
+      },
+      "approvedVisualIntent": "The innocent transaction begins.",
+      "approvedVisualDescription": "A customer slides ID across a desk to a banker; the banker begins typing.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "proposedPrompt": "Medium shot of a customer's hands sliding a driver's license across a polished wood-grain desk surface toward a banker's hands positioned at a keyboard, banker beginning to type, neutral business casual attire visible on both figures from mid-torso down, no faces visible, generic computer monitor edge in frame, soft office lighting, clean professional desk surface",
+      "negativePrompt": "identifiable faces, real IDs with readable information, specific bank logos, branded materials, cluttered desk, unprofessional setting",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic bank branch/workstation as described; no named branch, city or exact historical location is specified."
+      },
+      "people": {
+        "requestedSubjects": "A customer slides ID across a desk to a banker; the banker begins typing.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Neutral business-casual attire is explicitly requested, visible mid-torso down.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3_B005",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B005",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": true,
+        "recommendation": "Do not alias by default. Approve only if the base-still visual description and prompt are byte-identical to this reference prompt, rights/owner and output specification match, and Yakubu approves the resulting still for both roles. Current package does not prove all conditions.",
+        "conditions": [
+          "identical visual description",
+          "identical prompt",
+          "identical ownership and rights",
+          "identical output specifications",
+          "resulting still reviewed and approved for both roles"
+        ],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": 0,
+        "note": "Alias is only a conditional possibility; count as one reference request unless all exact-match and dual-review conditions are met."
+      },
+      "promptSha256": "a7d4473a39785fe2b01ca801ad9040fa6fbcce2145f295a444ca9192d170a5e8",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B023",
+      "narration": "improvement plans the first step toward termination",
+      "timing": {
+        "startSec": 295.77598608447266,
+        "endSec": 299.9959873051758,
+        "durationSec": 4.220001220703125
+      },
+      "approvedVisualIntent": "Termination as the inevitable endpoint.",
+      "approvedVisualDescription": "An employee removes personal items from a desk drawer; a badge lies face-down.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "proposedPrompt": "Medium shot of anonymous employee removing personal items from desk drawer into small cardboard box, employee badge lying face-down on desk surface, personal photos and small objects being collected, empty cubicle atmosphere, fluorescent lighting, quiet defeat in gesture and composition",
+      "negativePrompt": "identifiable faces, readable badges, specific company logos, real employee names, documentary footage, news imagery",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic corporate office/cubicle/desk environment as described; no named company office or city is specified."
+      },
+      "people": {
+        "requestedSubjects": "An employee removes personal items from a desk drawer; a badge lies face-down.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3_B023",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B023",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": true,
+        "recommendation": "Do not alias by default. The desk-clearing and packing continuity is related, but the dedicated prompt and base-still prompt equality, rights and output specifications are not all proven. Keep separate until exact identity and dual-role review are documented.",
+        "conditions": [
+          "identical visual description",
+          "identical prompt",
+          "identical ownership and rights",
+          "identical output specifications",
+          "resulting still reviewed and approved for both roles"
+        ],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": 0,
+        "note": "Alias is only a conditional possibility; count as one reference request unless all exact-match and dual-review conditions are met."
+      },
+      "promptSha256": "43de2da4e3db00930219500b6888428ae4c78b154acc8dc3c0b4b440de60eac9",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B027",
+      "narration": "A third said he vomited before work every morning",
+      "timing": {
+        "startSec": 307.8959888310547,
+        "endSec": 311.05598486376954,
+        "durationSec": 3.1599960327148438
+      },
+      "approvedVisualIntent": "The morning ritual of dread.",
+      "approvedVisualDescription": "Anonymous person at a bathroom sink with a completely blank, unmarked lanyard card.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "CONTROLLED_STILL",
+      "proposedPrompt": "Illustrative reconstruction: anonymous person seen from behind at a plain bathroom sink in dim early-morning light. A blank unmarked card on a counter may be visible, with no logo, name, text, badge design, or identifying details. Keep the human figure non-identifiable and the scene restrained.",
+      "negativePrompt": "Wells Fargo badge, logo, readable name, identifiable face, real employee ID, documentary footage, graphic illness",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Anonymous person at a bathroom sink with a completely blank, unmarked lanyard card.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3_B027",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B027",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "37429fe24a197018f27f50e94553bb74b881f7b6a16f37ed3b5e36c358ff30c5",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B001",
+      "narration": "The customers paid first",
+      "timing": {
+        "startSec": 317.262744,
+        "endSec": 319.5627439523163,
+        "durationSec": 2.299999952316284
+      },
+      "approvedVisualIntent": "A customer opens a bank statement, face shifting from routine to confusion.",
+      "approvedVisualDescription": "Close on hands opening an envelope, unfolding a statement—a slight hesitation as eyes scan.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "CONTROLLED_STILL",
+      "proposedPrompt": "Close-up of anonymous hands opening a white business envelope at a kitchen table, fingers unfolding a bank statement document, shallow depth of field, soft natural window light from the side, muted earth tones, the paper slightly creased from the envelope, a coffee mug blurred in the background, photorealistic documentary style, 35mm film grain",
+      "negativePrompt": "identifiable face, recognizable person, specific bank logo, readable account numbers, legible personal information, Wells Fargo branding, bright saturated colors, stylized lighting, fantasy elements",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Close on hands opening an envelope, unfolding a statement—a slight hesitation as eyes scan.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3B_B001",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B001",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "f79ea85b569aaac510b944eda157da2a83904add0172db1a2ed9d52bc7e9c1a2",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B014",
+      "narration": "Others said they had been punished for resisting impossible quotas or reporting",
+      "timing": {
+        "startSec": 367.06274323706054,
+        "endSec": 371.0827436948242,
+        "durationSec": 4.020000457763672
+      },
+      "approvedVisualIntent": "Others punished for resistance or reporting—the system's true victims.",
+      "approvedVisualDescription": "Different employee steps away from desk, refusing to participate; manager approaches with performance folder.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "proposedPrompt": "Medium shot of anonymous bank employee stepping back from cubicle desk with hands raised in refusal gesture, manager silhouette approaching from side holding manila performance folder, fluorescent office lighting, generic corporate cubicle environment with neutral partitions, photorealistic documentary style, tension in body language",
+      "negativePrompt": "identifiable faces, recognizable individuals, Wells Fargo branding, specific bank logo, readable documents, personal information visible, bright cheerful colors, fantasy elements, celebratory mood",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic bank branch/workstation as described; no named branch, city or exact historical location is specified."
+      },
+      "people": {
+        "requestedSubjects": "Different employee steps away from desk, refusing to participate; manager approaches with performance folder.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3B_B014",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B014",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": true,
+        "recommendation": "Do not alias by default. Keep the refusal/manager-approach reference separate from the animation base until prompt, ownership, rights and output specifications are proven identical and the resulting image passes review for both roles.",
+        "conditions": [
+          "identical visual description",
+          "identical prompt",
+          "identical ownership and rights",
+          "identical output specifications",
+          "resulting still reviewed and approved for both roles"
+        ],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": 0,
+        "note": "Alias is only a conditional possibility; count as one reference request unless all exact-match and dual-review conditions are met."
+      },
+      "promptSha256": "ed62d26e58cc321a80d1f819ac54ff30bb718ab9da4550d836bec3509b986123",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "narration": "And some of the people who warned the bank said they were fired too",
+      "timing": {
+        "startSec": 381.6827421689453,
+        "endSec": 386.25093,
+        "durationSec": 4.568187831054672
+      },
+      "approvedVisualIntent": "The whistleblower—silenced by the same system they tried to save.",
+      "approvedVisualDescription": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "CONTROLLED_STILL",
+      "proposedPrompt": "Controlled still, illustrative reconstruction: one anonymous office composition places a plain telephone in the foreground and a closed, unmarked cardboard box farther back near a generic corridor. No person, face, logos, readable hotline material, elevator-door action, or scene transition.",
+      "negativePrompt": "two-scene layout, identifiable face, company branding, readable number, authentic poster, specific employee, documentary footage",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic corporate office/cubicle/desk environment as described; no named company office or city is specified."
+      },
+      "people": {
+        "requestedSubjects": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT3B_B018",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B018",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "738e603bb82991ef3304ba072eda252d121d4d442334e7663516191c6d1e1518",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B003",
+      "narration": "At the time no senior executive",
+      "timing": {
+        "startSec": 509.13587277111816,
+        "endSec": 514.555872847412,
+        "durationSec": 5.4200000762938885
+      },
+      "approvedVisualIntent": "The absence of criminal charges as a gap in accountability.",
+      "approvedVisualDescription": "Empty federal courtroom bench, no defendant present.",
+      "visualClass": "EDITORIAL_ILLUSTRATION",
+      "productionMethod": "GENERATED_STILL",
+      "proposedPrompt": "Empty federal courtroom interior, dark wood judicial bench with no judge present, empty defendant's table and chairs, American flag in corner, institutional lighting casting long shadows, absence emphasized through negative space, documentary photography style, wide establishing shot",
+      "negativePrompt": "people present, judges, defendants, lawyers, jury, courtroom activity, text overlays, watermarks, cartoon style, illustration style",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Empty federal courtroom bench, no defendant present.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B003",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B003",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "3c30f7763f53118849f2cc896fe3cd57aa1665b61dd287408d870e2271ec2ef1",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B009",
+      "narration": "Those consequences were real They were also late For employees who",
+      "timing": {
+        "startSec": 539.455874373291,
+        "endSec": 544.5758733051757,
+        "durationSec": 5.119998931884766
+      },
+      "approvedVisualIntent": "Acknowledge the reality of consequences while questioning their timing.",
+      "approvedVisualDescription": "Calendar pages spanning years, 2013 through 2023, stacked and faded.",
+      "visualClass": "EDITORIAL_ILLUSTRATION",
+      "productionMethod": "GENERATED_STILL",
+      "proposedPrompt": "Abstract calendar pages stacked and overlapping, years 2013 through 2023 visible in faded typography, pages showing wear and aging from bottom to top, documentary collage aesthetic, muted colors, sense of accumulated time passing, editorial design style",
+      "negativePrompt": "specific dates circled, handwritten notes, personal information, corporate logos, bright colors, cartoon style, specific events marked",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Calendar pages spanning years, 2013 through 2023, stacked and faded.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B009",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B009",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "83a059283f173e671bf7078fa3d97d758897393ba8e821d235f655c6a37689e9",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B010",
+      "narration": "reported misconduct the outcome was uneven Federal investigators found",
+      "timing": {
+        "startSec": 544.5758733051757,
+        "endSec": 550.495871474121,
+        "durationSec": 5.9199981689453125
+      },
+      "approvedVisualIntent": "The uneven outcomes for those who spoke up.",
+      "approvedVisualDescription": "A person sits alone in a small apartment, reviewing documents, phone beside them.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "CONTROLLED_STILL",
+      "proposedPrompt": "Non-identifiable person from behind sitting alone at small kitchen table in modest apartment, reviewing scattered documents and papers, smartphone placed beside them unanswered, evening light through window blinds, isolating composition, documentary cinematography style, medium wide shot",
+      "negativePrompt": "identifiable face, recognizable features, specific documents readable, corporate logos, Wells Fargo branding, bright cheerful lighting, multiple people",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "A person sits alone in a small apartment, reviewing documents, phone beside them.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B010",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B010",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "9d0aef5dd663c36121ceef4bd905f5fbf954c065e9a82444ec8463f67acf03a6",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "narration": "workers clear their records and pay back wages or damages Other employees",
+      "timing": {
+        "startSec": 555.2758740681152,
+        "endSec": 561.3758725422363,
+        "durationSec": 6.099998474121094
+      },
+      "approvedVisualIntent": "The bureaucratic process of clearing records and paying damages.",
+      "approvedVisualDescription": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "proposedPrompt": "Illustrative reconstruction: anonymous hand with a pen rests beside a plain, unmarked sheet on a conference table. The page contains no title, terms, signatures, names, figures, logos, or recognizable legal layout. Shallow focus and restrained neutral light.",
+      "negativePrompt": "settlement terms, readable legal text, dollar amounts, names, real signatures, logos, authentic agreement, documentary footage",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic conference/office surface as described; no named location is specified."
+      },
+      "people": {
+        "requestedSubjects": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B012",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B012",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": true,
+        "recommendation": "Do not alias by default. A blank-sheet reference may be suitable as a base still, but exact prompt, rights/owner and specification equality plus dual-role approval are not established.",
+        "conditions": [
+          "identical visual description",
+          "identical prompt",
+          "identical ownership and rights",
+          "identical output specifications",
+          "resulting still reviewed and approved for both roles"
+        ],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": 0,
+        "note": "Alias is only a conditional possibility; count as one reference request unless all exact-match and dual-review conditions are met."
+      },
+      "promptSha256": "0ebe97c04eeda53db0930ac02496c6a41292bb91c09224f1ee72dd66344bbb9d",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B013",
+      "narration": "spent years fighting settled privately or left banking altogether",
+      "timing": {
+        "startSec": 561.3758725422363,
+        "endSec": 566.5758733051757,
+        "durationSec": 5.200000762939453
+      },
+      "approvedVisualIntent": "Others left behind by the system entirely.",
+      "approvedVisualDescription": "Controlled still of an anonymous departure silhouette outside an unbranded building.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "CONTROLLED_STILL",
+      "proposedPrompt": "Controlled still, illustrative reconstruction: a distant non-identifiable silhouette stands beyond the entrance of a generic unbranded building in afternoon backlight. Keep the figure still and the composition quiet; no specific bank architecture, signage, or identifiable person.",
+      "negativePrompt": "Wells Fargo, recognizable bank, identifiable face, readable signage, specific person, documentary footage",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Controlled still of an anonymous departure silhouette outside an unbranded building.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B013",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B013",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "93de32a348791f427d6214a6412dff8107584da374c432e2e4a008e0d9b00b69",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B016",
+      "narration": "a sales system that rewarded impossible numbers ignored warnings and treated people",
+      "timing": {
+        "startSec": 577.515875746582,
+        "endSec": 583.0758733051757,
+        "durationSec": 5.55999755859375
+      },
+      "approvedVisualIntent": "The record contradicts the clean version.",
+      "approvedVisualDescription": "Same frame cracks and distorts, revealing document layers beneath.",
+      "visualClass": "EDITORIAL_ILLUSTRATION",
+      "productionMethod": "GENERATED_STILL",
+      "proposedPrompt": "Clean corporate statement surface with hairline cracks spreading across frame, fracture lines revealing layered document edges beneath sterile surface, visual metaphor of narrative breaking apart, editorial design aesthetic, dramatic lighting emphasizing fracture pattern, still composition",
+      "negativePrompt": "real documents, readable text, corporate logos, identifiable names, cheerful imagery, complete destruction, fire or violence, cartoon style",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Specific location is not fixed beyond the approved visual description and prompt."
+      },
+      "people": {
+        "requestedSubjects": "Same frame cracks and distorts, revealing document layers beneath.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B016",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B016",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "d46be32bfb86dd2929f5c76274914eeeec0d66555aaf285e85fc4493f7831d2b",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B017",
+      "narration": "lower down as disposable when the system finally became public",
+      "timing": {
+        "startSec": 583.0758733051757,
+        "endSec": 588.4158696430663,
+        "durationSec": 5.339996337890625
+      },
+      "approvedVisualIntent": "People below absorbed as system cost when exposure arrived.",
+      "approvedVisualDescription": "Distinct restrained composition of an anonymous desk after belongings have been removed, without repeating a packing action.",
+      "visualClass": "RECONSTRUCTION",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "proposedPrompt": "Illustrative reconstruction: a quiet generic office desk after personal objects have been removed, with one closed plain cardboard box in the foreground and an empty chair beyond. No people, readable material, logos, or identifiable office. Use a composed aftermath image distinct from a person packing belongings.",
+      "negativePrompt": "packing action, manager watching, identifiable people, readable papers, company branding, specific office, documentary footage",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic corporate office/cubicle/desk environment as described; no named company office or city is specified."
+      },
+      "people": {
+        "requestedSubjects": "Distinct restrained composition of an anonymous desk after belongings have been removed, without repeating a packing action.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B017",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B017",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": true,
+        "recommendation": "Do not alias by default. The aftermath desk image may serve as a base only if exact prompt, rights/owner, specification equality and dual-role approval are documented; keep distinct meanwhile.",
+        "conditions": [
+          "identical visual description",
+          "identical prompt",
+          "identical ownership and rights",
+          "identical output specifications",
+          "resulting still reviewed and approved for both roles"
+        ],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": 0,
+        "note": "Alias is only a conditional possibility; count as one reference request unless all exact-match and dual-review conditions are met."
+      },
+      "promptSha256": "97121c69e4ca88e48b41bc9f3d299b6267237ba6934d001e41c70accedc0de41",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B021",
+      "narration": "Some senior leaders lost money positions and the right to",
+      "timing": {
+        "startSec": 601.3758763569335,
+        "endSec": 604.3558720844726,
+        "durationSec": 2.9799957275390625
+      },
+      "approvedVisualIntent": "Senior leaders faced real but limited consequences.",
+      "approvedVisualDescription": "Executive office nameplate removed from door, corporate portrait taken down.",
+      "visualClass": "EDITORIAL_ILLUSTRATION",
+      "productionMethod": "GENERATED_STILL",
+      "proposedPrompt": "Executive office door with brass nameplate being removed by maintenance hand, empty mounting holes visible, corporate portrait being taken down from wall nearby leaving clean rectangle on painted surface, institutional hallway lighting, documentary photography style, medium shot with shallow focus",
+      "negativePrompt": "identifiable names on nameplate, recognizable face in portrait, specific corporate logos, Wells Fargo branding, cheerful mood, new nameplate being installed",
+      "setting": {
+        "period": "Not specified in the approved visual brief. Keep period-neutral; do not add period-specific props or branding without separate direction.",
+        "location": "Generic corporate office/cubicle/desk environment as described; no named company office or city is specified."
+      },
+      "people": {
+        "requestedSubjects": "Executive office nameplate removed from door, corporate portrait taken down.",
+        "recognisablePersonPresent": false,
+        "identityTreatment": "Anonymous/generic subjects only; no real or recognizable person is proposed."
+      },
+      "wardrobe": "Wardrobe is not specified in the approved prompt; no dated or branded garment is authorized.",
+      "requiredContinuity": [
+        "Preserve the approved visual intent and described action.",
+        "Keep people anonymous and avoid real bank branding or identifiable customer information.",
+        "Match the exact setting, props and composition described by the approved prompt; do not imply an authentic event or document."
+      ],
+      "rightsAndOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "output": {
+        "assetId": "REF_ACT5_B021",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B021",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "sameBeatAlias": {
+        "candidate": false,
+        "recommendation": "No same-beat base-still alias is identified; keep a dedicated reference dependency. Cross-beat reuse is rejected.",
+        "conditions": [],
+        "decision": ""
+      },
+      "estimatedRequestEffect": {
+        "providerRequestsIfCreatedLocally": 0,
+        "additionalProviderRequestsIfGeneratedSeparately": 1,
+        "additionalProviderRequestsIfAliasApproved": null,
+        "note": "No cross-beat or other-shot asset reuse; local rights-safe creation is zero-call, provider-generated reference adds one request."
+      },
+      "promptSha256": "c06e930ed086e17c6db0a4045f887f05483cfbd47e547a33a268fbddebe36d8b",
+      "sourceV2DecisionStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+      "review": {
+        "approve": "",
+        "revise": "",
+        "reject": "",
+        "reviewerNotes": ""
+      }
+    }
+  ],
+  "sourceBindings": {
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "v2CurrentIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+    "amendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "clipFitPolicySha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "liveBindingsSha256": "7f717d0317fc45b6169f0e3bbcd5bf4642ab033e8ab73d3871a697a6bed77109",
+    "fixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04DerivedStagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf"
+  },
+  "sourceV2ReferenceHashes": {
+    "amendment": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "clipFitPolicy": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "costEstimate": "4d9ea61265dfe6c4cff6db86afe4d8758deae1703a36d353af9500b62a52397f"
+  },
+  "approvalFields": {
+    "approvedBy": "",
+    "decision": "",
+    "approvalRef": "",
+    "approvedAt": "",
+    "signature": "",
+    "reviewerNotes": ""
+  }
+}

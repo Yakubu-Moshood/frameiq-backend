@@ -1,0 +1,1142 @@
+{
+  "schemaVersion": "phase3-media-dependency-graph/5.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "nodes": [
+    {
+      "id": "controlled-final:ACT1_B005",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B005",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B011",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B011",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B012",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B012",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B013",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B013",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B015",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B015",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B020",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B020",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B022",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B022",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT1_B030",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT1_B030",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B002",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B002",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B003",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B003",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B009",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B009",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B011",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B011",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B012",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B012",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B013",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B013",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B015",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B015",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B020",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B020",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B021",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B021",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B024",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B024",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT2_B025",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT2_B025",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B006",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B006",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B007",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B007",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B010",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B010",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B013",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B013",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B020",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B020",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B026",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B026",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3_B027",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3_B027",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B001",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B001",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B004",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B004",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B007",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B007",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B013",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B013",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B016",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B016",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT3B_B018",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT3B_B018",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT5_B010",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT5_B010",
+      "externalRequests": 0
+    },
+    {
+      "id": "controlled-final:ACT5_B013",
+      "type": "CONTROLLED_STILL_OUTPUT",
+      "beatId": "ACT5_B013",
+      "externalRequests": 0
+    },
+    {
+      "id": "generated-final:ACT1_B006",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT1_B006",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT2_B004",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT2_B004",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT3_B004",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT3_B004",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT3B_B009",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT3B_B009",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT5_B003",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT5_B003",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT5_B016",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT5_B016",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT5_B021",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT5_B021",
+      "externalRequests": 1
+    },
+    {
+      "id": "generated-final:ACT5_B026",
+      "type": "GENERATED_STILL_OUTPUT",
+      "beatId": "ACT5_B026",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B009",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B009",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B009",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B009",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B010",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B010",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B010",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B010",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B014",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B014",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B016",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B016",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B016",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B016",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B018",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B018",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B018",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B018",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B021",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B021",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B021",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B021",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT1_B023",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT1_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT1_B023",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT1_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT2_B016",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT2_B016",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT2_B016",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT2_B016",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT2_B022",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT2_B022",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT2_B022",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT2_B022",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT2_B023",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT2_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT2_B023",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT2_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT2_B026",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT2_B026",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT2_B026",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT2_B026",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B005",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B005",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B005",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B005",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B008",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B008",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B008",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B008",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B014",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B014",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B015",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B015",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B015",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B015",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B023",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B023",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B023",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3_B028",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3_B028",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3_B028",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3_B028",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3B_B003",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3B_B003",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3B_B003",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3B_B003",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3B_B006",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3B_B006",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3B_B006",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3B_B006",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3B_B014",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3B_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3B_B014",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3B_B014",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT3B_B017",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT3B_B017",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT3B_B017",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT3B_B017",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT5_B012",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT5_B012",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT5_B012",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT5_B012",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-base:ACT5_B017",
+      "type": "ANIMATION_BASE_STILL",
+      "beatId": "ACT5_B017",
+      "externalRequests": 1
+    },
+    {
+      "id": "animation-clip:ACT5_B017",
+      "type": "ESSENTIAL_ANIMATION_CLIP",
+      "beatId": "ACT5_B017",
+      "externalRequests": 1
+    },
+    {
+      "id": "continuity-reference:ACT3_B005",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3_B005",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT3_B023",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3_B023",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT3_B027",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3_B027",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT3B_B001",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3B_B001",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT3B_B014",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3B_B014",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT3B_B018",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT3B_B018",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B003",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B003",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B010",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B010",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B012",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B012",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B013",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B013",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B017",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B017",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "continuity-reference:ACT5_B021",
+      "type": "DEDICATED_CONTINUITY_REFERENCE",
+      "beatId": "ACT5_B021",
+      "externalRequests": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    {
+      "id": "controlled-graphic:ACT5_B009",
+      "type": "DETERMINISTIC_CONTROLLED_GRAPHIC_OUTPUT",
+      "beatId": "ACT5_B009",
+      "externalRequests": 0,
+      "status": "BLOCKED_PENDING_CHILD_AMENDMENT",
+      "exactYearLabels": [
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023"
+      ]
+    },
+    {
+      "id": "approved-composition-source:ACT5_B015-clean-frame",
+      "type": "APPROVED_COMPOSITIONAL_REFERENCE",
+      "beatId": "ACT5_B016",
+      "sourceBeatId": "ACT5_B015",
+      "externalRequests": 0,
+      "sourcePath": null,
+      "sourceSha256": null,
+      "status": "BLOCKED_UNTIL_EXACT_SOURCE_BINDING"
+    }
+  ],
+  "edges": [
+    {
+      "from": "animation-base:ACT1_B009",
+      "to": "animation-clip:ACT1_B009",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B010",
+      "to": "animation-clip:ACT1_B010",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B014",
+      "to": "animation-clip:ACT1_B014",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B016",
+      "to": "animation-clip:ACT1_B016",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B018",
+      "to": "animation-clip:ACT1_B018",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B021",
+      "to": "animation-clip:ACT1_B021",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT1_B023",
+      "to": "animation-clip:ACT1_B023",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT2_B016",
+      "to": "animation-clip:ACT2_B016",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT2_B022",
+      "to": "animation-clip:ACT2_B022",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT2_B023",
+      "to": "animation-clip:ACT2_B023",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT2_B026",
+      "to": "animation-clip:ACT2_B026",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B005",
+      "to": "animation-clip:ACT3_B005",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B008",
+      "to": "animation-clip:ACT3_B008",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B014",
+      "to": "animation-clip:ACT3_B014",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B015",
+      "to": "animation-clip:ACT3_B015",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B023",
+      "to": "animation-clip:ACT3_B023",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3_B028",
+      "to": "animation-clip:ACT3_B028",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3B_B003",
+      "to": "animation-clip:ACT3B_B003",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3B_B006",
+      "to": "animation-clip:ACT3B_B006",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3B_B014",
+      "to": "animation-clip:ACT3B_B014",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT3B_B017",
+      "to": "animation-clip:ACT3B_B017",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT5_B012",
+      "to": "animation-clip:ACT5_B012",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "animation-base:ACT5_B017",
+      "to": "animation-clip:ACT5_B017",
+      "conditional": false,
+      "condition": null
+    },
+    {
+      "from": "continuity-reference:ACT3_B005",
+      "to": "animation-base:ACT3_B005",
+      "conditional": true,
+      "condition": "May satisfy the same-beat base-still dependency only after prompt/hash/owner/visual review and explicit approval. Separate logical dependency remains."
+    },
+    {
+      "from": "continuity-reference:ACT3_B023",
+      "to": "animation-base:ACT3_B023",
+      "conditional": true,
+      "condition": "May satisfy the same-beat base-still dependency only after prompt/hash/owner/visual review and explicit approval. Separate logical dependency remains."
+    },
+    {
+      "from": "continuity-reference:ACT3_B027",
+      "to": "controlled-final:ACT3_B027",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT3B_B001",
+      "to": "controlled-final:ACT3B_B001",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT3B_B014",
+      "to": "animation-base:ACT3B_B014",
+      "conditional": true,
+      "condition": "May satisfy the same-beat base-still dependency only after prompt/hash/owner/visual review and explicit approval. Separate logical dependency remains."
+    },
+    {
+      "from": "continuity-reference:ACT3B_B018",
+      "to": "controlled-final:ACT3B_B018",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT5_B003",
+      "to": "generated-final:ACT5_B003",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT5_B010",
+      "to": "controlled-final:ACT5_B010",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT5_B012",
+      "to": "animation-base:ACT5_B012",
+      "conditional": true,
+      "condition": "May satisfy the same-beat base-still dependency only after prompt/hash/owner/visual review and explicit approval. Separate logical dependency remains."
+    },
+    {
+      "from": "continuity-reference:ACT5_B013",
+      "to": "controlled-final:ACT5_B013",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "continuity-reference:ACT5_B017",
+      "to": "animation-base:ACT5_B017",
+      "conditional": true,
+      "condition": "May satisfy the same-beat base-still dependency only after prompt/hash/owner/visual review and explicit approval. Separate logical dependency remains."
+    },
+    {
+      "from": "continuity-reference:ACT5_B021",
+      "to": "generated-final:ACT5_B021",
+      "conditional": true,
+      "condition": "Possible same-beat alias only if production contract and final visual use are explicitly approved; not counted as automatic sharing."
+    },
+    {
+      "from": "approved-composition-source:ACT5_B015-clean-frame",
+      "to": "generated-final:ACT5_B016",
+      "conditional": false,
+      "condition": "Composition-only reference for the ACT5_B016 cracked-frame derivative. Not reused as output; no other beat sharing."
+    }
+  ],
+  "sharingRules": {
+    "crossBeatAliases": [],
+    "sameBeatConditionalAliases": [
+      {
+        "beatId": "ACT3_B005",
+        "referenceNode": "continuity-reference:ACT3_B005",
+        "baseNode": "animation-base:ACT3_B005",
+        "status": "REJECTED_BY_HUMAN_REVIEW"
+      },
+      {
+        "beatId": "ACT3_B023",
+        "referenceNode": "continuity-reference:ACT3_B023",
+        "baseNode": "animation-base:ACT3_B023",
+        "status": "REJECTED_BY_HUMAN_REVIEW"
+      },
+      {
+        "beatId": "ACT3B_B014",
+        "referenceNode": "continuity-reference:ACT3B_B014",
+        "baseNode": "animation-base:ACT3B_B014",
+        "status": "REJECTED_BY_HUMAN_REVIEW"
+      },
+      {
+        "beatId": "ACT5_B012",
+        "referenceNode": "continuity-reference:ACT5_B012",
+        "baseNode": "animation-base:ACT5_B012",
+        "status": "REJECTED_BY_HUMAN_REVIEW"
+      },
+      {
+        "beatId": "ACT5_B017",
+        "referenceNode": "continuity-reference:ACT5_B017",
+        "baseNode": "animation-base:ACT5_B017",
+        "status": "REJECTED_BY_HUMAN_REVIEW"
+      }
+    ],
+    "otherSameBeatAliases": [
+      {
+        "beatId": "ACT3_B027",
+        "referenceNode": "continuity-reference:ACT3_B027",
+        "outputNode": "controlled-final:ACT3_B027",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT3B_B001",
+        "referenceNode": "continuity-reference:ACT3B_B001",
+        "outputNode": "controlled-final:ACT3B_B001",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT3B_B018",
+        "referenceNode": "continuity-reference:ACT3B_B018",
+        "outputNode": "controlled-final:ACT3B_B018",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT5_B003",
+        "referenceNode": "continuity-reference:ACT5_B003",
+        "outputNode": "generated-final:ACT5_B003",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT5_B009",
+        "referenceNode": "continuity-reference:ACT5_B009",
+        "outputNode": "generated-final:ACT5_B009",
+        "status": "REMOVED_BY_HUMAN_REVISION_NOT_AN_ALIAS"
+      },
+      {
+        "beatId": "ACT5_B010",
+        "referenceNode": "continuity-reference:ACT5_B010",
+        "outputNode": "controlled-final:ACT5_B010",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT5_B013",
+        "referenceNode": "continuity-reference:ACT5_B013",
+        "outputNode": "controlled-final:ACT5_B013",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      },
+      {
+        "beatId": "ACT5_B016",
+        "referenceNode": "continuity-reference:ACT5_B016",
+        "outputNode": "generated-final:ACT5_B016",
+        "status": "REMOVED_BY_HUMAN_REVISION_NOT_AN_ALIAS"
+      },
+      {
+        "beatId": "ACT5_B021",
+        "referenceNode": "continuity-reference:ACT5_B021",
+        "outputNode": "generated-final:ACT5_B021",
+        "status": "NOT_PROPOSED_METHOD_AND_ROLE_NOT_YET_BOUND"
+      }
+    ],
+    "rejectedSameBeatAliases": [
+      {
+        "beatId": "ACT3_B005",
+        "decision": "REJECTED",
+        "decidedBy": "Yakubu Moshood",
+        "approved": false,
+        "finalExecutionSignature": ""
+      },
+      {
+        "beatId": "ACT3_B023",
+        "decision": "REJECTED",
+        "decidedBy": "Yakubu Moshood",
+        "approved": false,
+        "finalExecutionSignature": ""
+      },
+      {
+        "beatId": "ACT3B_B014",
+        "decision": "REJECTED",
+        "decidedBy": "Yakubu Moshood",
+        "approved": false,
+        "finalExecutionSignature": ""
+      },
+      {
+        "beatId": "ACT5_B012",
+        "decision": "REJECTED",
+        "decidedBy": "Yakubu Moshood",
+        "approved": false,
+        "finalExecutionSignature": ""
+      },
+      {
+        "beatId": "ACT5_B017",
+        "decision": "REJECTED",
+        "decidedBy": "Yakubu Moshood",
+        "approved": false,
+        "finalExecutionSignature": ""
+      }
+    ],
+    "scopedCompositionReferences": [
+      {
+        "sourceBeatId": "ACT5_B015",
+        "targetBeatId": "ACT5_B016",
+        "role": "COMPOSITION_ONLY",
+        "status": "APPROVED_DIRECTION_PENDING_SOURCE_HASH",
+        "allowAsFinalAsset": false,
+        "allowOtherBeatUse": false
+      }
+    ]
+  },
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "supersedes": {
+    "packageId": "phase3-media-completion-review-20261002-v2",
+    "sha256": "6af4fa14538ff6c40fb279288d6bcfc1ffb173b73ff43d56dec04baee993b98e"
+  },
+  "continuityDecisions": [
+    {
+      "beatId": "ACT3_B005",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT3_B023",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT3_B027",
+      "decision": "REVISE",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT3B_B014",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B003",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B009",
+      "decision": "REVISE",
+      "referenceStillRequired": false,
+      "promptChangeApplied": true
+    },
+    {
+      "beatId": "ACT5_B010",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B012",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B013",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B016",
+      "decision": "REVISE",
+      "referenceStillRequired": false,
+      "promptChangeApplied": true
+    },
+    {
+      "beatId": "ACT5_B017",
+      "decision": "APPROVED_AS_WRITTEN",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    },
+    {
+      "beatId": "ACT5_B021",
+      "decision": "REVISE",
+      "referenceStillRequired": true,
+      "promptChangeApplied": false
+    }
+  ],
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "sourcePackageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08",
+  "promptRevisions": [
+    {
+      "beatId": "ACT3_B027",
+      "instructionStatus": "EXACT_DIRECTION_CAPTURED",
+      "promptChangeApplied": true,
+      "promptSha256": "24b7463d2e661521f4e7376e8c187cfd685b15318ce2689d60b7aa3a4f1fc69a"
+    },
+    {
+      "beatId": "ACT5_B021",
+      "instructionStatus": "EXACT_DIRECTION_CAPTURED",
+      "promptChangeApplied": true,
+      "promptSha256": "d59529a47b954006e37829393d706e1bdd3d94f1ca2c8a9995385996e3a64561"
+    }
+  ],
+  "executionBlockers": [
+    "ACT5_B009 unsigned child amendment must be signed and applied",
+    "ACT5_B016 ACT5_B015 composition-only reference path/hash unresolved",
+    "Provider route, terms, ownership, current price and output properties unresolved pending pilot"
+  ]
+}

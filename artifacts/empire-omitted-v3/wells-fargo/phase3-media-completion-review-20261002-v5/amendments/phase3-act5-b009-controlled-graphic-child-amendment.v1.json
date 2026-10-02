@@ -1,0 +1,241 @@
+{
+  "schemaVersion": "phase3-production-child-amendment-proposal/1.0.0",
+  "amendmentId": "phase3-act5-b009-deterministic-controlled-graphic-v1",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "approvedBy": "",
+  "decision": "",
+  "signature": "",
+  "parentBindings": {
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "shotDefinitionsSha256": "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7",
+    "productionManifestSha256": "0caef389bd517c5a0898377dc304708fe83666c51205fbdeeddfb365d5ec531e",
+    "preceding34RowAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3"
+  },
+  "exactScope": {
+    "entryCount": 1,
+    "beatIds": [
+      "ACT5_B009"
+    ],
+    "onlyChangedContractFields": [
+      "productionMethod",
+      "assetType",
+      "requiresGraphicCompilation",
+      "graphics",
+      "overlaySpecification",
+      "imagePrompt",
+      "graphicStatus",
+      "primaryGraphicAsset",
+      "graphicObjectCount",
+      "graphicObjects",
+      "blockerCodes",
+      "status"
+    ]
+  },
+  "changes": {
+    "shotDefinitions": {
+      "canonicalPath": "/allShots/134",
+      "actMirrorPath": "/acts/act5/8",
+      "before": {
+        "assetType": "generated_image",
+        "requiresGraphicCompilation": false,
+        "graphics": null,
+        "overlaySpecification": null,
+        "imagePrompt": "Abstract calendar pages stacked and overlapping, years 2013 through 2023 visible in faded typography, pages showing wear and aging from bottom to top, documentary collage aesthetic, muted colors, sense of accumulated time passing, editorial design style"
+      },
+      "after": {
+        "assetType": "graphic_compilation",
+        "requiresGraphicCompilation": true,
+        "graphics": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "imagePrompt": null
+      },
+      "mirrorBefore": {
+        "assetType": "generated_image",
+        "requiresGraphicCompilation": false,
+        "graphics": null,
+        "overlaySpecification": null,
+        "imagePrompt": "Abstract calendar pages stacked and overlapping, years 2013 through 2023 visible in faded typography, pages showing wear and aging from bottom to top, documentary collage aesthetic, muted colors, sense of accumulated time passing, editorial design style"
+      },
+      "mirrorAfter": {
+        "assetType": "graphic_compilation",
+        "requiresGraphicCompilation": true,
+        "graphics": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "imagePrompt": null
+      }
+    },
+    "productionManifest": {
+      "path": "/shots/134",
+      "before": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "assetType": "graphic_compilation",
+        "status": "BLOCKED",
+        "blockerCodes": [
+          "CHILD_AMENDMENT_PENDING",
+          "GRAPHIC_ASSET_NOT_CREATED"
+        ],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "PENDING",
+        "primaryGraphicAsset": true,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 1,
+        "graphicObjects": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "sourceRequirement": null
+      }
+    },
+    "controlledGraphicSpecification": {
+      "providerRequests": 0,
+      "outputPath": "outputs/graphics/ACT5_B009-year-pages.svg",
+      "format": "SVG",
+      "dimensions": {
+        "widthPx": null,
+        "heightPx": null
+      },
+      "dimensionsStatus": "UNRESOLVED_PENDING_LAYOUT_REVIEW",
+      "exactYearLabels": [
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023"
+      ],
+      "labelsMustBeChronological": true,
+      "additionalTextAllowed": false,
+      "layoutConstraint": "Preserve approved stacked, faded calendar-page visual intent; no new facts or event markers."
+    }
+  },
+  "invariants": {
+    "narrationUnchanged": true,
+    "timingUnchanged": true,
+    "visualIntentUnchanged": true,
+    "beatOwnershipUnchanged": true,
+    "evidenceBindingUnchanged": true,
+    "existingRevisionHistoryPreserved": true,
+    "newLineageEdgeRequiredWhenApplied": true,
+    "noOtherBeatChanged": true
+  },
+  "execution": {
+    "applied": false,
+    "beatBlockedUntilApprovalApplicationAndChildRebuild": true,
+    "providerAuthorization": "",
+    "mediaGenerationAllowed": false,
+    "reviewSignature": ""
+  },
+  "changeSetSha256": "64d2c01426390e7b8fd46fa30a3e573b5885f8aed37ec6fe66fa1910d869123d"
+}

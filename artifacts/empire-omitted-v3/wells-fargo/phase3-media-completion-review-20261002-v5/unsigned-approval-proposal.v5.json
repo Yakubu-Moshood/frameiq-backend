@@ -1,0 +1,123 @@
+{
+  "schemaVersion": "phase3-media-execution-approval-proposal/5.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "editorialDecisionsBy": "Yakubu Moshood",
+  "decisionSource": "User-provided proposed decisions captured in human-review-decisions.v5.json",
+  "executionDecision": "",
+  "approvedBy": "",
+  "approvalRef": "",
+  "approvedAt": "",
+  "signature": "",
+  "providerAuthorization": "",
+  "providerAuthorizationBy": "",
+  "providerAuthorizationAt": "",
+  "finalExecutionSignature": "",
+  "bindings": {
+    "packageIndexPath": "phase3-media-package-index.v5.json",
+    "packageIndexSha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+    "reviewJsonSha256": "b6cd1067a3b440d39c2a6de8d8dc1ea2554ab71704bd0c7c5f24fff9eb05c68c",
+    "reviewMarkdownSha256": "37dfe892e0993dec5675db2a36357543e9143693028608f07d45917333cdde33",
+    "reviewPdfSha256": "407eab6e85b5e93b656c03b98daf3d801d3b1c450135eb3a94d32ef72c9e9260",
+    "decisionRecordSha256": "a67234499408ca76c8e18bbf997bbda8550b8c7bd18f2b58d9bb65635ef79ff2",
+    "dependencyGraphSha256": "d69cf19ba06c37afe5de5fae2b5ab818af535eac677a182ef6178d53ca7f8eb3",
+    "costEstimateSha256": "23372a7dbc5cca77f041608e847b246aac487880de3c6e012eb8f6e61f52bbf8",
+    "clipFitPolicySha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "controlledImageAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "act5B009ChildAmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "fixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "liveBindingsSha256": "7f717d0317fc45b6169f0e3bbcd5bf4642ab033e8ab73d3871a697a6bed77109",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04DerivedStagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "candidateSourceIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "v4PackageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08"
+  },
+  "decisions": {
+    "approvedPrompts": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "revisions": [
+      {
+        "beatId": "ACT3_B027",
+        "decision": "REVISE",
+        "promptStatus": "EXACT_DIRECTION_CAPTURED",
+        "promptChangeApplied": true
+      },
+      {
+        "beatId": "ACT5_B009",
+        "decision": "REVISE",
+        "promptStatus": "CHILD_AMENDMENT_REQUIRED_AND_BEAT_BLOCKED",
+        "promptChangeApplied": false
+      },
+      {
+        "beatId": "ACT5_B016",
+        "decision": "REVISE",
+        "promptStatus": "SOURCE_PATH_AND_HASH_UNRESOLVED",
+        "promptChangeApplied": false
+      },
+      {
+        "beatId": "ACT5_B021",
+        "decision": "REVISE",
+        "promptStatus": "EXACT_DIRECTION_CAPTURED",
+        "promptChangeApplied": true
+      }
+    ],
+    "rejectedAliases": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "approved34RowAssetTypeCorrection": {
+      "decision": "APPROVED_EDITORIAL_DECISION",
+      "applied": false
+    },
+    "approved23ClipFitPolicy": {
+      "decision": "APPROVED_EDITORIAL_DECISION",
+      "applied": false
+    },
+    "retiredBeatIds": [
+      "ACT3B_B010"
+    ],
+    "ACT5_B016": {
+      "dependency": "ACT5_B015",
+      "purpose": "composition-only",
+      "sourcePath": "",
+      "sourceSha256": "",
+      "executionBlocked": true,
+      "humanApprovalBlocked": false
+    }
+  },
+  "notApprovedOrAuthorized": [
+    "provider route",
+    "provider terms",
+    "asset ownership terms",
+    "current provider pricing",
+    "provider output codec",
+    "dimensions",
+    "container",
+    "provider-returned duration",
+    "media generation",
+    "amendment application",
+    "candidate reconstruction",
+    "promotion",
+    "rendering"
+  ],
+  "blockers": [
+    "ACT5_B009 child amendment remains unsigned and unapplied",
+    "ACT5_B016 ACT5_B015 source path and hash remain unbound",
+    "Pilot provider route, terms, rights/ownership, current price and output format/properties unresolved"
+  ]
+}

@@ -22,3 +22,10 @@ test('no provider endpoints or network requests are touched by asset readiness c
   finally { global.fetch = oldFetch; fs.rmSync(dir, { recursive: true, force: true }); }
   assert.equal(calls, 0);
 });
+test('normal V3 readiness helper rejects disposable Phase 3 pilot asset markers and paths', () => {
+  const { assertNoDisposablePilotMedia } = require('../pipeline-updates/v3-asset-readiness.cjs');
+  assert.throws(() => assertNoDisposablePilotMedia({ allShots: [{ shotId: 'ACT3_B005',
+    assetClass: 'NON_PRODUCTION_DISPOSABLE_PILOT' }] }), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+  assert.throws(() => assertNoDisposablePilotMedia({ assetPath: '/data/episodes/x/.review/phase3-media-pilots/phase3-media-pilot-01/ACT3_B005-still.png' }),
+    /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+});

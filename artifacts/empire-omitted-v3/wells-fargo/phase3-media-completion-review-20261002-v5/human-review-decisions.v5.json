@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "phase3-media-human-review-decisions/5.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "status": "HUMAN_EDITORIAL_DECISIONS_RECORDED_EXECUTION_UNSIGNED",
+  "decisionsBy": "Yakubu Moshood",
+  "decisionSource": "User-provided human-review decisions",
+  "recordedAt": "",
+  "signed": false,
+  "finalExecutionSignature": "",
+  "providerAuthorization": "",
+  "promptDecisions": {
+    "approvedWithoutPromptChanges": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "revisions": [
+      {
+        "beatId": "ACT3_B027",
+        "decision": "REVISE",
+        "exactDirection": "Illustrative reconstruction: an anonymous person seen from behind, leaning over a plain bathroom sink in dim early-morning light. Both hands grip the basin, shoulders tense, head bowed and face completely hidden. A blank, unmarked lanyard card rests on the counter with no logo, name, text or identifying details. Restrained, non-graphic composition.",
+        "status": "EXACT_DIRECTION_CAPTURED",
+        "promptChangeApplied": true,
+        "revisedPromptSha256": "24b7463d2e661521f4e7376e8c187cfd685b15318ce2689d60b7aa3a4f1fc69a"
+      },
+      {
+        "beatId": "ACT5_B009",
+        "decision": "REVISE",
+        "exactDirection": "Zero-provider deterministic controlled graphic with exact year labels 2013 through 2023.",
+        "status": "CHILD_AMENDMENT_REQUIRED_AND_BEAT_BLOCKED"
+      },
+      {
+        "beatId": "ACT5_B016",
+        "decision": "REVISE",
+        "exactDirection": "Use the approved ACT5_B015 clean frame only as compositional reference for cracked-frame derivative; no general cross-beat sharing.",
+        "status": "SOURCE_PATH_AND_HASH_UNRESOLVED"
+      },
+      {
+        "beatId": "ACT5_B021",
+        "decision": "REVISE",
+        "exactDirection": "Medium shot of a generic executive-office door. An anonymous maintenance hand unscrews a blank brass nameplate with no text. On the adjacent wall, an empty rectangular shadow and exposed picture hooks show that a corporate portrait has already been removed. Institutional hallway lighting, subdued documentary composition, no people or identifying details.",
+        "status": "EXACT_DIRECTION_CAPTURED",
+        "promptChangeApplied": true,
+        "revisedPromptSha256": "d59529a47b954006e37829393d706e1bdd3d94f1ca2c8a9995385996e3a64561"
+      }
+    ]
+  },
+  "sameBeatAliases": [
+    {
+      "beatId": "ACT3_B005",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT3_B023",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT3B_B014",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT5_B012",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT5_B017",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    }
+  ],
+  "controlledImageAmendment": {
+    "decision": "APPROVED_EDITORIAL_DECISION",
+    "decidedBy": "Yakubu Moshood",
+    "amendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "exactRowCount": 34,
+    "scope": "assetType generated_clip -> controlled_image; productionMethod remains CONTROLLED_STILL",
+    "applied": false,
+    "finalExecutionSignature": ""
+  },
+  "clipFitPolicy": {
+    "decision": "APPROVED_EDITORIAL_DECISION",
+    "decidedBy": "Yakubu Moshood",
+    "sourceSha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "beatCount": 23,
+    "sourceDurationSec": 5,
+    "fps": 30,
+    "underFiveSeconds": "trim to Math.round(durationSec * 30) frames",
+    "overFiveSeconds": "150 source frames plus deterministic end-frame hold to Math.round(durationSec * 30)",
+    "documentedRoundingAccepted": true,
+    "codecDimensionsContainerProviderReturnedDuration": "UNRESOLVED_PENDING_PILOT",
+    "applied": false,
+    "finalExecutionSignature": ""
+  },
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "generalCrossBeatAssetSharing": "REJECTED",
+  "executionSignature": "",
+  "openIssues": [
+    "ACT5_B009 requires the unsigned child amendment to be separately signed and applied before use.",
+    "ACT5_B016 source clean-frame path and SHA-256 must be resolved from the approved source package before execution.",
+    "Provider route, terms, output ownership, current price, and returned media properties remain unresolved pending pilot.",
+    "ACT5_B009: unsigned child amendment must be separately signed and applied before execution.",
+    "ACT5_B016: composition-only ACT5_B015 dependency source path and SHA-256 must be resolved before execution; this does not block human approval of this review package.",
+    "Provider route, terms, ownership, current price and output properties remain unresolved pending the separately approved pilot."
+  ]
+}

@@ -11,6 +11,8 @@ const preview = require('../scripts/phase3-render-preview.cjs');
 const activationRunner = require('../scripts/phase2.3b-p-activate.cjs');
 const productionMethods = require('../pipeline-updates/production-method-manifest.cjs');
 const phase3Media = require('../pipeline-updates/phase3-render-media-adapter.cjs');
+const pilotWorkflow = require('../pipeline-updates/phase3-media-pilot.cjs');
+const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -90,6 +92,70 @@ function makeService(f, overrides = {}) {
     clock: () => new Date('2026-10-01T12:00:00.000Z'),
   });
   return { service, verifiedResult, renderCalls: () => renderCalls };
+}
+
+const WELLS = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo');
+const V5_DIR = path.join(WELLS, 'phase3-media-completion-review-20261002-v5');
+const PILOT_DIR = path.join(WELLS, 'phase3-media-pilot-proposal-20261002-v1');
+const EDITORIAL_APPROVAL = path.join(WELLS, 'phase3-media-completion-review-20261002-v5-human-editorial-approval.v1.json');
+function pilotPng(width = 1280, height = 720) {
+  const bytes = Buffer.alloc(24); Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
+  bytes.write('IHDR', 12, 4, 'ascii'); bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20); return bytes;
+}
+function makePilotFixture(overrides = {}) {
+  const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
+  fs.mkdirSync(root, { recursive: true });
+  const planning = pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: PILOT_DIR, editorialApprovalPath: EDITORIAL_APPROVAL });
+  const authorization = {
+    schemaVersion: pilotWorkflow.SCHEMAS.authorization, status: 'AUTHORIZED_FOR_EXECUTION', decision: 'AUTHORIZED_FOR_EXECUTION',
+    approvedBy: 'Yakubu Moshood', approvalRef: 'TEST_ONLY_NOT_EXECUTABLE', executionSignature: 'fixture-only',
+    providerAuthorization: 'fixture-only', outputOwnershipResolved: true, acceptsUnboundedAnimationExposure: true,
+    maxProviderSubmissions: 2, noRetry: true, noFallback: true, priceCheckedAt: '2026-10-02T00:00:00.000Z',
+    priceAssumptions: { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08', animationUsdPerSecond: 0.0333,
+      proposedCapUsd: 0.25, capProviderEnforced: false },
+    bindings: { editorialApprovalSha256: planning.approvalSha256, pilotProposalSha256: planning.proposalSha256,
+      v5PackageIndexSha256: planning.v5IndexSha256, pilotPackageIndexSha256: planning.pilotIndexSha256 },
+    authorizedRequests: planning.proposal.requests.map(r => ({ requestKey: r.requestKey, provider: r.provider, model: r.model,
+      endpointId: r.model, parameters: r.parameters, prompt: r.prompt, negativePrompt: r.negativePrompt })),
+  };
+  if (overrides.authorization) Object.assign(authorization, overrides.authorization);
+  const authorizationBytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
+  fs.writeFileSync(path.join(root, 'execution-authorization.v1.json'), authorizationBytes);
+  const calls = [];
+  const provider = overrides.provider || {
+    async generateStill(payload) {
+      calls.push({ service: 'still', payload, ledger: fs.existsSync(path.join(root, 'request-ledger.jsonl'))
+        ? pilotWorkflow.readLedger(path.join(root, 'request-ledger.jsonl')) : [] });
+      return { bytes: pilotPng(), contentType: 'image/png', actualChargeUsd: 0.024 };
+    },
+    async generateAnimation(payload) {
+      calls.push({ service: 'animation', payload, ledger: pilotWorkflow.readLedger(path.join(root, 'request-ledger.jsonl')) });
+      return { bytes: Buffer.from('fixture-mp4'), contentType: 'video/mp4', actualChargeUsd: 0.1665 };
+    },
+  };
+  const probe = overrides.ffprobe || (() => ({ container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5, bytes: 11,
+    video: { codec: 'h264', width: 640, height: 360, frameRate: '30/1', frameCount: 150 }, audioStreams: [] }));
+  const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL, provider, ffprobe: probe, now: () => new Date('2026-10-02T12:00:00.000Z'),
+    expectedAuthorizationSha256: sha(authorizationBytes), ...(overrides.workflow || {}) });
+  return { base, root, workflow, planning, calls, authorization, authorizationBytes, probe };
+}
+function makePilotReadOnlyFixture(overrides = {}) {
+  const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
+  const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL, ...(overrides.workflow || {}) });
+  return { base, root, workflow };
+}
+function clonePilotPackage() {
+  const base = tempRoot(), pilotDir = path.join(base, 'pilot'); fs.cpSync(PILOT_DIR, pilotDir, { recursive: true });
+  return { base, pilotDir };
+}
+function rewritePilotIndex(dir, proposalBytes) {
+  const indexPath = path.join(dir, 'package-index.json'), index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+  const entry = index.files.find(item => item.path === 'phase3-media-pilot-proposal.v1.json');
+  entry.bytes = proposalBytes.length; entry.sha256 = sha(proposalBytes);
+  fs.writeFileSync(path.join(dir, entry.path), proposalBytes);
+  const bytes = Buffer.from(`${JSON.stringify(index, null, 2)}\n`); fs.writeFileSync(indexPath, bytes); return sha(bytes);
 }
 function options(root, runId = PHASE3_RUN) {
   return { promotedRunId: PHASE2_RUN, phase3RunId: runId,
@@ -1157,4 +1223,230 @@ test('edit-script CLI dispatch never invokes the render path', async () => {
   assert.equal(generated, 1);
   assert.equal(rendered, 0);
   assert.match(stdout, /GENERATED/);
+});
+
+test('controlled-media pilot preflight verifies the exact approved planning packages without writes', t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const report = f.workflow.preflight();
+  assert.equal(report.status, 'PILOT_PREFLIGHT_PASS_PLANNING_ONLY');
+  assert.equal(report.executionAuthorized, false);
+  assert.equal(report.providerSubmissionsMaximum, 2);
+  assert.deepEqual(report.requestKeys, [pilotWorkflow.REQUESTS.still.key, pilotWorkflow.REQUESTS.animation.key]);
+  assert.equal(report.proposedCapProviderEnforced, false);
+  assert.equal(report.wouldCreateNoFiles, true);
+  assert.equal(fs.existsSync(f.root), false);
+  assert.equal(fs.existsSync(path.join(f.base, 'request-ledger.jsonl')), false);
+});
+
+test('pilot rejects altered editorial approval, unsigned proposal, package index and indexed source bytes', t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const approvalCopy = path.join(f.base, 'approval.json'); fs.copyFileSync(EDITORIAL_APPROVAL, approvalCopy);
+  fs.appendFileSync(approvalCopy, ' ');
+  assert.throws(() => pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: PILOT_DIR, editorialApprovalPath: approvalCopy }),
+    /PILOT_EDITORIAL_APPROVAL_HASH_MISMATCH/);
+  assert.throws(() => pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL, pins: { ...pilotWorkflow.TRUST, proposal: '0'.repeat(64) } }), /PILOT_APPROVAL_BINDING_MISMATCH/);
+  assert.throws(() => pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL, pins: { ...pilotWorkflow.TRUST, pilotIndex: '0'.repeat(64) } }), /PILOT_INDEX_HASH_MISMATCH/);
+  const clone = clonePilotPackage(); t.after(() => fs.rmSync(clone.base, { recursive: true, force: true }));
+  const proposalPath = path.join(clone.pilotDir, 'phase3-media-pilot-proposal.v1.json');
+  fs.appendFileSync(proposalPath, ' ');
+  assert.throws(() => pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: clone.pilotDir,
+    editorialApprovalPath: EDITORIAL_APPROVAL }), /PILOT_INDEX_FILE_MISMATCH/);
+});
+
+test('pilot request parameters, model, endpoint and exact prompt must match the pinned proposal', t => {
+  const clone = clonePilotPackage(); t.after(() => fs.rmSync(clone.base, { recursive: true, force: true }));
+  const proposalPath = path.join(clone.pilotDir, 'phase3-media-pilot-proposal.v1.json');
+  const proposal = JSON.parse(fs.readFileSync(proposalPath, 'utf8'));
+  proposal.requests[0].parameters.resolution = '2k';
+  const proposalBytes = Buffer.from(`${JSON.stringify(proposal, null, 2)}\n`);
+  const indexHash = rewritePilotIndex(clone.pilotDir, proposalBytes);
+  assert.throws(() => pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: clone.pilotDir,
+    editorialApprovalPath: EDITORIAL_APPROVAL, pins: { ...pilotWorkflow.TRUST, pilotIndex: indexHash,
+      pilotProposal: sha(proposalBytes) } }), /PILOT_REQUEST_DRIFT:still/);
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  f.authorization.authorizedRequests[0].endpointId = 'fal.ai/another-model';
+  const altered = Buffer.from(`${JSON.stringify(f.authorization, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'execution-authorization.v1.json'), altered);
+  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs,
+    sha(altered)), /PILOT_AUTHORIZED_REQUEST_DRIFT/);
+});
+
+test('detached execution authorization is mandatory, hash-bound, ownership-aware and no-retry', async t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  let calls = 0;
+  const workflow = pilotWorkflow.createPilotWorkflow({ root: f.root, expectedRoot: f.base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL, provider: { async generateStill() { calls += 1; } } });
+  await assert.rejects(workflow.generateStill(), /PILOT_EXECUTION_AUTHORIZATION_MISSING/);
+  assert.equal(calls, 0);
+  assert.equal(fs.existsSync(path.join(f.root, 'request-ledger.jsonl')), false);
+  assert.throws(() => pilotWorkflow.parseCli(['--generate-still', '--pilot-run-id', pilotWorkflow.TRUST.runId]),
+    /PILOT_EXPECTED_AUTHORIZATION_HASH_REQUIRED/);
+  assert.throws(() => pilotWorkflow.parseCli(['--generate-still', '--pilot-run-id', pilotWorkflow.TRUST.runId,
+    '--expected-execution-authorization-sha256', 'a'.repeat(64), '--retry']), /PILOT_UNKNOWN_ARGUMENT/);
+  assert.throws(() => pilotWorkflow.parseCli(['--preflight', '--pilot-run-id', 'other-run']), /PILOT_RUN_ID_INVALID/);
+});
+
+test('run paths must stay inside the isolated pilot root and reject completed or traversal targets', t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const outside = path.join(f.base, '..', 'episode-root', pilotWorkflow.TRUST.runId);
+  const invalid = pilotWorkflow.createPilotWorkflow({ root: outside, expectedRoot: path.join(f.base, 'pilots'),
+    v5Dir: V5_DIR, pilotDir: PILOT_DIR, editorialApprovalPath: EDITORIAL_APPROVAL });
+  assert.throws(() => invalid.preflight(), /PILOT_PATH_OUTSIDE_AUTHORIZED_ROOT/);
+  assert.throws(() => pilotWorkflow.parseCli(['--preflight', '--pilot-run-id', pilotWorkflow.TRUST.runId, '--promoted-run-id', PHASE2_RUN]),
+    /PILOT_UNKNOWN_ARGUMENT/);
+  const promotedFile = path.join(f.base, 'promoted-script.json'); fs.writeFileSync(promotedFile, 'immutable-promoted-bytes');
+  const promotedHash = sha(fs.readFileSync(promotedFile));
+  const promotedTarget = pilotWorkflow.createPilotWorkflow({ root: f.base, expectedRoot: f.base,
+    v5Dir: V5_DIR, pilotDir: PILOT_DIR, editorialApprovalPath: EDITORIAL_APPROVAL });
+  assert.throws(() => promotedTarget.preflight(), /PILOT_PREFLIGHT_EXISTING_RUN_NOT_EMPTY/);
+  assert.equal(sha(fs.readFileSync(promotedFile)), promotedHash, 'attempts cannot alter promoted input files');
+  fs.mkdirSync(f.root); fs.writeFileSync(path.join(f.root, 'old-output.mp4'), 'already complete');
+  assert.throws(() => f.workflow.preflight(), /PILOT_PREFLIGHT_EXISTING_RUN_NOT_EMPTY/);
+});
+
+test('symlinked planning packages are rejected before any pilot run files are created', t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const link = path.join(f.base, 'linked-pilot-inputs');
+  try { fs.symlinkSync(PILOT_DIR, link, 'junction'); }
+  catch { t.skip('Windows junction creation is unavailable in this test environment'); return; }
+  const linked = pilotWorkflow.createPilotWorkflow({ root: f.root, expectedRoot: f.base, v5Dir: V5_DIR, pilotDir: link,
+    editorialApprovalPath: EDITORIAL_APPROVAL });
+  assert.throws(() => linked.preflight(), /PILOT_PACKAGE_ROOT_INVALID/);
+  assert.equal(fs.existsSync(f.root), false);
+});
+
+test('request ledger reservations are append-only, hash chained, duplicate-safe and capped at two', t => {
+  const root = tempRoot(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const planning = { proposalSha256: 'a'.repeat(64) }, auth = { sha256: 'b'.repeat(64) };
+  const still = { requestKey: pilotWorkflow.REQUESTS.still.key, model: pilotWorkflow.REQUESTS.still.model, parameters: pilotWorkflow.REQUESTS.still.params };
+  const animation = { requestKey: pilotWorkflow.REQUESTS.animation.key, model: pilotWorkflow.REQUESTS.animation.model, parameters: pilotWorkflow.REQUESTS.animation.params };
+  pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth });
+  const ledger = path.join(root, 'request-ledger.jsonl'), firstHash = sha(fs.readFileSync(ledger));
+  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth }), /PILOT_DUPLICATE_REQUEST_KEY/);
+  assert.equal(sha(fs.readFileSync(ledger)), firstHash);
+  pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth });
+  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
+  const altered = fs.readFileSync(ledger, 'utf8').replace('SUBMISSION_RESERVED', 'SUBMISSION_RETRY'); fs.writeFileSync(ledger, altered);
+  assert.throws(() => pilotWorkflow.readLedger(ledger), /PILOT_LEDGER_CHAIN_INVALID/);
+});
+
+test('successful still inspection, separate human approval, animation and final receipt use exactly two submissions', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill();
+  assert.equal(f.calls.length, 1); assert.equal(f.calls[0].service, 'still');
+  assert.equal(f.calls[0].ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1,
+    'reservation is durable before provider submission');
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  const inspection = f.workflow.inspectStill();
+  assert.deepEqual({ mimeType: inspection.mimeType, format: inspection.format, width: inspection.width, height: inspection.height },
+    { mimeType: 'image/png', format: 'PNG', width: 1280, height: 720 });
+  const decision = f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  assert.equal(decision.stillSha256, inspection.stillSha256);
+  await f.workflow.generateAnimation();
+  assert.equal(f.calls.length, 2); assert.equal(f.calls[1].service, 'animation');
+  assert.match(f.calls[1].payload.input.image_url, /^data:image\/png;base64,/u);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  const receipt = f.workflow.finalize();
+  assert.equal(receipt.status, 'PILOT_VALIDATED_DISPOSABLE_NOT_PRODUCTION');
+  assert.equal(receipt.providerRequestCount, 2);
+  assert.equal(receipt.outputs.still.assetClass, 'NON_PRODUCTION_DISPOSABLE_PILOT');
+  assert.equal(receipt.outputs.animation.media.video.frameCount, 150);
+  const outputIndex = JSON.parse(fs.readFileSync(path.join(f.root, 'pilot-package-index.v1.json'), 'utf8'));
+  for (const file of outputIndex.files) assert.equal(sha(fs.readFileSync(path.join(f.root, ...file.path.split('/')))), file.sha256);
+  assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia(receipt.outputs), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+  assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia({ assetClass: 'NON_PRODUCTION_DISPOSABLE_PILOT' }),
+    /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+});
+
+test('animation is blocked before separate still approval and before any second reservation', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await assert.rejects(f.workflow.generateAnimation(), /PILOT_STILL_HUMAN_APPROVAL_REQUIRED/);
+  assert.equal(f.calls.length, 0);
+  assert.equal(fs.existsSync(path.join(f.root, 'request-ledger.jsonl')), false);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+});
+
+test('altered still cannot be used for animation and provider failure leaves a redacted receipt and releases lock', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill(); f.workflow.inspectStill();
+  f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  fs.appendFileSync(path.join(f.root, 'ACT3_B005-still.png'), 'altered');
+  await assert.rejects(f.workflow.generateAnimation(), /PILOT_STILL_INPUT_INVALID/);
+  assert.equal(f.calls.length, 1);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  const f2 = makePilotFixture({ provider: { async generateStill() { throw new Error('FAL_KEY=must-never-be-recorded'); } } });
+  t.after(() => fs.rmSync(f2.base, { recursive: true, force: true }));
+  await assert.rejects(f2.workflow.generateStill(), /PILOT_OPERATION_FAILED/);
+  assert.equal(fs.existsSync(path.join(f2.root, 'pilot.lock')), false);
+  const receiptPath = path.join(f2.root, 'generate-still-failure-receipt.json');
+  assert.equal(fs.existsSync(receiptPath), true);
+  const contents = fs.readFileSync(receiptPath, 'utf8') + fs.readFileSync(path.join(f2.root, 'request-ledger.jsonl'), 'utf8');
+  assert.equal(contents.includes('must-never-be-recorded'), false);
+  await assert.rejects(f2.workflow.generateStill(), /PILOT_RUN_ALREADY_USED/);
+});
+
+test('invalid MIME or PNG signature blocks acceptance, consumes the one attempt and cleans temporary lock', async t => {
+  const f = makePilotFixture({ provider: { async generateStill() { return { bytes: Buffer.from('not png'), contentType: 'text/plain' }; } } });
+  t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await assert.rejects(f.workflow.generateStill(), /PILOT_STILL_MIME_INVALID/);
+  assert.equal(f.calls.length, 0);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  const ledger = pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl'));
+  assert.equal(ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(ledger.find(row => row.recordType === 'SUBMISSION_RESULT').status, 'FAILED');
+});
+
+test('stale lock is never cleared or overwritten and output outside pilot directory is rejected', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const lock = path.join(f.root, 'pilot.lock'); fs.writeFileSync(lock, 'stale-owner');
+  await assert.rejects(f.workflow.generateStill(), /PILOT_RUN_ALREADY_USED|PILOT_LOCK_EXISTS/);
+  assert.equal(fs.readFileSync(lock, 'utf8'), 'stale-owner');
+  const out = path.join(f.base, '..', 'escaped');
+  const invalid = pilotWorkflow.createPilotWorkflow({ root: out, expectedRoot: f.base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+    editorialApprovalPath: EDITORIAL_APPROVAL });
+  assert.throws(() => invalid.preflight(), /PILOT_PATH_OUTSIDE_AUTHORIZED_ROOT/);
+});
+
+test('execution controls reject fallback, retries, and more than the two authorized requests', t => {
+  assert.throws(() => pilotWorkflow.parseCli(['--generate-animation', '--pilot-run-id', pilotWorkflow.TRUST.runId,
+    '--expected-execution-authorization-sha256', 'a'.repeat(64), '--fallback-provider', 'other']), /PILOT_UNKNOWN_ARGUMENT/);
+  const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId); fs.mkdirSync(root);
+  t.after(() => fs.rmSync(base, { recursive: true, force: true }));
+  const planning = { proposalSha256: 'a'.repeat(64) }, auth = { sha256: 'b'.repeat(64) };
+  const still = pilotWorkflow.REQUESTS.still, animation = pilotWorkflow.REQUESTS.animation;
+  pilotWorkflow.reserveRequest({ root, request: { ...still, requestKey: still.key, parameters: still.params }, stage: 'still', planning, auth });
+  pilotWorkflow.reserveRequest({ root, request: { ...animation, requestKey: animation.key, parameters: animation.params }, stage: 'animation', planning, auth });
+  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: { ...animation, requestKey: animation.key, parameters: animation.params },
+    stage: 'animation', planning, auth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
+});
+
+test('unsupported media, invalid FFprobe output and production pilot references fail closed', () => {
+  assert.throws(() => pilotWorkflow.pngInfo(Buffer.from('html')), /PILOT_STILL_NOT_PNG/);
+  assert.throws(() => pilotWorkflow.probeVideo('ignored', () => ({ status: 1, stdout: '' })), /PILOT_FFPROBE_FAILED/);
+  assert.throws(() => pilotWorkflow.probeVideo('ignored', () => ({ status: 0, stdout: JSON.stringify({ streams: [] }) })),
+    /PILOT_VIDEO_STREAM_COUNT_INVALID/);
+  assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia({ allShots: [{ shotId: 'ACT3_B005',
+    productionEligibility: 'NON_PRODUCTION_DISPOSABLE_PILOT' }] }), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+  assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia({ assetPath: '/data/.review/phase3-media-pilots/phase3-media-pilot-01/asset.png' }),
+    /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+});
+
+test('FAL SDK automatic retries are explicitly disabled for each one-shot pilot submission', async () => {
+  const configurations = [], submissions = [];
+  const fakeFal = { config(value) { configurations.push(value); }, async subscribe(model, options) {
+    submissions.push({ model, options });
+    return { data: model === pilotWorkflow.REQUESTS.still.model
+      ? { images: [{ url: 'https://fal.media/fixture.png', content_type: 'image/png' }] }
+      : { video: { url: 'https://fal.media/fixture.mp4', content_type: 'video/mp4' } } };
+  } };
+  const provider = pilotWorkflow.createFalProvider({ falModuleLoader: () => ({ fal: fakeFal }),
+    credentialResolver: () => 'test-only-credential-sentinel' });
+  await provider.generateStill({ model: pilotWorkflow.REQUESTS.still.model, input: { prompt: 'fixture' } });
+  await provider.generateAnimation({ model: pilotWorkflow.REQUESTS.animation.model, input: { prompt: 'fixture' } });
+  assert.equal(configurations.length, 2);
+  assert.ok(configurations.every(config => config.retry.maxRetries === 0 && config.retry.retryableStatusCodes.length === 0));
+  assert.equal(submissions.length, 2);
+  assert.deepEqual(submissions.map(item => item.model), [pilotWorkflow.REQUESTS.still.model, pilotWorkflow.REQUESTS.animation.model]);
 });

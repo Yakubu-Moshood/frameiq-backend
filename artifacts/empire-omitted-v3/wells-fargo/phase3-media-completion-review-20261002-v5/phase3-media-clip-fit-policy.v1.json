@@ -1,0 +1,1166 @@
+{
+  "schemaVersion": "phase3-clip-fit-policy/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "calculationFps": 30,
+  "sourceRequestDurationSec": 5,
+  "sourceFrameCountAtCalculationRate": 150,
+  "sourceMediaFps": "UNRESOLVED_PENDING_PILOT",
+  "codec": null,
+  "dimensions": null,
+  "container": null,
+  "providerReturnedDuration": null,
+  "operation": "Normalize only after pilot confirms an exact deterministic path. For durations <5s retain the first round(durationSec*30) frames. For durations >5s retain 150 normalized source frames and hold the final frame for round(durationSec*30)-150 frames.",
+  "roundingRule": "Math.round(durationSec * 30); resulting planned timeline differs from exact edit-plan duration by (targetFrames/30)-durationSec. This is disclosed per beat.",
+  "entries": [
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B009",
+      "exactNarration": "employee in Los Angeles noticed something strange",
+      "beatDurationSec": 3.8000011444091797,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 114,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 36,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.8,
+        "roundingDeltaSec": -0.0000011444091798651357,
+        "roundingStatement": "shortens the exact beat by 0.000001144409 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B009",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Female bank employee at desk, eyes moving from her screen, subtle concern emerging on her face.",
+      "visualIntent": "A bank employee at her workstation notices something wrong.",
+      "animationPrompt": "Slow dolly forward toward employee. Her eyes move from screen, hand pauses mid-motion above keyboard. Subtle concern registers on face without dramatic expression. Camera movement deliberate, building tension through approach.",
+      "negativePrompt": "identifiable real person, celebrity likeness, Wells Fargo branding, readable screens, specific documents, company logos, news footage appearance, named individuals",
+      "promptSha256": "5b76ea425eb891f077866a2bd1fd40b44b1bc3e4d1b0ae3d392dc151b8d1348d",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B009-436fd8d117155674e537f8fd",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B009-436fd8d117155674e537f8fd",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B010",
+      "exactNarration": "Her colleague was opening accounts for customers",
+      "beatDurationSec": 2.1999969482421875,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 66,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 84,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.2,
+        "roundingDeltaSec": 0.0000030517578126776357,
+        "roundingStatement": "Lengthens the exact beat by 0.000003051758 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B010",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Colleague's hands typing rapidly, account creation interface visible, no customer at the desk.",
+      "visualIntent": "Over-shoulder view reveals colleague opening unauthorized accounts.",
+      "animationPrompt": "Rack focus transition from typing hands in foreground to screen content in mid-ground to empty customer chair in background. Focus shift emphasizes absence of customer during account creation. Typing rhythm continues throughout.",
+      "negativePrompt": "identifiable faces, Wells Fargo logos, readable personal information, specific software interfaces, real customer data, documentary footage appearance, celebrities",
+      "promptSha256": "e1933cbf9930455f00ad6dd9701771bbfeba77a958eb4f393cf57706e880484b",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B010-a9304544435ce4f0c65c32a6",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B010-a9304544435ce4f0c65c32a6",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B014",
+      "exactNarration": "She reported it to her manager",
+      "beatDurationSec": 2.020000457763672,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 61,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 89,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.033333333333333,
+        "roundingDeltaSec": 0.01333287556966134,
+        "roundingStatement": "Lengthens the exact beat by 0.013332875570 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B014",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Employee stands at manager's door with papers, manager barely looks up from computer.",
+      "visualIntent": "Employee approaches manager's office with evidence of wrongdoing.",
+      "animationPrompt": "Dolly forward through doorway toward manager. Manager's hand makes brief dismissive gesture without looking up. Employee's papers remain unaccepted. Camera movement presses forward while manager remains disengaged.",
+      "negativePrompt": "identifiable faces, Wells Fargo branding, readable documents, specific individuals, celebrities, documentary footage, readable certificates or names",
+      "promptSha256": "c75649faf614544a8cdb8abcca4cac622571ade11c68656a9e1f6876d9a83523",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B014-70af6b164585ad5722a25a7d",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B014-70af6b164585ad5722a25a7d",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B016",
+      "exactNarration": "Within months she was fired",
+      "beatDurationSec": 2.8600006103515625,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 86,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 64,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.8666666666666667,
+        "roundingDeltaSec": 0.006666056315104196,
+        "roundingStatement": "Lengthens the exact beat by 0.006666056315 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B016",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Employee seated across from HR and manager, termination letter slid across table toward her.",
+      "visualIntent": "Termination meeting, the whistleblower receives her punishment.",
+      "animationPrompt": "Slow dolly forward toward document sliding across table. Employee's hands remain motionless in foreground. Paper comes to rest. Moment of institutional finality. Camera movement relentless, matching institutional momentum.",
+      "negativePrompt": "identifiable faces, Wells Fargo branding, readable termination letter text, specific individuals, celebrities, news footage appearance, documentary evidence",
+      "promptSha256": "0a8034231f357b7bfe2336686951eb298ef229a273bb95d50f2ccbb1b08a6005",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B016-cac75493829a8d9b1c0f447a",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B016-cac75493829a8d9b1c0f447a",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B018",
+      "exactNarration": "She believed she was being punished for speaking up And she wasn't",
+      "beatDurationSec": 3.779998779296875,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 113,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 37,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.7666666666666666,
+        "roundingDeltaSec": -0.013332112630208393,
+        "roundingStatement": "shortens the exact beat by 0.013332112630 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B018",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "One anonymous employee packs personal items at a desk; the frame remains limited to this single person and action.",
+      "visualIntent": "The whistleblower knew the real reason—and she wasn't alone.",
+      "animationPrompt": "A single measured lateral camera move across one employee and one box. The employee places one object; background remains still and unpopulated.",
+      "negativePrompt": "multiple employees, multiplying silhouettes, crowds, mass termination, numerical scale, identifiable faces, logos, readable badges, documentary footage",
+      "promptSha256": "887b970c6c1e3dc04a261a49bc3084455433cc9be7d59bd54ce6562c66ef16f8",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B018-20e44dab9ef13b518d72bf05",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B018-20e44dab9ef13b518d72bf05",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B021",
+      "exactNarration": "never knew about Some forged signatures Some created",
+      "beatDurationSec": 4.819999694824219,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 145,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 5,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.833333333333333,
+        "roundingDeltaSec": 0.013333638509114287,
+        "roundingStatement": "Lengthens the exact beat by 0.013333638509 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B021",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Anonymous hand over a generic form with a signature area rendered as abstract, non-legible strokes.",
+      "visualIntent": "Methods of fraud exposed—forged signatures and false identities.",
+      "animationPrompt": "A slow camera push toward the pen and abstract marks. Do not create or complete legible writing; keep the hand and page geometry stable.",
+      "negativePrompt": "readable name, authentic signature, customer identity, account data, real bank form, logo, legible text, documentary evidence",
+      "promptSha256": "145a227be6424f5e706a26bd239b9f12021e55aab1cf1508894291b1a3cd29b9",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B021-39d0eede8b8b5517a2ebddbb",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B021-39d0eede8b8b5517a2ebddbb",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B023",
+      "exactNarration": "Others opened accounts for relatives without telling them",
+      "beatDurationSec": 4.400001525878906,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 132,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 18,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.4,
+        "roundingDeltaSec": -0.0000015258789058947286,
+        "roundingStatement": "shortens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT1_B023",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Elderly person at kitchen table, confused, holding debit card they never applied for, family photo visible in background.",
+      "visualIntent": "Family member receives unexpected bank card in mail.",
+      "animationPrompt": "Slow dolly forward toward figure examining card. Hands turn card over in confusion. Camera approaches moment of discovery, emphasizing vulnerability and bewilderment without dramatization.",
+      "negativePrompt": "Wells Fargo card design, identifiable face, specific individual, celebrity, real family photos, documentary footage, readable account numbers",
+      "promptSha256": "94e94efc8be10d4fc3280503b16dc0ca7a36f1e9bf9170fb321ade122d113334",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT1_B023-4d2b06d2f30b3235019b8b26",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT1_B023-4d2b06d2f30b3235019b8b26",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B016",
+      "exactNarration": "binding each person to Wells Fargo for life",
+      "beatDurationSec": 3.9199981689453125,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 118,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 32,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.933333333333333,
+        "roundingDeltaSec": 0.013335164388020626,
+        "roundingStatement": "Lengthens the exact beat by 0.013335164388 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT2_B016",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Generic wallet with plain unbranded cards in neutral colors.",
+      "visualIntent": "Eight fees and relationships binding the customer.",
+      "animationPrompt": "A restrained rack focus from wallet edge to the plain cards. Fingers make only a small natural adjustment; no card face becomes readable.",
+      "negativePrompt": "Wells Fargo, red branded cards, logos, readable names, account numbers, real card designs, identifiable person, documentary footage",
+      "promptSha256": "f12fec5a74398f0786309187066cd533d9a6ae0a42d7687491d1a43d9057d53b",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT2_B016-ce9ef42d7e25fdf26bc1f245",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT2_B016-ce9ef42d7e25fdf26bc1f245",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B022",
+      "exactNarration": "And when employees couldn't meet these impossible quotas legitimately",
+      "beatDurationSec": 5.260002136230469,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 158,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 0,
+        "holdFrames": 8,
+        "frameAccurateDurationSec": 5.266666666666667,
+        "roundingDeltaSec": 0.0066645304361978575,
+        "roundingStatement": "Lengthens the exact beat by 0.006664530436 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT2_B022",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "An employee stares at a screen showing their sales numbers far below target, clock visible.",
+      "visualIntent": "An employee confronts an impossible task.",
+      "animationPrompt": "Slow dolly forward toward the screen, employee's shoulders and posture slump visibly during shot, subtle head drop suggesting defeat, clock on wall remains static, screen graphics unchanged as human posture provides emotional narrative",
+      "negativePrompt": "identifiable face, readable personal data, home environment, natural lighting, relaxed posture, celebratory graphics, coworkers visible, windows showing daylight",
+      "promptSha256": "bbf922830e21d04bf601ffb2abbb3442c615d16fce71e3b012ee3f3e652b4ff3",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT2_B022-dcf05888df269cc118bfd51e",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT2_B022-dcf05888df269cc118bfd51e",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "exactNarration": "they found another way",
+      "beatDurationSec": 1.7199935913085938,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 52,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 98,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 1.7333333333333334,
+        "roundingDeltaSec": 0.013339742024739643,
+        "roundingStatement": "Lengthens the exact beat by 0.013339742025 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT2_B023",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Controlled still of anonymous hands beside a single abstract, blank account interface.",
+      "visualIntent": "The moment of moral compromise.",
+      "animationPrompt": "Still image only. No typing animation, field population, cursor action, or implied transfer of customer data.",
+      "negativePrompt": "readable personal information, customer data, password, real account fields, identifiable software, logos, documentary evidence",
+      "promptSha256": "6b8262f5c6e3668c2fa57ed38b0d0a7f6935092d53966526751f42a890ac2bf1",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT2_B023-eebe558bc37a1b801fa4763a",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT2_B023-eebe558bc37a1b801fa4763a",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B026",
+      "exactNarration": "And for years nobody at the top claimed to notice",
+      "beatDurationSec": 4.662608610351583,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 140,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 10,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.666666666666667,
+        "roundingDeltaSec": 0.0040580563150838245,
+        "roundingStatement": "Lengthens the exact beat by 0.004058056315 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT2_B026",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Executive office door closes; through frosted glass, a figure turns away from the window.",
+      "visualIntent": "Executive isolation and claimed ignorance.",
+      "animationPrompt": "Slow dolly back as executive office door closes, silhouette visible through frosted glass panel turns away from door toward unseen window, camera continues pulling back creating distance, door fully closes near end of shot emphasizing separation and isolation",
+      "negativePrompt": "identifiable face, clear view through glass, budget office furniture, open door, welcoming gesture, multiple figures, bright cheerful lighting, ground floor location",
+      "promptSha256": "9d4203188dc713991d754d7e9bbbb460f9c992384424397a3824afe9d8403096",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT2_B026-fafc3998189cdd508f251f5f",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT2_B026-fafc3998189cdd508f251f5f",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B005",
+      "exactNarration": "customer would come in to open a checking account Simple enough",
+      "beatDurationSec": 3.6599998474121094,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 110,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 40,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.6666666666666665,
+        "roundingDeltaSec": 0.006666819254557144,
+        "roundingStatement": "Lengthens the exact beat by 0.006666819255 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B005",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "A customer slides ID across a desk to a banker; the banker begins typing.",
+      "visualIntent": "The innocent transaction begins.",
+      "animationPrompt": "Lateral tracking shot moving right to left across desk surface, following ID card movement, slight focus shift from customer hands to banker hands as typing begins",
+      "negativePrompt": "identifiable faces, real IDs with readable information, specific bank logos, branded materials, cluttered desk, unprofessional setting",
+      "promptSha256": "ca474938032c59f0bbbbcf011e247c533e56224535e9f6f6d1e22b26a828b743",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B005-4e581bd3f7ea1eba87b7c8cd",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B005-4e581bd3f7ea1eba87b7c8cd",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B008",
+      "exactNarration": "All without the customer's knowledge",
+      "beatDurationSec": 2.530000686645508,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 76,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 74,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.533333333333333,
+        "roundingDeltaSec": 0.0033326466878254024,
+        "roundingStatement": "Lengthens the exact beat by 0.003332646688 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B008",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "The customer stands, shakes the banker's hand, and walks away; the banker's screen shows four open applications.",
+      "visualIntent": "The customer's ignorance is the point.",
+      "animationPrompt": "Crane descending from elevated angle as customer exits frame, revealing the four application windows on banker's screen, creating visual revelation of deception scale",
+      "negativePrompt": "identifiable faces, real bank branding, readable screen content, specific logos, authentic documents, cluttered unprofessional space",
+      "promptSha256": "a1625c0fa4e0c9656aedf873d09e376e2d30d3471963e6a0990b00089c5883d8",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B008-9997c17a792f1bb2dd26cf02",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B008-9997c17a792f1bb2dd26cf02",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B014",
+      "exactNarration": "They would open accounts using the identities of elderly customers who wouldn't notice",
+      "beatDurationSec": 5.040000915527344,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 151,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 0,
+        "holdFrames": 1,
+        "frameAccurateDurationSec": 5.033333333333333,
+        "roundingDeltaSec": -0.006667582194010535,
+        "roundingStatement": "shortens the exact beat by 0.006667582194 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B014",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Sensitive composite reconstruction limited to anonymous hands and generic blank paperwork.",
+      "visualIntent": "The elderly as targets of opportunity.",
+      "animationPrompt": "A restrained rack focus from the anonymous hands to the plain glasses and blank form. No hidden activity or unseen individual is revealed.",
+      "negativePrompt": "identifiable face, readable form, customer data, specific victim, exploitative stereotype, authentic document, documentary footage",
+      "promptSha256": "69fc4357240aa242654319e1a5896094e0aad6983d0d72b2dc6c28bcc1024e83",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B014-77e81a4a797c8cae16d2bbcd",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B014-77e81a4a797c8cae16d2bbcd",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B015",
+      "exactNarration": "They would sign up immigrants who couldn't read the English paperwork",
+      "beatDurationSec": 3.5400009155273438,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 106,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 44,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.533333333333333,
+        "roundingDeltaSec": -0.006667582194010535,
+        "roundingStatement": "shortens the exact beat by 0.006667582194 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B015",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Anonymous hands and paper interaction without cues about ethnicity or English fluency.",
+      "visualIntent": "Language barriers exploited.",
+      "animationPrompt": "A slow camera push toward the pointing hand and unmarked form. Keep gestures restrained; no signing or readable text is generated.",
+      "negativePrompt": "ethnicity stereotype, language-fluency stereotype, identifiable faces, readable text, customer data, authentic form, documentary footage",
+      "promptSha256": "83baf5d417a78d37102f24031b0415d8ba8d35bf6e82c973cd0add744d66b220",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B015-3c00c9c522c78000f98a4749",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B015-3c00c9c522c78000f98a4749",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B023",
+      "exactNarration": "improvement plans the first step toward termination",
+      "beatDurationSec": 4.220001220703125,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 127,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 23,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.233333333333333,
+        "roundingDeltaSec": 0.013332112630208393,
+        "roundingStatement": "Lengthens the exact beat by 0.013332112630 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B023",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "An employee removes personal items from a desk drawer; a badge lies face-down.",
+      "visualIntent": "Termination as the inevitable endpoint.",
+      "animationPrompt": "Static locked frame holding on the quiet ritual of departure, subtle movement of hands collecting items, badge remaining still and face-down throughout",
+      "negativePrompt": "identifiable faces, readable badges, specific company logos, real employee names, documentary footage, news imagery",
+      "promptSha256": "f125e4f4cd6191232e37bca9e89c638ad6deba2d8c232b74d0cb8950011498a8",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B023-3117ccdc2f2d2eb29860aa5a",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B023-3117ccdc2f2d2eb29860aa5a",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B028",
+      "exactNarration": "And when they reported what was happening The",
+      "beatDurationSec": 2.8600006103515625,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 86,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 64,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.8666666666666667,
+        "roundingDeltaSec": 0.006666056315104196,
+        "roundingStatement": "Lengthens the exact beat by 0.006666056315 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3_B028",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Anonymous hand near a plain desk phone; background wall is blank and contains no hotline material.",
+      "visualIntent": "The act of reporting.",
+      "animationPrompt": "A slow push toward the hand and plain phone, holding before the receiver is lifted. No dialing or text appears.",
+      "negativePrompt": "hotline number, poster text, ethics label, company branding, authentic internal poster, identifiable person, documentary evidence",
+      "promptSha256": "e73871a6fb9796ebff85f16bb746c3ab39d6fbe81fd911618e777e0cd3db7264",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3_B028-aaaf550991d201a9d92321ec",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3_B028-aaaf550991d201a9d92321ec",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B003",
+      "exactNarration": "Overdraft charges for accounts they didn't know existed",
+      "beatDurationSec": 3.8399996757507324,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 115,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 35,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 3.8333333333333335,
+        "roundingDeltaSec": -0.0066663424173989405,
+        "roundingStatement": "shortens the exact beat by 0.006666342417 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3B_B003",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Phone screen showing overdraft alert, camera slowly pulling back to reveal confused customer at kitchen table.",
+      "visualIntent": "An overdraft notification arrives for an account the customer never knew existed.",
+      "animationPrompt": "Slow dolly back revealing anonymous figure seated at kitchen table, thumb scrolls down on phone screen through transaction list, subtle camera movement creates sense of dawning realization and isolation",
+      "negativePrompt": "identifiable face, recognizable person, specific bank app design, Wells Fargo branding, readable account numbers, personal name visible, fantasy elements, stylized lighting, bright cheerful colors",
+      "promptSha256": "d2a6e91f845c95bd5b9cb3539c041dad140ba5036a042de27eb47a3c383f4c99",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3B_B003-716f8b942b8d7c2f0acaa0a9",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3B_B003-716f8b942b8d7c2f0acaa0a9",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B006",
+      "exactNarration": "Some customers were denied mortgages because of the damage to their credit",
+      "beatDurationSec": 4.680000305175781,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 140,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 10,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.666666666666667,
+        "roundingDeltaSec": -0.013333638509114287,
+        "roundingStatement": "shortens the exact beat by 0.013333638509 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3B_B006",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Couple sits across from loan officer who shakes head slightly; their posture deflates.",
+      "visualIntent": "A couple at a banker's desk receiving denial—the dream deferred.",
+      "animationPrompt": "Slow dolly forward toward the couple's backs as loan officer shakes head, woman's hand reaches across to partner's hand on armrest, postures visibly deflate, camera movement emphasizes the weight of the moment",
+      "negativePrompt": "identifiable faces, recognizable individuals, specific bank branding, Wells Fargo signage, bright cheerful colors, fantasy elements, stylized dramatic lighting, celebratory mood",
+      "promptSha256": "a2f49e799495e737d83c56c82d6f12eb429383cf8077a0a2e747f9dd902aadee",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3B_B006-1185390c79c623a0e1f3c9b6",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3B_B006-1185390c79c623a0e1f3c9b6",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B014",
+      "exactNarration": "Others said they had been punished for resisting impossible quotas or reporting",
+      "beatDurationSec": 4.020000457763672,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 121,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 29,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 4.033333333333333,
+        "roundingDeltaSec": 0.01333287556966134,
+        "roundingStatement": "Lengthens the exact beat by 0.013332875570 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3B_B014",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Different employee steps away from desk, refusing to participate; manager approaches with performance folder.",
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims.",
+      "animationPrompt": "Lateral tracking shot as employee steps away from desk, manager figure enters frame and places hand deliberately on the back of the empty chair, the territorial gesture implying threat",
+      "negativePrompt": "identifiable faces, recognizable individuals, Wells Fargo branding, specific bank logo, readable documents, personal information visible, bright cheerful colors, fantasy elements, celebratory mood",
+      "promptSha256": "6cb024a4122d52915b415d1cfb258bedcf7f4c26ade2950ac8cf7c714f8d8f8f",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3B_B014-98320b26cb6c69a2a8c661e4",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3B_B014-98320b26cb6c69a2a8c661e4",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B017",
+      "exactNarration": "The people who cheated to meet them could be fired",
+      "beatDurationSec": 2.5999984741210938,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 78,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 72,
+        "holdFrames": 0,
+        "frameAccurateDurationSec": 2.6,
+        "roundingDeltaSec": 0.0000015258789063388178,
+        "roundingStatement": "Lengthens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT3B_B017",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Different employee escorted past cubicles, badge surrendered at security desk.",
+      "visualIntent": "The employee who cheated—also expendable.",
+      "animationPrompt": "Lateral tracking shot following the escort past cubicles, employee silhouette reaches security desk and surrenders badge, the mechanical process emphasizing institutional indifference",
+      "negativePrompt": "identifiable faces, recognizable individuals, Wells Fargo branding, specific bank logo, readable badge information, personal details visible, bright cheerful colors, fantasy elements, sympathetic security guards",
+      "promptSha256": "71a05986d33ebddb32db8d506e20a3c253688cb143b4be32be5943bc59214e29",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT3B_B017-5daf1b3b1d9968dfcac3f23d",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT3B_B017-5daf1b3b1d9968dfcac3f23d",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "exactNarration": "workers clear their records and pay back wages or damages Other employees",
+      "beatDurationSec": 6.099998474121094,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 183,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 0,
+        "holdFrames": 33,
+        "frameAccurateDurationSec": 6.1,
+        "roundingDeltaSec": 0.0000015258789058947286,
+        "roundingStatement": "Lengthens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT5_B012",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+      "visualIntent": "The bureaucratic process of clearing records and paying damages.",
+      "animationPrompt": "A small controlled camera move from the pen to the blank page. Do not animate signing or sliding a document.",
+      "negativePrompt": "settlement terms, readable legal text, dollar amounts, names, real signatures, logos, authentic agreement, documentary footage",
+      "promptSha256": "b9682071c76da5af783f7271ab6bce84ba1a715d3a32fb81c4c04999bf74ae76",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT5_B012-c15b5a6168cb26caf24049c2",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT5_B012-c15b5a6168cb26caf24049c2",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B017",
+      "exactNarration": "lower down as disposable when the system finally became public",
+      "beatDurationSec": 5.339996337890625,
+      "fitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "timelineFramePlan": {
+        "calculationFps": 30,
+        "providerSourceFrameRate": "UNRESOLVED_PENDING_APPROVED_PILOT",
+        "targetFrames": 160,
+        "sourceFramesAfter30FpsNormalization": 150,
+        "trimFrames": 0,
+        "holdFrames": 10,
+        "frameAccurateDurationSec": 5.333333333333333,
+        "roundingDeltaSec": -0.006663004557291963,
+        "roundingStatement": "shortens the exact beat by 0.006663004557 seconds after rounding to whole 30-fps frames."
+      },
+      "clipRequest": {
+        "requestedDurationSec": 5,
+        "providerReturnedDurationSec": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "frameRate": null,
+        "container": null,
+        "allOutputPropertiesStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT"
+      },
+      "baseStillDependency": {
+        "dependencyId": "BASE_ACT5_B017",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "visualDescription": "Distinct restrained composition of an anonymous desk after belongings have been removed, without repeating a packing action.",
+      "visualIntent": "People below absorbed as system cost when exposure arrived.",
+      "animationPrompt": "A slow restrained camera move across the empty desk toward the closed box. No person enters and no objects are packed.",
+      "negativePrompt": "packing action, manager watching, identifiable people, readable papers, company branding, specific office, documentary footage",
+      "promptSha256": "3323b081db9dad446607cd66cd7873e414c3b3e14ec88c8a8e91b2cb62372f90",
+      "providerRoute": "UNRESOLVED_PENDING_PILOT",
+      "currentProviderPrice": null,
+      "idempotencyKey": "p3m2-animation-clip-ACT5_B017-0f47835baa1c5f4ead273237",
+      "requestReservationKey": "reserve-p3m2-animation-clip-ACT5_B017-0f47835baa1c5f4ead273237",
+      "reviewRequirements": [
+        "approve 5-second source fit policy",
+        "approve final-frame hold where applicable",
+        "approve provider/model/price after pilot",
+        "verify normalized 30-fps result and exact target frame count",
+        "human review final shot"
+      ]
+    }
+  ]
+}

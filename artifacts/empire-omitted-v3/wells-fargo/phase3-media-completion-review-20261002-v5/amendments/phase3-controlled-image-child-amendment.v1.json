@@ -1,0 +1,3168 @@
+{
+  "schemaVersion": "phase3-production-manifest-child-amendment/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "approvedBy": null,
+  "decision": null,
+  "amendmentId": "phase3-controlled-image-asset-type-v2",
+  "parentCandidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+  "parentShotDefinitionsSha256": "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7",
+  "parentProductionManifestSha256": "0caef389bd517c5a0898377dc304708fe83666c51205fbdeeddfb365d5ec531e",
+  "parentRevisionLineage": [
+    {
+      "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+      "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369",
+      "bytes": 4016
+    },
+    {
+      "path": "revision-lineage/phase2.2d-lineage.v1.json",
+      "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+      "bytes": 90940
+    },
+    {
+      "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+      "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a",
+      "bytes": 18406
+    },
+    {
+      "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+      "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e",
+      "bytes": 237304
+    },
+    {
+      "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+      "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "bytes": 22582
+    },
+    {
+      "path": "validation/revision-lineage-validation.json",
+      "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08",
+      "bytes": 461
+    }
+  ],
+  "exactScope": {
+    "entryCount": 34,
+    "beatIds": [
+      "ACT1_B005",
+      "ACT1_B011",
+      "ACT1_B012",
+      "ACT1_B013",
+      "ACT1_B015",
+      "ACT1_B020",
+      "ACT1_B022",
+      "ACT1_B030",
+      "ACT2_B002",
+      "ACT2_B003",
+      "ACT2_B009",
+      "ACT2_B011",
+      "ACT2_B012",
+      "ACT2_B013",
+      "ACT2_B015",
+      "ACT2_B020",
+      "ACT2_B021",
+      "ACT2_B024",
+      "ACT2_B025",
+      "ACT3_B006",
+      "ACT3_B007",
+      "ACT3_B010",
+      "ACT3_B013",
+      "ACT3_B020",
+      "ACT3_B026",
+      "ACT3_B027",
+      "ACT3B_B001",
+      "ACT3B_B004",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018",
+      "ACT5_B010",
+      "ACT5_B013"
+    ],
+    "onlyChangedField": "assetType",
+    "from": "generated_clip",
+    "to": "controlled_image",
+    "productionMethod": "CONTROLLED_STILL"
+  },
+  "entries": [
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B005",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "3c1ac96c3521d7c9b463df46f33f409b8367674126d7ebe010ea4090779bd229",
+        "actMirrorUnchangedExceptAssetTypeSha256": "22db502fda5e21045f1d0ccdce7f6771156948c2c005c29c7a2e0f19a9fecfae",
+        "productionEntryUnchangedExceptAssetTypeSha256": "2f02ad73510109ec584e34a744a7898d574c17775ab69c32832739f0fc736a06",
+        "narrationSha256": "f9fa8a398306e92083ed1aa32a84d739cc00c76fd692cd7334158c0123fb17e0",
+        "timing": {
+          "startSec": 18.239999771118164,
+          "endSec": 22.139999389648438,
+          "durationSec": 3.8999996185302734,
+          "startWordIndex": 37,
+          "endWordIndex": 43
+        },
+        "visualIntentSha256": "4a2adf5218e54132ae5971a5e1960400275e4461d0f93e974331b583b18179c1",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B005",
+          "shotId": "ACT1_B005",
+          "manifestShotId": "ACT1_B005"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B011",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "608caf152736443daf1ffea591a9ef9314ee2c5a90f81e17f25e2d38a58597f3",
+        "actMirrorUnchangedExceptAssetTypeSha256": "7b57ca7050b5cff82ed3a0e70a26d600c3e0f4f68cd20ce388928a3041b3be5c",
+        "productionEntryUnchangedExceptAssetTypeSha256": "d66b213176b915036b7a925ddafcb3f3487eaea51582c3611fde937ba475032e",
+        "narrationSha256": "4c27fece25621f417bdbd75ac0698a389eed4e4f4b5ae60141dcd9bbb0333a0a",
+        "timing": {
+          "startSec": 36.439998626708984,
+          "endSec": 38.779998779296875,
+          "durationSec": 2.3400001525878906,
+          "startWordIndex": 75,
+          "endWordIndex": 79
+        },
+        "visualIntentSha256": "853eb6bf22d77255f659be29ceae8b552b41519ce551f81d8c921cd160cc9a03",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B011",
+          "shotId": "ACT1_B011",
+          "manifestShotId": "ACT1_B011"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B012",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "49098836b9be5042249ba5c9a70b1e67d1d05d13ec08155e633304e28bf685e3",
+        "actMirrorUnchangedExceptAssetTypeSha256": "5741e351ea9002fe713c86810acc6f6b62da6d1f67ee0aaf20784ff72e45d35a",
+        "productionEntryUnchangedExceptAssetTypeSha256": "4c9de1b1b29bc6f61619140ee27c5d3c29aac66a7fd445af293813111a31c8e6",
+        "narrationSha256": "a3bfdf2c31a5281953186c53f4426776cc5d61c99fe2099b5906f5d1b5940dd4",
+        "timing": {
+          "startSec": 38.779998779296875,
+          "endSec": 42,
+          "durationSec": 3.220001220703125,
+          "startWordIndex": 80,
+          "endWordIndex": 86
+        },
+        "visualIntentSha256": "a95432576162692ac3a728759f7037195f308e93e8d2dd22b111a634c5b6cdb9",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B012",
+          "shotId": "ACT1_B012",
+          "manifestShotId": "ACT1_B012"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B013",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "f7c1f6eff3ddfcc71bd9323f12401d0a2b17efb438e54f64d18c8754b5568540",
+        "actMirrorUnchangedExceptAssetTypeSha256": "9415e6ea5fedb182242d883eac4b7a173fdf4cc15b7945a606ed92528d6fad7a",
+        "productionEntryUnchangedExceptAssetTypeSha256": "6aa342df769b1fd4f9c3711df3dd45c8f4a748f908e0fd52f349bfa39bbec0a8",
+        "narrationSha256": "469f57591fbd1d78c498dbdceb3684ff3e3c5e77a6d69f3dbbc46d8cdbedc9be",
+        "timing": {
+          "startSec": 42,
+          "endSec": 45.84000015258789,
+          "durationSec": 3.8400001525878906,
+          "startWordIndex": 87,
+          "endWordIndex": 96
+        },
+        "visualIntentSha256": "f9d69284d5794207f97ead726f3c6919bc05a8285da6d7e3a0569e167f2c99cf",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B013",
+          "shotId": "ACT1_B013",
+          "manifestShotId": "ACT1_B013"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B015",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "d6353c641059aad3efad3a535600a514e188a04ae9755d354b042db5aa553fe3",
+        "actMirrorUnchangedExceptAssetTypeSha256": "a66050fb03a2182bbe80811648704b39d617503ee7ab4f63e136986e453f502b",
+        "productionEntryUnchangedExceptAssetTypeSha256": "b9ca74296126ab26af072066b49e3f1f688d551f464b006edf1eabd78af7477c",
+        "narrationSha256": "bda7b58b2d0a74aa4cea243c330e0edf141a3a714e4b6d5210fb1f3f858de530",
+        "timing": {
+          "startSec": 47.86000061035156,
+          "endSec": 51.97999954223633,
+          "durationSec": 4.119998931884766,
+          "startWordIndex": 103,
+          "endWordIndex": 110
+        },
+        "visualIntentSha256": "b529cfccf0905e89efd4c0d26ff03c84f533a9caf8e1a829183f85cbd3d68969",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B015",
+          "shotId": "ACT1_B015",
+          "manifestShotId": "ACT1_B015"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B020",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "8bef776e2ffe0c6244515c5073ab5f87bdde47ed5936548a4a2fd6b7886d7831",
+        "actMirrorUnchangedExceptAssetTypeSha256": "c5a62e4ba4288629cae913196e05e41ee3b130c01decbf784148f58a970c3f40",
+        "productionEntryUnchangedExceptAssetTypeSha256": "389747884480eee322a8b670e23218c8c593ca6860859b5e2c5f08353891afd0",
+        "narrationSha256": "8ae6157e09790455f568c319b07511019c600beb87248b1217c04b93ed6773e4",
+        "timing": {
+          "startSec": 66.9000015258789,
+          "endSec": 71.9000015258789,
+          "durationSec": 5,
+          "startWordIndex": 143,
+          "endWordIndex": 153
+        },
+        "visualIntentSha256": "9074815edfa50ae0894202aa53593317ae97fb6cc3847dc1f93b14fc3e17092e",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B020",
+          "shotId": "ACT1_B020",
+          "manifestShotId": "ACT1_B020"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B022",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "8d5725f07f7e787fb78da19c5f8346c676eba7c094b7169f6823d05cfaad8fcd",
+        "actMirrorUnchangedExceptAssetTypeSha256": "5dcef4c9d9bec3cf68473da9367a423bedc342ba9dc6a5e7ef61c29e701ee07d",
+        "productionEntryUnchangedExceptAssetTypeSha256": "637fd5f2fb67650ec0e238fa254e26af17f16d235daba503d5e1d156b70646fb",
+        "narrationSha256": "388a0264d3983fbbf2d9a4b731aafb5b5d24c320729e8da9bd1d3c3b6daa1d41",
+        "timing": {
+          "startSec": 76.72000122070312,
+          "endSec": 81.18000030517578,
+          "durationSec": 4.459999084472656,
+          "startWordIndex": 162,
+          "endWordIndex": 168
+        },
+        "visualIntentSha256": "309f36ac2745fcc3c0f5d78a9ef9958c21933f147af4c5a731f35fe54bba3fc1",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B022",
+          "shotId": "ACT1_B022",
+          "manifestShotId": "ACT1_B022"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act1",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "bf4f7d3b52291092b039e3070a6890005311621f7599acd150e3d1aa66461bc4",
+        "actMirrorUnchangedExceptAssetTypeSha256": "71fdcf5887fc817b669be4dc32874b36f69e6db76876dc6f18f29d5f8dd2ae03",
+        "productionEntryUnchangedExceptAssetTypeSha256": "2e8cbdc0c81e34542908c3111046aa4755e37915f188684dad70851a81d131ea",
+        "narrationSha256": "2326296a29ba4f5bcb4ddef7d243f9d23e8eae9656aefa8907cf1896de687222",
+        "timing": {
+          "startSec": 112.66000366210938,
+          "endSec": 114.013379,
+          "durationSec": 1.3533753378906255,
+          "startWordIndex": 226,
+          "endWordIndex": 229
+        },
+        "visualIntentSha256": "544e302aec29a95d4e0b499320e56bdce184218bebd822626637e03de0176cb9",
+        "ownership": {
+          "actKey": "act1",
+          "beatId": "ACT1_B030",
+          "shotId": "ACT1_B030",
+          "manifestShotId": "ACT1_B030"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B002",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "5e264d6eda69bf34988aea43fc3ae8ac8439cb92801bdfc08013bedfbdbf9d25",
+        "actMirrorUnchangedExceptAssetTypeSha256": "ea64af417dc9f6ad2ab5fb1a89f518e4f6306d0cec9f2e63abce59f1761ce3ee",
+        "productionEntryUnchangedExceptAssetTypeSha256": "83abd354924656b77458cd8b301bc8a86eaa2008a596568d316aeeaf9d273f7c",
+        "narrationSha256": "67b45693a85d40ca037f94041e49400b1bfdd15d7a2dfaa967ecdd3edbf1e602",
+        "timing": {
+          "startSec": 118.53337898092651,
+          "endSec": 123.71337880926514,
+          "durationSec": 5.179999828338623,
+          "startWordIndex": 10,
+          "endWordIndex": 19
+        },
+        "visualIntentSha256": "e9af7536841acc0c34287029ca6b7d821749dbab0ea99920c2ac9606c96c3882",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B002",
+          "shotId": "ACT2_B002",
+          "manifestShotId": "ACT2_B002"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B003",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "167f4064f28be5c800146386092bcfa7edb0d6fac47c4db37279a869fd7f43e4",
+        "actMirrorUnchangedExceptAssetTypeSha256": "3ecd589a6f7af271519bd3c9e0d44d3dc8e01b5860023676bff072202a69bf28",
+        "productionEntryUnchangedExceptAssetTypeSha256": "19995fc62c04c52e84b49c8264cdf82b82e05431876ab98ad074409c967e6260",
+        "narrationSha256": "58696cc6ce93e9a3c0fba377401d1a07448e0acd35903070146c0014908c252a",
+        "timing": {
+          "startSec": 123.71337880926514,
+          "endSec": 128.71337880926512,
+          "durationSec": 4.999999999999986,
+          "startWordIndex": 20,
+          "endWordIndex": 27
+        },
+        "visualIntentSha256": "9eea34ec17396c6c3937be248d8a44e87a18353101c0045ddc0eedd049022777",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B003",
+          "shotId": "ACT2_B003",
+          "manifestShotId": "ACT2_B003"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B009",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "e67561059787b632c2955680cd73d7e880fde482733e7800bcf977f2fa0c2b6a",
+        "actMirrorUnchangedExceptAssetTypeSha256": "cdab08fd6bb1c4e68a585e3293491cb8558c487a1b33b2aded9106ce62af31ca",
+        "productionEntryUnchangedExceptAssetTypeSha256": "be6dfc69d75dc17d5f9697ed5e631e551b7dd72fb7bb6bbac3ccb88a9280d085",
+        "narrationSha256": "a7b01ab56d6aca3d3723faafe5c40dcb883a5d408c6d1177f58a103b6a0360eb",
+        "timing": {
+          "startSec": 144.27337922888182,
+          "endSec": 149.073380373291,
+          "durationSec": 4.80000114440918,
+          "startWordIndex": 64,
+          "endWordIndex": 75
+        },
+        "visualIntentSha256": "e953ff5ddd7d82b12a584e5f949e4cbb457ecece05b8def8cb9047bc82f950ee",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B009",
+          "shotId": "ACT2_B009",
+          "manifestShotId": "ACT2_B009"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B011",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "756f1bd5e51a667b85551bf9eb01aa40a6b40fa2591431823c7df00eb18deeed",
+        "actMirrorUnchangedExceptAssetTypeSha256": "648678d373166915417eb3451810511e9adbd60a707a9175e6a04829283afc4f",
+        "productionEntryUnchangedExceptAssetTypeSha256": "2b554c528de9d9924ddac4ad05e649d2e3a453e6cb59fcaec12dcea1b1a40ec2",
+        "narrationSha256": "18b113811e62244fc5de0ac47825a841e9ffd4aa6a9cf55e0283e9eb25e0e380",
+        "timing": {
+          "startSec": 154.573380373291,
+          "endSec": 156.89338006811522,
+          "durationSec": 2.3199996948242188,
+          "startWordIndex": 89,
+          "endWordIndex": 95
+        },
+        "visualIntentSha256": "557aef94a32cb21f4c1aea36090a515a555da7d54f91cfb7e745c27b83cc88f3",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B011",
+          "shotId": "ACT2_B011",
+          "manifestShotId": "ACT2_B011"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B012",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "cf3c6a467b26c3fe497f418a156f25edbb01a6b6daa209f182f144dbb7e07789",
+        "actMirrorUnchangedExceptAssetTypeSha256": "2a23ca8c34ece08a1f8ab2adb11c7191db057b74d20cf4291c00e500385ee309",
+        "productionEntryUnchangedExceptAssetTypeSha256": "2661f3e29865a18dc8226cf83085a5fbfe489288cd3e8842e49fb879010a65d7",
+        "narrationSha256": "2fed9808ef312c43431a4c728b5b887ac93e9b8da6d6b4c6705144c35a5aee1c",
+        "timing": {
+          "startSec": 156.89338006811522,
+          "endSec": 160.11337747412108,
+          "durationSec": 3.2199974060058594,
+          "startWordIndex": 96,
+          "endWordIndex": 106
+        },
+        "visualIntentSha256": "bab5223530ebea0a2e4941e2ab73b9e0b7d727bf2cf8ff20eaa67f0e40f86edc",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B012",
+          "shotId": "ACT2_B012",
+          "manifestShotId": "ACT2_B012"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B013",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "512765ec9043572e96574bb88a7dc56aee10e9bdd013fb0e9c1218740947b0d6",
+        "actMirrorUnchangedExceptAssetTypeSha256": "b1893ffbb42661e33c141ddd14c858385a5c74f08ba7e1abb2cbced8674eb5fa",
+        "productionEntryUnchangedExceptAssetTypeSha256": "9081c027131190efe4a0a4b73aee916f877739080a0cd5282a69d5b83e8d0abb",
+        "narrationSha256": "cb3859a79dc6634c35c550aed43347070d426d4f9f48df78e24877668f743418",
+        "timing": {
+          "startSec": 160.11337747412108,
+          "endSec": 164.013379,
+          "durationSec": 3.9000015258789062,
+          "startWordIndex": 107,
+          "endWordIndex": 116
+        },
+        "visualIntentSha256": "f4c408cdacb8de90defd3c1f97e8cfe0ada749dc5674240a2dc48d984f60a677",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B013",
+          "shotId": "ACT2_B013",
+          "manifestShotId": "ACT2_B013"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B015",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "c0f1a81963d4c008f3f645ff9c02174c01f3e44033e17fa4ec8aa3e08b28a300",
+        "actMirrorUnchangedExceptAssetTypeSha256": "fda6cf3848cd45cb3fc3b01cf00545b05099ef74617ee60b5e8eaad7febdc351",
+        "productionEntryUnchangedExceptAssetTypeSha256": "a6e4fa26095beacbc4046b074ae7cc303862aae2e29bce92b2fd059d3243f03a",
+        "narrationSha256": "ba52a699b27cca83f150b662e8985942d77a5211c1228b08b350c2144ef33685",
+        "timing": {
+          "startSec": 167.95337762670897,
+          "endSec": 171.89338006811522,
+          "durationSec": 3.94000244140625,
+          "startWordIndex": 125,
+          "endWordIndex": 130
+        },
+        "visualIntentSha256": "0d433e15463e2e8f4ff986c5bcdcb405483e27dd43c36299286b79f2cbaf886d",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B015",
+          "shotId": "ACT2_B015",
+          "manifestShotId": "ACT2_B015"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B020",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "cd7cc84caa5043a5e5f4316817caa1678a875f6a24143c5d4856f983e53f22f2",
+        "actMirrorUnchangedExceptAssetTypeSha256": "0b8e116b0ad26232a4ad788f60f7fb423c789b1ece7edd919d6d6e950d43d656",
+        "productionEntryUnchangedExceptAssetTypeSha256": "e7c664e849bb066a7fe5078f49c8c83a5030c281027faa3649104ba1300ad69d",
+        "narrationSha256": "56d0dba65a48cad91f2e1056a13850845867e1a99673401e7ab5ad3e0de9bf16",
+        "timing": {
+          "startSec": 187.71337594824217,
+          "endSec": 192.65337838964842,
+          "durationSec": 4.94000244140625,
+          "startWordIndex": 168,
+          "endWordIndex": 177
+        },
+        "visualIntentSha256": "f92449d4a7bd84dca1135c7c8214ab8acb21c8e46ba9c9587bcb8d0d1cd3065f",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B020",
+          "shotId": "ACT2_B020",
+          "manifestShotId": "ACT2_B020"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B021",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "5166c69e4174ce9edc1af4eb8df43bd205f72afeffacd8385a5c1a8835d677a9",
+        "actMirrorUnchangedExceptAssetTypeSha256": "f1ce09c534aa5f7a4f9a72123b8710a675639d134ecfef99cecf2b8275d551bf",
+        "productionEntryUnchangedExceptAssetTypeSha256": "95a086c098b2d16a2809a948cb472aa097829b4fdc36d9ca0abe8b58a27313a2",
+        "narrationSha256": "3a5797c703d6d39bba9ae08abf71f2a7f9602efac151daad3559de058807f0d8",
+        "timing": {
+          "startSec": 192.65337838964842,
+          "endSec": 196.05337991552733,
+          "durationSec": 3.4000015258789062,
+          "startWordIndex": 178,
+          "endWordIndex": 186
+        },
+        "visualIntentSha256": "619a11fd0efbfa5eb2a0df661fc03299cb3aea8560fd33a196ba76a1fb4e76d4",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B021",
+          "shotId": "ACT2_B021",
+          "manifestShotId": "ACT2_B021"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B024",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "a72dbb75ca1bf362242d89b93928a15a1f95adf4027f032e1a7ed6278e9c3169",
+        "actMirrorUnchangedExceptAssetTypeSha256": "81db547c450db6688fdd7d28aec3109fce201c3c78cc0b2fcd77d1b5892902aa",
+        "productionEntryUnchangedExceptAssetTypeSha256": "be4ccc5e5bfa61329f10d20873380c1ff380a40da984db46156e68b197fa2c75",
+        "narrationSha256": "0790dbf8db54294c1091994339b0dfc4927527bcdd4ecc404d1a3d6b6149d89f",
+        "timing": {
+          "startSec": 203.0333756430664,
+          "endSec": 205.27338113623046,
+          "durationSec": 2.2400054931640625,
+          "startWordIndex": 200,
+          "endWordIndex": 204
+        },
+        "visualIntentSha256": "5e03c9a49c4c9d93ffa811ee8c637477c7b8297d82b42479f0b187af1df90035",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B024",
+          "shotId": "ACT2_B024",
+          "manifestShotId": "ACT2_B024"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B025",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act2",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "b9a530c4bf6578feac9458bdb2d8ceafc329c62db2dee771edbe6854fafecb78",
+        "actMirrorUnchangedExceptAssetTypeSha256": "e39bf9f493df69d6a8a2eb5d4c853ea955e006f2fea914c8f2fdd6615a31b310",
+        "productionEntryUnchangedExceptAssetTypeSha256": "ced98e843e4f9d5cfb0160f442d59937454bbda4e84e64aa444d9d27e263ef64",
+        "narrationSha256": "10cfd382039500e3a47584070ff1336e93f54a57ef71c6ca57c8dc7befb652de",
+        "timing": {
+          "startSec": 205.27338113623046,
+          "endSec": 208.15337838964842,
+          "durationSec": 2.8799972534179688,
+          "startWordIndex": 205,
+          "endWordIndex": 209
+        },
+        "visualIntentSha256": "7e7092e2963b3e2498252691c1edadcff61b085969c825f1691d65fd3c8d54d2",
+        "ownership": {
+          "actKey": "act2",
+          "beatId": "ACT2_B025",
+          "shotId": "ACT2_B025",
+          "manifestShotId": "ACT2_B025"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B006",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "66a424efac59abbfb129efacffe37caba7bb9dbda5f685d3e2b3b369c7516456",
+        "actMirrorUnchangedExceptAssetTypeSha256": "3b4085dd0ab72fd43ef01ca572d83a63407a1779c928059c054547660f2a204b",
+        "productionEntryUnchangedExceptAssetTypeSha256": "c4a71c01601790b86e7c3af149803d8517df18df4c6f61042c2764b406e33cf7",
+        "narrationSha256": "b29f8f327eaf54ce2ed1e1f3bd2bc8e658adbb96b3e33f28d9fab81145bb64a5",
+        "timing": {
+          "startSec": 228.4959873051758,
+          "endSec": 232.815987,
+          "durationSec": 4.319999694824219,
+          "startWordIndex": 34,
+          "endWordIndex": 44
+        },
+        "visualIntentSha256": "6526bedee8c6e1027e04fb73f0d70e10973282222e6971e75c099c12a42e4771",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B006",
+          "shotId": "ACT3_B006",
+          "manifestShotId": "ACT3_B006"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B007",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "803f900bef88933d15b87be85e2102c2f9008d8e9d23a95d6077e98abc59b916",
+        "actMirrorUnchangedExceptAssetTypeSha256": "5ce4f97225b3e18ce8fdde41e8e2475baae9e07e3919f71680c63ec18cd48b56",
+        "productionEntryUnchangedExceptAssetTypeSha256": "95eed798fea069dcf75641c2406462b88132d16e21f5d9ea05aa9ee7d01137a0",
+        "narrationSha256": "c18d8a50a2c342754038dcb12852174674f2a241b0eb484b3e978f6a13454671",
+        "timing": {
+          "startSec": 232.815987,
+          "endSec": 237.27598608447266,
+          "durationSec": 4.459999084472656,
+          "startWordIndex": 45,
+          "endWordIndex": 53
+        },
+        "visualIntentSha256": "df1e5ce44af19d0c781b340181c450f3c657242a4a8399c054b79a64ea4c9b1e",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B007",
+          "shotId": "ACT3_B007",
+          "manifestShotId": "ACT3_B007"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B010",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "8743074c652ad228e35a28cd2252659c8a28a702bb28eb658dda85aafc3e984b",
+        "actMirrorUnchangedExceptAssetTypeSha256": "93ee34238b04e16ff2ac620ef0478d8100e5078670e4c295f89fc6841a535b93",
+        "productionEntryUnchangedExceptAssetTypeSha256": "ecf4d8636c28936ac9e90a32003e27f71607753d52f29846434cf01700b56ea8",
+        "narrationSha256": "651ecdd2d68a979d9cd556d81df2b58607b40ee4ad3bf729d1da7202d85ae4d8",
+        "timing": {
+          "startSec": 242.9959873051758,
+          "endSec": 245.9159854741211,
+          "durationSec": 2.9199981689453125,
+          "startWordIndex": 66,
+          "endWordIndex": 72
+        },
+        "visualIntentSha256": "90b9c4be62a089078917250f02b31439417fd2b9419100bfd1d40552a919c870",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B010",
+          "shotId": "ACT3_B010",
+          "manifestShotId": "ACT3_B010"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B013",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "8c22e9d10151f87cf68dfba17971e379b62c23f39e2aefac524a9d8132a8de25",
+        "actMirrorUnchangedExceptAssetTypeSha256": "ee370c337b0b17d4613e264f4f17953c3e69f63295e6a688363e9567af4c61e5",
+        "productionEntryUnchangedExceptAssetTypeSha256": "651057842ab169f6d9c4073e1031ca5df3fa2faccb0c4944887e1692006c5107",
+        "narrationSha256": "a624559e5f2434e1f0c98f37e0457467dd17b97bdc3f49016dabc8b0d8aa539e",
+        "timing": {
+          "startSec": 253.77598608447266,
+          "endSec": 256.6359866948242,
+          "durationSec": 2.8600006103515625,
+          "startWordIndex": 87,
+          "endWordIndex": 90
+        },
+        "visualIntentSha256": "36cc5244f8d76a66afd9e8c9b0912670a77ad3e225384c3993f6bf1502308ce5",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B013",
+          "shotId": "ACT3_B013",
+          "manifestShotId": "ACT3_B013"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B020",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "64849209de6d240fb783c1a2604c37997d40111b735ad75530bf1768e526a5c2",
+        "actMirrorUnchangedExceptAssetTypeSha256": "ff6a3cdd003eb0ab1d58d4ecbb7c0f70e4e4969c2c1bbbc76d98a4d3a2ba5110",
+        "productionEntryUnchangedExceptAssetTypeSha256": "933f535362ca8a395d413b7385a758f19beba07f909f5e5e3713d99602bc1210",
+        "narrationSha256": "2b61f34273ed4bfc759a69f85ace83b362b87835e386967ebceee751fef181f2",
+        "timing": {
+          "startSec": 283.03598822070313,
+          "endSec": 287.0959857792969,
+          "durationSec": 4.05999755859375,
+          "startWordIndex": 155,
+          "endWordIndex": 161
+        },
+        "visualIntentSha256": "2e63223257cccafe32566ea9603d4449a96ecfa92a075ff42fdf0f4abfa34381",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B020",
+          "shotId": "ACT3_B020",
+          "manifestShotId": "ACT3_B020"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B026",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "1fde435319d1e260004ef8062cf25e3389327127c09450b0eb18175770e820eb",
+        "actMirrorUnchangedExceptAssetTypeSha256": "ca8f3746987e9759d1fa973a6eecbd656a1d5f201976f6d8cc66f18d3cb181b6",
+        "productionEntryUnchangedExceptAssetTypeSha256": "f114b05b03276cab5d273e9d96e7435eb0e76eccb6ae7fcbb15f33370844a5fc",
+        "narrationSha256": "967a4229615b8083f3147a29e35df525680a98ff759e844d24c1c1e99df485f9",
+        "timing": {
+          "startSec": 305.5959857792969,
+          "endSec": 307.8959888310547,
+          "durationSec": 2.3000030517578125,
+          "startWordIndex": 205,
+          "endWordIndex": 210
+        },
+        "visualIntentSha256": "4237a0878d4ee520e89081a3fd6317ce228bf67036861eba94a1dc4aa441c486",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B026",
+          "shotId": "ACT3_B026",
+          "manifestShotId": "ACT3_B026"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B027",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "7c6c53a6217bea37862bf8facf12cb5ccd5618f65d059e5c870983e278cc8b06",
+        "actMirrorUnchangedExceptAssetTypeSha256": "3a931c89ede4dd47455e3eb130bc68e9191eb6560bd88e55c0174bbee8868723",
+        "productionEntryUnchangedExceptAssetTypeSha256": "c24bacee90dd56565ac3fced57a3e9d40d2753d62a93876db7b010fade623863",
+        "narrationSha256": "287bfa1776f92f798b51723fefd69fa23f92d46be503614326c1e8e3c095fdc7",
+        "timing": {
+          "startSec": 307.8959888310547,
+          "endSec": 311.05598486376954,
+          "durationSec": 3.1599960327148438,
+          "startWordIndex": 211,
+          "endWordIndex": 219
+        },
+        "visualIntentSha256": "7b1892a5ec7818ece73ff79d3f58d6580dd8a203d6d824420212b321d6679648",
+        "ownership": {
+          "actKey": "act3",
+          "beatId": "ACT3_B027",
+          "shotId": "ACT3_B027",
+          "manifestShotId": "ACT3_B027"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B001",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "937bfc0a76d5d7b6bbc92ca3f0bab6b00c7a4eaf159367b2dc09da22fcbe9b8b",
+        "actMirrorUnchangedExceptAssetTypeSha256": "c69f55aaf61528395cd4cc3e78ac37ef310d235d69726656652d8b46982518c4",
+        "productionEntryUnchangedExceptAssetTypeSha256": "72ce40278708acc75f4ed5a6d951e88d287def9e26770fc5a81463486722e38f",
+        "narrationSha256": "e3e4823d9cb1954d3d8e93b6033f58d389f6ff4c3c22887e0741e91990fc4d50",
+        "timing": {
+          "startSec": 317.262744,
+          "endSec": 319.5627439523163,
+          "durationSec": 2.299999952316284,
+          "startWordIndex": 0,
+          "endWordIndex": 3
+        },
+        "visualIntentSha256": "a972e45e214c44df2005c9992bbfe73663396e9934ffc65a8ccc66b26772989c",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B001",
+          "shotId": "ACT3B_B001",
+          "manifestShotId": "ACT3B_B001"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B004",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "37a2b6bb373ef16e7a5b63acedf33a49b69a6246f510d09e31faafc23785b27c",
+        "actMirrorUnchangedExceptAssetTypeSha256": "c665a949f2bf379b216b6c888edfd36ab68b0b99d24e1373870b80a87ea50e77",
+        "productionEntryUnchangedExceptAssetTypeSha256": "9dd509c438d00aa434e708b2f7212650fe54ed479a0a48d482cfa6f846104b23",
+        "narrationSha256": "cea73708061dd2eab0cf629b912452a54de98d131b429175f6394c3c7055d146",
+        "timing": {
+          "startSec": 327.12274365667724,
+          "endSec": 330.22274403814697,
+          "durationSec": 3.1000003814697266,
+          "startWordIndex": 17,
+          "endWordIndex": 25
+        },
+        "visualIntentSha256": "29c7e66aae7252ced9916005266e9973935780bdb16931abdb1704f8b4092342",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B004",
+          "shotId": "ACT3B_B004",
+          "manifestShotId": "ACT3B_B004"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B007",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "d0d7d6addad75f97b68ebe537117ba1e8962221bda0352e7c695661a33bc6b31",
+        "actMirrorUnchangedExceptAssetTypeSha256": "b5df470caeede5f3436a784d1b298104c3dd0f6b9810d079b231c34492ec64cb",
+        "productionEntryUnchangedExceptAssetTypeSha256": "98dcde6b0b3584f9b749fa2ce802f96849015f9466bd5f89dcde87e8bed8c15d",
+        "narrationSha256": "c42488d7fed1e994b45641c811b6bec600d80e14bf8c07b871fac9e5a1792127",
+        "timing": {
+          "startSec": 338.5427446866455,
+          "endSec": 342.71274476293945,
+          "durationSec": 4.170000076293945,
+          "startWordIndex": 48,
+          "endWordIndex": 57
+        },
+        "visualIntentSha256": "2ba39eaa9ebf46aecc083d5630adb281e12b4071f6b6f5baf4cd904127670314",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B007",
+          "shotId": "ACT3B_B007",
+          "manifestShotId": "ACT3B_B007"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B013",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "d6adfb4b1c385d2a66707edded458dbab57d91b6181b91b178786afb0ba4495a",
+        "actMirrorUnchangedExceptAssetTypeSha256": "fe9ee9d7733302dc9ad59b0c4bf88257a1c4e0ac196cae05dff30a61dc8d02ce",
+        "productionEntryUnchangedExceptAssetTypeSha256": "8be5c2905fb8577f9e9e8837873a8273d81d7f0db83722913cd91c965c91d67d",
+        "narrationSha256": "3586319257a334cfc96b7413be48ea5f1c0c77fad746c274905b0fb745420162",
+        "timing": {
+          "startSec": 363.78274445776367,
+          "endSec": 367.06274323706054,
+          "durationSec": 3.279998779296875,
+          "startWordIndex": 101,
+          "endWordIndex": 105
+        },
+        "visualIntentSha256": "f30f926b1b90dcd06e06fee37a381582a7546bb02c1a9217c01142789be3daa7",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B013",
+          "shotId": "ACT3B_B013",
+          "manifestShotId": "ACT3B_B013"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B016",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "01ed8f973fa0cf342d057ad0a452475e34cfc191dd6c816bbedae3a8913e9e52",
+        "actMirrorUnchangedExceptAssetTypeSha256": "c83f7ee66d3ee891227f50d718ab119623c4fe333b71879ef5156a935936138e",
+        "productionEntryUnchangedExceptAssetTypeSha256": "ff5433483e862489fa592516f617324d78afaa08ce95c123fd9ef7ada1c14dba",
+        "narrationSha256": "0649608b31ef6309b67c685f4c12d88cf7f5a8ab8f433462485af94d105ae191",
+        "timing": {
+          "startSec": 376.0227423215332,
+          "endSec": 379.0827436948242,
+          "durationSec": 3.0600013732910156,
+          "startWordIndex": 123,
+          "endWordIndex": 131
+        },
+        "visualIntentSha256": "ec190c3789219779f1108c540adfe0656816067bf85fba3d3ae1c988fa6e7946",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B016",
+          "shotId": "ACT3B_B016",
+          "manifestShotId": "ACT3B_B016"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act3b",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "9b3c3d244cab0a60040898c5aaf7e3ac90e3b3b33654ba2b93b6e9933b6c6286",
+        "actMirrorUnchangedExceptAssetTypeSha256": "ce99c5104855d95eba9beff5a76c6baaff80688499b63e67b400ba6a656e4943",
+        "productionEntryUnchangedExceptAssetTypeSha256": "278a23aaef3f3370b3ba1f13488582fae9be19269c760d6a8b68fd0a0addcb2e",
+        "narrationSha256": "fb10f38d46e5ba41596313ad8b3231fb3627ae8116f5169ef80e966467670ee6",
+        "timing": {
+          "startSec": 381.6827421689453,
+          "endSec": 386.25093,
+          "durationSec": 4.568187831054672,
+          "startWordIndex": 142,
+          "endWordIndex": 155
+        },
+        "visualIntentSha256": "49230823b1cfe127437e0e55970a2dc35fb7545c67a7afab074889f4bac7967e",
+        "ownership": {
+          "actKey": "act3b",
+          "beatId": "ACT3B_B018",
+          "shotId": "ACT3B_B018",
+          "manifestShotId": "ACT3B_B018"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B010",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act5",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "33070688096b8c83978dc6a6691330412eac90bbcba06bfb1410ea27ac715c71",
+        "actMirrorUnchangedExceptAssetTypeSha256": "d66786bb8867de9c9a40b622e03d4debf0c3ed4f5e517d2e0c4021bd3d105912",
+        "productionEntryUnchangedExceptAssetTypeSha256": "247e16b3ea7dab2247a62df8758ad1350d308ec129109b15cfd8a49a4be6f700",
+        "narrationSha256": "26a47fe23dbc263bbc4327f42b98c5500267db093c902cf355057fe162d3d830",
+        "timing": {
+          "startSec": 544.5758733051757,
+          "endSec": 550.495871474121,
+          "durationSec": 5.9199981689453125,
+          "startWordIndex": 97,
+          "endWordIndex": 105
+        },
+        "visualIntentSha256": "88d3229183add957ef6741151e0f20bd30d4007df4ba293aa0ddd687a07946b9",
+        "ownership": {
+          "actKey": "act5",
+          "beatId": "ACT5_B010",
+          "shotId": "ACT5_B010",
+          "manifestShotId": "ACT5_B010"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B013",
+      "canonicalShot": {
+        "path": "/allShots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "actMirror": {
+        "path": "/acts/act5",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "productionManifest": {
+        "path": "/shots",
+        "before": {
+          "assetType": "generated_clip",
+          "productionMethod": "CONTROLLED_STILL"
+        },
+        "after": {
+          "assetType": "controlled_image",
+          "productionMethod": "CONTROLLED_STILL"
+        }
+      },
+      "invariants": {
+        "canonicalShotUnchangedExceptAssetTypeSha256": "5a3135ea08fc40751fcc40aee7d231fdda08748e453947d72554982e3c070d9c",
+        "actMirrorUnchangedExceptAssetTypeSha256": "68815a4f1c7c3389441171ff5a8b6b14d2cc4615c789aaab08643c7cf4d8cabb",
+        "productionEntryUnchangedExceptAssetTypeSha256": "c109e8bce8e168d5ed5289f1e0dfac4f5258ccd663f048357c390e75ffd977a5",
+        "narrationSha256": "123bb2a27535745cc7144783690f6e094273ac54318aaac534070e795f7f5b70",
+        "timing": {
+          "startSec": 561.3758725422363,
+          "endSec": 566.5758733051757,
+          "durationSec": 5.200000762939453,
+          "startWordIndex": 128,
+          "endWordIndex": 136
+        },
+        "visualIntentSha256": "f4ca75fd6fe5287e07eaa2756462326f29303ef4ba3c9bb796ec6f18d084b183",
+        "ownership": {
+          "actKey": "act5",
+          "beatId": "ACT5_B013",
+          "shotId": "ACT5_B013",
+          "manifestShotId": "ACT5_B013"
+        },
+        "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+        "revisionHistoryArtifacts": [
+          {
+            "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+            "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+          },
+          {
+            "path": "revision-lineage/phase2.2d-lineage.v1.json",
+            "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+            "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+            "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+          },
+          {
+            "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+            "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+          },
+          {
+            "path": "validation/revision-lineage-validation.json",
+            "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+          }
+        ]
+      },
+      "noNarrationChange": true,
+      "noTimingChange": true,
+      "noVisualIntentChange": true,
+      "noOwnershipChange": true,
+      "noEvidenceBindingChange": true,
+      "noRevisionHistoryChange": true
+    }
+  ],
+  "proof": {
+    "changeSetSha256": "e684c152295e3fb14ca2878645fb7e07e69c040da2795e5a2a91d197f6a680b2",
+    "sourceArtifactsRemainUnchanged": true,
+    "notApplied": true,
+    "childFileHashes": null,
+    "childCandidateIndexSha256": null,
+    "reason": "The candidate is deliberately not transformed; child output hashes are assigned only when a separately approved implementation constructs the child package."
+  },
+  "approvalBindingsToRenew": [
+    "this exact amendment proposal",
+    "shot definitions and production manifest",
+    "candidate package index",
+    "candidate validation/readiness receipts",
+    "any dependent media plan and later staged candidate approvals"
+  ],
+  "preservedBindings": [
+    "evidence approval remains unchanged if evidence bytes do not change",
+    "existing parent lineage is not rewritten; later child amendment must append a reversible edge"
+  ],
+  "amendmentBodySha256": "e95441e0701c53c1e394eb148d4043fe3238e23f898c1ae548a72cf07b7c61cc"
+}

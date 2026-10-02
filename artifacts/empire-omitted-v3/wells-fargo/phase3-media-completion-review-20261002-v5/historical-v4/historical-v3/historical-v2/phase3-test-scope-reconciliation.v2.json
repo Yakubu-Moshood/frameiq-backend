@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "phase3-test-scope-reconciliation/2.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "canonicalBaseCommit": "0e22d1eae8902a27c6909a5cbd5c7bd858dd3d60",
+  "canonicalDiscoveredTestFiles": 28,
+  "currentCheckoutDirectDiscoveredFiles": 7,
+  "currentCheckoutRun": {
+    "tests": 251,
+    "reason": "Only seven direct test files were found by the command used in the older checkout; not the canonical base suite."
+  },
+  "commands": {
+    "focused": "$focused = @((Resolve-Path 'test/phase3-render-preview.test.cjs').Path, (Resolve-Path 'test/production-method-manifest.test.cjs').Path, (Resolve-Path 'test/v3-asset-readiness.test.cjs').Path); node --test $focused",
+    "currentProjectDiscovery": "$files = @(Get-ChildItem -LiteralPath 'test' -File -Filter '*.test.cjs' | ForEach-Object FullName); node --test $files",
+    "canonicalFull": "$files = @(Get-ChildItem -LiteralPath '.phase3-canonical-test-20261002/test' -File -Filter '*.test.cjs' | Sort-Object Name | ForEach-Object FullName); node --test $files"
+  },
+  "canonicalTestFiles": [
+    "act-voice-generator.test.cjs",
+    "deployment-package-portability.test.cjs",
+    "edit-plan-generator.test.cjs",
+    "edit-plan-validator.test.cjs",
+    "eo-v3-shadow-hook.test.cjs",
+    "eo-v3-shadow.test.cjs",
+    "episode-activation.test.cjs",
+    "evidence-preflight-binding.test.cjs",
+    "evidence-source-validator.test.cjs",
+    "graphic-compiler.test.cjs",
+    "paced-narration-generator.test.cjs",
+    "phase2-pipeline.test.cjs",
+    "phase2.3b-b017-correction.test.cjs",
+    "phase2.3b-p-promotion-graphics.test.cjs",
+    "phase2.3b-sg-stage-a-accounting.test.cjs",
+    "phase2.3b-sg-zero-call-recovery.test.cjs",
+    "phase3-render-preview.test.cjs",
+    "production-method-manifest.test.cjs",
+    "proof-section-planner.test.cjs",
+    "refreshed-boundary-policy.test.cjs",
+    "refreshed-timing-policy-lineage.test.cjs",
+    "revision-aware-shot-definitions-validator.test.cjs",
+    "shot-definitions-production-contract.test.cjs",
+    "shot-definitions.test.cjs",
+    "surface-script-writer.test.cjs",
+    "v3-asset-readiness.test.cjs",
+    "v3-render-asset-resolution.test.cjs",
+    "vo-timing.test.cjs"
+  ],
+  "focusedResult": {
+    "tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0
+  },
+  "fullCanonicalResult": {
+    "tests": 531,
+    "passed": 531,
+    "failed": 0,
+    "skipped": 0
+  },
+  "blocker": {
+    "test": "episode-activation.test.cjs:1988",
+    "error": "ENOENT authoritative-edit-plan.json",
+    "expectedSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "absentFrom": [
+      "canonical base tree",
+      "reachable Git objects",
+      "current workspace",
+      "candidate package",
+      "r3 approval package"
+    ],
+    "disposition": "RESOLVED: exact raw fixture bytes were retrieved into the immutable live-input package, hash-verified, copied unchanged to the disposable canonical test worktree, and the previously failing staging test passed.",
+    "resolvedByFixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337"
+  },
+  "packageAndLock": {
+    "packageLockSha256": "361c67bcd55f89bf69567914bb40568706ba8be4e9e1352ec9671fc4bfa482f9",
+    "dependencyRestore": "npm ci --ignore-scripts from the committed lockfile; @fal-ai/client 1.10.1 resolved; no provider call."
+  },
+  "noTestEdits": true,
+  "currentCheckoutDiscoveredTestFiles": [
+    "edit-plan-generator.test.cjs",
+    "edit-plan-validator.test.cjs",
+    "eo-v3-shadow-hook.test.cjs",
+    "eo-v3-shadow.test.cjs",
+    "phase2-pipeline.test.cjs",
+    "surface-script-writer.test.cjs",
+    "vo-timing.test.cjs"
+  ],
+  "liveFixtureRetrieval": {
+    "logicalPath": "authoritative-edit-plan.json",
+    "expectedSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "bytes": 313692,
+    "rawBytesSaved": true,
+    "immutableInputPath": "C:\\FraymIQ-Production-Promotion-Clean-2026-09-17\\artifacts\\empire-omitted-v3\\wells-fargo\\phase3-media-completion-live-inputs-20261002-v1\\authoritative-edit-plan.json",
+    "disposableTestRestorePath": ".phase3-canonical-test-20261002/artifacts/empire-omitted-v3/wells-fargo/phase2.3b-s-authoritative-input/authoritative-edit-plan.json",
+    "resolutionStatus": "RESOLVED_RAW_BYTES_VERIFIED"
+  },
+  "postRetrievalFocusedRun": {
+    "status": "PASS",
+    "testFiles": 3,
+    "tests": 54,
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "command": "$focused = @((Resolve-Path 'test/phase3-render-preview.test.cjs').Path, (Resolve-Path 'test/production-method-manifest.test.cjs').Path, (Resolve-Path 'test/v3-asset-readiness.test.cjs').Path); node --test $focused"
+  },
+  "postRetrievalCanonicalRun": {
+    "status": "PASS",
+    "requiredFiles": 28,
+    "discoveredFiles": 28,
+    "tests": 531,
+    "passed": 531,
+    "failed": 0,
+    "skipped": 0,
+    "command": "$files = @(Get-ChildItem -LiteralPath 'test' -File -Filter '*.test.cjs' | Sort-Object Name | ForEach-Object FullName); node --test $files"
+  },
+  "previousCanonicalRun": {
+    "tests": 531,
+    "passed": 527,
+    "failed": 1,
+    "skipped": 3
+  },
+  "countDifference": "The earlier 251 count enumerated seven test files in the reduced checkout. Canonical base contains 28 files and 531 tests. Its previous 531 run had 527 pass, 1 fail, 3 skipped because the exact fixture was absent. With the verified fixture restored, all 531 pass.",
+  "decision": "Canonical suite passes; fixture is restored only in the disposable test worktree; no tests changed.",
+  "resolvedFormerBlocker": {
+    "test": "episode-activation.test.cjs:1988",
+    "resolution": "Restored exact authoritative fixture bytes from the separately retrieved immutable live-input package into the disposable canonical test tree; SHA-256 matched; the staging test then passed.",
+    "fixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337"
+  }
+}

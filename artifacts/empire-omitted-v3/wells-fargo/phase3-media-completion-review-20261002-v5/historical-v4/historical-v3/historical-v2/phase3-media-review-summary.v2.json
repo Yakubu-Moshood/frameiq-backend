@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "phase3-media-review-summary/2.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v2",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "sourceBindings": {
+    "v6IndexSha256": "f12389a2b51ae74eb117d6715a132148c7a42d73c3f230469825f54c482649cb",
+    "v1IndexSha256": "9bad6492cfa039bb5032ede03c94c91e30ceab84949f3d34c0a2692a2d2c23df",
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac"
+  },
+  "continuity": {
+    "decisions": 14,
+    "distinctDedicatedReferenceAssets": 14,
+    "crossBeatSharing": 0,
+    "sameBeatAnimationAliasCandidates": 5,
+    "proposedReferencesStillNotCreated": true,
+    "contactSheets": 3,
+    "comparisonAssetsDisplayed": 42,
+    "comparisonsMarkedNotForReuse": true
+  },
+  "mediaCounts": {
+    "controlledStills": 34,
+    "generatedStills": 9,
+    "animationBaseStills": 23,
+    "animationClips": 23,
+    "continuityReferenceAssets": 14,
+    "potentialPaidRequests": {
+      "minimum": 55,
+      "maximum": 69
+    },
+    "illustrativeHistoricalCostUsd": {
+      "minimum": 4.3163,
+      "maximum": 11.73
+    },
+    "currentPrice": "UNRESOLVED"
+  },
+  "liveBindings": "PHASE3_LIVE_BINDINGS_VERIFIED",
+  "canonicalTests": {
+    "status": "PASS",
+    "files": 28,
+    "tests": 531,
+    "passed": 531,
+    "failed": 0,
+    "skipped": 0
+  },
+  "safety": {
+    "providers": 0,
+    "rendering": 0,
+    "promotion": 0,
+    "episodeRootWrites": 0,
+    "candidateModification": 0,
+    "amendmentApplied": false
+  },
+  "unresolved": [
+    "Yakubu Moshood final signature",
+    "separately approved pilot for provider, output properties, price and normalization behavior"
+  ],
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "liveInputBindings": {
+    "activationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "derivedStagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "activeDeploymentId": "efb05abf-6f4a-4c0c-80a8-9529b1fff5c0",
+    "activeDeploymentStatus": "SUCCESS",
+    "activationLock": false,
+    "phase3RenderLock": false,
+    "authoritativeEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337"
+  }
+}

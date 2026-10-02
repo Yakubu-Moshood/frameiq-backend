@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "phase3-live-bindings/1.0.0",
+  "status": "PHASE3_LIVE_BINDINGS_VERIFIED",
+  "retrievalAuthorized": true,
+  "retrievalExecuted": true,
+  "railwayCliAvailable": true,
+  "activationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+  "stagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+  "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+  "activeDeploymentId": "efb05abf-6f4a-4c0c-80a8-9529b1fff5c0",
+  "activeDeploymentStatus": "SUCCESS",
+  "activationLocks": false,
+  "phase3RenderLocks": false,
+  "fixture": {
+    "logicalPath": "authoritative-edit-plan.json",
+    "expectedSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "bytes": 313692,
+    "rawBytesSaved": true,
+    "resolvedPath": null,
+    "immutableInputDirectory": "C:\\FraymIQ-Production-Promotion-Clean-2026-09-17\\artifacts\\empire-omitted-v3\\wells-fargo\\phase3-media-completion-live-inputs-20261002-v1",
+    "resolutionStatus": "RESOLVED_FROM_STAGE04_BACKUP_MANIFEST_HASH_VERIFIED",
+    "remoteRelativePathReported": false,
+    "provenanceNote": "The supplied immutable live-bindings record identifies the Stage04 backup manifest and confirms the fixture bytes and hash; it does not report the manifest-relative filename."
+  },
+  "reason": "Values were read from the supplied immutable live-bindings package; no Railway call was made in this turn.",
+  "activeDeployment": {
+    "id": "efb05abf-6f4a-4c0c-80a8-9529b1fff5c0",
+    "status": "SUCCESS",
+    "createdAt": "2026-10-02T01:00:51.488Z"
+  },
+  "retrievedLiveBindingsSha256": "7f717d0317fc45b6169f0e3bbcd5bf4642ab033e8ab73d3871a697a6bed77109",
+  "backupManifest": {
+    "path": "/data/episodes/EmpireOmitted_V3_SHADOW_WELLSFARGO/.review/phase2.3b-p-activation-phase2-3b-p-act3-refresh-20260928-stage04/backup/backup-manifest.json",
+    "bytes": 14643,
+    "sha256": "4d32a38cfac9cdafbb198b203d3d6c3a3ac979c99a568759fb0b0ae3c7ebffba"
+  }
+}

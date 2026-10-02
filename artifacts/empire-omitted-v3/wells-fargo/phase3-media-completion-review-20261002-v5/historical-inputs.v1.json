@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "phase3-media-review-historical-inputs/1.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "status": "UNSIGNED_HISTORICAL_INPUTS",
+  "v2States": [
+    {
+      "packageIndexSha256": "7bfbf8fe9d466fdd0828cdc242ff6aa2505a76553dd0a85f1088a09a498373b7",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    },
+    {
+      "packageIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    }
+  ],
+  "v4PackageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08",
+  "v4Status": "UNSIGNED_HISTORICAL_INPUT",
+  "v5ApprovalEligible": true,
+  "v5ExecutionEligible": false
+}

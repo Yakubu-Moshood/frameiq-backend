@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "phase3-media-pilot-proposal/1.0.0",
+  "proposalId": "phase3-media-pilot-proposal-20261002-v1",
+  "status": "PROPOSED_UNSIGNED_NOT_AUTHORIZED_FOR_EXECUTION",
+  "approvalScope": "Planning only; no provider request or execution authorization.",
+  "packageBindings": {
+    "packageIndex": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+    "approvalProposal": "8a867a6b0a826d97207148ac094fbb7485ae6fe9b445979816c44acac202fb87",
+    "reviewJson": "b6cd1067a3b440d39c2a6de8d8dc1ea2554ab71704bd0c7c5f24fff9eb05c68c",
+    "reviewMarkdown": "37dfe892e0993dec5675db2a36357543e9143693028608f07d45917333cdde33"
+  },
+  "proposedProvider": "fal.ai",
+  "providerApproval": "NOT_AUTHORIZED",
+  "requests": [
+    {
+      "sequence": 1,
+      "kind": "generated_still",
+      "provider": "fal.ai",
+      "model": "blackforestlabs/flux-3/text-to-image",
+      "beatId": "ACT3_B005",
+      "prompt": "Medium shot of a customer's hands sliding a driver's license across a polished wood-grain desk surface toward a banker's hands positioned at a keyboard, banker beginning to type, neutral business casual attire visible on both figures from mid-torso down, no faces visible, generic computer monitor edge in frame, soft office lighting, clean professional desk surface",
+      "negativePrompt": "identifiable faces, real IDs with readable information, specific bank logos, branded materials, cluttered desk, unprofessional setting",
+      "parameters": {
+        "resolution": "1k",
+        "aspect_ratio": "16:9",
+        "output_format": "png",
+        "enable_prompt_expansion": false
+      },
+      "requestedDimensions": "1K tier, aspect ratio 16:9; exact pixel dimensions must be read from returned image and accepted/rejected by review.",
+      "format": "PNG requested; returned content type must be verified.",
+      "currentPublishedPrice": {
+        "usdPerImage": 0.024,
+        "qualifier": "Promotional 1K price observed 2026-10-02; promotion ends 2026-10-08, after which published price is $0.048 per image; excludes tax.",
+        "source": "https://fal.ai/models/blackforestlabs/flux-3/text-to-image"
+      },
+      "requestKey": "a74eaf05273a5de26cb8b442beab03a929f4af957730ca7502dc802c3d968130",
+      "maxAttempts": 1,
+      "retry": "No retry. Reconcile reservation and receipt before any future attempt.",
+      "ownershipTerms": {
+        "inputLicense": "fal Terms grant fal a non-exclusive, non-sublicensable, royalty-free license to process Customer Input to provide the service; customer warrants rights to submitted inputs.",
+        "outputOwnership": "Not established by the reviewed general terms. Model listing says commercial use, which is not treated as a transfer of ownership. Must be clarified before generation.",
+        "source": "https://fal.ai/legal/terms-of-service"
+      },
+      "humanReviewRequired": true
+    },
+    {
+      "sequence": 2,
+      "kind": "animation_clip",
+      "provider": "fal.ai",
+      "model": "fal-ai/framepack",
+      "beatId": "ACT3_B005",
+      "dependency": "The generated ACT3_B005 still from request 1 is used only as the same-beat image-to-video starting frame. It is a required animation-base dependency, not a cross-beat reuse or alias.",
+      "approvedVisualDescription": "A customer slides ID across a desk to a banker; the banker begins typing.",
+      "prompt": "Animate only the approved action: a customer’s hands slide an ID across the desk toward a banker’s hands at a keyboard; the banker begins typing. Keep faces outside the frame, use anonymous generic people, and preserve a neutral generic bank workstation with no readable ID information or branding.",
+      "negativePrompt": "identifiable faces, readable personal data, logos, branded materials, extra people, camera move that changes the approved composition, invented actions",
+      "parameters": {
+        "aspect_ratio": "16:9",
+        "resolution": "480p",
+        "num_frames": 150
+      },
+      "requestedDimensions": "480p tier, 16:9; exact pixel dimensions not guaranteed by the retrieved model documentation and must be measured.",
+      "format": "Model documentation example returns video/mp4; verify returned content type and actual container.",
+      "codec": "Not specified by the endpoint listing; inspect with ffprobe before acceptance.",
+      "frameRate": "Not specified; 150 frames requested, but exact duration cannot be inferred until returned media is probed.",
+      "returnedDurationBehavior": "Endpoint returns a video URL and file metadata example; no fixed duration or frame-rate guarantee is published. Retrieve only after an authorized request, probe locally, record actual duration/frame count, and reject if outside the approved pilot acceptance window. Do not assume 5 seconds.",
+      "currentPublishedPrice": {
+        "usdPerSecond": 0.0333,
+        "estimatedAtFiveSecondsUsd": 0.1665,
+        "qualifier": "Published per generated second on 2026-10-02; billed duration depends on returned output; excludes tax.",
+        "source": "https://fal.ai/models/fal-ai/framepack"
+      },
+      "requestKey": "ece9c247c65ac876942b522d8549e7d8f46426a3853e96c2f0e02e993ebfff34",
+      "maxAttempts": 1,
+      "retry": "No retry. Reconcile reservation and receipt before any future attempt.",
+      "ownershipTerms": {
+        "inputLicense": "Same fal input-processing license and customer rights warranties in the general Terms.",
+        "outputOwnership": "Not established by general Terms. Commercial-use label does not prove customer ownership or exclusivity; written clarification required.",
+        "source": "https://fal.ai/legal/terms-of-service"
+      },
+      "humanReviewRequired": true
+    }
+  ],
+  "requestReservation": {
+    "maxProviderRequests": 2,
+    "keysMustBeReservedBeforeSubmission": true,
+    "duplicateKeySubmissionForbidden": true
+  },
+  "cost": {
+    "publishedEstimatedUsd": {
+      "still": 0.024,
+      "clipAtFiveSeconds": 0.1665,
+      "totalAtFiveSeconds": 0.1905
+    },
+    "proposedHardCapUsd": 0.25,
+    "capStatus": "PROPOSED_ONLY; not confirmed as enforceable by either endpoint. Do not execute unless a verified pre-submit billing control enforces the cap or an explicit revised authorization accepts the unbounded actual duration.",
+    "maximumExposure": "Not bounded by published endpoint behaviour when actual video duration/FPS is unknown. Two attempts maximum does not itself bound cost."
+  },
+  "stopConditions": [
+    "No execution authorization is included in this proposal.",
+    "Stop before submission unless output ownership terms are clarified to reviewer satisfaction.",
+    "Stop if price, estimated duration, or maximum charge cannot be established before request within the proposed $0.25 total cap.",
+    "Stop if returned still dimensions/format or clip content type/container/codec/frame rate/duration cannot be verified.",
+    "No retries; no additional output variation requests.",
+    "Human visual approval required before downstream use.",
+    "Stop if ACT3_B005 same-beat still-to-clip dependency or exact approved prompt binding changes."
+  ],
+  "executionSignature": "",
+  "providerAuthorization": "",
+  "providerAuthorizationBy": "",
+  "approvalDate": "",
+  "createdWithoutProviderCalls": true
+}

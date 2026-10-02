@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "phase3-media-human-editorial-approval/1.0.0",
+  "recordType": "DETACHED_HASH_BOUND_HUMAN_EDITORIAL_APPROVAL",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "reviewer": "Yakubu Moshood",
+  "decision": "APPROVED_FOR_PILOT_PLANNING_ONLY",
+  "approvalDate": "2026-10-02",
+  "decisionSource": "Explicit user approval in the conversation; no cryptographic signature supplied.",
+  "humanEditorialApprovalRecorded": true,
+  "bindings": {
+    "packageIndex": {
+      "path": "phase3-media-completion-review-20261002-v5/phase3-media-package-index.v5.json",
+      "bytes": 9979,
+      "sha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0"
+    },
+    "unsignedApprovalProposal": {
+      "path": "phase3-media-completion-review-20261002-v5/unsigned-approval-proposal.v5.json",
+      "bytes": 4517,
+      "sha256": "8a867a6b0a826d97207148ac094fbb7485ae6fe9b445979816c44acac202fb87",
+      "verificationSource": "Explicit detached-file hash binding supplied by the user"
+    },
+    "reviewJson": {
+      "path": "phase3-media-completion-review-20261002-v5/14-reference-stills-human-review.v5.json",
+      "bytes": 67577,
+      "sha256": "b6cd1067a3b440d39c2a6de8d8dc1ea2554ab71704bd0c7c5f24fff9eb05c68c"
+    },
+    "reviewMarkdown": {
+      "path": "phase3-media-completion-review-20261002-v5/14-reference-stills-human-review.v5.md",
+      "bytes": 20579,
+      "sha256": "37dfe892e0993dec5675db2a36357543e9143693028608f07d45917333cdde33"
+    },
+    "reviewPdf": {
+      "path": "phase3-media-completion-review-20261002-v5/14-reference-stills-human-review.v5.pdf",
+      "bytes": 26437,
+      "sha256": "407eab6e85b5e93b656c03b98daf3d801d3b1c450135eb3a94d32ef72c9e9260"
+    }
+  },
+  "scope": {
+    "approvedPromptsAsWritten": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "exactPromptRevisions": [
+      "ACT3_B027",
+      "ACT5_B021"
+    ],
+    "revisionDecisionsCovered": [
+      "ACT3_B027",
+      "ACT5_B009",
+      "ACT5_B016",
+      "ACT5_B021"
+    ],
+    "rejectedSameBeatAliases": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "assetTypeCorrection": {
+      "rowCount": 34,
+      "from": "generated_clip",
+      "to": "controlled_image",
+      "productionMethod": "CONTROLLED_STILL",
+      "applied": false
+    },
+    "clipFitPolicy": {
+      "clipCount": 23,
+      "sourceDurationSeconds": 5,
+      "fps": 30,
+      "roundingDocumented": true,
+      "applied": false
+    },
+    "ACT5_B009": {
+      "proposedZeroProviderDeterministicGraphicAmendment": true,
+      "applied": false
+    },
+    "ACT5_B016": {
+      "dependencyBeatId": "ACT5_B015",
+      "purpose": "composition-only",
+      "generalCrossBeatSharing": false
+    },
+    "retiredBeatIds": [
+      "ACT3B_B010"
+    ]
+  },
+  "notAuthorized": [
+    "applying amendments",
+    "provider requests",
+    "media generation",
+    "candidate reconstruction",
+    "staging",
+    "promotion",
+    "rendering",
+    "episode-root writes"
+  ],
+  "executionSignature": "",
+  "providerAuthorization": "",
+  "createdAfterVerification": {
+    "indexedPackageFilesVerified": 49,
+    "allBoundHashesMatched": true,
+    "verificationPerformedImmediatelyBeforeRecordWrite": true
+  }
+}

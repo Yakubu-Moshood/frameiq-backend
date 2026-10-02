@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "phase3-media-review-summary/5.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "approvalEligible": true,
+  "executionEligible": false,
+  "sourceV4": {
+    "packageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08",
+    "historicalStatus": "UNSIGNED_HISTORICAL_INPUT"
+  },
+  "decisions": {
+    "approvedWithoutPromptChanges": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "exactDirectionsCaptured": [
+      "ACT3_B027",
+      "ACT5_B021"
+    ],
+    "sameBeatAliasesRejected": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "controlledImage34Rows": "APPROVED_EDITORIAL_DECISION_NOT_APPLIED",
+    "clipFit23": "APPROVED_EDITORIAL_DECISION_NOT_EXECUTED",
+    "retiredBeatIds": [
+      "ACT3B_B010"
+    ],
+    "ACT5_B009": "UNSIGNED_CHILD_AMENDMENT_AND_EXECUTION_BLOCKER",
+    "ACT5_B016": "COMPOSITION_ONLY_DEPENDENCY; PATH_HASH_BLOCKS_EXECUTION_NOT_HUMAN_APPROVAL"
+  },
+  "blockers": {
+    "humanApproval": [],
+    "execution": [
+      "ACT5_B009 child amendment remains unsigned and unapplied",
+      "ACT5_B016 ACT5_B015 source path and hash remain unbound",
+      "Pilot provider route, terms, rights/ownership, current price and output format/properties unresolved"
+    ]
+  },
+  "signatures": {
+    "executionSignature": "",
+    "providerAuthorization": ""
+  },
+  "sideEffects": {
+    "providers": 0,
+    "railway": 0,
+    "episodeRootWrites": 0,
+    "mediaGenerated": 0
+  },
+  "historicalInputs": [
+    {
+      "packageIndexSha256": "7bfbf8fe9d466fdd0828cdc242ff6aa2505a76553dd0a85f1088a09a498373b7",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    },
+    {
+      "packageIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+      "status": "UNSIGNED_HISTORICAL_INPUT"
+    }
+  ],
+  "v4PackageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08"
+}

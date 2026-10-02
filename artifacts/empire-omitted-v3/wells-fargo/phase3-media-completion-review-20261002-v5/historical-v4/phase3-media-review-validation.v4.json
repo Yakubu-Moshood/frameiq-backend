@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-media-completion-review-validation/4.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "PACKAGE_INTEGRITY_PASS_WITH_REVIEW_BLOCKERS",
+  "structuralErrors": [],
+  "checks": {
+    "allIndexedFilesMatch": true,
+    "allV3HistoricalIndexEntriesMatch": true,
+    "reviewEntryCount": 14,
+    "uniqueBeatCount": 14,
+    "approvedWithoutPromptChanges": 10,
+    "revisionDecisions": 4,
+    "rejectedAliases": 5,
+    "assetTypeAmendmentRows": 34,
+    "clipFitPolicyRows": 23,
+    "act3bB010Retired": true,
+    "approvalProposalUnsigned": true,
+    "executionSignatureEmpty": true,
+    "providerAuthorizationEmpty": true
+  },
+  "unresolvedReviewBlockers": [
+    "ACT3_B027: exact revised prompt direction unavailable; prompt not changed.",
+    "ACT5_B021: exact revised prompt direction unavailable; prompt not changed.",
+    "ACT5_B009: unsigned child amendment required and beat remains blocked.",
+    "ACT5_B016: source clean-frame path and SHA-256 must be bound before execution.",
+    "Provider route, terms, ownership, current pricing and output properties remain unresolved pending pilot."
+  ],
+  "providerCalls": 0,
+  "railwayCalls": 0,
+  "episodeRootWrites": 0,
+  "amendmentsApplied": 0,
+  "mediaGenerated": 0
+}

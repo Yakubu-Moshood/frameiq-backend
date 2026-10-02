@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "phase3-media-completion-human-approval-record/1.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v3",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "reviewerName": "",
+  "approvedBy": "",
+  "decision": "",
+  "approvalRef": "",
+  "approvedAt": "",
+  "signature": "",
+  "reviewerNotes": "",
+  "bindings": {
+    "packageIndexPath": "phase3-media-package-index.v3.json",
+    "packageIndexSha256": "df40459e3a9b98e0b6b92cb77ff3c3ad30c22e3d8ca4b23ea903fb03efd14974",
+    "reviewJsonSha256": "a6a4d9180f2d6a646e971723a5170527df36ff510870c1c930ab575db212c03f",
+    "reviewMarkdownSha256": "151d65f286576ddeb400ed5dd5b083147c28ad86669f19d55be6f97b8f0ae7ba",
+    "reviewPdfSha256": "380ff1d12828409b38903be75ac37fae9eee4dd41055d102146471a9ae05a8ab",
+    "fixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "liveBindingsSha256": "7f717d0317fc45b6169f0e3bbcd5bf4642ab033e8ab73d3871a697a6bed77109",
+    "activationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04DerivedStagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf"
+  },
+  "promptDecisions": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B005",
+      "promptSha256": "a7d4473a39785fe2b01ca801ad9040fa6fbcce2145f295a444ca9192d170a5e8",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B023",
+      "promptSha256": "43de2da4e3db00930219500b6888428ae4c78b154acc8dc3c0b4b440de60eac9",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B027",
+      "promptSha256": "37429fe24a197018f27f50e94553bb74b881f7b6a16f37ed3b5e36c358ff30c5",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B001",
+      "promptSha256": "f79ea85b569aaac510b944eda157da2a83904add0172db1a2ed9d52bc7e9c1a2",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B014",
+      "promptSha256": "ed62d26e58cc321a80d1f819ac54ff30bb718ab9da4550d836bec3509b986123",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "promptSha256": "738e603bb82991ef3304ba072eda252d121d4d442334e7663516191c6d1e1518",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B003",
+      "promptSha256": "3c30f7763f53118849f2cc896fe3cd57aa1665b61dd287408d870e2271ec2ef1",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B009",
+      "promptSha256": "83a059283f173e671bf7078fa3d97d758897393ba8e821d235f655c6a37689e9",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B010",
+      "promptSha256": "9d0aef5dd663c36121ceef4bd905f5fbf954c065e9a82444ec8463f67acf03a6",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "promptSha256": "0ebe97c04eeda53db0930ac02496c6a41292bb91c09224f1ee72dd66344bbb9d",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B013",
+      "promptSha256": "93de32a348791f427d6214a6412dff8107584da374c432e2e4a008e0d9b00b69",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B016",
+      "promptSha256": "d46be32bfb86dd2929f5c76274914eeeec0d66555aaf285e85fc4493f7831d2b",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B017",
+      "promptSha256": "97121c69e4ca88e48b41bc9f3d299b6267237ba6934d001e41c70accedc0de41",
+      "decision": "",
+      "reviewerNotes": ""
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B021",
+      "promptSha256": "c06e930ed086e17c6db0a4045f887f05483cfbd47e547a33a268fbddebe36d8b",
+      "decision": "",
+      "reviewerNotes": ""
+    }
+  ],
+  "controlledStillAmendment": {
+    "path": "historical-v2/phase3-controlled-image-child-amendment.v1.json",
+    "sha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "affectedRows": 34,
+    "decision": ""
+  },
+  "clipFitPolicy": {
+    "path": "historical-v2/phase3-media-clip-fit-policy.v1.json",
+    "sha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "beats": 23,
+    "decision": ""
+  },
+  "sameBeatAliases": [
+    {
+      "beatId": "ACT3_B005",
+      "decision": "",
+      "reviewerNotes": "",
+      "conditionRequirements": [
+        "visual description identical",
+        "prompt identical",
+        "ownership and rights identical",
+        "output specifications identical",
+        "resulting still reviewed and approved for both roles"
+      ],
+      "verificationStatus": "NOT_VERIFIED_PENDING_REVIEW"
+    },
+    {
+      "beatId": "ACT3_B023",
+      "decision": "",
+      "reviewerNotes": "",
+      "conditionRequirements": [
+        "visual description identical",
+        "prompt identical",
+        "ownership and rights identical",
+        "output specifications identical",
+        "resulting still reviewed and approved for both roles"
+      ],
+      "verificationStatus": "NOT_VERIFIED_PENDING_REVIEW"
+    },
+    {
+      "beatId": "ACT3B_B014",
+      "decision": "",
+      "reviewerNotes": "",
+      "conditionRequirements": [
+        "visual description identical",
+        "prompt identical",
+        "ownership and rights identical",
+        "output specifications identical",
+        "resulting still reviewed and approved for both roles"
+      ],
+      "verificationStatus": "NOT_VERIFIED_PENDING_REVIEW"
+    },
+    {
+      "beatId": "ACT5_B012",
+      "decision": "",
+      "reviewerNotes": "",
+      "conditionRequirements": [
+        "visual description identical",
+        "prompt identical",
+        "ownership and rights identical",
+        "output specifications identical",
+        "resulting still reviewed and approved for both roles"
+      ],
+      "verificationStatus": "NOT_VERIFIED_PENDING_REVIEW"
+    },
+    {
+      "beatId": "ACT5_B017",
+      "decision": "",
+      "reviewerNotes": "",
+      "conditionRequirements": [
+        "visual description identical",
+        "prompt identical",
+        "ownership and rights identical",
+        "output specifications identical",
+        "resulting still reviewed and approved for both roles"
+      ],
+      "verificationStatus": "NOT_VERIFIED_PENDING_REVIEW"
+    }
+  ],
+  "crossBeatAssetSharing": {
+    "proposedRule": "Do not approve cross-beat asset sharing.",
+    "decision": "",
+    "reviewerNotes": ""
+  },
+  "globalDecisionFields": {
+    "decision": "",
+    "reviewerNotes": ""
+  },
+  "sourceV2States": [
+    {
+      "packageIndexSha256": "7bfbf8fe9d466fdd0828cdc242ff6aa2505a76553dd0a85f1088a09a498373b7",
+      "status": "UNSIGNED_HISTORICAL_INPUT",
+      "availableSnapshot": "Hash recorded only; superseded in-place before v3 packaging."
+    },
+    {
+      "packageIndexSha256": "1a7efb4d46d5df0dcba090911ee9044c1e8eb7456d1a314571218113c83c9778",
+      "status": "UNSIGNED_HISTORICAL_INPUT",
+      "availableSnapshot": "Exact current v2 snapshot copied byte-for-byte to historical-v2/."
+    }
+  ],
+  "eligibleForSignatureOnlyAfterReviewerFillsDecisionFields": true
+}

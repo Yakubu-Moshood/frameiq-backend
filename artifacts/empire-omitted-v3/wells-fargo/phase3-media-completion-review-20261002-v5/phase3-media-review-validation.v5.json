@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-media-completion-review-validation/5.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v5",
+  "status": "PACKAGE_INTEGRITY_PASS_WITH_EXECUTION_BLOCKERS",
+  "structuralErrors": [],
+  "checks": {
+    "sourceV4PackageIndexHashVerified": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08",
+    "reviewEntryCount": 14,
+    "uniqueBeatCount": 14,
+    "approvedWithoutPromptChanges": 10,
+    "exactDirectionsCaptured": 2,
+    "missingExactReviewResponseBlockers": 0,
+    "rejectedAliases": 5,
+    "assetTypeAmendmentRows": 34,
+    "clipFitPolicyRows": 23,
+    "act3bB010Retired": true,
+    "executionSignatureEmpty": true,
+    "providerAuthorizationEmpty": true,
+    "approvalEligible": true,
+    "executionEligible": false
+  },
+  "humanReviewBlockers": [],
+  "executionBlockers": [
+    "ACT5_B009 child amendment remains unsigned and unapplied",
+    "ACT5_B016 ACT5_B015 source path and hash remain unbound",
+    "Pilot provider route, terms, rights/ownership, current price and output format/properties unresolved"
+  ],
+  "providerCalls": 0,
+  "railwayCalls": 0,
+  "episodeRootWrites": 0,
+  "amendmentsApplied": 0,
+  "mediaGenerated": 0
+}

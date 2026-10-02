@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "phase3-media-completion-review-index/2.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v2",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "fileCount": 17,
+  "files": [
+    {
+      "path": "continuity-contact-sheet-01.svg",
+      "bytes": 19892,
+      "sha256": "110ba145287b1f52a2f2c38c84ab60617f17304954a30d30f7c5bb41c856c30a"
+    },
+    {
+      "path": "continuity-contact-sheet-02.svg",
+      "bytes": 19830,
+      "sha256": "66378e0f19d05ef8c7a357260c0e5fef73aaba87d62ce48776c9e6a46ba44674"
+    },
+    {
+      "path": "continuity-contact-sheet-03.svg",
+      "bytes": 15941,
+      "sha256": "af182906c78220ddbe38e6c42b6a679f85d8c5759495d9f1e766561f1733d8d2"
+    },
+    {
+      "path": "continuity-contact-sheet-review-index.v1.json",
+      "bytes": 1252,
+      "sha256": "c53100e63660b90b99784d52b509dd1fb2b0740945481874dfdde81c37fe6715"
+    },
+    {
+      "path": "phase3-controlled-image-child-amendment.v1.json",
+      "bytes": 120024,
+      "sha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3"
+    },
+    {
+      "path": "phase3-human-review-docket.v2.json",
+      "bytes": 2021,
+      "sha256": "e1544ce3fa1a3131de2735d767642c7b3336b5a835c09e66506422aa9b035e53"
+    },
+    {
+      "path": "phase3-live-binding-verification.md",
+      "bytes": 846,
+      "sha256": "dfc2e58e63b5e9c485e60c94eb18b939d4b03a5d98c4cffbbf75f9bb7d0eb07a"
+    },
+    {
+      "path": "phase3-live-bindings-and-fixture-retrieval.v1.json",
+      "bytes": 2024,
+      "sha256": "86d3d645c7909d4c84972fdacfcc9750c00caedac864fbd988a44fceb6d23f40"
+    },
+    {
+      "path": "phase3-media-clip-fit-policy.v1.json",
+      "bytes": 58648,
+      "sha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9"
+    },
+    {
+      "path": "phase3-media-continuity-decision-docket.v2.json",
+      "bytes": 52279,
+      "sha256": "21a174e988067e60f60856ff20389b96cbaa01ad90833c743b116fb9e8452d0e"
+    },
+    {
+      "path": "phase3-media-cost-estimate.v2.json",
+      "bytes": 1511,
+      "sha256": "4d9ea61265dfe6c4cff6db86afe4d8758deae1703a36d353af9500b62a52397f"
+    },
+    {
+      "path": "phase3-media-dependency-graph.v2.json",
+      "bytes": 27149,
+      "sha256": "6af4fa14538ff6c40fb279288d6bcfc1ffb173b73ff43d56dec04baee993b98e"
+    },
+    {
+      "path": "phase3-media-review-summary.v2.json",
+      "bytes": 2330,
+      "sha256": "a0fef18bef1dc5a6087a1c52ab8bfded442d6f93127d8c57a7302357df77aace"
+    },
+    {
+      "path": "phase3-media-review-summary.v2.md",
+      "bytes": 1839,
+      "sha256": "76f2c2d1a942d1098d2021fffa116be31b9bea03fdd5b1cda8fcd751b489e22a"
+    },
+    {
+      "path": "phase3-pilot-probe-proposal.v1.md",
+      "bytes": 484,
+      "sha256": "0aec7521127d093d077308f1e8100863d06a541b8a1882e996ddb2a9a0096a98"
+    },
+    {
+      "path": "phase3-test-scope-reconciliation.v2.json",
+      "bytes": 5914,
+      "sha256": "d4a11721af32ce5519b69621ee6c29ac572ef3f3eff7b83cea590614e5fd7782"
+    }
+  ]
+}

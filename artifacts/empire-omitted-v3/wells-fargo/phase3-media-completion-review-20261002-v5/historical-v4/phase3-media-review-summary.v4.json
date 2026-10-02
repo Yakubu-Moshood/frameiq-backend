@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "phase3-media-completion-review-summary/4.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "approvalEligible": false,
+  "sourceV3PackageIndexSha256": "df40459e3a9b98e0b6b92cb77ff3c3ad30c22e3d8ca4b23ea903fb03efd14974",
+  "decisions": {
+    "approvedWithoutPromptChanges": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "revised": [
+      "ACT3_B027",
+      "ACT5_B009",
+      "ACT5_B016",
+      "ACT5_B021"
+    ],
+    "sameBeatAliasesRejected": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "controlledImage34Rows": "APPROVED_EDITORIAL_DECISION_NOT_APPLIED",
+    "clipFit23": "APPROVED_EDITORIAL_DECISION_NOT_EXECUTED",
+    "retiredBeatIds": [
+      "ACT3B_B010"
+    ]
+  },
+  "mediaPlan": {
+    "dedicatedReferenceStills": 12,
+    "controlledLocalGraphicForACT5_B009": {
+      "providerRequests": 0,
+      "blocked": true
+    },
+    "ACT5_B016Reference": {
+      "sourceBeatId": "ACT5_B015",
+      "purpose": "composition-only",
+      "sourceHash": null,
+      "blocked": true
+    },
+    "potentialProviderRequests": {
+      "beforeB009Amendment": 67,
+      "afterB009Amendment": 66
+    }
+  },
+  "unresolvedExactPromptDirections": [
+    "ACT3_B027",
+    "ACT5_B021"
+  ],
+  "pilotUnresolved": [
+    "provider route",
+    "provider terms",
+    "ownership",
+    "current price",
+    "codec",
+    "dimensions",
+    "container",
+    "provider-returned duration"
+  ],
+  "noProviderCalls": true,
+  "noRailwayCalls": true,
+  "noEpisodeRootWrites": true
+}

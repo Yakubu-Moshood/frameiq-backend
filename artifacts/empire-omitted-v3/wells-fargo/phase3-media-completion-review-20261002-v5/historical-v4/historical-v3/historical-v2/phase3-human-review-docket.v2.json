@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "phase3-media-completion-review-docket/2.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "approvedBy": null,
+  "decisionsProposedByYakubu": {
+    "continuity": "CREATE_NEW_DEDICATED_REFERENCE_STILL for all 14",
+    "controlledAssetType": "generated_clip -> controlled_image for exact 34 rows",
+    "animationFit": "5-second request plus trim/hold policy as listed"
+  },
+  "stillRequiresYakubuSignature": [
+    "all 14 exact reference prompts and final stills",
+    "which of five same-beat animation reference/base dependencies can alias",
+    "whether any same-beat still/reference aliases may be used for final still outputs",
+    "controlled-image amendment exact hash-bound proposal",
+    "final cost and provider route after pilot",
+    "sign this v2 review package before applying any child amendment or starting media execution"
+  ],
+  "pilotQuestions": [
+    "provider/model",
+    "current price",
+    "returned duration",
+    "codec",
+    "dimensions",
+    "frame rate",
+    "container",
+    "normalization/trim/hold behavior",
+    "rights and output ownership"
+  ],
+  "jobsExecutableBeforePilot": [],
+  "jobsBlockedUntilPilot": [
+    "all provider-generated still jobs",
+    "all 23 animation clips",
+    "all clip normalization/hold jobs"
+  ],
+  "nonproviderJobsPotentialAfterHumanDecision": [
+    "controlled still sourcing/manual creation only after approved source/rights contract",
+    "reference still sourcing if an approved no-cost local/rights-safe source is chosen"
+  ],
+  "renewedApprovalsBeforeCandidateReconstruction": [
+    "signed amendment proposal",
+    "apply child amendment only after signature",
+    "recompute shot/production files and revision lineage",
+    "new candidate index and validations",
+    "renew media-completion plan bindings",
+    "renew candidate/stage approval bindings"
+  ],
+  "act3bB010": "RETIRED_AND_EXCLUDED",
+  "liveBindingsStatus": "PHASE3_LIVE_BINDINGS_VERIFIED",
+  "canonicalSuiteStatus": "PASS_531_OF_531"
+}

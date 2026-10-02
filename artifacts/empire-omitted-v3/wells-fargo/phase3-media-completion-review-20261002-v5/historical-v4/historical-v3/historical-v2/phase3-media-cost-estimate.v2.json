@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "phase3-media-cost-estimate/2.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "providerPriceStatus": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+  "requestCounts": {
+    "controlledStillLocalManual": 34,
+    "generatedFinalStills": 9,
+    "animationBaseStills": 23,
+    "animationClips": 23,
+    "dedicatedReferenceStillAssets": 14,
+    "additionalPaidReferenceRequestsIfAllProviderGenerated": {
+      "min": 9,
+      "max": 14
+    },
+    "totalPotentialPaidRequestsIfBaselineJobsUseProviders": {
+      "min": 64,
+      "max": 69
+    },
+    "referenceSharingScenario": "Five same-beat animation reference/base-still aliases could avoid five duplicate reference requests if approved. No cross-beat sharing. Remaining nine references add up to nine requests if provider-generated; if no alias is approved, all fourteen add requests. Local/manual reference creation adds no provider call."
+  },
+  "lastKnownPlanningConstantsNotCurrentQuotes": {
+    "stillPerSuccessUsd": {
+      "min": 0.0043,
+      "max": 0.08
+    },
+    "animationPerSuccessUsd": {
+      "min": 0.18,
+      "max": 0.35
+    },
+    "basis": "prior v1 committed route constants only; current provider/model/prices unverified"
+  },
+  "illustrativeHistoricalUnitCostRangeUsd": {
+    "min": 4.3163,
+    "max": 11.73
+  },
+  "localReferenceScenarioUsd": {
+    "min": 4.2776,
+    "max": 10.61
+  },
+  "costStatus": "ILLUSTRATIVE_ONLY_NOT_A_CURRENT_ESTIMATE",
+  "retryCostIncluded": false,
+  "providerCallsMade": 0
+}

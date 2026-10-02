@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "phase3-media-human-review-decisions/4.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "HUMAN_EDITORIAL_DECISIONS_RECORDED_EXECUTION_UNSIGNED",
+  "decisionsBy": "Yakubu Moshood",
+  "decisionSource": "User-provided human-review decisions",
+  "recordedAt": "",
+  "signed": false,
+  "finalExecutionSignature": "",
+  "providerAuthorization": "",
+  "promptDecisions": {
+    "approvedWithoutPromptChanges": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "revisions": [
+      {
+        "beatId": "ACT3_B027",
+        "decision": "REVISE",
+        "exactDirection": null,
+        "status": "BLOCKED_MISSING_EXACT_REVIEW_RESPONSE"
+      },
+      {
+        "beatId": "ACT5_B009",
+        "decision": "REVISE",
+        "exactDirection": "Zero-provider deterministic controlled graphic with exact year labels 2013 through 2023.",
+        "status": "CHILD_AMENDMENT_REQUIRED_AND_BEAT_BLOCKED"
+      },
+      {
+        "beatId": "ACT5_B016",
+        "decision": "REVISE",
+        "exactDirection": "Use the approved ACT5_B015 clean frame only as compositional reference for cracked-frame derivative; no general cross-beat sharing.",
+        "status": "SOURCE_PATH_AND_HASH_UNRESOLVED"
+      },
+      {
+        "beatId": "ACT5_B021",
+        "decision": "REVISE",
+        "exactDirection": null,
+        "status": "BLOCKED_MISSING_EXACT_REVIEW_RESPONSE"
+      }
+    ]
+  },
+  "sameBeatAliases": [
+    {
+      "beatId": "ACT3_B005",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT3_B023",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT3B_B014",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT5_B012",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    },
+    {
+      "beatId": "ACT5_B017",
+      "decision": "REJECTED",
+      "decidedBy": "Yakubu Moshood",
+      "approved": false,
+      "finalExecutionSignature": ""
+    }
+  ],
+  "controlledImageAmendment": {
+    "decision": "APPROVED_EDITORIAL_DECISION",
+    "decidedBy": "Yakubu Moshood",
+    "amendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "exactRowCount": 34,
+    "scope": "assetType generated_clip -> controlled_image; productionMethod remains CONTROLLED_STILL",
+    "applied": false,
+    "finalExecutionSignature": ""
+  },
+  "clipFitPolicy": {
+    "decision": "APPROVED_EDITORIAL_DECISION",
+    "decidedBy": "Yakubu Moshood",
+    "sourceSha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "beatCount": 23,
+    "sourceDurationSec": 5,
+    "fps": 30,
+    "underFiveSeconds": "trim to Math.round(durationSec * 30) frames",
+    "overFiveSeconds": "150 source frames plus deterministic end-frame hold to Math.round(durationSec * 30)",
+    "documentedRoundingAccepted": true,
+    "codecDimensionsContainerProviderReturnedDuration": "UNRESOLVED_PENDING_PILOT",
+    "applied": false,
+    "finalExecutionSignature": ""
+  },
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "generalCrossBeatAssetSharing": "REJECTED",
+  "executionSignature": "",
+  "openIssues": [
+    "Exact revised prompts for ACT3_B027 and ACT5_B021 remain unprovided.",
+    "ACT5_B009 requires the unsigned child amendment to be separately signed and applied before use.",
+    "ACT5_B016 source clean-frame path and SHA-256 must be resolved from the approved source package before execution.",
+    "Provider route, terms, output ownership, current price, and returned media properties remain unresolved pending pilot."
+  ]
+}

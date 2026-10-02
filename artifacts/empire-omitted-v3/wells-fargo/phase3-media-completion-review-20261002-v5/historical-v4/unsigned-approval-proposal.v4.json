@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "phase3-media-execution-approval-proposal/4.0.0",
+  "packageId": "phase3-media-completion-review-20261002-v4",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "editorialDecisionsBy": "Yakubu Moshood",
+  "decisionSource": "User-provided decisions; individual records in human-review-decisions.v4.json",
+  "executionDecision": "",
+  "approvedBy": "",
+  "approvalRef": "",
+  "approvedAt": "",
+  "signature": "",
+  "providerAuthorization": "",
+  "providerAuthorizationBy": "",
+  "providerAuthorizationAt": "",
+  "finalExecutionSignature": "",
+  "bindings": {
+    "packageIndexPath": "phase3-media-package-index.v4.json",
+    "packageIndexSha256": "e3ec3efe412a89592b3edb7179a62bac38eceb7c2cf6c9788d76d280e7d23e08",
+    "reviewJsonSha256": "d9fcb7f8e3a01c47ecb645128991ed1747104e4f68a17a9f050a29ec338b0ee4",
+    "reviewMarkdownSha256": "db8796b661e8d0a48819ba5c8737d02508ca7143f43939fc10fb89edf29265df",
+    "reviewPdfSha256": "7623c33f88fef7529ed7e3878f63c4bf4b83fbb579c10f33cd284c296fed46b1",
+    "decisionRecordSha256": "8e5f048864e1132767d5894bd9cc7cf138f48eac7b34cb43ad8e5e2a0ffa073a",
+    "controlledImageAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "clipFitPolicySha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9",
+    "act5B009ChildAmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "fixtureSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "liveBindingsSha256": "7f717d0317fc45b6169f0e3bbcd5bf4642ab033e8ab73d3871a697a6bed77109",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04DerivedStagedIndexSha256": "0fb230e8701a609d92bc59ebed2de77990680fff93fe137762191bc61cdc1cfa",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "candidateSourceIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac"
+  },
+  "decisions": {
+    "approvedPrompts": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B001",
+      "ACT3B_B014",
+      "ACT3B_B018",
+      "ACT5_B003",
+      "ACT5_B010",
+      "ACT5_B012",
+      "ACT5_B013",
+      "ACT5_B017"
+    ],
+    "revisions": [
+      {
+        "beatId": "ACT3_B027",
+        "decision": "REVISE",
+        "promptStatus": "BLOCKED_MISSING_EXACT_REVIEW_RESPONSE"
+      },
+      {
+        "beatId": "ACT5_B009",
+        "decision": "REVISE",
+        "promptStatus": "CAPTURED_CHILD_AMENDMENT_REQUIRED"
+      },
+      {
+        "beatId": "ACT5_B016",
+        "decision": "REVISE",
+        "promptStatus": "CAPTURED_SOURCE_HASH_UNRESOLVED"
+      },
+      {
+        "beatId": "ACT5_B021",
+        "decision": "REVISE",
+        "promptStatus": "BLOCKED_MISSING_EXACT_REVIEW_RESPONSE"
+      }
+    ],
+    "rejectedAliases": [
+      "ACT3_B005",
+      "ACT3_B023",
+      "ACT3B_B014",
+      "ACT5_B012",
+      "ACT5_B017"
+    ],
+    "approved34RowAssetTypeCorrection": {
+      "decision": "APPROVED_EDITORIAL_DECISION",
+      "applied": false
+    },
+    "approved23ClipFitPolicy": {
+      "decision": "APPROVED_EDITORIAL_DECISION",
+      "applied": false
+    }
+  },
+  "notApprovedOrAuthorized": [
+    "provider route",
+    "provider terms",
+    "asset ownership terms",
+    "current provider pricing",
+    "provider output codec",
+    "dimensions",
+    "container",
+    "provider-returned duration",
+    "media generation",
+    "amendment application",
+    "candidate reconstruction",
+    "promotion",
+    "rendering"
+  ],
+  "blockers": [
+    "Exact revised prompt text for ACT3_B027 and ACT5_B021 is missing.",
+    "ACT5_B009 child amendment is unsigned and unapplied.",
+    "ACT5_B016 ACT5_B015 compositional-source asset path/hash remains unbound locally.",
+    "Provider route, terms, ownership, current price and output properties remain unresolved pending pilot."
+  ]
+}
