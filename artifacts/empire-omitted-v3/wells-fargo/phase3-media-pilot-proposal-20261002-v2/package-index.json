@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "phase3-media-pilot-reprompt-review-package-index/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "packageId": "phase3-media-pilot-proposal-20261002-v2",
+  "files": [
+    {
+      "path": "human-rejection.v1.json",
+      "bytes": 2007,
+      "sha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8"
+    },
+    {
+      "path": "human-review-proposal.v1.json",
+      "bytes": 3722,
+      "sha256": "c31d49a3a7b9fda8a70c17b24c08c6a1ee5634e82cb447ebf9a438ffdf6329d7"
+    },
+    {
+      "path": "human-review-proposal.v1.md",
+      "bytes": 2829,
+      "sha256": "d5ec28ec740f582c6637f83a24cdf66595e14e292703c0a39783e599fa914d7d"
+    },
+    {
+      "path": "phase3-media-pilot-plan.v1.json",
+      "bytes": 6235,
+      "sha256": "85296f29de4c95282b9f7ba222ea4a85265d0b313d4007273a2780fb56ee3472"
+    }
+  ]
+}

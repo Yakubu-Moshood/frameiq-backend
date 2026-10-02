@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "phase3-media-pilot-human-decision/1.0.0",
+  "recordType": "DETACHED_HUMAN_STILL_REJECTION_AND_PILOT_CLOSURE",
+  "status": "HUMAN_REJECTED_AFTER_INSPECTION",
+  "decision": "REJECTED",
+  "reviewer": "Yakubu Moshood",
+  "decidedAt": "2026-10-02T20:50:28.135Z",
+  "pilotRunId": "phase3-media-pilot-01",
+  "beatId": "ACT3_B005",
+  "scope": "STILL_ONLY",
+  "requestKey": "a74eaf05273a5de26cb8b442beab03a929f4af957730ca7502dc802c3d968130",
+  "stillSha256": "2ad35a1238291c5cbcf5962dfbe39cb4139d3d1fc9b15c40090e5f922cfdf0ea",
+  "inspectionRecordSha256": "4312a0451322192db0a77bb9411737809ce7f50100b92af9d963be7f26d8ffe6",
+  "generationReceiptSha256": "4499beff9437f09f792fc7d3198560d501f003b7e7fd4a4f8b80f598c409b65c",
+  "executionAuthorizationSha256": "45bf63972d789af939e17c1f9edf6ee9f104df0091e01aac1344041d087239d2",
+  "reason": "The composition, anonymous framing, office setting and banker action are acceptable. However, the generated identification card contains a visible portrait, readable text, numbers and official-looking marks. This violates the approved negative constraint against real IDs with readable information and creates unnecessary privacy and factual-authenticity risk.",
+  "acceptedElements": [
+    "composition",
+    "anonymous framing",
+    "office setting",
+    "banker action"
+  ],
+  "rejectionReasons": [
+    "visible portrait on identification card",
+    "readable text on identification card",
+    "numbers on identification card",
+    "official-looking marks on identification card"
+  ],
+  "negativeConstraintViolated": "real IDs with readable information",
+  "providerSubmissionCount": 1,
+  "requestReservationCount": 1,
+  "requestResultCount": 1,
+  "noRetry": true,
+  "noFallback": true,
+  "animationAuthorized": false,
+  "animationAttempted": false,
+  "promotedPathsVerified": 147,
+  "promotedPathMismatches": 0,
+  "productionUseProhibited": true,
+  "candidateReconstructionProhibited": true,
+  "promotionProhibited": true,
+  "renderingProhibited": true
+}

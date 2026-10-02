@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "phase3-media-pilot-human-planning-approval/1.0.0",
+  "status": "APPROVED_FOR_PILOT_PLANNING_ONLY",
+  "reviewer": "Yakubu Moshood",
+  "decision": "APPROVED_FOR_PILOT_PLANNING_ONLY",
+  "approvalDate": "2026-10-02",
+  "bindings": {
+    "packageId": "phase3-media-pilot-proposal-20261002-v2",
+    "packageIndexSha256": "e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6",
+    "indexedFiles": {
+      "human-rejection.v1.json": {
+        "bytes": 2007,
+        "sha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8"
+      },
+      "human-review-proposal.v1.json": {
+        "bytes": 3722,
+        "sha256": "c31d49a3a7b9fda8a70c17b24c08c6a1ee5634e82cb447ebf9a438ffdf6329d7"
+      },
+      "human-review-proposal.v1.md": {
+        "bytes": 2829,
+        "sha256": "d5ec28ec740f582c6637f83a24cdf66595e14e292703c0a39783e599fa914d7d"
+      },
+      "phase3-media-pilot-plan.v1.json": {
+        "bytes": 6235,
+        "sha256": "85296f29de4c95282b9f7ba222ea4a85265d0b313d4007273a2780fb56ee3472"
+      }
+    },
+    "exactPrompt": "Medium shot of a customer’s hands sliding a completely generic, unbranded identification card flat across a polished wood-grain desk toward a banker’s hands positioned at a keyboard. The banker is beginning to type. The card contains only abstract colour blocks and a simple faceless silhouette icon; it has no readable text, numbers, photograph, signature, barcode, seal, hologram, country mark or organisation mark. Neutral business-casual clothing is visible on both figures, framed below the shoulders with no faces shown. Generic computer-monitor edge in frame, soft office lighting and a clean professional desk.",
+    "exactNegativePrompt": "Readable text, numbers, personal information, realistic portrait photograph, signature, barcode, QR code, seal, hologram, government mark, country name, bank logo, branded materials, identifiable faces, cluttered desk, malformed hands.",
+    "pilotRunId": "phase3-media-pilot-02",
+    "requestKey": "bd8e80547f1d5371644540aa5d0ceb20e05a16845f1ea28dbd29449172c59d10",
+    "pilot01RejectionRecordSha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8",
+    "pilot01RejectedStillSha256": "2ad35a1238291c5cbcf5962dfbe39cb4139d3d1fc9b15c40090e5f922cfdf0ea"
+  },
+  "executionSignature": "",
+  "providerAuthorization": "",
+  "executionAuthorized": false,
+  "scope": "PLANNING_ONLY"
+}

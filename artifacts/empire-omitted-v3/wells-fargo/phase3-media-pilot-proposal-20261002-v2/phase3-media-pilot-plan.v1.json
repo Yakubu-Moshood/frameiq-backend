@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "phase3-media-pilot-plan/1.0.0",
+  "proposalId": "phase3-media-pilot-prompt-revision-20261002-v2",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "executionAuthorized": false,
+  "providerAuthorization": "NOT_AUTHORIZED",
+  "pilotRunId": "phase3-media-pilot-02",
+  "supersedes": {
+    "pilotRunId": "phase3-media-pilot-01",
+    "decision": "REJECTED",
+    "status": "HUMAN_REJECTED_AFTER_INSPECTION",
+    "stillSha256": "2ad35a1238291c5cbcf5962dfbe39cb4139d3d1fc9b15c40090e5f922cfdf0ea",
+    "rejectionRecordSha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8",
+    "originalProposalSha256": "3a7420ffd3474ef1d7e5e90b0a90c9b306a5181bfe1aa79a42138d0b9b491775",
+    "originalPackageIndexSha256": "9cffcb0aea31bb29848be99799a0ae8035a6b57afd5298dda39222ef789b519b"
+  },
+  "beatId": "ACT3_B005",
+  "scope": "STILL_ONLY",
+  "operation": "GENERATE_STILL",
+  "requestKey": "bd8e80547f1d5371644540aa5d0ceb20e05a16845f1ea28dbd29449172c59d10",
+  "requestKeyDerivation": {
+    "algorithm": "SHA-256 over UTF-8 JSON.stringify of the listed fields in property order",
+    "material": {
+      "schemaVersion": "phase3-media-pilot-request-key/1.0.0",
+      "pilotRunId": "phase3-media-pilot-02",
+      "beatId": "ACT3_B005",
+      "scope": "STILL_ONLY",
+      "operation": "GENERATE_STILL",
+      "provider": "fal.ai",
+      "model": "blackforestlabs/flux-3/text-to-image",
+      "endpointId": "blackforestlabs/flux-3/text-to-image",
+      "parameters": {
+        "resolution": "1k",
+        "aspect_ratio": "16:9",
+        "output_format": "png",
+        "enable_prompt_expansion": false
+      },
+      "prompt": "Medium shot of a customer’s hands sliding a completely generic, unbranded identification card flat across a polished wood-grain desk toward a banker’s hands positioned at a keyboard. The banker is beginning to type. The card contains only abstract colour blocks and a simple faceless silhouette icon; it has no readable text, numbers, photograph, signature, barcode, seal, hologram, country mark or organisation mark. Neutral business-casual clothing is visible on both figures, framed below the shoulders with no faces shown. Generic computer-monitor edge in frame, soft office lighting and a clean professional desk.",
+      "negativePrompt": "Readable text, numbers, personal information, realistic portrait photograph, signature, barcode, QR code, seal, hologram, government mark, country name, bank logo, branded materials, identifiable faces, cluttered desk, malformed hands."
+    }
+  },
+  "provider": "fal.ai",
+  "model": "blackforestlabs/flux-3/text-to-image",
+  "endpoint": "blackforestlabs/flux-3/text-to-image",
+  "parameters": {
+    "resolution": "1k",
+    "aspect_ratio": "16:9",
+    "output_format": "png",
+    "enable_prompt_expansion": false
+  },
+  "prompt": "Medium shot of a customer’s hands sliding a completely generic, unbranded identification card flat across a polished wood-grain desk toward a banker’s hands positioned at a keyboard. The banker is beginning to type. The card contains only abstract colour blocks and a simple faceless silhouette icon; it has no readable text, numbers, photograph, signature, barcode, seal, hologram, country mark or organisation mark. Neutral business-casual clothing is visible on both figures, framed below the shoulders with no faces shown. Generic computer-monitor edge in frame, soft office lighting and a clean professional desk.",
+  "negativePrompt": "Readable text, numbers, personal information, realistic portrait photograph, signature, barcode, QR code, seal, hologram, government mark, country name, bank logo, branded materials, identifiable faces, cluttered desk, malformed hands.",
+  "expectedPublishedPriceUsd": 0.024,
+  "priceSource": "https://fal.ai/models/blackforestlabs/flux-3/text-to-image",
+  "priceObservedAt": "2026-10-02",
+  "priceMustBeReverifiedBeforeExecution": true,
+  "maximumAcceptedExposureUsd": null,
+  "exposureAcceptance": "NOT_GRANTED_FOR_NEW_RUN",
+  "retryCount": 0,
+  "fallbackProviders": [],
+  "fallbackModels": [],
+  "maxProviderSubmissions": 1,
+  "outputClassification": "NON_PRODUCTION_DISPOSABLE_PILOT",
+  "ownershipDisposition": "UNRESOLVED; new explicit risk acceptance required before any execution authorization",
+  "animationAuthorityGranted": false,
+  "animation": "EXCLUDED_FROM_THIS_PROPOSAL; remains blocked pending a separately reviewed and approved still plus separate ANIMATION_ONLY authorization",
+  "reviewRequirements": {
+    "promptDecision": "PENDING",
+    "reviewer": "Yakubu Moshood",
+    "decision": "",
+    "notes": ""
+  },
+  "executionGates": [
+    "human approval of this revised prompt and plan",
+    "fresh price and endpoint verification",
+    "reviewed ownership-risk disposition for this new run and request",
+    "future runner support for phase3-media-pilot-02",
+    "separate detached STILL_ONLY execution authorization",
+    "pilot still inspection and separate human visual approval before any later animation proposal"
+  ],
+  "prohibitions": {
+    "secondSubmissionProhibited": true,
+    "automaticRetryProhibited": true,
+    "fallbackProhibited": true,
+    "candidateUseProhibited": true,
+    "candidateReconstructionProhibited": true,
+    "promotionProhibited": true,
+    "renderingProhibited": true,
+    "distributionProhibited": true,
+    "episodeRootWritesProhibited": true
+  },
+  "sourceBindings": {
+    "v5PackageIndexSha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+    "editorialApprovalSha256": "99b14463be09903e53dfea68914d12faa6bff0be756f7fe5f3eef5cabcb72e7a",
+    "priorPilotPackageIndexSha256": "9cffcb0aea31bb29848be99799a0ae8035a6b57afd5298dda39222ef789b519b",
+    "priorPilotProposalSha256": "3a7420ffd3474ef1d7e5e90b0a90c9b306a5181bfe1aa79a42138d0b9b491775",
+    "rejectedStillSha256": "2ad35a1238291c5cbcf5962dfbe39cb4139d3d1fc9b15c40090e5f922cfdf0ea",
+    "rejectionRecordSha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8",
+    "inspectionRecordSha256": "4312a0451322192db0a77bb9411737809ce7f50100b92af9d963be7f26d8ffe6",
+    "priorExecutionAuthorizationSha256": "45bf63972d789af939e17c1f9edf6ee9f104df0091e01aac1344041d087239d2"
+  },
+  "providerRequestsSoFar": 0
+}
