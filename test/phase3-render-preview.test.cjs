@@ -52,6 +52,11 @@ function verified(f) {
     expectedFrames: 19020, shotCount: 153, evidenceCount: 46, evidenceAssetCount: 29,
     graphicsCount: 76, timestampRows: 1352, timestampsSha256: 'b'.repeat(64),
     audioInputs: [], requestLedgerSha256: f.ledgerSha, ledgerSha256: f.ledgerSha,
+    mediaStrategyCensus: { totalShotsChecked: 153,
+      countsByFinalStrategy: { DOCUMENT_CARD: 16, RASTERIZE_APPROVED_SVG: 71, STILL_IMAGE: 43, VIDEO_CLIP: 23 },
+      documentCards: 16, htmlDocuments: 0, pdfDocuments: 0, svgAssets: 76,
+      rasterStillAssets: 43, videoClipAssets: 23, missingStillOutputs: 0, missingClipOutputs: 0,
+      resolvedCount: 153, unresolvedCount: 0, unresolvedBeatIds: [] },
     stagedShotValidation: { revisionChain: [] },
     editPlan: { episodeId: 'test-episode' },
   };
@@ -246,7 +251,7 @@ function treeIndex(directory) {
   return files.sort((a, b) => a.path.localeCompare(b.path));
 }
 
-function fullPreflightStage04Fixture() {
+function fullPreflightStage04Fixture({ includeGeneratedAssets = true } = {}) {
   const sourceDirectory = activationRunner.VERIFIED_STAGE_SOURCE_DIR;
   const source = activationRunner.verifyIndexedCandidateDirectory({ directory: sourceDirectory,
     expectedIndexSha256: activationRunner.VERIFIED_STAGE_SOURCE_INDEX_SHA256, expectedCount: 150 });
@@ -315,6 +320,11 @@ function fullPreflightStage04Fixture() {
     return { status: 'PASS', index: phase3CandidateIndex, sourceIndexSha256: source.indexSha256,
       stagedIndexSha256, record: { approvedPackageIndexSha256: activationRunner.REFRESHED_BINDING_PACKAGE_INDEX_SHA256 } };
   };
+  if (includeGeneratedAssets) {
+    const definitions = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'shot-definitions.json'), 'utf8'));
+    const production = JSON.parse(fs.readFileSync(path.join(candidateDirectory, 'production-manifest.json'), 'utf8'));
+    populateMissingGeneratedRenderAssets(root, definitions, production);
+  }
   return { root, candidateDirectory, reviewDirectory, activationRecord, stagedIndex: phase3CandidateIndex,
     sourceIndexSha256: source.indexSha256, promotionPaths, stageVerifier,
     cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
@@ -339,7 +349,7 @@ function populateMissingGeneratedRenderAssets(episodeDir, shotDefs, productionMa
   }
 }
 
-test('complete Stage04 preflight uses one indexed timestamp byte buffer and remains read-only', () => {
+test('Stage04 preflight rejects still and clip files outside its indexed promoted inputs', () => {
   const f = fullPreflightStage04Fixture();
   try {
     const renderer = require('../pipeline-updates/surface-renderer.cjs');
@@ -353,15 +363,23 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
       verifyBackupFn: () => true, expectedLedgerSha256: ledgerHash, runCommand: toolCommand,
       capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath },
       renderFn: () => { throw new Error('preflight must not invoke renderer'); } });
-    const report = service.preflight(options(f.root, 'phase3-real-stage04-test'));
-    assert.equal(report.status, 'PHASE3_RENDER_PREFLIGHT_PASS');
-    assert.equal(report.promotedPathCount, 147);
-    assert.equal(report.activeShots, 153);
-    assert.equal(report.durationSec, 633.782449);
-    assert.equal(report.evidenceEntries, 46);
-    assert.equal(report.evidenceAssets, 29);
-    assert.equal(report.graphics, 76);
-    assert.equal(report.expectedFrames, 19020);
+    let failure;
+    try { service.preflight(options(f.root, 'phase3-real-stage04-test')); } catch (error) { failure = error; }
+    assert.ok(failure);
+    assert.match(failure.message, /PHASE3_RENDER_INPUT_CENSUS_FAILED:/u);
+    const census = JSON.parse(failure.message.slice(failure.message.indexOf('{')));
+    assert.equal(census.totalShotsChecked, 153);
+    assert.equal(census.resolvedCount, 87);
+    assert.equal(census.unresolvedCount, 66);
+    assert.equal(census.unboundMediaAssets, 66);
+    assert.equal(census.graphicSvgAssets, 76);
+    assert.equal(census.documentCards, 16);
+    assert.equal(census.htmlDocuments, 10);
+    assert.equal(census.pdfDocuments, 6);
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', 'phase3-real-stage04-test')), false);
+    const verifiedInput = preview.verifyActualEpisode({ root: f.root, promotedRunId: PHASE2_RUN, runner,
+      verifyBackupFn: () => true, verifyStageFn: f.stageVerifier, expectedLedgerSha256: ledgerHash,
+      runCommand: toolCommand });
     const shotContext = preview.validateStagedShotDefinitions({ candidateDirectory: f.candidateDirectory,
       staged: { index: f.stagedIndex }, promotedFiles: f.promotionPaths });
     const rendererShotReport = renderer.validateV3ShotDefinitionsForRender({ plan: shotContext.plan,
@@ -369,8 +387,7 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
     assert.equal(rendererShotReport.status, 'PASS');
     assert.equal(shotContext.lineage.counts.approvedHistoricalRevisions, 23);
     const stagedBytes = fs.readFileSync(path.join(f.candidateDirectory, 'timing/word-timestamps.json'));
-    assert.equal(report.timestampsSha256, sha(stagedBytes));
-    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', 'phase3-real-stage04-test')), false);
+    assert.equal(verifiedInput.timestampsSha256, sha(stagedBytes));
     assert.equal(fs.existsSync(ledgerPath), true);
     assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
     const renderInputDirectory = path.join(f.root, 'isolated-render-input-check');
@@ -378,6 +395,44 @@ test('complete Stage04 preflight uses one indexed timestamp byte buffer and rema
       activationRecord: { candidateFiles: [{ path: 'timing/word-timestamps.json', bytes: stagedBytes.length,
         sha256: sha(stagedBytes) }] } }, runDirectory: renderInputDirectory });
     assert.deepEqual(fs.readFileSync(path.join(renderInputDirectory, 'timing/word-timestamps.json')), stagedBytes);
+  } finally { f.cleanup(); }
+});
+
+test('real Stage04 preflight blocks on absent still and clip outputs without creating Phase 3 files', () => {
+  const f = fullPreflightStage04Fixture({ includeGeneratedAssets: false });
+  const runId = 'phase3-stage04-missing-media-test';
+  try {
+    const ledgerPath = path.join(f.root, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
+    fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
+    fs.writeFileSync(ledgerPath, 'fixture-ledger\n');
+    const ledgerHash = sha(fs.readFileSync(ledgerPath));
+    const runner = { ...activationRunner, ROOT: f.root, assertNoActivationLocks() {},
+      verifyPromotedTree: () => true, verifyStagedCandidateIndexes: f.stageVerifier };
+    const service = preview.createPhase3Preview({ root: f.root, runner, verifyStageFn: f.stageVerifier,
+      verifyBackupFn: () => true, expectedLedgerSha256: ledgerHash, runCommand: toolCommand,
+      capabilities: { textEnabled: true, fontBoldPath: process.execPath, fontImpactPath: process.execPath },
+      renderFn: () => { throw new Error('preflight must not render'); } });
+    let failure;
+    try { service.preflight(options(f.root, runId)); } catch (error) { failure = error; }
+    assert.ok(failure, 'preflight unexpectedly passed with 66 missing still/clip outputs');
+    assert.match(failure.message, /PHASE3_RENDER_INPUT_CENSUS_FAILED:/u);
+    const census = JSON.parse(failure.message.slice(failure.message.indexOf('{')));
+    assert.equal(census.totalShotsChecked, 153);
+    assert.equal(census.missingStillOutputs, 43);
+    assert.equal(census.missingClipOutputs, 23);
+    assert.deepEqual(census.missingStillOutputsByMethod, { CONTROLLED_STILL: 34, GENERATED_STILL: 9 });
+    assert.equal(census.unresolvedCount, 66);
+    assert.deepEqual(census.countsByFinalStrategy,
+      { DOCUMENT_CARD: 16, RASTERIZE_APPROVED_SVG: 71, STILL_IMAGE: 43, VIDEO_CLIP: 23 });
+    assert.deepEqual(census.resolvedCountsByFinalStrategy,
+      { DOCUMENT_CARD: 16, RASTERIZE_APPROVED_SVG: 71, STILL_IMAGE: 0, VIDEO_CLIP: 0 });
+    assert.equal(census.unresolvedBeatIds.length, 66);
+    assert.ok(census.unresolvedBeatIds.includes('ACT1_B005'));
+    assert.equal(fs.existsSync(path.join(f.root, '.review', 'phase3-renders', runId)), false);
+    assert.equal(fs.existsSync(path.join(f.root, 'assets', 'stills')), false);
+    assert.equal(fs.existsSync(path.join(f.root, 'assets', 'clips')), false);
+    assert.equal(fs.existsSync(path.join(f.root, 'assets', 'temp')), false);
+    assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
   } finally { f.cleanup(); }
 });
 
@@ -463,9 +518,10 @@ test('Phase 3 renderer revalidates Stage04 shots with the complete ordered revis
       renderProfile: isolatedRenderer.PHASE3_PREVIEW_SETTINGS,
       phase3ResolvedProductionManifest: verifiedInput.productionManifest,
       verifiedEditPlan: verifiedInput.editPlan,
-      phase3VerifiedRevisionChain: shotContext.revisionChain }), /FFmpeg failed \[rasterize verified graphic ACT1_B001\]/u);
-    assert.ok(externalCommands.length > 0);
-    assert.match(externalCommands[0], /^ffmpeg/u);
+      phase3VerifiedRevisionChain: shotContext.revisionChain,
+      phase3ApprovedFiles: verifiedInput.activationRecord.candidateFiles }),
+    /PHASE3_RENDER_INPUTS_UNRESOLVED:/u);
+    assert.equal(externalCommands.length, 0);
     assert.equal(sha(fs.readFileSync(ledgerPath)), ledgerHash);
   } finally {
     childProcess.execSync = originalExecSync;
@@ -714,6 +770,24 @@ test('all 153 Stage04 shots receive a compatible strategy and document cards sta
     assert.equal(prepared.shots.find(item => item.beatId === 'ACT2_B018').phase3MediaStrategy, 'DOCUMENT_CARD');
     assert.deepEqual(treeIndex(path.join(value.assetsDir, 'evidence')), beforeEvidence);
     assert.deepEqual(treeIndex(path.join(value.assetsDir, 'graphics')), beforeGraphics);
+  } finally { value.cleanup(); }
+});
+
+test('Phase 3 census rejects ambiguous still output extensions before any write', () => {
+  const value = buildPhase3MediaFixture();
+  try {
+    const shot = value.mediaShots.find(item => item.productionMethod === 'CONTROLLED_STILL');
+    const location = productionMethods.resolveProductionAssetLocation(shot.productionMethod);
+    const existing = shot.phase3BaseAssetPath;
+    const alternate = path.join(value.assetsDir, location.directory,
+      `${shot.shotId}${location.extensions.find(extension => extension !== path.extname(existing))}`);
+    fs.copyFileSync(existing, alternate);
+    assert.throws(() => phase3Media.resolvePhase3RenderShots({ resolvedShots: value.mediaShots,
+      assetsDir: value.assetsDir, evidenceManifest: value.evidenceManifest,
+      graphicAssetManifest: value.graphicAssetManifest,
+      resolveAssetPath: require('../pipeline-updates/surface-renderer.cjs').resolveAssetPath }),
+    new RegExp(`PHASE3_MEDIA_ASSET_AMBIGUOUS:${shot.beatId}`, 'u'));
+    assert.equal(fs.existsSync(path.join(value.episodeDir, 'temp')), false);
   } finally { value.cleanup(); }
 });
 

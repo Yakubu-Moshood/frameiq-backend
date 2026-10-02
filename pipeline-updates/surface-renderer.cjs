@@ -990,6 +990,7 @@ async function renderEpisodeInternal({
   phase3Preview = false,
   phase3ResolvedProductionManifest = null,
   phase3VerifiedRevisionChain = null,
+  phase3ApprovedFiles = null,
   publicDirOverride = null,
   verifiedEditPlan = null,
 }) {
@@ -1040,6 +1041,7 @@ async function renderEpisodeInternal({
     const report = validateV3ShotDefinitionsForRender({ plan: editPlan, shotDefs,
       revisionChain: phase3Preview ? phase3VerifiedRevisionChain : undefined,
       requireVerifiedRevisionChain: phase3Preview });
+    if (phase3Preview && !Array.isArray(phase3ApprovedFiles)) throw new Error('PHASE3_RENDER_APPROVED_INDEX_REQUIRED');
     resolved = resolveEditPlanTimestamps({ shotDefs, editPlan, maxShotDurationSec, productionManifest });
     const evidenceByShot = new Map(v3Assets.evidenceManifest.entries.map(entry => [entry.shotId, entry]));
     const graphicsByShot = new Map();
@@ -1058,11 +1060,13 @@ async function renderEpisodeInternal({
     });
     if (phase3Preview) {
       const phase3RenderMedia = require('./phase3-render-media-adapter.cjs');
-      const withBasePaths = resolved.map(shot => ({ ...shot,
-        phase3BaseAssetPath: resolveAssetPath(shot, assetsDir) }));
+      const withBasePaths = phase3RenderMedia.resolvePhase3RenderShots({ resolvedShots: resolved,
+        assetsDir, evidenceManifest: v3Assets.evidenceManifest,
+        graphicAssetManifest: v3Assets.graphicAssetManifest,
+        resolveAssetPath, fsImpl: fs });
       const prepared = phase3RenderMedia.preparePhase3RenderInputs({ resolvedShots: withBasePaths,
         assetsDir, derivedAssetDir: path.join(episodeDir, 'temp', 'phase3-derived-assets'),
-        isolatedRunDirectory: episodeDir });
+        isolatedRunDirectory: episodeDir, approvedFiles: phase3ApprovedFiles, requireApprovedBindings: true });
       resolved = prepared.shots;
       phase3MediaCensus = prepared.census;
     }

@@ -13,6 +13,7 @@ const { loadProductionMethodManifest, assertManifestReadyForRender } = require('
 const { assertV3AssetsReadyForRender } = require('../pipeline-updates/v3-asset-readiness.cjs');
 const { validateEvidenceSourceManifest } = require('../pipeline-updates/evidence-source-validator.cjs');
 const { validateGraphicAssetManifest } = require('../pipeline-updates/graphic-compiler.cjs');
+const phase3Media = require('../pipeline-updates/phase3-render-media-adapter.cjs');
 
 const PHASE3_SCHEMA = 'empire-omitted-v3-phase3-render-receipt/1.0.0';
 const EXPECTED_DURATION_SEC = 633.782449;
@@ -515,7 +516,7 @@ function verifyActualEpisode({ root, promotedRunId, fsImpl = fs, runner = activa
     evidenceCount: assetCounts.evidenceEntries, evidenceAssetCount: assetCounts.evidenceAssets,
     graphicsCount: assetCounts.graphics, shotCount: shotDefs.allShots.length,
     sourceDurationSec, expectedFrames, validation, ledgerSha256, requestLedgerSha256: ledgerSha256,
-    productionManifest, storedProductionManifest,
+    productionManifest, storedProductionManifest, resolvedShots: resolved,
   };
 }
 function validatePromotedEpisode({ candidateReport, evidenceManifest, graphicAssetManifest, productionManifest,
@@ -825,6 +826,21 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
     fail(!fsImpl.existsSync(path.join(root, '.review', 'phase2.3b-p-activation-active.lock')),
       'PHASE3_ACTIVATION_LOCK_ACTIVE');
     const verified = verifyInputs(options);
+    const mediaStrategyCensus = verified.mediaStrategyCensus || (() => {
+      fail(Array.isArray(verified.resolvedShots), 'PHASE3_RENDER_CENSUS_INPUTS_MISSING');
+      const mediaShots = phase3Media.resolvePhase3RenderShots({ resolvedShots: verified.resolvedShots,
+        assetsDir: path.join(root, 'assets'), evidenceManifest: verified.evidenceManifest,
+        graphicAssetManifest: verified.graphicAssetManifest, resolveAssetPath: renderer.resolveAssetPath, fsImpl });
+      const census = phase3Media.censusPhase3RenderInputs({ resolvedShots: mediaShots,
+        assetsDir: path.join(root, 'assets'), approvedFiles: verified.activationRecord.candidateFiles,
+        requireApprovedBindings: true, fsImpl });
+      fail(census.unresolved.length === 0,
+        `PHASE3_RENDER_INPUT_CENSUS_FAILED:${JSON.stringify(census.summary)}`);
+      return census.summary;
+    })();
+    fail(mediaStrategyCensus.totalShotsChecked === 153 && mediaStrategyCensus.resolvedCount === 153
+      && mediaStrategyCensus.unresolvedCount === 0 && mediaStrategyCensus.unresolvedBeatIds?.length === 0,
+    `PHASE3_RENDER_CENSUS_INCOMPLETE:${JSON.stringify(mediaStrategyCensus)}`);
     const tools = checkToolchain({ runCommand, capabilities });
     return { status: 'PHASE3_RENDER_PREFLIGHT_PASS', schemaVersion: PHASE3_SCHEMA, root: verified.root,
       requestLedgerSha256: verified.requestLedgerSha256,
@@ -835,6 +851,7 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
       expectedFrames: verified.expectedFrames, width: 1280, height: 720,
       evidenceEntries: verified.evidenceCount, evidenceAssets: verified.evidenceAssetCount,
       graphics: verified.graphicsCount, timingExceptions: 9, editorialIntentMigrations: 5,
+      mediaStrategyCensus,
       retiredBeatIds: verified.candidateReport.retiredBeatIds,
       audio: verified.audioInputs.map(({ file, sha256: digest, bytes, media }) => ({ file, sha256: digest, bytes, ...media })),
       timestampsSha256: verified.timestampsSha256, requestLedgerSha256: verified.ledgerSha256,
@@ -956,7 +973,8 @@ function createPhase3Preview({ root = activation.ROOT, fsImpl = fs, runner = act
         productionManifestPath: path.join(episodeDir, 'production-manifest.json'),
         verifiedEditPlan: renderVerified.editPlan,
         phase3VerifiedRevisionChain: renderVerified.stagedShotValidation.revisionChain,
-        phase3ResolvedProductionManifest: renderVerified.productionManifest,
+      phase3ResolvedProductionManifest: renderVerified.productionManifest,
+      phase3ApprovedFiles: renderVerified.activationRecord.candidateFiles,
         renderProfile: renderer.PHASE3_PREVIEW_SETTINGS });
       return finishRender({ rendered, options, verified: check, inputHashes, runDirectory, outputDir,
         lockPath, fsImpl, clock, runCommand, renderStartedAt,

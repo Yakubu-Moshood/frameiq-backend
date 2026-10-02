@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const productionMethods = require('./production-method-manifest.cjs');
 
 function fail(condition, code) { if (!condition) throw new Error(code); }
 function sha256(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
@@ -100,7 +101,18 @@ function buildDocumentCardSvg(entry) {
   lines.push('</svg>');
   return `${lines.join('\n')}\n`;
 }
-function censusPhase3RenderInputs({ resolvedShots, assetsDir, fsImpl = fs }) {
+function expectedStrategyForMissingAsset(method, evidence, primary) {
+  if (method === 'CONTROLLED_STILL' || method === 'GENERATED_STILL') return 'STILL_IMAGE';
+  if (method === 'ESSENTIAL_ANIMATION') return 'VIDEO_CLIP';
+  const mime = evidence?.mimeType || primary?.mimeType;
+  if (mime === 'text/html' || mime === 'application/pdf') return 'DOCUMENT_CARD';
+  if (mime === 'image/svg+xml') return 'RASTERIZE_APPROVED_SVG';
+  if (mime?.startsWith('image/')) return 'STILL_IMAGE';
+  if (mime?.startsWith('video/')) return 'VIDEO_CLIP';
+  return null;
+}
+function censusPhase3RenderInputs({ resolvedShots, assetsDir, approvedFiles = null,
+  requireApprovedBindings = false, fsImpl = fs }) {
   fail(Array.isArray(resolvedShots) && resolvedShots.length === 153, 'PHASE3_RENDER_CENSUS_SHOT_COUNT_INVALID');
   const seen = new Set();
   const entries = resolvedShots.map(shot => {
@@ -108,23 +120,34 @@ function censusPhase3RenderInputs({ resolvedShots, assetsDir, fsImpl = fs }) {
     seen.add(shot.shotId);
     const sourcePath = shot.phase3BaseAssetPath;
     const method = shot.productionMethod;
+    const evidence = shot.phase3EvidenceEntry || null;
+    const primary = (shot.graphicAssetEntries || []).find(item => item.role === 'PRIMARY') || null;
     const supportingAssets = [];
     for (const graphic of shot.graphicAssetEntries || []) {
       const graphicPath = path.resolve(assetsDir, 'graphics', graphic.filename);
       const graphicBytes = assertRegularFile(graphicPath, path.join(assetsDir, 'graphics'), fsImpl);
       fail(sha256(graphicBytes) === graphic.sha256, `PHASE3_MEDIA_GRAPHIC_HASH_MISMATCH:${shot.beatId}:${graphic.graphicIndex}`);
+      if (requireApprovedBindings) {
+        const indexed = approvedFiles?.find(item => item.path === `assets/graphics/${graphic.filename}`);
+        fail(indexed && indexed.bytes === graphicBytes.length && indexed.sha256 === sha256(graphicBytes),
+          `PHASE3_MEDIA_GRAPHIC_NOT_BOUND_TO_PROMOTED_INDEX:${shot.beatId}:${graphic.graphicIndex}`);
+      }
       const graphicType = classifyMedia({ filePath: graphicPath, bytes: graphicBytes,
         expectedMimeType: graphic.mimeType || 'image/svg+xml', approvedSvg: true });
       fail(graphicType.strategy === 'RASTERIZE_APPROVED_SVG', `PHASE3_MEDIA_GRAPHIC_STRATEGY_INVALID:${shot.beatId}:${graphic.graphicIndex}`);
       supportingAssets.push({ role: graphic.role, path: `assets/graphics/${path.basename(graphicPath)}`,
         sha256: graphic.sha256, mediaType: graphicType.mediaType, strategy: graphicType.strategy });
     }
-    if (!sourcePath) return { actKey: shot.actKey, beatId: shot.beatId, shotId: shot.shotId,
+    if (!sourcePath) {
+      const location = productionMethods.resolveProductionAssetLocation(method);
+      const outputKind = location?.directory === 'clips' ? 'clip' : location?.directory === 'stills' ? 'still' : null;
+      return { actKey: shot.actKey, beatId: shot.beatId, shotId: shot.shotId,
       productionMethod: method, sourcePath: null, sourceSha256: null, mediaType: null,
-      strategy: null, status: 'MISSING_BASE_ASSET', supportingAssets };
+      strategy: expectedStrategyForMissingAsset(method, evidence, primary), status: 'MISSING_BASE_ASSET', outputKind,
+      expectedPaths: location ? location.extensions.map(extension => `assets/${location.directory}/${shot.shotId}${extension}`) : [],
+      supportingAssets };
+    }
     const bytes = assertRegularFile(sourcePath, assetsDir, fsImpl);
-    const evidence = shot.phase3EvidenceEntry || null;
-    const primary = (shot.graphicAssetEntries || []).find(item => item.role === 'PRIMARY') || null;
     const expectedHash = evidence?.sha256 || (method === 'GRAPHIC_COMPILATION' ? primary?.sha256 : null);
     fail(!expectedHash || sha256(bytes) === expectedHash,
       `PHASE3_MEDIA_APPROVED_ASSET_HASH_MISMATCH:${shot.beatId}`);
@@ -133,22 +156,123 @@ function censusPhase3RenderInputs({ resolvedShots, assetsDir, fsImpl = fs }) {
       approvedSvg: Boolean(evidence || primary) });
     if (['text/html', 'application/pdf'].includes(classification.mediaType)) {
       fail(Boolean(evidence), `PHASE3_DOCUMENT_CARD_NOT_APPROVED_EVIDENCE:${shot.beatId}`);
+      buildDocumentCardSvg({ ...evidence, shotId: shot.shotId });
     }
+    const relativePath = `assets/${path.relative(assetsDir, sourcePath).split(path.sep).join('/')}`;
+    const indexedBinding = Array.isArray(approvedFiles) ? approvedFiles.find(item => item.path === relativePath) : null;
+    const bindingMatches = !requireApprovedBindings || Boolean(indexedBinding
+      && indexedBinding.bytes === bytes.length && indexedBinding.sha256 === sha256(bytes));
     return { actKey: shot.actKey, beatId: shot.beatId, shotId: shot.shotId, productionMethod: method,
       sourcePath: `assets/${path.relative(assetsDir, sourcePath).split(path.sep).join('/')}`,
       sourceSha256: sha256(bytes), mediaType: classification.mediaType, strategy: classification.strategy,
-      status: 'READY', supportingAssets,
+      status: bindingMatches ? 'READY' : 'UNBOUND_OR_HASH_MISMATCH',
+      ...(!bindingMatches ? { bindingError: 'NOT_BOUND_TO_PROMOTED_CANDIDATE_INDEX' } : {}), supportingAssets,
       ...(evidence ? { evidenceTitle: evidence.sourceTitle, evidencePublisher: evidence.publisher,
         evidenceExcerpt: evidence.excerptOrTimecode } : {}) };
   });
-  const strategies = Object.fromEntries([...new Set(entries.filter(item => item.status === 'READY').map(item => item.strategy))]
-    .sort().map(strategy => [strategy, entries.filter(item => item.status === 'READY' && item.strategy === strategy).length]));
-  return { activeShotCount: entries.length, entries, strategies,
-    readyCount: entries.filter(item => item.status === 'READY').length,
-    unresolved: entries.filter(item => item.status !== 'READY') };
+  const strategyNames = ['DOCUMENT_CARD', 'RASTERIZE_APPROVED_SVG', 'STILL_IMAGE', 'VIDEO_CLIP'];
+  const ready = entries.filter(item => item.status === 'READY');
+  const unresolved = entries.filter(item => item.status !== 'READY');
+  const countsByFinalStrategy = Object.fromEntries(strategyNames.map(strategy => [strategy,
+    entries.filter(item => item.strategy === strategy).length]));
+  const resolvedCountsByFinalStrategy = Object.fromEntries(strategyNames.map(strategy => [strategy,
+    ready.filter(item => item.strategy === strategy).length]));
+  const strategies = Object.fromEntries(Object.entries(resolvedCountsByFinalStrategy).filter(([, count]) => count > 0));
+  const mediaInputsByBinding = new Map();
+  for (const item of ready) {
+    mediaInputsByBinding.set(`${item.sourcePath}:${item.sourceSha256}`, { mediaType: item.mediaType, strategy: item.strategy });
+    for (const asset of item.supportingAssets) mediaInputsByBinding.set(`${asset.path}:${asset.sha256}`, asset);
+  }
+  const mediaInputs = [...mediaInputsByBinding.values()];
+  const missingStillOutputs = unresolved.filter(item => item.outputKind === 'still');
+  const missingClipOutputs = unresolved.filter(item => item.outputKind === 'clip');
+  const summary = {
+    totalShotsChecked: entries.length, countsByFinalStrategy, resolvedCountsByFinalStrategy,
+    documentCards: ready.filter(item => item.strategy === 'DOCUMENT_CARD').length,
+    htmlDocuments: ready.filter(item => item.mediaType === 'text/html').length,
+    pdfDocuments: ready.filter(item => item.mediaType === 'application/pdf').length,
+    svgAssets: mediaInputs.filter(item => item.mediaType === 'image/svg+xml').length,
+    graphicSvgAssets: new Set(entries.flatMap(item => item.supportingAssets
+      .filter(asset => asset.mediaType === 'image/svg+xml').map(asset => `${asset.path}:${asset.sha256}`))).size,
+    evidenceSvgAssets: new Set(ready.filter(item => item.mediaType === 'image/svg+xml'
+      && item.productionMethod === 'EVIDENCE_REFERENCE').map(item => `${item.sourcePath}:${item.sourceSha256}`)).size,
+    rasterStillAssets: ready.filter(item => ['STILL_IMAGE'].includes(item.strategy)).length,
+    videoClipAssets: ready.filter(item => item.strategy === 'VIDEO_CLIP').length,
+    missingStillOutputs: missingStillOutputs.length, missingClipOutputs: missingClipOutputs.length,
+    unboundMediaAssets: unresolved.filter(item => item.status === 'UNBOUND_OR_HASH_MISMATCH').length,
+    missingStillOutputsByMethod: Object.fromEntries(['CONTROLLED_STILL', 'GENERATED_STILL'].map(method =>
+      [method, missingStillOutputs.filter(item => item.productionMethod === method).length])),
+    missingStillBeatIds: missingStillOutputs.map(item => item.beatId),
+    missingClipBeatIds: missingClipOutputs.map(item => item.beatId),
+    resolvedCount: ready.length, unresolvedCount: unresolved.length,
+    unresolvedBeatIds: unresolved.map(item => item.beatId),
+  };
+  return { activeShotCount: entries.length, entries, strategies, summary,
+    readyCount: ready.length, unresolved };
 }
-function preparePhase3RenderInputs({ resolvedShots, assetsDir, derivedAssetDir, isolatedRunDirectory, fsImpl = fs }) {
-  const census = censusPhase3RenderInputs({ resolvedShots, assetsDir, fsImpl });
+
+function resolvePhase3RenderShots({ resolvedShots, assetsDir, evidenceManifest, graphicAssetManifest,
+  resolveAssetPath, fsImpl = fs }) {
+  fail(typeof resolveAssetPath === 'function', 'PHASE3_MEDIA_RESOLVER_REQUIRED');
+  const evidenceEntries = evidenceManifest?.entries;
+  const graphicEntries = graphicAssetManifest?.entries;
+  fail(Array.isArray(evidenceEntries) && evidenceEntries.length === 46,
+    'PHASE3_MEDIA_EVIDENCE_MANIFEST_INVALID');
+  fail(Array.isArray(graphicEntries) && graphicEntries.length === 76,
+    'PHASE3_MEDIA_GRAPHIC_MANIFEST_INVALID');
+  const shotById = new Map(resolvedShots.map(shot => [shot.shotId, shot]));
+  fail(shotById.size === 153 && Array.isArray(resolvedShots) && resolvedShots.length === 153,
+    'PHASE3_MEDIA_ACTIVE_SHOT_SET_INVALID');
+  const evidenceByShot = new Map();
+  for (const entry of evidenceEntries) {
+    const shot = shotById.get(entry.shotId);
+    fail(shot && !evidenceByShot.has(entry.shotId) && shot.assetType === 'evidence_reference'
+      && typeof entry.localFilename === 'string'
+      && /^[a-f0-9]{64}$/u.test(entry.sha256 || ''),
+    `PHASE3_MEDIA_EVIDENCE_OWNER_INVALID:${entry?.shotId || ''}`);
+    evidenceByShot.set(entry.shotId, entry);
+  }
+  const graphicsByShot = new Map();
+  const graphicIds = new Set();
+  for (const entry of graphicEntries) {
+    const shot = shotById.get(entry.shotId);
+    const key = `${entry.shotId}:${entry.graphicIndex}`;
+    fail(shot && entry.beatId === shot.beatId && entry.actKey === shot.actKey
+      && !graphicIds.has(key) && typeof entry.filename === 'string'
+      && /^[a-f0-9]{64}$/u.test(entry.sha256 || ''),
+    `PHASE3_MEDIA_GRAPHIC_OWNER_INVALID:${key}`);
+    graphicIds.add(key);
+    if (!graphicsByShot.has(entry.shotId)) graphicsByShot.set(entry.shotId, []);
+    graphicsByShot.get(entry.shotId).push(entry);
+  }
+  return resolvedShots.map(shot => {
+    const evidence = evidenceByShot.get(shot.shotId) || null;
+    const graphics = graphicsByShot.get(shot.shotId) || [];
+    const withManifests = { ...shot,
+      ...(evidence ? { evidenceAssetPath: path.join(assetsDir, 'evidence', evidence.localFilename),
+        phase3EvidenceEntry: evidence } : {}),
+      ...(graphics.length ? { graphicAssetEntries: graphics } : {}),
+    };
+    const location = productionMethods.resolveProductionAssetLocation(shot.productionMethod);
+    if (location && ['stills', 'clips'].includes(location.directory)) {
+      const candidates = location.extensions.map(extension => path.join(assetsDir, location.directory,
+        `${shot.shotId}${extension}`)).filter(candidate => fsImpl.existsSync(candidate));
+      fail(candidates.length <= 1, `PHASE3_MEDIA_ASSET_AMBIGUOUS:${shot.beatId}`);
+    }
+    const basePath = resolveAssetPath(withManifests, assetsDir);
+    if (location && ['stills', 'clips'].includes(location.directory) && basePath) {
+      const allowed = location.extensions.map(extension => path.resolve(assetsDir, location.directory,
+        `${shot.shotId}${extension}`));
+      fail(allowed.includes(path.resolve(basePath)), `PHASE3_MEDIA_ASSET_PATH_UNEXPECTED:${shot.beatId}`);
+    }
+    if (basePath) assertRegularFile(basePath, assetsDir, fsImpl);
+    return { ...withManifests, phase3BaseAssetPath: basePath || null };
+  });
+}
+function preparePhase3RenderInputs({ resolvedShots, assetsDir, derivedAssetDir, isolatedRunDirectory,
+  approvedFiles = null, requireApprovedBindings = false, fsImpl = fs }) {
+  const census = censusPhase3RenderInputs({ resolvedShots, assetsDir, approvedFiles,
+    requireApprovedBindings, fsImpl });
   fail(census.unresolved.length === 0, `PHASE3_RENDER_INPUTS_UNRESOLVED:${census.unresolved.map(item => item.beatId).join(',')}`);
   fail(isolatedRunDirectory && inside(isolatedRunDirectory, derivedAssetDir)
     && path.resolve(derivedAssetDir) !== path.resolve(isolatedRunDirectory), 'PHASE3_DERIVED_ASSET_DIRECTORY_OUTSIDE_RUN');
@@ -190,4 +314,5 @@ function preparePhase3RenderInputs({ resolvedShots, assetsDir, derivedAssetDir, 
   } };
 }
 
-module.exports = { classifyMedia, buildDocumentCardSvg, censusPhase3RenderInputs, preparePhase3RenderInputs, sha256 };
+module.exports = { classifyMedia, buildDocumentCardSvg, censusPhase3RenderInputs, resolvePhase3RenderShots,
+  preparePhase3RenderInputs, sha256 };
