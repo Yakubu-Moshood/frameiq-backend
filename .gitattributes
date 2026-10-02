@@ -22,3 +22,8 @@ artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v1/** -text -diff
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-v5-human-editorial-approval.v1.json -text -diff
 artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/** -text
+.gitattributes -text
+pipeline-updates/phase3-media-pilot.cjs -text
+pipeline-updates/v3-asset-readiness.cjs -text
+scripts/phase3-media-pilot.cjs -text
+test/v3-asset-readiness.test.cjs -text
