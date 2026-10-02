@@ -5,3 +5,17 @@ artifacts/empire-omitted-v3/wells-fargo/phase2.3b-b017-candidate/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase2.3b-evidence/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase2.3b-act3-refresh-bindings-20260928-r3/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-act3-refresh-candidate-local-20260928-v2/** -text
+# Preserve exact bytes for the Phase 3 deployed sources and hash-bound Phase 2 inputs.
+pipeline-updates/phase3-render-media-adapter.cjs -text
+pipeline-updates/surface-renderer.cjs -text
+scripts/phase3-render-preview.cjs -text
+test/phase3-render-preview.test.cjs -text
+pipeline-updates/phase2.3b-p-approved-boundary-ranges.json -text
+pipeline-updates/phase2.3b-p-approved-boundary-ranges.refresh-v2.json -text
+pipeline-updates/phase2.3b-p-approved-timing-exceptions.json -text
+pipeline-updates/phase2.3b-p-approved-timing-exceptions.refresh-v5.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase2.2d/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/pacing-run-spec.json -text
+
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-sv-candidate/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-review/** -text
