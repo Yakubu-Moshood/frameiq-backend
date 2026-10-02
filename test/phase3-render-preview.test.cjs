@@ -102,25 +102,54 @@ function pilotPng(width = 1280, height = 720) {
   const bytes = Buffer.alloc(24); Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
   bytes.write('IHDR', 12, 4, 'ascii'); bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20); return bytes;
 }
+function pilotExecutionAuthorization(planning, scope = 'STILL_ONLY', context = {}, overrides = {}) {
+  const policy = scope === 'STILL_ONLY'
+    ? { request: planning.still, operation: 'GENERATE_STILL' }
+    : { request: planning.animation, operation: 'GENERATE_ANIMATION' };
+  const request = policy.request, requestKey = request.requestKey;
+  const authorization = {
+    schemaVersion: pilotWorkflow.SCHEMAS.authorization,
+    status: 'AUTHORIZED_FOR_EXECUTION', decision: 'AUTHORIZED_FOR_EXECUTION', approvedBy: 'Yakubu Moshood',
+    approvalRef: 'TEST_ONLY_NOT_EXECUTABLE', executionSignature: 'fixture-only', providerAuthorization: 'fixture-only',
+    pilotRunId: pilotWorkflow.TRUST.runId, beatId: 'ACT3_B005', scope, operation: policy.operation, requestKey,
+    authorizedAt: context.authorizedAt || '2026-10-02T12:00:01.000Z',
+    maxProviderSubmissions: 1, noRetry: true, noFallback: true,
+    outputClassification: 'NON_PRODUCTION_DISPOSABLE_PILOT',
+    productionUseProhibited: true, candidateReconstructionProhibited: true, promotionProhibited: true,
+    renderingProhibited: true, normalProductionAssetReadiness: 'REJECTED',
+    ownershipDisposition: 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_PILOT_ONLY',
+    nonProductionRiskAcceptance: {
+      accepted: true, acceptedBy: 'Yakubu Moshood', outputClassification: 'NON_PRODUCTION_DISPOSABLE_PILOT',
+      productionUseProhibited: true, candidateReconstructionProhibited: true, promotionProhibited: true,
+      renderingProhibited: true, normalProductionAssetReadiness: 'REJECTED',
+      falTermsOwnershipStatement: 'FAL_TERMS_DO_NOT_CLEARLY_ASSIGN_GENERATED_OUTPUT_OWNERSHIP',
+      limitedToPilotRun: pilotWorkflow.TRUST.runId, limitedToRequestKey: requestKey,
+      noRightsConclusionFromCommercialUseLabel: true,
+    },
+    priceCheckedAt: '2026-10-02T00:00:00.000Z',
+    priceAssumptions: { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08', animationUsdPerSecond: 0.0333,
+      proposedCapUsd: 0.25, capProviderEnforced: false },
+    stillExposureAcceptance: scope === 'STILL_ONLY' ? { acceptedBy: 'Yakubu Moshood', requestKey,
+      publishedPriceUsd: 0.024, maximumAcceptedExposureUsd: 0.05, providerEnforcedMaximumCharge: false } : undefined,
+    acceptsUnboundedAnimationExposure: scope === 'ANIMATION_ONLY' ? true : undefined,
+    bindings: { editorialApprovalSha256: planning.approvalSha256, pilotProposalSha256: planning.proposalSha256,
+      v5PackageIndexSha256: planning.v5IndexSha256, pilotPackageIndexSha256: planning.pilotIndexSha256,
+      pilotRunId: pilotWorkflow.TRUST.runId, scope, requestKey, beatId: 'ACT3_B005',
+      ...(scope === 'ANIMATION_ONLY' ? { stillSha256: context.stillSha256,
+        stillApprovalSha256: context.stillApprovalSha256 } : {}) },
+    authorizedRequests: [{ requestKey, provider: request.provider, model: request.model,
+      endpointId: request.model, parameters: request.parameters, prompt: request.prompt, negativePrompt: request.negativePrompt }],
+  };
+  return Object.assign(authorization, overrides);
+}
 function makePilotFixture(overrides = {}) {
   const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
   fs.mkdirSync(root, { recursive: true });
   const planning = pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, pilotDir: PILOT_DIR, editorialApprovalPath: EDITORIAL_APPROVAL });
-  const authorization = {
-    schemaVersion: pilotWorkflow.SCHEMAS.authorization, status: 'AUTHORIZED_FOR_EXECUTION', decision: 'AUTHORIZED_FOR_EXECUTION',
-    approvedBy: 'Yakubu Moshood', approvalRef: 'TEST_ONLY_NOT_EXECUTABLE', executionSignature: 'fixture-only',
-    providerAuthorization: 'fixture-only', outputOwnershipResolved: true, acceptsUnboundedAnimationExposure: true,
-    maxProviderSubmissions: 2, noRetry: true, noFallback: true, priceCheckedAt: '2026-10-02T00:00:00.000Z',
-    priceAssumptions: { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08', animationUsdPerSecond: 0.0333,
-      proposedCapUsd: 0.25, capProviderEnforced: false },
-    bindings: { editorialApprovalSha256: planning.approvalSha256, pilotProposalSha256: planning.proposalSha256,
-      v5PackageIndexSha256: planning.v5IndexSha256, pilotPackageIndexSha256: planning.pilotIndexSha256 },
-    authorizedRequests: planning.proposal.requests.map(r => ({ requestKey: r.requestKey, provider: r.provider, model: r.model,
-      endpointId: r.model, parameters: r.parameters, prompt: r.prompt, negativePrompt: r.negativePrompt })),
-  };
-  if (overrides.authorization) Object.assign(authorization, overrides.authorization);
+  const authorization = pilotExecutionAuthorization(planning, overrides.scope || 'STILL_ONLY', overrides.context || {}, overrides.authorization || {});
   const authorizationBytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
-  fs.writeFileSync(path.join(root, 'execution-authorization.v1.json'), authorizationBytes);
+  const authFile = overrides.authorizationFile || 'still-execution-authorization.v1.json';
+  fs.writeFileSync(path.join(root, authFile), authorizationBytes);
   const calls = [];
   const provider = overrides.provider || {
     async generateStill(payload) {
@@ -135,10 +164,22 @@ function makePilotFixture(overrides = {}) {
   };
   const probe = overrides.ffprobe || (() => ({ container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5, bytes: 11,
     video: { codec: 'h264', width: 640, height: 360, frameRate: '30/1', frameCount: 150 }, audioStreams: [] }));
-  const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
+  const workflowFor = bytes => pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
     editorialApprovalPath: EDITORIAL_APPROVAL, provider, ffprobe: probe, now: () => new Date('2026-10-02T12:00:00.000Z'),
-    expectedAuthorizationSha256: sha(authorizationBytes), ...(overrides.workflow || {}) });
-  return { base, root, workflow, planning, calls, authorization, authorizationBytes, probe };
+    expectedAuthorizationSha256: sha(bytes), ...(overrides.workflow || {}) });
+  const workflow = workflowFor(authorizationBytes);
+  return { base, root, workflow, workflowFor, planning, calls, authorization, authorizationBytes, probe };
+}
+function attachAnimationAuthorization(f) {
+  const stillPath = path.join(f.root, 'ACT3_B005-still.png'), approvalPath = path.join(f.root, 'still-approval.v1.json');
+  const stillSha256 = sha(fs.readFileSync(stillPath)), stillApprovalSha256 = sha(fs.readFileSync(approvalPath));
+  const approval = JSON.parse(fs.readFileSync(approvalPath, 'utf8'));
+  const authorizedAt = new Date(Date.parse(approval.decidedAt) + 1000).toISOString();
+  const authorization = pilotExecutionAuthorization(f.planning, 'ANIMATION_ONLY',
+    { stillSha256, stillApprovalSha256, authorizedAt });
+  const bytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'animation-execution-authorization.v1.json'), bytes);
+  return { authorization, bytes, workflow: f.workflowFor(bytes), stillSha256, stillApprovalSha256 };
 }
 function makePilotReadOnlyFixture(overrides = {}) {
   const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
@@ -1268,9 +1309,9 @@ test('pilot request parameters, model, endpoint and exact prompt must match the 
   const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
   f.authorization.authorizedRequests[0].endpointId = 'fal.ai/another-model';
   const altered = Buffer.from(`${JSON.stringify(f.authorization, null, 2)}\n`);
-  fs.writeFileSync(path.join(f.root, 'execution-authorization.v1.json'), altered);
+  fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), altered);
   assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs,
-    sha(altered)), /PILOT_AUTHORIZED_REQUEST_DRIFT/);
+    sha(altered), { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' }), /PILOT_AUTHORIZED_REQUEST_DRIFT/);
 });
 
 test('detached execution authorization is mandatory, hash-bound, ownership-aware and no-retry', async t => {
@@ -1286,6 +1327,105 @@ test('detached execution authorization is mandatory, hash-bound, ownership-aware
   assert.throws(() => pilotWorkflow.parseCli(['--generate-still', '--pilot-run-id', pilotWorkflow.TRUST.runId,
     '--expected-execution-authorization-sha256', 'a'.repeat(64), '--retry']), /PILOT_UNKNOWN_ARGUMENT/);
   assert.throws(() => pilotWorkflow.parseCli(['--preflight', '--pilot-run-id', 'other-run']), /PILOT_RUN_ID_INVALID/);
+});
+
+test('request-scoped still authorization accepts exactly one deterministic still request', t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes),
+    { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' });
+  assert.equal(loaded.record.scope, 'STILL_ONLY');
+  assert.equal(loaded.record.operation, 'GENERATE_STILL');
+  assert.equal(loaded.record.pilotRunId, pilotWorkflow.TRUST.runId);
+  assert.equal(loaded.record.beatId, 'ACT3_B005');
+  assert.equal(loaded.record.maxProviderSubmissions, 1);
+  assert.deepEqual(loaded.record.authorizedRequests.map(x => x.requestKey), [pilotWorkflow.REQUESTS.still.key]);
+  assert.equal(loaded.record.stillExposureAcceptance.maximumAcceptedExposureUsd, 0.05);
+  assert.equal(loaded.record.stillExposureAcceptance.providerEnforcedMaximumCharge, false);
+});
+
+test('still-only authorization cannot be reused by animation, even after valid still approval', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill(); f.workflow.inspectStill();
+  f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  fs.copyFileSync(path.join(f.root, 'still-execution-authorization.v1.json'),
+    path.join(f.root, 'animation-execution-authorization.v1.json'));
+  const animationWorkflow = f.workflowFor(f.authorizationBytes);
+  await assert.rejects(animationWorkflow.generateAnimation(), /PILOT_AUTHORIZATION_SCOPE_BINDING_MISMATCH/);
+  assert.equal(f.calls.length, 1);
+  assert.equal(pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl'))
+    .filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+});
+
+test('combined requests, two-submission scoped auth, and missing ownership acceptance fail closed', t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const context = { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' };
+  const animationRequest = pilotExecutionAuthorization(f.planning, 'ANIMATION_ONLY').authorizedRequests[0];
+  const combined = { ...f.authorization, authorizedRequests: [...f.authorization.authorizedRequests, animationRequest] };
+  let bytes = Buffer.from(`${JSON.stringify(combined, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
+  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+    /PILOT_AUTHORIZED_REQUEST_COUNT_INVALID/);
+  const twoLimit = { ...f.authorization, maxProviderSubmissions: 2 };
+  bytes = Buffer.from(`${JSON.stringify(twoLimit, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
+  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+    /PILOT_EXECUTION_LIMITS_INVALID/);
+  const noRiskAcceptance = { ...f.authorization, nonProductionRiskAcceptance: null };
+  bytes = Buffer.from(`${JSON.stringify(noRiskAcceptance, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
+  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+    /PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID/);
+});
+
+test('non-production ownership risk disposition is accepted only with every explicit restriction', t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const context = { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' };
+  assert.equal(pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes), context)
+    .record.ownershipDisposition, 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_PILOT_ONLY');
+  const production = { ...f.authorization, outputClassification: 'PRODUCTION',
+    nonProductionRiskAcceptance: { ...f.authorization.nonProductionRiskAcceptance, outputClassification: 'PRODUCTION' } };
+  const bytes = Buffer.from(`${JSON.stringify(production, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
+  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+    /PILOT_NONPRODUCTION_RESTRICTIONS_INVALID|PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID/);
+});
+
+test('animation authorization is blocked before still approval and valid separate authorization follows it', async t => {
+  const early = makePilotFixture({ scope: 'ANIMATION_ONLY', authorizationFile: 'animation-execution-authorization.v1.json' });
+  t.after(() => fs.rmSync(early.base, { recursive: true, force: true }));
+  await assert.rejects(early.workflow.generateAnimation(), /PILOT_STILL_HUMAN_APPROVAL_REQUIRED/);
+  assert.equal(early.calls.length, 0);
+  assert.equal(fs.existsSync(path.join(early.root, 'pilot.lock')), false);
+
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill(); f.workflow.inspectStill();
+  const approval = f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  const animation = attachAnimationAuthorization(f);
+  assert.equal(animation.authorization.bindings.stillSha256, approval.stillSha256);
+  assert.equal(animation.authorization.bindings.stillApprovalSha256, sha(fs.readFileSync(path.join(f.root, 'still-approval.v1.json'))));
+  await animation.workflow.generateAnimation();
+  const ledger = pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl'));
+  assert.equal(ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 2);
+  assert.deepEqual(new Set(ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').map(row => row.requestKey)),
+    new Set([pilotWorkflow.REQUESTS.still.key, pilotWorkflow.REQUESTS.animation.key]));
+});
+
+test('animation-only authorization must bind the inspected and human-approved still exactly', async t => {
+  const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill(); f.workflow.inspectStill();
+  f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  const animation = attachAnimationAuthorization(f);
+  const altered = { ...animation.authorization, bindings: { ...animation.authorization.bindings,
+    stillSha256: '0'.repeat(64) } };
+  const alteredBytes = Buffer.from(`${JSON.stringify(altered, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'animation-execution-authorization.v1.json'), alteredBytes);
+  const alteredWorkflow = f.workflowFor(alteredBytes);
+  await assert.rejects(alteredWorkflow.generateAnimation(), /PILOT_ANIMATION_AUTHORIZATION_STILL_BINDING_INVALID/);
+  assert.equal(f.calls.length, 1);
+  assert.equal(pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl'))
+    .filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
 });
 
 test('run paths must stay inside the isolated pilot root and reject completed or traversal targets', t => {
@@ -1322,12 +1462,14 @@ test('request ledger reservations are append-only, hash chained, duplicate-safe 
   const planning = { proposalSha256: 'a'.repeat(64) }, auth = { sha256: 'b'.repeat(64) };
   const still = { requestKey: pilotWorkflow.REQUESTS.still.key, model: pilotWorkflow.REQUESTS.still.model, parameters: pilotWorkflow.REQUESTS.still.params };
   const animation = { requestKey: pilotWorkflow.REQUESTS.animation.key, model: pilotWorkflow.REQUESTS.animation.model, parameters: pilotWorkflow.REQUESTS.animation.params };
-  pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth });
+  const stillAuth = { ...auth, scope: 'STILL_ONLY', record: { maxProviderSubmissions: 1, authorizedRequests: [{ requestKey: still.requestKey }] } };
+  const animationAuth = { ...auth, scope: 'ANIMATION_ONLY', record: { maxProviderSubmissions: 1, authorizedRequests: [{ requestKey: animation.requestKey }] } };
+  pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth: stillAuth });
   const ledger = path.join(root, 'request-ledger.jsonl'), firstHash = sha(fs.readFileSync(ledger));
-  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth }), /PILOT_DUPLICATE_REQUEST_KEY/);
+  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: still, stage: 'still', planning, auth: stillAuth }), /PILOT_DUPLICATE_REQUEST_KEY/);
   assert.equal(sha(fs.readFileSync(ledger)), firstHash);
-  pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth });
-  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
+  pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth: animationAuth });
+  assert.throws(() => pilotWorkflow.reserveRequest({ root, request: animation, stage: 'animation', planning, auth: animationAuth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
   const altered = fs.readFileSync(ledger, 'utf8').replace('SUBMISSION_RESERVED', 'SUBMISSION_RETRY'); fs.writeFileSync(ledger, altered);
   assert.throws(() => pilotWorkflow.readLedger(ledger), /PILOT_LEDGER_CHAIN_INVALID/);
 });
@@ -1344,7 +1486,8 @@ test('successful still inspection, separate human approval, animation and final 
     { mimeType: 'image/png', format: 'PNG', width: 1280, height: 720 });
   const decision = f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
   assert.equal(decision.stillSha256, inspection.stillSha256);
-  await f.workflow.generateAnimation();
+  const animationAuthorization = attachAnimationAuthorization(f);
+  await animationAuthorization.workflow.generateAnimation();
   assert.equal(f.calls.length, 2); assert.equal(f.calls[1].service, 'animation');
   assert.match(f.calls[1].payload.input.image_url, /^data:image\/png;base64,/u);
   assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
@@ -1372,8 +1515,9 @@ test('altered still cannot be used for animation and provider failure leaves a r
   const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
   await f.workflow.generateStill(); f.workflow.inspectStill();
   f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood', approvalRef: 'test-review' });
+  const animationAuthorization = attachAnimationAuthorization(f);
   fs.appendFileSync(path.join(f.root, 'ACT3_B005-still.png'), 'altered');
-  await assert.rejects(f.workflow.generateAnimation(), /PILOT_STILL_INPUT_INVALID/);
+  await assert.rejects(animationAuthorization.workflow.generateAnimation(), /PILOT_STILL_INPUT_INVALID/);
   assert.equal(f.calls.length, 1);
   assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
   const f2 = makePilotFixture({ provider: { async generateStill() { throw new Error('FAL_KEY=must-never-be-recorded'); } } });
@@ -1416,10 +1560,14 @@ test('execution controls reject fallback, retries, and more than the two authori
   t.after(() => fs.rmSync(base, { recursive: true, force: true }));
   const planning = { proposalSha256: 'a'.repeat(64) }, auth = { sha256: 'b'.repeat(64) };
   const still = pilotWorkflow.REQUESTS.still, animation = pilotWorkflow.REQUESTS.animation;
-  pilotWorkflow.reserveRequest({ root, request: { ...still, requestKey: still.key, parameters: still.params }, stage: 'still', planning, auth });
-  pilotWorkflow.reserveRequest({ root, request: { ...animation, requestKey: animation.key, parameters: animation.params }, stage: 'animation', planning, auth });
+  const stillAuth = { ...auth, scope: 'STILL_ONLY', record: { maxProviderSubmissions: 1,
+    authorizedRequests: [{ requestKey: still.key }] } };
+  const animationAuth = { ...auth, scope: 'ANIMATION_ONLY', record: { maxProviderSubmissions: 1,
+    authorizedRequests: [{ requestKey: animation.key }] } };
+  pilotWorkflow.reserveRequest({ root, request: { ...still, requestKey: still.key, parameters: still.params }, stage: 'still', planning, auth: stillAuth });
+  pilotWorkflow.reserveRequest({ root, request: { ...animation, requestKey: animation.key, parameters: animation.params }, stage: 'animation', planning, auth: animationAuth });
   assert.throws(() => pilotWorkflow.reserveRequest({ root, request: { ...animation, requestKey: animation.key, parameters: animation.params },
-    stage: 'animation', planning, auth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
+    stage: 'animation', planning, auth: animationAuth }), /PILOT_SUBMISSION_LIMIT_REACHED/);
 });
 
 test('unsupported media, invalid FFprobe output and production pilot references fail closed', () => {

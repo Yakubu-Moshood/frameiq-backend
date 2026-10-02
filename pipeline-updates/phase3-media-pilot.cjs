@@ -1,6 +1,6 @@
 'use strict';
 
-// Isolated, two-submission Phase 3 pilot. This module is deliberately inert on
+// Isolated, request-scoped Phase 3 pilot. This module is deliberately inert on
 // import: provider SDK and credentials are loaded only after every execution
 // gate has passed.
 const fs = require('node:fs');
@@ -23,7 +23,7 @@ const TRUST = Object.freeze({
   runId: 'phase3-media-pilot-01',
 });
 const SCHEMAS = Object.freeze({
-  authorization: 'phase3-media-pilot-execution-authorization/1.0.0',
+  authorization: 'phase3-media-pilot-execution-authorization/2.0.0',
   ledger: 'phase3-media-pilot-request-ledger/1.0.0',
   stillReceipt: 'phase3-media-pilot-still-receipt/1.0.0',
   inspection: 'phase3-media-pilot-still-inspection/1.0.0',
@@ -41,6 +41,11 @@ const REQUESTS = Object.freeze({
 const PILOT_ASSET_CLASS = 'NON_PRODUCTION_DISPOSABLE_PILOT';
 const MAX_SUBMISSIONS = 2;
 const MAX_REMOTE_BYTES = 80 * 1024 * 1024;
+const AUTH_SCOPES = Object.freeze({
+  STILL_ONLY: Object.freeze({ stage: 'still', operation: 'GENERATE_STILL', request: 'still', file: 'still-execution-authorization.v1.json' }),
+  ANIMATION_ONLY: Object.freeze({ stage: 'animation', operation: 'GENERATE_ANIMATION', request: 'animation', file: 'animation-execution-authorization.v1.json' }),
+});
+const OWNERSHIP_DISPOSITIONS = Object.freeze(['RESOLVED', 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_PILOT_ONLY']);
 
 function fail(ok, code) { if (!ok) throw new Error(code); }
 function errorCode(error) {
@@ -165,7 +170,7 @@ function assertRunRoot(root, expectedRoot, fsImpl = fs) {
     const st = fsImpl.lstatSync(item); fail(!st.isSymbolicLink(), 'PILOT_PATH_SYMLINK_FORBIDDEN');
   }
 }
-function ensureInputsCopied(root, inputs, fsImpl) {
+function ensureInputsCopied(root, inputs, fsImpl, indexName = 'pilot-inputs-index.v1.json') {
   const inputDir = path.join(root, 'inputs');
   if (!fsImpl.existsSync(inputDir)) fsImpl.mkdirSync(inputDir, { recursive: false });
   const indexed = [];
@@ -181,13 +186,44 @@ function ensureInputsCopied(root, inputs, fsImpl) {
   }
   const indexBytes = Buffer.from(`${JSON.stringify({ schemaVersion: 'phase3-media-pilot-input-index/1.0.0',
     files: indexed.sort((a, b) => a.path.localeCompare(b.path)) }, null, 2)}\n`);
-  const indexPath = path.join(root, 'pilot-inputs-index.v1.json');
+  const indexPath = path.join(root, indexName);
   if (fsImpl.existsSync(indexPath)) fail(hash(fsImpl.readFileSync(indexPath)) === hash(indexBytes), 'PILOT_INPUT_INDEX_MISMATCH');
   else writeBytesExclusive(indexPath, indexBytes, fsImpl);
   return { sha256: hash(indexBytes), files: indexed };
 }
-function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha256) {
-  const file = path.join(root, 'execution-authorization.v1.json');
+function requestForScope(planning, scope) {
+  const policy = AUTH_SCOPES[scope];
+  fail(policy, 'PILOT_AUTHORIZATION_SCOPE_INVALID');
+  const request = planning[policy.request];
+  return { requestKey: request.requestKey, provider: request.provider, model: request.model,
+    endpointId: request.model, parameters: request.parameters, prompt: request.prompt, negativePrompt: request.negativePrompt };
+}
+function assertOwnershipDisposition(record) {
+  fail(OWNERSHIP_DISPOSITIONS.includes(record.ownershipDisposition), 'PILOT_OWNERSHIP_DISPOSITION_INVALID');
+  if (record.ownershipDisposition === 'RESOLVED') {
+    fail(record.ownershipResolution && typeof record.ownershipResolution.basis === 'string'
+      && record.ownershipResolution.basis.trim() && typeof record.ownershipResolution.reference === 'string'
+      && record.ownershipResolution.reference.trim(), 'PILOT_OWNERSHIP_RESOLUTION_MISSING');
+    return;
+  }
+  const risk = record.nonProductionRiskAcceptance;
+  fail(record.outputClassification === PILOT_ASSET_CLASS
+    && risk && risk.accepted === true && risk.acceptedBy === 'Yakubu Moshood'
+    && risk.outputClassification === PILOT_ASSET_CLASS
+    && risk.productionUseProhibited === true && risk.candidateReconstructionProhibited === true
+    && risk.promotionProhibited === true && risk.renderingProhibited === true
+    && risk.normalProductionAssetReadiness === 'REJECTED'
+    && risk.falTermsOwnershipStatement === 'FAL_TERMS_DO_NOT_CLEARLY_ASSIGN_GENERATED_OUTPUT_OWNERSHIP'
+    && risk.limitedToPilotRun === record.pilotRunId && risk.limitedToRequestKey === record.requestKey
+    && risk.noRightsConclusionFromCommercialUseLabel === true,
+  'PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID');
+}
+function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha256, context = {}) {
+  const scope = context.scope;
+  const policy = AUTH_SCOPES[scope];
+  fail(policy, 'PILOT_AUTHORIZATION_SCOPE_REQUIRED');
+  fail(context.operation === policy.operation, 'PILOT_AUTHORIZATION_OPERATION_SCOPE_MISMATCH');
+  const file = path.join(root, policy.file);
   fail(fsImpl.existsSync(file), 'PILOT_EXECUTION_AUTHORIZATION_MISSING');
   assertRealFile(file, fsImpl);
   const bytes = fsImpl.readFileSync(file);
@@ -197,18 +233,40 @@ function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha2
   fail(record.schemaVersion === SCHEMAS.authorization && record.status === 'AUTHORIZED_FOR_EXECUTION'
     && record.approvedBy === 'Yakubu Moshood' && record.providerAuthorization && record.executionSignature,
   'PILOT_EXECUTION_AUTHORIZATION_INVALID');
+  fail(record.scope === scope && record.operation === policy.operation && record.pilotRunId === TRUST.runId
+    && record.beatId === 'ACT3_B005' && record.requestKey === requestForScope(planning, scope).requestKey,
+  'PILOT_AUTHORIZATION_SCOPE_BINDING_MISMATCH');
   fail(record.bindings?.editorialApprovalSha256 === planning.approvalSha256
     && record.bindings?.pilotProposalSha256 === planning.proposalSha256
     && record.bindings?.v5PackageIndexSha256 === planning.v5IndexSha256
-    && record.bindings?.pilotPackageIndexSha256 === planning.pilotIndexSha256, 'PILOT_EXECUTION_AUTHORIZATION_BINDING_MISMATCH');
-  fail(record.maxProviderSubmissions === MAX_SUBMISSIONS && record.noRetry === true && record.noFallback === true,
+    && record.bindings?.pilotPackageIndexSha256 === planning.pilotIndexSha256
+    && record.bindings?.pilotRunId === TRUST.runId && record.bindings?.scope === scope
+    && record.bindings?.requestKey === record.requestKey && record.bindings?.beatId === 'ACT3_B005',
+  'PILOT_EXECUTION_AUTHORIZATION_BINDING_MISMATCH');
+  if (scope === 'ANIMATION_ONLY') {
+    fail(context.stillSha256 && context.stillApprovalSha256 && context.stillApprovalDecidedAt,
+      'PILOT_STILL_HUMAN_APPROVAL_REQUIRED');
+    const approvedAt = new Date(context.stillApprovalDecidedAt), authorizedAt = new Date(record.authorizedAt || 'invalid');
+    fail(record.bindings?.stillSha256 === context.stillSha256
+      && record.bindings?.stillApprovalSha256 === context.stillApprovalSha256
+      && Number.isFinite(approvedAt.getTime()) && Number.isFinite(authorizedAt.getTime())
+      && authorizedAt.getTime() > approvedAt.getTime(), 'PILOT_ANIMATION_AUTHORIZATION_STILL_BINDING_INVALID');
+  } else {
+    fail(record.bindings?.stillSha256 === undefined && record.bindings?.stillApprovalSha256 === undefined,
+      'PILOT_STILL_AUTHORIZATION_HAS_ANIMATION_BINDING');
+  }
+  fail(record.maxProviderSubmissions === 1 && record.noRetry === true && record.noFallback === true,
     'PILOT_EXECUTION_LIMITS_INVALID');
-  fail(record.outputOwnershipResolved === true && record.approvalRef && record.decision === 'AUTHORIZED_FOR_EXECUTION',
-    'PILOT_OWNERSHIP_OR_DECISION_UNRESOLVED');
-  fail(record.acceptsUnboundedAnimationExposure === true || record.enforcedMaximumChargeUsd >= 0,
-    'PILOT_UNBOUNDED_COST_NOT_AUTHORIZED');
-  const expected = planning.proposal.requests.map(r => ({ requestKey: r.requestKey, provider: r.provider, model: r.model,
-    endpointId: r.model, parameters: r.parameters, prompt: r.prompt, negativePrompt: r.negativePrompt }));
+  fail(record.approvalRef && record.decision === 'AUTHORIZED_FOR_EXECUTION', 'PILOT_AUTHORIZATION_DECISION_INVALID');
+  fail(record.outputClassification === PILOT_ASSET_CLASS && record.productionUseProhibited === true
+    && record.candidateReconstructionProhibited === true && record.promotionProhibited === true
+    && record.renderingProhibited === true && record.normalProductionAssetReadiness === 'REJECTED',
+  'PILOT_NONPRODUCTION_RESTRICTIONS_INVALID');
+  assertOwnershipDisposition(record);
+  const expected = [requestForScope(planning, scope)];
+  fail(Array.isArray(record.authorizedRequests) && record.authorizedRequests.length === 1
+    && record.requestKey === record.authorizedRequests[0].requestKey,
+  'PILOT_AUTHORIZED_REQUEST_COUNT_INVALID');
   fail(canonical(record.authorizedRequests) === canonical(expected), 'PILOT_AUTHORIZED_REQUEST_DRIFT');
   const asOf = new Date(record.priceCheckedAt || 'invalid');
   fail(Number.isFinite(asOf.getTime()) && asOf.toISOString().slice(0, 10) <= REQUESTS.still.promoEnds,
@@ -217,12 +275,20 @@ function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha2
   const requiredPriceAssumptions = { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08',
     animationUsdPerSecond: 0.0333, proposedCapUsd: 0.25, capProviderEnforced: false };
   fail(canonical(record.priceAssumptions) === canonical(requiredPriceAssumptions), 'PILOT_AUTHORIZED_PRICE_DRIFT');
-  if (record.acceptsUnboundedAnimationExposure !== true) {
+  if (scope === 'STILL_ONLY') {
+    fail(record.stillExposureAcceptance?.acceptedBy === 'Yakubu Moshood'
+      && record.stillExposureAcceptance?.requestKey === REQUESTS.still.key
+      && record.stillExposureAcceptance?.publishedPriceUsd === REQUESTS.still.usdPerImage
+      && record.stillExposureAcceptance?.maximumAcceptedExposureUsd === 0.05
+      && record.stillExposureAcceptance.maximumAcceptedExposureUsd >= record.stillExposureAcceptance.publishedPriceUsd
+      && record.stillExposureAcceptance?.providerEnforcedMaximumCharge === false,
+    'PILOT_STILL_EXPOSURE_ACCEPTANCE_INVALID');
+  } else if (record.acceptsUnboundedAnimationExposure !== true) {
     fail(Number.isFinite(record.enforcedMaximumChargeUsd) && record.enforcedMaximumChargeUsd > 0
       && /^[a-f0-9]{64}$/u.test(record.billingControlSha256 || '') && record.billingControlProviderEnforced === true,
     'PILOT_COST_CONTROL_NOT_VERIFIED');
   }
-  return { record, sha256: hash(bytes), file };
+  return { record, sha256: hash(bytes), file, scope };
 }
 function readLedger(file, fsImpl = fs) {
   if (!fsImpl.existsSync(file)) return [];
@@ -266,6 +332,11 @@ function reserveRequest({ root, request, stage, planning, auth, inputAssetSha256
   fail(!records.some(r => r.requestKey === request.requestKey), 'PILOT_DUPLICATE_REQUEST_KEY');
   fail(stage === 'still' ? request.requestKey === REQUESTS.still.key : request.requestKey === REQUESTS.animation.key,
     'PILOT_REQUEST_KEY_INVALID');
+  fail(auth?.scope === (stage === 'still' ? 'STILL_ONLY' : 'ANIMATION_ONLY')
+    && auth.record?.maxProviderSubmissions === 1
+    && auth.record?.authorizedRequests?.length === 1
+    && auth.record.authorizedRequests[0].requestKey === request.requestKey,
+  'PILOT_REQUEST_AUTHORIZATION_SCOPE_MISMATCH');
   const record = { schemaVersion: SCHEMAS.ledger, recordType: 'SUBMISSION_RESERVED', sequence: reservations.length + 1,
     requestKey: request.requestKey, stage, beatId: 'ACT3_B005', provider: 'fal.ai', model: request.model,
     parameters: request.parameters, promptSha256: request.prompt ? hash(Buffer.from(request.prompt)) : null,
@@ -403,12 +474,13 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
   expectedAuthorizationSha256 = '' }) {
   const getPlanning = () => verifyPlanningInputs({ v5Dir, editorialApprovalPath, pilotDir, fsImpl, pins });
   const runPath = () => { fail(pins.runId === TRUST.runId, 'PILOT_RUN_ID_INVALID'); assertRunRoot(root, expectedRoot, fsImpl); return path.resolve(root); };
-  const getInputs = planning => {
+  const getInputs = (planning, auth) => {
+    const authName = path.basename(auth.file);
     const inputs = { 'v5/phase3-media-package-index.v5.json': planning.v5.indexBytes,
       'detached-editorial-approval.json': fsImpl.readFileSync(editorialApprovalPath),
       'pilot/package-index.json': planning.pilot.indexBytes,
       'v5/unsigned-approval-proposal.v5.json': fsImpl.readFileSync(path.join(v5Dir, 'unsigned-approval-proposal.v5.json')),
-      'execution-authorization.v1.json': fsImpl.readFileSync(path.join(root, 'execution-authorization.v1.json')) };
+      [authName]: fsImpl.readFileSync(auth.file) };
     for (const entry of planning.v5.index.files) inputs[`v5/${entry.path}`] = fsImpl.readFileSync(path.join(v5Dir, ...entry.path.split('/')));
     for (const entry of planning.pilot.index.files) inputs[`pilot/${entry.path}`] = fsImpl.readFileSync(path.join(pilotDir, ...entry.path.split('/')));
     return inputs;
@@ -421,9 +493,10 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
     if (rootExists) {
       const existing = strictTreeFiles(root, fsImpl);
       if (existing.length) {
-        fail(canonical(existing) === canonical(['execution-authorization.v1.json']) && expectedAuthorizationSha256,
+        fail(canonical(existing) === canonical([AUTH_SCOPES.STILL_ONLY.file]) && expectedAuthorizationSha256,
           'PILOT_PREFLIGHT_EXISTING_RUN_NOT_EMPTY');
-        const auth = loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedAuthorizationSha256);
+        const auth = loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedAuthorizationSha256,
+          { scope: 'STILL_ONLY', operation: AUTH_SCOPES.STILL_ONLY.operation });
         authorizationStatus = `VERIFIED:${auth.sha256}`;
         executionAuthorized = true;
       }
@@ -443,37 +516,54 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
     const runRoot = runPath();
     fail(!fsImpl.existsSync(runRoot) || fsImpl.lstatSync(runRoot).isDirectory(), 'PILOT_RUN_ROOT_INVALID');
     const planning = getPlanning();
-    const auth = loadDetachedExecutionAuthorization(runRoot, planning, fsImpl, expectedAuthorizationSha256);
     const stageExisting = command === 'generate-still' ? 'still' : 'animation';
-    fail(!fsImpl.existsSync(path.join(runRoot, 'pilot.lock')), 'PILOT_LOCK_EXISTS');
+    const scope = stageExisting === 'still' ? 'STILL_ONLY' : 'ANIMATION_ONLY';
+    const policy = AUTH_SCOPES[scope];
+      fail(!fsImpl.existsSync(path.join(runRoot, 'pilot.lock')), 'PILOT_LOCK_EXISTS');
+    let authorizationContext = { scope, operation: policy.operation };
     if (stageExisting === 'animation') {
       const approvalPath = path.join(runRoot, 'still-approval.v1.json');
       fail(fsImpl.existsSync(approvalPath), 'PILOT_STILL_HUMAN_APPROVAL_REQUIRED');
+      const inspectionPath = path.join(runRoot, 'still-inspection.v1.json');
+      fail(fsImpl.existsSync(inspectionPath), 'PILOT_STILL_INSPECTION_REQUIRED');
       const approval = readJson(approvalPath, fsImpl), stillReceipt = readJson(path.join(runRoot, 'still-receipt.v1.json'), fsImpl);
+      const inspection = readJson(inspectionPath, fsImpl);
       fail(approval.decision === 'APPROVED' && approval.approvedBy === 'Yakubu Moshood'
-        && approval.stillSha256 === stillReceipt.output.sha256, 'PILOT_STILL_HUMAN_APPROVAL_INVALID');
+        && approval.stillSha256 === stillReceipt.output.sha256
+        && inspection.status === 'INSPECTED_PENDING_HUMAN_APPROVAL' && inspection.stillSha256 === approval.stillSha256
+        && stillReceipt.status === 'STILL_GENERATED_PENDING_INSPECTION'
+        && Number.isFinite(new Date(approval.decidedAt).getTime()), 'PILOT_STILL_HUMAN_APPROVAL_INVALID');
+      const stillPath = path.join(runRoot, 'ACT3_B005-still.png'); assertRealFile(stillPath, fsImpl);
+      const stillBytes = fsImpl.readFileSync(stillPath);
+      fail(hash(stillBytes) === approval.stillSha256, 'PILOT_STILL_INPUT_INVALID');
+      authorizationContext = { ...authorizationContext, stillSha256: hash(stillBytes),
+        stillApprovalSha256: hash(fsImpl.readFileSync(approvalPath)), stillApprovalDecidedAt: approval.decidedAt };
     }
+    const auth = loadDetachedExecutionAuthorization(runRoot, planning, fsImpl, expectedAuthorizationSha256, authorizationContext);
     const existing = fsImpl.existsSync(runRoot) ? strictTreeFiles(runRoot, fsImpl) : [];
     if (stageExisting === 'still') {
-      fail(canonical(existing) === canonical(['execution-authorization.v1.json']), 'PILOT_RUN_ALREADY_USED');
+      fail(canonical(existing) === canonical([policy.file]), 'PILOT_RUN_ALREADY_USED');
     } else {
-      const allowed = ['ACT3_B005-still.png', 'execution-authorization.v1.json', 'inputs/detached-editorial-approval.json',
-        'inputs/execution-authorization.v1.json', 'inputs/pilot/package-index.json', 'inputs/pilot/phase3-media-pilot-proposal.v1.json',
+      const allowed = ['ACT3_B005-still.png', 'still-execution-authorization.v1.json', 'animation-execution-authorization.v1.json',
+        'inputs/detached-editorial-approval.json', 'inputs/still-execution-authorization.v1.json',
+        'inputs/animation-execution-authorization.v1.json', 'inputs/pilot/package-index.json', 'inputs/pilot/phase3-media-pilot-proposal.v1.json',
         'inputs/pilot/phase3-media-pilot-proposal.v1.md', 'inputs/v5/unsigned-approval-proposal.v5.json',
         'inputs/v5/phase3-media-package-index.v5.json',
-        'pilot-inputs-index.v1.json', 'pilot-ledger-baseline.v1.json', 'request-ledger.jsonl',
+        'pilot-inputs-still-index.v1.json', 'pilot-inputs-animation-index.v1.json',
+        'pilot-ledger-baseline.v1.json', 'request-ledger.jsonl',
         'still-inspection.v1.json', 'still-receipt.v1.json', 'still-approval.v1.json'];
       for (const entry of planning.v5.index.files) allowed.push(`inputs/v5/${entry.path}`);
       fail(existing.every(item => allowed.includes(item)) && existing.includes('still-approval.v1.json'), 'PILOT_RUN_ALREADY_USED');
       const ledgerBefore = readLedger(path.join(runRoot, 'request-ledger.jsonl'), fsImpl);
       fail(ledgerBefore.filter(r => r.recordType === 'SUBMISSION_RESERVED').length === 1
+        && ledgerBefore.some(r => r.recordType === 'SUBMISSION_RESERVED' && r.requestKey === REQUESTS.still.key)
         && ledgerBefore.some(r => r.recordType === 'SUBMISSION_RESULT' && r.requestKey === REQUESTS.still.key && r.status === 'SUCCEEDED'),
       'PILOT_ANIMATION_REQUIRES_SUCCESSFUL_STILL_ATTEMPT');
     }
     if (!fsImpl.existsSync(runRoot)) fsImpl.mkdirSync(runRoot, { recursive: false });
     const lock = acquireLock(runRoot, fsImpl);
     try {
-      const inputIndex = ensureInputsCopied(runRoot, getInputs(planning), fsImpl);
+      const inputIndex = ensureInputsCopied(runRoot, getInputs(planning, auth), fsImpl, `pilot-inputs-${stageExisting}-index.v1.json`);
       writeLedgerBaseline(runRoot, fsImpl);
       await callback({ runRoot, planning, auth, request: planning[stageExisting], lock, inputIndex });
     } catch (error) {
@@ -522,6 +612,12 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
     const planning = getPlanning();
     return withRecordLock('inspect-still', runRoot => {
     const stillPath = path.join(runRoot, 'ACT3_B005-still.png'), receipt = readJson(path.join(runRoot, 'still-receipt.v1.json'), fsImpl);
+    const ledger = readLedger(path.join(runRoot, 'request-ledger.jsonl'), fsImpl);
+    fail(receipt.status === 'STILL_GENERATED_PENDING_INSPECTION'
+      && ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').length === 1
+      && ledger.some(row => row.recordType === 'SUBMISSION_RESERVED' && row.requestKey === REQUESTS.still.key)
+      && ledger.some(row => row.recordType === 'SUBMISSION_RESULT' && row.requestKey === REQUESTS.still.key && row.status === 'SUCCEEDED'),
+    'PILOT_STILL_GENERATION_NOT_COMPLETE');
     assertRealFile(stillPath, fsImpl); const bytes = fsImpl.readFileSync(stillPath);
     fail(hash(bytes) === receipt.output.sha256, 'PILOT_STILL_HASH_MISMATCH');
     const info = pngInfo(bytes);
@@ -606,8 +702,11 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
     const savedProbe = { container: animationReceipt.output.container, durationSeconds: animationReceipt.output.durationSeconds,
       bytes: animationReceipt.output.bytes, video: animationReceipt.output.video, audioStreams: animationReceipt.output.audioStreams };
     fail(canonical(videoProbe) === canonical(savedProbe), 'PILOT_FINAL_FFPROBE_BINDING_MISMATCH');
-    const inputIndexPath = path.join(runRoot, 'pilot-inputs-index.v1.json');
-    const inputIndexSha256 = hash(fsImpl.readFileSync(inputIndexPath));
+    const stillInputIndexPath = path.join(runRoot, 'pilot-inputs-still-index.v1.json');
+    const animationInputIndexPath = path.join(runRoot, 'pilot-inputs-animation-index.v1.json');
+    assertRealFile(stillInputIndexPath, fsImpl); assertRealFile(animationInputIndexPath, fsImpl);
+    const inputIndexSha256 = { still: hash(fsImpl.readFileSync(stillInputIndexPath)),
+      animation: hash(fsImpl.readFileSync(animationInputIndexPath)) };
     const outputs = { still: { bytes: stillBytes.length, sha256: hash(stillBytes), assetClass: PILOT_ASSET_CLASS },
       animation: { bytes: clipBytes.length, sha256: hash(clipBytes), media: animationReceipt.output, assetClass: PILOT_ASSET_CLASS } };
     const inputs = { v5PackageIndexSha256: planning.v5IndexSha256, editorialApprovalSha256: planning.approvalSha256,
