@@ -535,17 +535,42 @@ function validatePilot02FinalizeFailureReceipt(root, fsImpl, ledger, pins = PILO
     && ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').length === 2
     && ledger.filter(row => row.recordType === 'SUBMISSION_RESULT').length === 2,
   'PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID');
-  if (hash(bytes) === pins.historicalFinalizeFailureSha256) {
+  if (hash(bytes) === PILOT02_FINALIZATION.historicalFinalizeFailureSha256) {
     // This exact immutable legacy receipt was emitted by the first failed finalize call.
     // Its run is bound by its fixed Pilot-02 path; this exact error occurs before the
     // finalizer's first output write. The unchanged pinned ledger proves no reservation
     // or provider request was added by that call.
-    fail(receipt.schemaVersion === 'phase3-media-pilot-failure-receipt/1.0.0'
+    const reservations = ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED');
+    const results = ledger.filter(row => row.recordType === 'SUBMISSION_RESULT');
+    const expectedReservations = [
+      { requestKey: PILOT02.requestKey, stage: 'still' },
+      { requestKey: PILOT02_EXTENSION.requestKey, stage: 'animation' },
+    ];
+    const exactReservations = expectedReservations.every(expected => reservations.filter(row =>
+      row.requestKey === expected.requestKey && row.stage === expected.stage
+      && row.retryAllowed === false && row.fallbackAllowed === false).length === 1);
+    const exactResults = expectedReservations.every(expected => results.filter(row =>
+      row.requestKey === expected.requestKey && row.status === 'SUCCEEDED').length === 1);
+    const mediaHashesMatch = hash(fsImpl.readFileSync(path.join(root, 'ACT3_B005-animation-provider-output.bin')))
+      === pins.rawAnimationSha256
+      && hash(fsImpl.readFileSync(path.join(root, 'ACT3_B005-animation-30fps-110f.mp4')))
+        === pins.fittedAnimationSha256
+      && hash(fsImpl.readFileSync(path.join(root, 'animation-receipt.v1.json')))
+      === pins.animationReceiptSha256
+      && hash(fsImpl.readFileSync(path.join(root, 'animation-execution-authorization.v1.json')))
+        === pins.animationAuthorizationSha256;
+    const historicalFields = ['schemaVersion', 'status', 'command', 'errorCode', 'context', 'recordedAt', 'providerRequestCount'];
+    fail(path.basename(path.resolve(root)) === PILOT02.runId
+      && canonical(Object.keys(receipt).sort()) === canonical(historicalFields.slice().sort())
+      && receipt.schemaVersion === 'phase3-media-pilot-failure-receipt/1.0.0'
       && receipt.status === 'FAILED' && receipt.command === 'finalize'
       && receipt.errorCode === 'PILOT02_STILL_RUN_FILE_SET_INVALID'
       && receipt.context && Object.keys(receipt.context).length === 0
       && receipt.providerRequestCount === 2
-      && Number.isFinite(Date.parse(receipt.recordedAt)), 'PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID');
+      && receipt.recordedAt === '2026-10-03T17:35:18.994Z'
+      && ledger.length === 4 && reservations.length === 2 && results.length === 2
+      && exactReservations && exactResults && mediaHashesMatch,
+    'PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID');
     return true;
   }
   const { receiptBindingSha256, ...base } = receipt;
@@ -1200,9 +1225,22 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
                 stillSha256: stillApproval.stillSha256, stillApprovalSha256: hash(fsImpl.readFileSync(path.join(root, 'still-approval.v1.json'))),
                 stillApprovalDecidedAt: stillApproval.decidedAt });
           }
-          validatePilot02StillState(root, planning, fsImpl,
-            animationAuth ? { animationAuthorizationSha256: animationAuth.sha256 } : {});
-          verifyPilot02InputCopyIndexes(planning);
+          const hasAnimationResults = planning.runId === PILOT02.runId
+            && fsImpl.existsSync(path.join(root, 'animation-receipt.v1.json'));
+          const pilot02State = pilot02StateVerifier(root, planning, fsImpl, animationAuth
+            ? { animationAuthorizationSha256: animationAuth.sha256,
+              ...(hasAnimationResults ? { allowAnimationResults: true,
+                allowFinalizeFailureReceipt: fsImpl.existsSync(path.join(root, 'finalize-failure-receipt.json')),
+                finalizationPins } : {}) }
+            : {});
+          if (hasAnimationResults) {
+            const documents = verifyPilot02FinalizationDocuments({ planning, fsImpl,
+              validationApprovalPath: animationValidationApprovalPath,
+              motionPolicyProposalPath, pins: finalizationPins });
+            fail(documents.approval.stillApprovalSha256 === pilot02State.stillApprovalSha256,
+              'PILOT02_FINAL_HUMAN_APPROVAL_BINDING_MISMATCH');
+          }
+          (pilot02InputCopyIndexVerifier || verifyPilot02InputCopyIndexes)(planning);
           if (animationAuth) { authorizationStatus = `VERIFIED:${animationAuth.sha256}`; executionAuthorized = true; }
           else fail(!expectedAuthorizationSha256, 'PILOT_PREFLIGHT_ANIMATION_AUTHORIZATION_HASH_REQUIRED');
         } else {
@@ -1214,7 +1252,10 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
         }
       }
     } else if (expectedAuthorizationSha256) fail(false, 'PILOT_EXECUTION_AUTHORIZATION_MISSING');
-    const status = executionAuthorized ? 'PILOT_PREFLIGHT_PASS_EXECUTION_AUTHORIZED_NOT_EXECUTED'
+    const status = planning.runId === PILOT02.runId && rootExists
+      && fsImpl.existsSync(path.join(root, 'animation-receipt.v1.json'))
+      ? 'PILOT_PREFLIGHT_PASS_FINALIZATION_READY'
+      : executionAuthorized ? 'PILOT_PREFLIGHT_PASS_EXECUTION_AUTHORIZED_NOT_EXECUTED'
       : planning.runId === PILOT02.runId ? 'PILOT_PREFLIGHT_PASS_ANIMATION_PLANNING_READY_EXECUTION_UNAUTHORIZED' : 'PILOT_PREFLIGHT_PASS_PLANNING_ONLY';
     return { status, executionAuthorized,
       executionAuthorization: authorizationStatus, approvedPilotBeat: 'ACT3_B005',

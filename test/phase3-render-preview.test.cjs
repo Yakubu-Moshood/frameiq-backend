@@ -305,9 +305,8 @@ async function makePilot02CompletedFixture(t, { includeLegacyFailures = true } =
     pilotWorkflow.validatePilot02RunFileSet(root, planning, fsImpl, { ...options, ledger });
     const stillBytes = fsImpl.readFileSync(path.join(root, 'ACT3_B005-still.png'));
     return { stillBytes, stillSha256: sha(stillBytes),
-      // The unit fixture records a synthetic approval document; bind the
-      // accepted still state to the real detached approval hash pinned by the
-      // workflow contract.
+      // The synthetic animation fixture binds to the immutable approved still
+      // decision hash while the generated local approval file is test-only.
       stillApprovalSha256: pilotWorkflow.PILOT02.stillApproval };
   };
   // The fixture deliberately creates a fresh synthetic ledger, so its copied
@@ -362,6 +361,7 @@ async function makePilot02CompletedFixture(t, { includeLegacyFailures = true } =
   const validationApprovalPath = path.join(f.base, 'human-validation-approval.v1.json');
   fs.writeFileSync(validationApprovalPath, `${JSON.stringify(approval, null, 2)}\n`);
   const finalizeFailurePath = path.join(f.root, 'finalize-failure-receipt.json');
+  let originalLegacyFinalizeFailureBytes = null;
   if (includeLegacyFailures) {
     const animationFailureBase = { schemaVersion: 'phase3-media-pilot-failure-receipt/1.0.0', status: 'FAILED',
       command: 'generate-animation', errorCode: 'PILOT02_STILL_RUN_FILE_SET_INVALID',
@@ -376,6 +376,7 @@ async function makePilot02CompletedFixture(t, { includeLegacyFailures = true } =
       command: 'finalize', errorCode: 'PILOT02_STILL_RUN_FILE_SET_INVALID', context: {},
       recordedAt: '2026-10-03T17:35:18.994Z', providerRequestCount: 2 };
     fs.writeFileSync(finalizeFailurePath, `${JSON.stringify(failureReceipt, null, 2)}\n`);
+    originalLegacyFinalizeFailureBytes = fs.readFileSync(finalizeFailurePath);
   }
   const finalizationPins = { ...pilotWorkflow.PILOT02_FINALIZATION,
     humanValidationApprovalSha256: sha(fs.readFileSync(validationApprovalPath)),
@@ -387,7 +388,7 @@ async function makePilot02CompletedFixture(t, { includeLegacyFailures = true } =
     animationValidationApprovalPath: validationApprovalPath, motionPolicyProposalPath: PILOT02_MOTION_PROPOSAL,
     finalizationPins, pilot02StateVerifier, pilot02InputCopyIndexVerifier });
   return { ...f, finalWorkflow, animationAuthorizationBytes, animationAuthorization, finalizationPins,
-    validationApprovalPath, calls, rawBytes, fittedBytes, ffprobe };
+    validationApprovalPath, calls, rawBytes, fittedBytes, ffprobe, originalLegacyFinalizeFailureBytes };
 }
 function makePilotReadOnlyFixture(overrides = {}) {
   const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
@@ -2015,6 +2016,12 @@ test('Pilot-02 accepts the exact completed animation file set and only a finaliz
     ledger: pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl')) };
   const state = pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options);
   assert.equal(state.hasAnimationAuthorization, true);
+  const legacyFailurePath = path.join(f.root, 'finalize-failure-receipt.json');
+  const legacyFailureBytes = fs.readFileSync(legacyFailurePath);
+  assert.equal(legacyFailureBytes.length, 256);
+  assert.equal(sha(legacyFailureBytes), 'c9883ae81aa4eb82e8aff6b60a963c378f31a505dac19714b1ed49ccd7ad37e8');
+  assert.equal(pilotWorkflow.validatePilot02FinalizeFailureReceipt(f.root, fs, options.ledger,
+    f.finalizationPins), true);
   assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('generate-animation-failure-receipt.json'), true);
   assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('finalize-failure-receipt.json'), true);
   assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('ACT3_B005-animation-provider-output.bin'), true);
@@ -2027,6 +2034,77 @@ test('Pilot-02 accepts the exact completed animation file set and only a finaliz
   assert.throws(() => pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options),
     /PILOT02_EXECUTION_LOCK_NOT_OWNED/);
   fs.unlinkSync(lockPath);
+});
+
+test('Pilot-02 historical finalize failure receipt is accepted only byte-for-byte with the pinned completed state', async t => {
+  const f = await makePilot02CompletedFixture(t);
+  t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const receiptPath = path.join(f.root, 'finalize-failure-receipt.json');
+  const ledgerPath = path.join(f.root, 'request-ledger.jsonl');
+  const ledgerBytes = fs.readFileSync(ledgerPath), ledger = pilotWorkflow.readLedger(ledgerPath);
+  const validate = () => pilotWorkflow.validatePilot02FinalizeFailureReceipt(f.root, fs, ledger, f.finalizationPins);
+  const before = pilotWorkflow.strictTreeFiles(f.root).map(rel => [rel,
+    sha(fs.readFileSync(path.join(f.root, ...rel.split('/'))))]);
+  assert.equal(validate(), true);
+  for (const [field, value] of [
+    ['schemaVersion', 'phase3-media-pilot-finalize-failure-receipt/1.0.0'],
+    ['status', 'SUCCEEDED'], ['command', 'generate-animation'],
+    ['errorCode', 'OTHER_FAILURE'], ['recordedAt', '2026-10-03T17:35:18.995Z'],
+    ['providerRequestCount', 1],
+  ]) {
+    const changed = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+    changed[field] = value;
+    fs.writeFileSync(receiptPath, `${JSON.stringify(changed, null, 2)}\n`);
+    assert.throws(validate, /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/,
+      `historical receipt field ${field} must be pinned`);
+    fs.writeFileSync(receiptPath, f.originalLegacyFinalizeFailureBytes);
+  }
+  assert.equal(sha(fs.readFileSync(receiptPath)), 'c9883ae81aa4eb82e8aff6b60a963c378f31a505dac19714b1ed49ccd7ad37e8');
+
+  const arbitrary = { schemaVersion: 'phase3-media-pilot-failure-receipt/1.0.0', status: 'FAILED',
+    command: 'finalize', errorCode: 'PILOT02_STILL_RUN_FILE_SET_INVALID', context: {},
+    recordedAt: '2026-10-03T17:35:18.994Z', providerRequestCount: 3 };
+  fs.writeFileSync(receiptPath, `${JSON.stringify(arbitrary, null, 2)}\n`);
+  assert.throws(validate, /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/,
+    'an arbitrary empty-context receipt cannot use the legacy exception');
+  fs.writeFileSync(receiptPath, f.originalLegacyFinalizeFailureBytes);
+
+  const alteredLedger = { ...f.finalizationPins, ledgerSha256: '0'.repeat(64) };
+  assert.throws(() => pilotWorkflow.validatePilot02FinalizeFailureReceipt(f.root, fs, ledger, alteredLedger),
+    /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/);
+  const extraLedger = [...ledger, { recordType: 'SUBMISSION_RESERVED', requestKey: 'extra', stage: 'animation',
+    retryAllowed: false, fallbackAllowed: false }];
+  assert.throws(() => pilotWorkflow.validatePilot02FinalizeFailureReceipt(f.root, fs, extraLedger, f.finalizationPins),
+    /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/);
+
+  for (const [relative, expectedError] of [
+    ['ACT3_B005-animation-provider-output.bin', /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/],
+    ['ACT3_B005-animation-30fps-110f.mp4', /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/],
+    ['animation-receipt.v1.json', /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/],
+  ]) {
+    const file = path.join(f.root, relative), original = fs.readFileSync(file);
+    fs.appendFileSync(file, 'altered');
+    assert.throws(validate, expectedError);
+    fs.writeFileSync(file, original);
+  }
+  assert.equal(sha(fs.readFileSync(ledgerPath)), sha(ledgerBytes));
+  assert.deepEqual(pilotWorkflow.strictTreeFiles(f.root).map(rel => [rel,
+    sha(fs.readFileSync(path.join(f.root, ...rel.split('/'))))]), before);
+  assert.equal(f.calls.length, 2);
+});
+
+test('Pilot-02 read-only preflight recognises the exact legacy finalization failure state without writes', async t => {
+  const f = await makePilot02CompletedFixture(t);
+  t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const filesBefore = pilotWorkflow.strictTreeFiles(f.root).map(rel => [rel,
+    sha(fs.readFileSync(path.join(f.root, ...rel.split('/'))))]);
+  const result = f.finalWorkflow.preflight();
+  assert.equal(result.status, 'PILOT_PREFLIGHT_PASS_FINALIZATION_READY');
+  assert.equal(result.executionAuthorized, true);
+  assert.deepEqual(pilotWorkflow.strictTreeFiles(f.root).map(rel => [rel,
+    sha(fs.readFileSync(path.join(f.root, ...rel.split('/'))))]), filesBefore);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  assert.equal(f.calls.length, 2);
 });
 
 test('Pilot-02 finalizes the approved route without provider, ledger, media or Stage04 changes and remains disposable', async t => {
@@ -2095,7 +2173,7 @@ test('Pilot-02 finalization rejects altered receipts, unknown files, changed med
 
   const alteredMedia = await makePilot02CompletedFixture(t);
   fs.appendFileSync(path.join(alteredMedia.root, 'ACT3_B005-animation-provider-output.bin'), 'changed');
-  assert.throws(() => alteredMedia.finalWorkflow.finalize(), /PILOT02_FINAL_OUTPUT_HASH_MISMATCH/);
+  assert.throws(() => alteredMedia.finalWorkflow.finalize(), /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID|PILOT02_FINAL_OUTPUT_HASH_MISMATCH/);
   assert.equal(fs.existsSync(path.join(alteredMedia.root, 'pilot.lock')), false);
 
   const alteredLedger = await makePilot02CompletedFixture(t);
