@@ -10,6 +10,7 @@ const { getChannelConfigByLabel } = require('./config-reader.cjs');
 const { createRouter } = require('./providers/provider-router.cjs');
 const svd = require('./providers/video/svd.cjs');
 const { loadProductionMethodManifest, essentialAnimationShotIds, selectShotsByIds } = require('./production-method-manifest.cjs');
+const act3B005Motion = require('./phase3-act3-b005-production-motion-contract.cjs');
 
 const KLING_MODEL   = 'fal-ai/kling-video/v1.6/standard/image-to-video';
 const CLIP_DURATION = '5';
@@ -85,7 +86,8 @@ function estimateVideoCost(provider) {
   return null;
 }
 
-async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefsPath = null, productionManifestPath = null, routerFactory = createRouter, channelConfigLoader = getChannelConfigByLabel, sleepFn = sleep }) {
+async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefsPath = null, productionManifestPath = null,
+  productionMotionApprovalPath = null, routerFactory = createRouter, channelConfigLoader = getChannelConfigByLabel, sleepFn = sleep }) {
   let productionManifest = null;
   if (shotDefs?.mode === 'empire-omitted-v3') {
     shotDefsPath = shotDefsPath || path.join(episodeDir, 'shot-definitions.json');
@@ -135,7 +137,6 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefs
 
   const stillsDir = path.join(episodeDir, 'assets', 'stills');
   const clipsDir  = path.join(episodeDir, 'assets', 'clips');
-  fs2.mkdirSync(clipsDir, { recursive: true });
 
   const defaultPrompt = ANIMATION_DEFAULTS[animationStyle] || ANIMATION_DEFAULTS['minimal'];
 
@@ -150,14 +151,37 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefs
 
   const channelSlug = String(channel || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
   const isEmpireOmitted = channelSlug === 'empireomitted';
+  const act3B005 = isEmpireOmitted && clipShots.find(shot => shot.shotId === 'ACT3_B005');
+  let act3B005ApprovalBytes = null;
+  if (act3B005) {
+    productionMotionApprovalPath = productionMotionApprovalPath || act3B005Motion.APPROVAL_PATH;
+    if (!fs2.existsSync(productionMotionApprovalPath)) {
+      throw new Error('[animator] ACT3_B005 approved production motion approval file is required.');
+    }
+    act3B005ApprovalBytes = fs2.readFileSync(productionMotionApprovalPath);
+    act3B005Motion.verifyAct3B005ProductionMotionContract({ approvalBytes: act3B005ApprovalBytes });
+  }
+
   const eoMotionRestraint = 'Single controlled camera movement only. The camera moves; the scene remains physically stable. Preserve subject and object geometry. No unnecessary autonomous subject movement. No sweeping lateral pan, orbit or aggressive parallax unless explicitly requested. No morphing, warping or deformation. Minimal environmental movement. Restrained cinematic documentary motion.';
 
   const shotPromptById = {};
+  const requestKeyByShotId = {};
   for (const shot of clipShots) {
+    if (isEmpireOmitted && shot.shotId === 'ACT3_B005') {
+      const manifestEntry = productionManifest.shots.find(entry => entry.shotId === shot.shotId);
+      const resolved = act3B005Motion.resolveAct3B005ProductionMotion({ shot, manifestEntry,
+        requestKey: act3B005Motion.PRODUCTION_REQUEST_KEY,
+        sourceImagePath: path.join(stillsDir, `${shot.shotId}.png`),
+        outputPath: path.join(clipsDir, `${shot.shotId}.mp4`), approvalBytes: act3B005ApprovalBytes });
+      shotPromptById[shot.shotId] = `${resolved.shot.animationPrompt} Avoid: ${resolved.negativeConstraints.join('; ')}.`;
+      requestKeyByShotId[shot.shotId] = resolved.requestKey;
+      continue;
+    }
     const basePrompt = shot.animationPrompt || defaultPrompt;
     const separator = /[.!?]\s*$/.test(basePrompt) ? ' ' : '. ';
     shotPromptById[shot.shotId] = isEmpireOmitted ? (basePrompt + separator + eoMotionRestraint) : basePrompt;
   }
+  fs2.mkdirSync(clipsDir, { recursive: true });
   if (isEmpireOmitted) log('[animator] Empire Omitted motion restraint: ENABLED');
 
   const providers = {
@@ -194,7 +218,9 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefs
 
     try {
       const result = await videoRouter.run(priorityList, {
-        input: { sourceImagePath: sourceImage, animationStyle, outputPath: clipFile, shotId: shot.shotId },
+        input: { sourceImagePath: sourceImage, animationStyle, outputPath: clipFile, shotId: shot.shotId,
+          ...(requestKeyByShotId[shot.shotId] ? { requestKey: requestKeyByShotId[shot.shotId], animationPrompt: shotPromptById[shot.shotId] } : {}) },
+        ...(requestKeyByShotId[shot.shotId] ? { requestKey: requestKeyByShotId[shot.shotId] } : {}),
         providerConfig: {},
         episodeId: episodeId || null,
         shotId: shot.shotId,
@@ -217,10 +243,11 @@ async function animateClips({ shotDefs, episodeDir, channel, episodeId, shotDefs
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  let episode = null, channel = null;
+  let episode = null, channel = null, productionMotionApprovalPath = null;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--episode') episode = args[++i];
     if (args[i] === '--channel') channel = args[++i];
+    if (args[i] === '--production-motion-approval') productionMotionApprovalPath = args[++i];
   }
   if (!episode) {
     console.error('Usage: node surface-animator.cjs --episode EP4 --channel "Empire Omitted"');
@@ -233,7 +260,7 @@ if (require.main === module) {
     process.exit(1);
   }
   const shotDefs = JSON.parse(fs2.readFileSync(shotDefsPath, 'utf8'));
-  animateClips({ shotDefs, episodeDir, channel, shotDefsPath, productionManifestPath: path.join(episodeDir, 'production-manifest.json') })
+  animateClips({ shotDefs, episodeDir, channel, shotDefsPath, productionManifestPath: path.join(episodeDir, 'production-manifest.json'), productionMotionApprovalPath })
     .catch(err => { console.error('[animator] FATAL:', err.message); process.exit(1); });
 }
 

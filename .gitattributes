@@ -32,4 +32,11 @@ artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v2-
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1-human-approval.v1.json -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-pilot02-animation-review-20261003-v1/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-approval-20261003.v1.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-policy-20261003-v1/** -text
+pipeline-updates/phase3-act3-b005-production-motion-contract.cjs -text
+pipeline-updates/phase3-act3-b005-production-motion-approval.v1.json -text
+pipeline-updates/phase3-act3-b005-production-motion-contract.v1.json -text
+pipeline-updates/surface-animator.cjs -text
+test/production-method-manifest.test.cjs -text
 test/fixtures/phase3-pilot02-approved-still.png -text

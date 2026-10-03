@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "phase3-production-motion-contract-package-index/1.0.0",
+  "status": "COMPLETE",
+  "fileCount": 1,
+  "selfHashExcluded": true,
+  "files": [
+    {
+      "path": "phase3-act3-b005-production-motion-contract.v1.json",
+      "bytes": 3801,
+      "sha256": "3de05198dbc264595643dd1054b2f27ddca7baa372064b1ec5378c50d25f8979"
+    }
+  ]
+}

@@ -14,6 +14,10 @@ const contract = require('../pipeline-updates/production-method-manifest.cjs');
 const { generateImages } = require('../pipeline-updates/surface-image-generator.cjs');
 const { animateClips } = require('../pipeline-updates/surface-animator.cjs');
 const { resolveAssetPath } = require('../pipeline-updates/surface-renderer.cjs');
+const productionMotion = require('../pipeline-updates/phase3-act3-b005-production-motion-contract.cjs');
+const motionContractBytes = fs.readFileSync(productionMotion.CONTRACT_PATH);
+const motionApprovalPath = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase3-act3-b005-production-motion-approval-20261003.v1.json');
+const motionApprovalBytes = fs.readFileSync(motionApprovalPath);
 
 function sha(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
 function tempDir() { return fs.mkdtempSync(path.join(os.tmpdir(), 'eo-v3-method-')); }
@@ -166,6 +170,101 @@ test('animator sends only ESSENTIAL_ANIMATION shots to the fake video router', a
   const calls = []; let routerCreations = 0;
   const result = await animateClips({ shotDefs: value.shotDefs, episodeDir: dir, channel: 'Empire Omitted', shotDefsPath: paths.shotDefsPath, productionManifestPath: paths.manifestPath, channelConfigLoader: async () => ({ animation_style: 'minimal', image_motion: 'subtle-ken-burns', video_primary: 'fake' }), routerFactory: () => { routerCreations++; return { run: async (_priority, req) => { calls.push(req.shotId); return { provider: 'fake' }; } }; }, sleepFn: async () => {} });
   assert.equal(routerCreations, 1); assert.deepEqual(calls, [value.shotDefs.allShots[0].shotId]); assert.equal(result.completed, 1);
+});
+
+test('approved ACT3_B005 motion contract is hash-bound to the completed disposable pilot and exact production inputs', () => {
+  const verified = productionMotion.verifyAct3B005ProductionMotionContract({ contractBytes: motionContractBytes, approvalBytes: motionApprovalBytes });
+  assert.deepEqual(fs.readFileSync(productionMotion.APPROVAL_PATH), motionApprovalBytes);
+  const reviewRoot = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase3-act3-b005-production-motion-policy-20261003-v1');
+  const packageIndexBytes = fs.readFileSync(path.join(reviewRoot, 'package-index.v1.json'));
+  const packageIndex = JSON.parse(packageIndexBytes);
+  const indexedContractBytes = fs.readFileSync(path.join(reviewRoot, packageIndex.files[0].path));
+  assert.equal(packageIndex.fileCount, 1);
+  assert.equal(packageIndex.files[0].bytes, indexedContractBytes.length);
+  assert.equal(packageIndex.files[0].sha256, sha(indexedContractBytes));
+  assert.equal(sha(indexedContractBytes), productionMotion.CONTRACT_SHA256);
+  assert.deepEqual(indexedContractBytes, motionContractBytes);
+  assert.equal(verified.approval.approvedBy, 'Yakubu Moshood');
+  assert.equal(verified.approval.decision, 'APPROVED');
+  assert.equal(verified.approval.scope, 'ACT3_B005 production motion and review policy only');
+  assert.equal(verified.contract.unchangedApprovedFields.approvedFrameAllocation, 110);
+  assert.equal(verified.contract.unchangedApprovedFields.durationSeconds, 3.6599998474121094);
+  assert.equal(verified.contract.productionRequest.requestKey, productionMotion.PRODUCTION_REQUEST_KEY);
+  assert.equal(productionMotion.PILOT_REQUEST_KEYS.has(verified.contract.productionRequest.requestKey), false);
+  assert.equal(verified.contract.pilotMedia.classification, 'NON_PRODUCTION_DISPOSABLE_PILOT');
+  assert.equal(verified.contract.pilotMedia.productionReadiness, 'REJECTED');
+  assert.equal(verified.contract.pilotMedia.candidateUse, false);
+  for (const requirement of ['separates from the desk', 'carries rather than slides', 'hovers', 'flips', 'materially tilts']) {
+    assert.ok(verified.contract.rejectionConditions.some(item => item.includes(requirement)), `rejection gate includes ${requirement}`);
+  }
+  assert.equal(verified.contract.fallback.route, 'DETERMINISTIC_KEYFRAMED_ANIMATION');
+  assert.equal(verified.contract.fallback.regenerate, false);
+  assert.equal(verified.contract.productionRequest.requestKeyReuseProhibited, true);
+  const readiness = require('../pipeline-updates/v3-asset-readiness.cjs');
+  assert.throws(() => readiness.assertNoDisposablePilotMedia({ assetClass: verified.contract.pilotMedia.classification,
+    assetPath: '/data/episodes/Empire/.review/phase3-media-pilots/phase3-media-pilot-02/ACT3_B005-animation-30fps-110f.mp4' }), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+  assert.equal(verified.approval.productionAuthorization, null);
+  assert.equal(verified.approval.providerAuthorization, null);
+  assert.equal(verified.approval.mediaGenerationAuthorized, false);
+  assert.throws(() => productionMotion.verifyAct3B005ProductionMotionContract({
+    contractBytes: Buffer.from(JSON.stringify({ ...verified.contract, approvedMotionRequirement: 'lift the card' })), approvalBytes: motionApprovalBytes,
+  }), /CONTRACT_HASH_MISMATCH/);
+  assert.throws(() => productionMotion.verifyAct3B005ProductionMotionContract({
+    contractBytes: motionContractBytes, approvalBytes: Buffer.from(JSON.stringify({ ...verified.approval, beatId: 'ACT3_B006' })),
+  }), /APPROVAL_HASH_MISMATCH/);
+});
+
+test('ACT3_B005 production animator overlays approved contact motion while leaving other beats unchanged', async () => {
+  const dir = tempDir(); const value = fixture([
+    { shotId: 'ACT3_B005', sequenceId: 'SEQ_ACT3_02', actKey: 'act3', visualClass: 'RECONSTRUCTION', assetType: 'generated_clip', productionMethod: 'ESSENTIAL_ANIMATION' },
+    { shotId: 'ACT3_B006', sequenceId: 'SEQ_ACT3_02', actKey: 'act3', visualClass: 'RECONSTRUCTION', assetType: 'generated_clip', productionMethod: 'ESSENTIAL_ANIMATION' },
+  ]);
+  value.shotDefs.allShots[0].beatId = 'ACT3_B005'; value.shotDefs.allShots[0].durationSec = 3.6599998474121094;
+  value.shotDefs.allShots[1].beatId = 'ACT3_B006';
+  value.candidateBytes = Buffer.from(JSON.stringify(value.shotDefs));
+  value.manifest.candidateSha256 = sha(value.candidateBytes);
+  const paths = writeFixture(dir, value), stills = path.join(dir, 'assets', 'stills'); fs.mkdirSync(stills, { recursive: true });
+  for (const shot of value.shotDefs.allShots) fs.writeFileSync(path.join(stills, `${shot.shotId}.png`), 'production-source');
+  const originalOtherPrompt = value.shotDefs.allShots[1].animationPrompt; const captured = [];
+  const result = await animateClips({ shotDefs: value.shotDefs, episodeDir: dir, channel: 'Empire Omitted',
+    shotDefsPath: paths.shotDefsPath, productionManifestPath: paths.manifestPath,
+    productionMotionApprovalPath: motionApprovalPath,
+    channelConfigLoader: async () => ({ animation_style: 'minimal', image_motion: 'subtle-ken-burns', video_primary: 'fake' }),
+    routerFactory: () => ({ run: async (_priority, req) => { captured.push(req); return { provider: 'fake' }; } }), sleepFn: async () => {} });
+  assert.equal(result.completed, 2);
+  assert.equal(captured[0].input.requestKey, productionMotion.PRODUCTION_REQUEST_KEY);
+  assert.match(captured[0].input.animationPrompt, /continuous contact with the wood surface/);
+  assert.match(captured[0].input.animationPrompt, /Camera position and framing remain locked/);
+  assert.match(captured[0].input.animationPrompt, /card visibly separating from the desk/);
+  assert.doesNotMatch(captured[0].input.animationPrompt, /lateral tracking shot moving right to left/i);
+  assert.equal(captured[1].input.requestKey, undefined);
+  assert.equal(captured[1].input.animationPrompt, undefined);
+  assert.equal(value.shotDefs.allShots[1].animationPrompt, originalOtherPrompt);
+  assert.equal(value.shotDefs.allShots[0].animationPrompt, 'safe test motion');
+});
+
+test('ACT3_B005 production motion fails closed before output writes if approval or source ownership is invalid', async () => {
+  const dir = tempDir(); const value = fixture([{ shotId: 'ACT3_B005', sequenceId: 'SEQ_ACT3_02', actKey: 'act3', visualClass: 'RECONSTRUCTION', assetType: 'generated_clip', productionMethod: 'ESSENTIAL_ANIMATION' }]);
+  value.shotDefs.allShots[0].beatId = 'ACT3_B005'; value.shotDefs.allShots[0].durationSec = 3.6599998474121094;
+  value.candidateBytes = Buffer.from(JSON.stringify(value.shotDefs));
+  value.manifest.candidateSha256 = sha(value.candidateBytes);
+  const paths = writeFixture(dir, value); let routers = 0;
+  await assert.rejects(animateClips({ shotDefs: value.shotDefs, episodeDir: dir, channel: 'Empire Omitted', shotDefsPath: paths.shotDefsPath,
+    productionManifestPath: paths.manifestPath, productionMotionApprovalPath: path.join(dir, 'missing-approval.json'),
+    routerFactory: () => { routers++; }, channelConfigLoader: async () => ({}) }), /motion approval file is required/);
+  assert.equal(routers, 0);
+  assert.equal(fs.existsSync(path.join(dir, 'assets', 'clips')), false);
+  const shot = value.shotDefs.allShots[0], manifestEntry = value.manifest.shots[0];
+  for (const override of [
+    ...[...productionMotion.PILOT_REQUEST_KEYS].map(requestKey => ({ requestKey })),
+    { sourceImagePath: path.join(dir, '.review', 'phase3-media-pilots', 'phase3-media-pilot-02', 'ACT3_B005-still.png') },
+    { manifestEntry: { ...manifestEntry, productionMethod: 'CONTROLLED_STILL' } },
+    { shot: { ...shot, durationSec: 4 } },
+  ]) {
+    assert.throws(() => productionMotion.resolveAct3B005ProductionMotion({ shot, manifestEntry,
+      sourceImagePath: path.join(dir, 'assets', 'stills', 'ACT3_B005.png'), outputPath: path.join(dir, 'assets', 'clips', 'ACT3_B005.mp4'),
+      approvalBytes: motionApprovalBytes, ...override }), /act3-b005-motion/);
+  }
 });
 
 test('animator fails missing V3 manifest before channel lookup or router creation; legacy route remains explicit', async () => {
