@@ -100,6 +100,9 @@ const PILOT_DIR = path.join(WELLS, 'phase3-media-pilot-proposal-20261002-v1');
 const PILOT02_DIR = path.join(WELLS, 'phase3-media-pilot-proposal-20261002-v2');
 const EDITORIAL_APPROVAL = path.join(WELLS, 'phase3-media-completion-review-20261002-v5-human-editorial-approval.v1.json');
 const PILOT02_APPROVAL = path.join(WELLS, 'phase3-media-pilot-proposal-20261002-v2-human-approval.v1.json');
+const PILOT02_STILL_FIXTURE = path.join(__dirname, 'fixtures', 'phase3-pilot02-approved-still.png');
+const PILOT02_VALIDATION_APPROVAL = path.join(WELLS, 'phase3-pilot02-animation-review-20261003-v1', 'human-validation-approval.v1.json');
+const PILOT02_MOTION_PROPOSAL = path.join(WELLS, 'phase3-pilot02-animation-review-20261003-v1', 'production-motion-requirement-proposal.v1.json');
 function pilotPng(width = 1280, height = 720) {
   const bytes = Buffer.alloc(24); Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(bytes);
   bytes.write('IHDR', 12, 4, 'ascii'); bytes.writeUInt32BE(width, 16); bytes.writeUInt32BE(height, 20); return bytes;
@@ -281,6 +284,110 @@ function attachAnimationAuthorization(f) {
   const bytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'animation-execution-authorization.v1.json'), bytes);
   return { authorization, bytes, workflow: f.workflowFor(bytes), stillSha256, stillApprovalSha256 };
+}
+async function makePilot02CompletedFixture(t, { includeLegacyFailures = true } = {}) {
+  const rawBytes = Buffer.from('deterministic provider-output fixture bytes');
+  const fittedBytes = Buffer.from('deterministic fitted-video fixture bytes');
+  const calls = [];
+  const provider = {
+    async generateStill() { calls.push('still'); return { bytes: fs.readFileSync(PILOT02_STILL_FIXTURE), contentType: 'image/png', actualChargeUsd: 0.024 }; },
+    async generateAnimation() { calls.push('animation'); return { bytes: rawBytes, contentType: 'video/mp4', actualChargeUsd: 0.16 }; },
+  };
+  const ffprobe = file => {
+    const isFitted = /110f|\.tmp-[^.]+\.mp4$/u.test(path.basename(file));
+    return { container: 'mov,mp4', durationSeconds: isFitted ? 110 / 30 : 5,
+      bytes: fs.statSync(file).size, video: { codec: 'h264', width: 848, height: 480,
+        frameRate: '30/1', frameCount: isFitted ? 110 : 150 }, audioStreams: [] };
+  };
+  const ffmpeg = (_bin, args) => { fs.writeFileSync(args.at(-1), fittedBytes); return { status: 0 }; };
+  const pilot02StateVerifier = (root, planning, fsImpl, options = {}) => {
+    const ledger = pilotWorkflow.readLedger(path.join(root, 'request-ledger.jsonl'), fsImpl);
+    pilotWorkflow.validatePilot02RunFileSet(root, planning, fsImpl, { ...options, ledger });
+    const stillBytes = fsImpl.readFileSync(path.join(root, 'ACT3_B005-still.png'));
+    return { stillBytes, stillSha256: sha(stillBytes),
+      // The unit fixture records a synthetic approval document; bind the
+      // accepted still state to the real detached approval hash pinned by the
+      // workflow contract.
+      stillApprovalSha256: pilotWorkflow.PILOT02.stillApproval };
+  };
+  // The fixture deliberately creates a fresh synthetic ledger, so its copied
+  // pre-animation ledger cannot equal the immutable live ledger pin. Preserve
+  // index integrity checks while this test exercises the finalizer's state
+  // validation and side-effect guarantees.
+  const pilot02InputCopyIndexVerifier = planning => {
+    for (const indexName of ['pilot-inputs-still-index.v1.json', 'pilot-inputs-animation-index.v1.json']) {
+      const indexPath = path.join(f.root, indexName);
+      assert.ok(fs.existsSync(indexPath));
+      const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+      assert.equal(index.schemaVersion, 'phase3-media-pilot-input-index/1.0.0');
+      const seen = new Set();
+      for (const row of index.files) {
+        assert.ok(!seen.has(row.path)); seen.add(row.path);
+        const bytes = fs.readFileSync(path.join(f.root, 'inputs', ...row.path.split('/')));
+        assert.equal(row.bytes, bytes.length); assert.equal(row.sha256, sha(bytes));
+      }
+    }
+    assert.ok(planning.animationExtension);
+  };
+  const f = makePilot02Fixture({ provider }); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill(); f.workflow.inspectStill();
+  f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood',
+    approvalRef: pilotWorkflow.PILOT02_EXTENSION.stillApprovalRef });
+  const stillApprovalPath = path.join(f.root, 'still-approval.v1.json');
+  const stillApprovalBytes = fs.readFileSync(stillApprovalPath), stillApproval = JSON.parse(stillApprovalBytes);
+  const animationAuthorization = pilot02AnimationAuthorization(f.planning, stillApproval, sha(stillApprovalBytes));
+  const animationAuthorizationBytes = Buffer.from(`${JSON.stringify(animationAuthorization, null, 2)}\n`);
+  fs.writeFileSync(path.join(f.root, 'animation-execution-authorization.v1.json'), animationAuthorizationBytes);
+  const workflow = f.workflowFor(animationAuthorizationBytes, { ffprobe, ffmpeg,
+    pilot02StateVerifier, pilot02InputCopyIndexVerifier });
+  await workflow.generateAnimation();
+  const receiptPath = path.join(f.root, 'animation-receipt.v1.json'), receiptBytes = fs.readFileSync(receiptPath);
+  const ledgerPath = path.join(f.root, 'request-ledger.jsonl'), ledgerBytes = fs.readFileSync(ledgerPath);
+  const rawPath = path.join(f.root, 'ACT3_B005-animation-provider-output.bin');
+  const fittedPath = path.join(f.root, 'ACT3_B005-animation-30fps-110f.mp4');
+  const approval = { schemaVersion: 'phase3-media-pilot-human-validation-approval/1.0.0',
+    recordType: 'DETACHED_HUMAN_PILOT_VALIDATION_DECISION', status: 'APPROVED_FOR_PILOT_VALIDATION_ONLY',
+    approvedBy: 'Yakubu Moshood', pilotRunId: pilotWorkflow.PILOT02.runId, beatId: 'ACT3_B005',
+    decisionDate: '2026-10-03', requestKey: f.planning.animation.requestKey,
+    scope: ['still-to-animation route', 'provider-output measurement', 'deterministic 110-frame fitting',
+      'authorization controls', 'ledger controls', 'review workflow'], productionAssetApproval: false,
+    rawOutput: { sha256: sha(fs.readFileSync(rawPath)), assetClass: pilotWorkflow.PILOT_ASSET_CLASS, productionReadiness: 'REJECTED' },
+    fittedOutput: { sha256: sha(fs.readFileSync(fittedPath)), assetClass: pilotWorkflow.PILOT_ASSET_CLASS, productionReadiness: 'REJECTED' },
+    animationReceiptSha256: sha(receiptBytes), requestLedgerSha256: sha(ledgerBytes),
+    animationAuthorizationSha256: sha(animationAuthorizationBytes), approvedStillSha256: pilotWorkflow.PILOT02.approvedStill,
+    stillApprovalSha256: pilotWorkflow.PILOT02.stillApproval, animationExtensionPackageIndexSha256: pilotWorkflow.PILOT02_EXTENSION.packageIndex,
+    animationExtensionPlanningApprovalSha256: '4b2a72062a0defd1c945a413995c5108d0a2d5fd8ea64af1f5b3f7927e312047',
+    minorObservations: [{ code: 'MINOR_MOTION_DEVIATION', description: 'The customer slightly lifts/carries the card during part of the handoff instead of keeping it completely flat against the desk. The handoff remains understandable and is acceptable for validating the pilot route, but this motion is not the preferred production behavior.' }],
+    approvalEffect: 'Confirms pilot route validation only; does not approve either Pilot-02 video as a production asset.' };
+  const validationApprovalPath = path.join(f.base, 'human-validation-approval.v1.json');
+  fs.writeFileSync(validationApprovalPath, `${JSON.stringify(approval, null, 2)}\n`);
+  const finalizeFailurePath = path.join(f.root, 'finalize-failure-receipt.json');
+  if (includeLegacyFailures) {
+    const animationFailureBase = { schemaVersion: 'phase3-media-pilot-failure-receipt/1.0.0', status: 'FAILED',
+      command: 'generate-animation', errorCode: 'PILOT02_STILL_RUN_FILE_SET_INVALID',
+      context: { authorizationSha256: sha(animationAuthorizationBytes), animationReservationCount: 0,
+        animationProviderRequestCount: 0 }, recordedAt: '2000-01-01T00:00:00.000Z', providerRequestCount: 1,
+      pilotRunId: pilotWorkflow.PILOT02.runId, requestKey: f.planning.animation.requestKey,
+      scope: 'ANIMATION_ONLY', failureStage: 'BEFORE_RESERVATION' };
+    const animationFailure = { ...animationFailureBase,
+      receiptBindingSha256: sha(Buffer.from(JSON.stringify(animationFailureBase))) };
+    fs.writeFileSync(path.join(f.root, 'generate-animation-failure-receipt.json'), `${JSON.stringify(animationFailure, null, 2)}\n`);
+    const failureReceipt = { schemaVersion: 'phase3-media-pilot-failure-receipt/1.0.0', status: 'FAILED',
+      command: 'finalize', errorCode: 'PILOT02_STILL_RUN_FILE_SET_INVALID', context: {},
+      recordedAt: '2026-10-03T17:35:18.994Z', providerRequestCount: 2 };
+    fs.writeFileSync(finalizeFailurePath, `${JSON.stringify(failureReceipt, null, 2)}\n`);
+  }
+  const finalizationPins = { ...pilotWorkflow.PILOT02_FINALIZATION,
+    humanValidationApprovalSha256: sha(fs.readFileSync(validationApprovalPath)),
+    ledgerSha256: sha(ledgerBytes), animationReceiptSha256: sha(receiptBytes),
+    rawAnimationSha256: sha(fs.readFileSync(rawPath)), fittedAnimationSha256: sha(fs.readFileSync(fittedPath)),
+    animationAuthorizationSha256: sha(animationAuthorizationBytes), stillApprovalSha256: pilotWorkflow.PILOT02.stillApproval,
+    historicalFinalizeFailureSha256: includeLegacyFailures ? sha(fs.readFileSync(finalizeFailurePath)) : '0'.repeat(64) };
+  const finalWorkflow = f.workflowFor(animationAuthorizationBytes, { ffprobe, ffmpeg,
+    animationValidationApprovalPath: validationApprovalPath, motionPolicyProposalPath: PILOT02_MOTION_PROPOSAL,
+    finalizationPins, pilot02StateVerifier, pilot02InputCopyIndexVerifier });
+  return { ...f, finalWorkflow, animationAuthorizationBytes, animationAuthorization, finalizationPins,
+    validationApprovalPath, calls, rawBytes, fittedBytes, ffprobe };
 }
 function makePilotReadOnlyFixture(overrides = {}) {
   const base = tempRoot(), root = path.join(base, pilotWorkflow.TRUST.runId);
@@ -1882,6 +1989,119 @@ test('Pilot-02 file-set validation admits only its verified animation state and 
     stage: 'animation', retryAllowed: false, fallbackAllowed: false }];
   assert.throws(() => pilotWorkflow.assertPilot02AnimationSubmissionEligible(afterReservation, f.planning),
     /PILOT_ANIMATION_REQUIRES_SUCCESSFUL_STILL_ATTEMPT/);
+});
+
+test('Pilot-02 finalization approval and motion proposal are the exact detached immutable records', () => {
+  const recordBytes = fs.readFileSync(PILOT02_VALIDATION_APPROVAL), motionBytes = fs.readFileSync(PILOT02_MOTION_PROPOSAL);
+  assert.equal(sha(recordBytes), pilotWorkflow.PILOT02_FINALIZATION.humanValidationApprovalSha256);
+  assert.equal(recordBytes.length, 2261);
+  assert.equal(sha(motionBytes), pilotWorkflow.PILOT02_FINALIZATION.motionPolicyProposalSha256);
+  assert.equal(motionBytes.length, 1636);
+  const approval = JSON.parse(recordBytes), motion = JSON.parse(motionBytes);
+  assert.equal(approval.status, 'APPROVED_FOR_PILOT_VALIDATION_ONLY');
+  assert.equal(approval.productionAssetApproval, false);
+  assert.equal(approval.rawOutput.productionReadiness, 'REJECTED');
+  assert.equal(approval.fittedOutput.productionReadiness, 'REJECTED');
+  assert.equal(motion.status, 'PROPOSED_UNSIGNED_NOT_APPLIED');
+  assert.equal(motion.approval, 'Not approved or applied by the pilot-validation decision.');
+});
+
+test('Pilot-02 accepts the exact completed animation file set and only a finalizer-owned lock', async t => {
+  const f = await makePilot02CompletedFixture(t);
+  const lockPath = path.join(f.root, 'pilot.lock'); fs.writeFileSync(lockPath, `${process.pid}\n`);
+  const options = { allowAnimationResults: true,
+    animationAuthorizationSha256: f.finalizationPins.animationAuthorizationSha256,
+    executionLockPath: lockPath, allowFinalizeFailureReceipt: true, finalizationPins: f.finalizationPins,
+    ledger: pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl')) };
+  const state = pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options);
+  assert.equal(state.hasAnimationAuthorization, true);
+  assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('generate-animation-failure-receipt.json'), true);
+  assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('finalize-failure-receipt.json'), true);
+  assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('ACT3_B005-animation-provider-output.bin'), true);
+  assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('ACT3_B005-animation-30fps-110f.mp4'), true);
+  assert.equal(pilotWorkflow.strictTreeFiles(f.root).includes('animation-receipt.v1.json'), true);
+  assert.equal(pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options).hasAnimationAuthorization, true);
+  assert.throws(() => pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs,
+    { ...options, executionLockPath: '' }), /PILOT02_STILL_RUN_FILE_SET_INVALID/);
+  fs.writeFileSync(lockPath, 'other-process\n');
+  assert.throws(() => pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options),
+    /PILOT02_EXECUTION_LOCK_NOT_OWNED/);
+  fs.unlinkSync(lockPath);
+});
+
+test('Pilot-02 finalizes the approved route without provider, ledger, media or Stage04 changes and remains disposable', async t => {
+  const f = await makePilot02CompletedFixture(t);
+  const stage04Sentinel = path.join(f.base, 'stage04-promoted-file-sentinel');
+  fs.writeFileSync(stage04Sentinel, 'immutable Stage04 fixture');
+  const stage04Hash = sha(fs.readFileSync(stage04Sentinel));
+  const ledgerPath = path.join(f.root, 'request-ledger.jsonl'), ledgerBefore = fs.readFileSync(ledgerPath);
+  const rawPath = path.join(f.root, 'ACT3_B005-animation-provider-output.bin');
+  const fittedPath = path.join(f.root, 'ACT3_B005-animation-30fps-110f.mp4');
+  const rawBefore = sha(fs.readFileSync(rawPath)), fittedBefore = sha(fs.readFileSync(fittedPath));
+  const receipt = f.finalWorkflow.finalize();
+  assert.equal(receipt.status, 'PILOT_VALIDATED_DISPOSABLE_NOT_PRODUCTION');
+  assert.equal(receipt.humanDecision, 'APPROVED_FOR_PILOT_VALIDATION_ONLY');
+  assert.equal(receipt.productionReadiness, 'REJECTED');
+  assert.equal(receipt.providerRequestCount, 2);
+  assert.equal(receipt.requestLedgerSha256BeforeFinalize, sha(ledgerBefore));
+  assert.equal(receipt.requestLedgerSha256AfterFinalize, sha(ledgerBefore));
+  assert.equal(receipt.bindings.humanValidationApprovalSha256, f.finalizationPins.humanValidationApprovalSha256);
+  assert.equal(receipt.bindings.motionPolicyProposalSha256, f.finalizationPins.motionPolicyProposalSha256);
+  assert.equal(sha(fs.readFileSync(ledgerPath)), sha(ledgerBefore));
+  assert.equal(f.calls.length, 2, 'finalization performs no third provider call');
+  assert.equal(sha(fs.readFileSync(rawPath)), rawBefore);
+  assert.equal(sha(fs.readFileSync(fittedPath)), fittedBefore);
+  assert.equal(sha(fs.readFileSync(stage04Sentinel)), stage04Hash);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+  const manifest = JSON.parse(fs.readFileSync(path.join(f.root, 'pilot-asset-manifest.v1.json')));
+  assert.equal(manifest.assetClass, 'NON_PRODUCTION_DISPOSABLE_PILOT');
+  assert.equal(manifest.productionReadiness, 'REJECTED');
+  assert.equal(manifest.entries.length, 3);
+  assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia(manifest), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
+  const indexBytes = fs.readFileSync(path.join(f.root, 'pilot-package-index.v1.json'));
+  const index = JSON.parse(indexBytes);
+  assert.equal(index.status, 'PILOT_VALIDATED_DISPOSABLE_NOT_PRODUCTION');
+  for (const item of index.files) {
+    const bytes = fs.readFileSync(path.join(f.root, ...item.path.split('/')));
+    assert.equal(bytes.length, item.bytes, item.path);
+    assert.equal(sha(bytes), item.sha256, item.path);
+  }
+  const indexedSet = new Set(index.files.map(item => item.path));
+  assert.equal(indexedSet.has('generate-animation-failure-receipt.json'), true);
+  assert.equal(indexedSet.has('finalize-failure-receipt.json'), true);
+  const snapshot = index.files.map(item => [item.path, sha(fs.readFileSync(path.join(f.root, ...item.path.split('/'))))]);
+  assert.throws(() => f.finalWorkflow.finalize(), /PILOT_RUN_ALREADY_COMPLETE/);
+  assert.deepEqual(index.files.map(item => [item.path, sha(fs.readFileSync(path.join(f.root, ...item.path.split('/'))))]), snapshot);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
+});
+
+test('Pilot-02 finalization rejects altered receipts, unknown files, changed media and changed ledger', async t => {
+  const alteredFailure = await makePilot02CompletedFixture(t);
+  const failurePath = path.join(alteredFailure.root, 'finalize-failure-receipt.json');
+  fs.appendFileSync(failurePath, 'altered');
+  assert.throws(() => alteredFailure.finalWorkflow.finalize(), /PILOT02_FINALIZE_FAILURE_RECEIPT_INVALID/);
+  assert.equal(fs.existsSync(path.join(alteredFailure.root, 'pilot.lock')), false);
+  assert.equal(fs.existsSync(path.join(alteredFailure.root, 'pilot-package-index.v1.json')), false);
+
+  const alteredAnimationFailure = await makePilot02CompletedFixture(t);
+  fs.appendFileSync(path.join(alteredAnimationFailure.root, 'generate-animation-failure-receipt.json'), 'altered');
+  assert.throws(() => alteredAnimationFailure.finalWorkflow.finalize(), /PILOT02_ANIMATION_FAILURE_RECEIPT_INVALID/);
+  assert.equal(fs.existsSync(path.join(alteredAnimationFailure.root, 'pilot.lock')), false);
+
+  const unknown = await makePilot02CompletedFixture(t);
+  fs.writeFileSync(path.join(unknown.root, 'unexpected.txt'), 'no');
+  assert.throws(() => unknown.finalWorkflow.finalize(), /PILOT02_STILL_RUN_FILE_SET_INVALID/);
+  assert.equal(fs.existsSync(path.join(unknown.root, 'pilot.lock')), false);
+
+  const alteredMedia = await makePilot02CompletedFixture(t);
+  fs.appendFileSync(path.join(alteredMedia.root, 'ACT3_B005-animation-provider-output.bin'), 'changed');
+  assert.throws(() => alteredMedia.finalWorkflow.finalize(), /PILOT02_FINAL_OUTPUT_HASH_MISMATCH/);
+  assert.equal(fs.existsSync(path.join(alteredMedia.root, 'pilot.lock')), false);
+
+  const alteredLedger = await makePilot02CompletedFixture(t);
+  fs.appendFileSync(path.join(alteredLedger.root, 'request-ledger.jsonl'), 'tampered\n');
+  assert.throws(() => alteredLedger.finalWorkflow.finalize(), /PILOT_LEDGER_INVALID_LINE/);
+  assert.equal(fs.existsSync(path.join(alteredLedger.root, 'pilot.lock')), false);
 });
 
 test('Pilot-02 media fit deterministically trims to 110 frames at 30 fps and fails if source coverage is short', t => {

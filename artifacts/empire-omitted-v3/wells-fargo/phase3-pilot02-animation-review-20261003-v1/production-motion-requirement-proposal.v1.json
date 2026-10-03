@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "phase3-proposed-animation-motion-policy/1.0.0",
+  "status": "PROPOSED_UNSIGNED_NOT_APPLIED",
+  "appliesTo": {"project":"Empire Omitted V3", "beatId":"ACT3_B005", "prospectiveProductionGenerationAndReview":true},
+  "pilotObservation": "MINOR_MOTION_DEVIATION: card was slightly lifted/carried during part of the handoff.",
+  "positiveMotionRequirement": "The customer slides the card horizontally across the desk. The card remains flat, face-up, and in continuous contact with the wood surface throughout the movement. The card must not be lifted, carried, tilted, flipped, or allowed to hover. The customer’s fingertips guide the card along the desk while the banker begins typing. Camera and framing remain locked.",
+  "negativeMotionRequirement": "card lifting, card carried through the air, card hovering, card tilted upward, card flipping, card leaving desk surface, exaggerated hand motion, changed card design, text, logos, face reveal, camera motion, hand deformation, flicker, or morphing",
+  "productionReviewGate": ["Reject if the card visibly separates from the desk.", "Reject if it is carried rather than slid.", "Reject if it tilts or flips materially.", "Reject if the card design changes.", "Reject if hands deform or lose plausible contact.", "Reject if the intended handoff or banker typing becomes unclear."],
+  "fallback": "If exact surface contact is editorially essential and a generative result fails this gate, route the shot to deterministic/keyframed animation rather than repeatedly prompting the provider.",
+  "approval": "Not approved or applied by the pilot-validation decision."
+}
