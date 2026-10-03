@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "phase3-media-pilot-animation-extension-human-approval/1.0.0",
+  "status": "APPROVED_FOR_PLANNING_AND_IMPLEMENTATION_ONLY",
+  "decision": "APPROVED_FOR_PLANNING_AND_IMPLEMENTATION_ONLY",
+  "reviewer": "Yakubu Moshood",
+  "approvalDate": "2026-10-03",
+  "packageId": "phase3-media-pilot-animation-extension-20261003-v1",
+  "bindings": {
+    "packageIndexSha256": "00969089236256818908bc82174f6263e690958e65769e3afead39ce1e6bec26",
+    "indexedFiles": [
+      {
+        "path": "animation-extension-proposal.v1.json",
+        "bytes": 11033,
+        "sha256": "618171f7b3c7d65e351d515fb40f64272ca1dcd10597b17c60ce50b8bd6a6bb3"
+      },
+      {
+        "path": "animation-extension-review.v1.md",
+        "bytes": 6443,
+        "sha256": "fa2a0fe76faf6277a65c4efc841cc8afe863e0c0d77bd99af1b988a911db094e"
+      },
+      {
+        "path": "cost-risk-report.v1.json",
+        "bytes": 2771,
+        "sha256": "a16fbcd7aaee5f8bea0c22aa45d68fe8606e45985f6e427b9d92b3d7cf1aaa73"
+      },
+      {
+        "path": "dependency-binding-report.v1.json",
+        "bytes": 3995,
+        "sha256": "da4754787b3e936a745dce0eaf21c9d2ffebb967991f715ffd1d5593ebc17cf3"
+      },
+      {
+        "path": "unsigned-approval-proposal.v1.json",
+        "bytes": 1595,
+        "sha256": "aec3c47fef2c019e45ee22396a41a6f91f2da4ae7110db7d7a540bfed123cce7"
+      }
+    ],
+    "requestKey": "d49253e9ff98d254350a13929d56488a05b7a3b2a28a76b8c8b75d0b9ab318b1",
+    "pilotRunId": "phase3-media-pilot-02",
+    "beatId": "ACT3_B005",
+    "scope": "ANIMATION_ONLY",
+    "approvedStillSha256": "34dbcf51e05f01eee0f4801202044b026a9b96c1ce07ee8efc15b45cbee57ac6",
+    "stillApprovalSha256": "67e77312141d81e18c663275a285b0dfe377233e4d60cafb79d57457fc526ab4",
+    "stillAuthorizationSha256": "7d2623a1ba47fd37796afc32e08f94638a70e7a60089dbb4e9f016f13dd80eee",
+    "currentLedgerSha256": "d6622e86ddcb0ea2bedb5418a9295434f70f34348f63836f5d6b77e2a3ec6278",
+    "pilot02PackageIndexSha256": "e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6",
+    "planningApprovalSha256": "7569cf6f75807f256fa760d53a0fa28311cf98d41ecd572e18b96ca2920b90f9",
+    "pilot01RejectionSha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8"
+  },
+  "proposedExposure": {
+    "animationMaximumUsd": 0.25,
+    "executionAuthorized": false,
+    "providerEnforced": false
+  },
+  "executionSignature": "",
+  "providerAuthorization": "",
+  "executionAuthorized": false,
+  "providerExecutionDenied": true,
+  "explicitProhibitions": {
+    "providerExecution": true,
+    "providerRequests": true,
+    "retry": true,
+    "fallback": true,
+    "animationExecutionAuthorizationCreation": true,
+    "candidateUse": true,
+    "candidateReconstruction": true,
+    "promotion": true,
+    "rendering": true,
+    "distribution": true,
+    "episodeRootWrites": true
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "phase3-media-pilot-animation-extension-package-index/1.0.0",
+  "packageId": "phase3-media-pilot-animation-extension-20261003-v1",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "selfHashExcluded": true,
+  "fileCount": 5,
+  "files": [
+    {
+      "path": "animation-extension-proposal.v1.json",
+      "bytes": 11033,
+      "sha256": "618171f7b3c7d65e351d515fb40f64272ca1dcd10597b17c60ce50b8bd6a6bb3"
+    },
+    {
+      "path": "animation-extension-review.v1.md",
+      "bytes": 6443,
+      "sha256": "fa2a0fe76faf6277a65c4efc841cc8afe863e0c0d77bd99af1b988a911db094e"
+    },
+    {
+      "path": "cost-risk-report.v1.json",
+      "bytes": 2771,
+      "sha256": "a16fbcd7aaee5f8bea0c22aa45d68fe8606e45985f6e427b9d92b3d7cf1aaa73"
+    },
+    {
+      "path": "dependency-binding-report.v1.json",
+      "bytes": 3995,
+      "sha256": "da4754787b3e936a745dce0eaf21c9d2ffebb967991f715ffd1d5593ebc17cf3"
+    },
+    {
+      "path": "unsigned-approval-proposal.v1.json",
+      "bytes": 1595,
+      "sha256": "aec3c47fef2c019e45ee22396a41a6f91f2da4ae7110db7d7a540bfed123cce7"
+    }
+  ]
+}

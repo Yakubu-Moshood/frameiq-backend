@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "phase3-media-pilot-cost-risk-report/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "provider": "fal.ai",
+  "endpoint": "fal-ai/framepack",
+  "publishedPriceUsdPerGeneratedSecond": 0.0333,
+  "priceVerifiedDate": "2026-10-03",
+  "priceSource": "https://fal.ai/models/fal-ai/framepack",
+  "plannedSourceDurationSeconds": 5,
+  "estimatedAnimationChargeUsd": 0.1665,
+  "proposedHumanAcceptedMaximumForAnimationUsd": 0.25,
+  "providerEnforcedCap": false,
+  "maximumIsProviderEnforced": false,
+  "pilotSubmissionBudget": {
+    "maximum": 2,
+    "completedStill": 1,
+    "proposedAnimation": 1,
+    "remainingAfterProposal": 0
+  },
+  "combinedCost": {
+    "stillPublishedEstimateUsd": 0.024,
+    "animationEstimateUsd": 0.1665,
+    "expectedTotalUsd": 0.1905,
+    "previousStillAcceptedExposureUsd": 0.05,
+    "proposedCombinedHumanAcceptedMaximumUsd": 0.30,
+    "note": "The still's actual charge is not inferred; use the existing Pilot-02 terminal ledger result. Human-accepted values are review limits only and are not enforced by fal."
+  },
+  "risks": [
+    { "id": "PRICE_NOT_CAPPED", "severity": "HIGH", "detail": "The model page lists per-second billing but no provider-enforced request spending cap. Actual duration/charge can differ from target." },
+    { "id": "DURATION_NOT_INPUT", "severity": "HIGH", "detail": "The official schema takes num_frames but does not take requested duration or FPS; five seconds is a target, not a guaranteed output property." },
+    { "id": "OUTPUT_PROPERTIES_UNRESOLVED", "severity": "HIGH", "detail": "Container, codec, dimensions, FPS, frame count, actual duration and audio stream must be probed." },
+    { "id": "OWNERSHIP_UNRESOLVED", "severity": "HIGH", "detail": "Commercial-use labeling is not treated as an ownership grant. Separate request-specific human risk acceptance is required." },
+    { "id": "MOTION_FIDELITY", "severity": "MEDIUM", "detail": "Card continuity, natural hand motion, banker typing, static framing and absence of morphing require human inspection." },
+    { "id": "NO_RETRY", "severity": "MEDIUM", "detail": "A failed or ambiguous submission consumes the sole proposed animation slot; no retry or fallback." }
+  ],
+  "stopConditions": [
+    "Do not submit without separate signed ANIMATION_ONLY authorization and a one-request reservation.",
+    "Stop before submission if verified current pricing, endpoint, model or parameters drift from this package.",
+    "Stop if actual charge information exceeds the separately accepted exposure.",
+    "Stop without retry if submission fails or its outcome is ambiguous.",
+    "Reject invalid media or any unresolved technical metadata.",
+    "Keep output isolated and permanently ineligible for production readiness."
+  ]
+}

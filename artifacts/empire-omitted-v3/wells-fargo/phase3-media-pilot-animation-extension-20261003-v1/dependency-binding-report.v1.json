@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "phase3-media-pilot-dependency-binding-report/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "dependencyOrder": [
+    { "order": 1, "item": "Pilot-02 still generation", "status": "COMPLETED", "requestCount": 1, "sha256": "34dbcf51e05f01eee0f4801202044b026a9b96c1ce07ee8efc15b45cbee57ac6" },
+    { "order": 2, "item": "Pilot-02 human still approval", "status": "APPROVED", "sha256": "67e77312141d81e18c663275a285b0dfe377233e4d60cafb79d57457fc526ab4" },
+    { "order": 3, "item": "Human approval of this animation extension and ownership-risk disposition", "status": "PENDING", "requestCount": 0 },
+    { "order": 4, "item": "Future separate ANIMATION_ONLY authorization for exact request key", "status": "NOT_CREATED", "requestCount": 0 },
+    { "order": 5, "item": "Single animation provider submission", "status": "PROPOSED_NOT_EXECUTED", "requestCount": 1, "requestKey": "d49253e9ff98d254350a13929d56488a05b7a3b2a28a76b8c8b75d0b9ab318b1" },
+    { "order": 6, "item": "Technical media inspection and deterministic 30-fps fitting", "status": "BLOCKED_UNTIL_VALID_PROVIDER_RESULT_AND_REVIEW", "requestCount": 0 }
+  ],
+  "bindings": {
+    "pilotRunId": "phase3-media-pilot-02",
+    "beatId": "ACT3_B005",
+    "approvedStillSha256": "34dbcf51e05f01eee0f4801202044b026a9b96c1ce07ee8efc15b45cbee57ac6",
+    "stillApprovalSha256": "67e77312141d81e18c663275a285b0dfe377233e4d60cafb79d57457fc526ab4",
+    "stillAuthorizationSha256": "7d2623a1ba47fd37796afc32e08f94638a70e7a60089dbb4e9f016f13dd80eee",
+    "currentPilot02LedgerSha256": "d6622e86ddcb0ea2bedb5418a9295434f70f34348f63836f5d6b77e2a3ec6278",
+    "existingPilot02PackageIndexSha256": "e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6",
+    "pilot02PlanningApprovalSha256": "7569cf6f75807f256fa760d53a0fa28311cf98d41ecd572e18b96ca2920b90f9",
+    "pilot01RejectionSha256": "15b777e131233cf0d99e281b837013c6346f2ad335fc968f5417cb29ab40bde8",
+    "pilot02CandidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "act3B005EditPlanSha256": "9c2efb64c6cacfde55c4fb5492fdc9b5cff448bb907aa8aad629b3cd3f2ad02d",
+    "act3B005Timing": {
+      "startSec": 224.83598745776368,
+      "endSec": 228.4959873051758,
+      "durationSec": 3.6599998474121094,
+      "startWordIndex": 23,
+      "endWordIndex": 33,
+      "fps": 30,
+      "frameCount": 110,
+      "roundingMethod": "Math.round(durationSec * 30)"
+    }
+  },
+  "sourceVerification": [
+    { "source": "local committed v2 candidate package", "result": "PASS", "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac", "indexedFilesVerified": 150, "editPlanSha256": "9c2efb64c6cacfde55c4fb5492fdc9b5cff448bb907aa8aad629b3cd3f2ad02d" },
+    { "source": "existing Pilot-02 proposal package", "result": "PASS", "packageIndexSha256": "e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6", "indexedFilesVerified": 4, "planningApprovalSha256": "7569cf6f75807f256fa760d53a0fa28311cf98d41ecd572e18b96ca2920b90f9" },
+    { "source": "approved local still review copy", "result": "PASS", "path": "C:/Users/dyaky/.codex/visualizations/2026/09/19/01a0bb6b-982a-7370-9251-9b3b5c4b8e4e/pilot02-ACT3_B005-still-verified-34dbcf51.png", "bytes": 1310934, "sha256": "34dbcf51e05f01eee0f4801202044b026a9b96c1ce07ee8efc15b45cbee57ac6" },
+    { "source": "live Pilot-02 ledger hash", "result": "BOUND_AS_USER_SUPPLIED; NOT_RETRIEVED_OR_CHANGED", "sha256": "d6622e86ddcb0ea2bedb5418a9295434f70f34348f63836f5d6b77e2a3ec6278" },
+    { "source": "official provider model and price documentation", "result": "VERIFIED_READ_ONLY", "checkedAt": "2026-10-03", "modelPage": "https://fal.ai/models/fal-ai/framepack", "apiSchema": "https://fal.ai/models/fal-ai/framepack/api" }
+  ],
+  "pilotWideRequestAccounting": {
+    "limit": 2,
+    "alreadyCompleted": 1,
+    "proposed": 1,
+    "totalIfAuthorized": 2,
+    "additionalRequestsAllowedAfterThis": 0,
+    "retries": 0,
+    "fallbacks": 0
+  }
+}

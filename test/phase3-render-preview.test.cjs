@@ -208,12 +208,55 @@ function pilot02Authorization(planning, overrides = {}) {
     authorizedRequests: [authorizedRequest], ...overrides,
   };
 }
+function pilot02AnimationAuthorization(planning, stillApproval, stillApprovalSha256, overrides = {}) {
+  const request = planning.animation;
+  return {
+    schemaVersion: pilotWorkflow.SCHEMAS.authorization, status: 'AUTHORIZED_FOR_EXECUTION',
+    decision: 'AUTHORIZED_FOR_EXECUTION', approvedBy: 'Yakubu Moshood', approvalRef: 'test-animation-only',
+    executionSignature: 'test-only', providerAuthorization: 'test-only', pilotRunId: pilotWorkflow.PILOT02.runId,
+    beatId: 'ACT3_B005', scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION', requestKey: request.requestKey,
+    authorizedAt: new Date(Date.parse(stillApproval.decidedAt) + 1000).toISOString(), maxProviderSubmissions: 1,
+    noRetry: true, noFallback: true, animationAuthorityGranted: true,
+    outputClassification: 'NON_PRODUCTION_DISPOSABLE_PILOT', productionUseProhibited: true,
+    candidateReconstructionProhibited: true, promotionProhibited: true, renderingProhibited: true,
+    normalProductionAssetReadiness: 'REJECTED', ownershipDisposition: 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_PILOT_ONLY',
+    nonProductionRiskAcceptance: { accepted: true, acceptedBy: 'Yakubu Moshood', outputClassification: 'NON_PRODUCTION_DISPOSABLE_PILOT',
+      productionUseProhibited: true, candidateReconstructionProhibited: true, promotionProhibited: true, renderingProhibited: true,
+      normalProductionAssetReadiness: 'REJECTED', falTermsOwnershipStatement: 'FAL_TERMS_DO_NOT_CLEARLY_ASSIGN_GENERATED_OUTPUT_OWNERSHIP',
+      limitedToPilotRun: pilotWorkflow.PILOT02.runId, limitedToRequestKey: request.requestKey,
+      noRightsConclusionFromCommercialUseLabel: true },
+    priceCheckedAt: '2026-10-03T00:00:00.000Z',
+    priceAssumptions: { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08', animationUsdPerSecond: 0.0333,
+      proposedCapUsd: 0.25, capProviderEnforced: false },
+    animationExposureAcceptance: { acceptedBy: 'Yakubu Moshood', requestKey: request.requestKey,
+      publishedRateUsdPerGeneratedSecond: 0.0333, maximumAcceptedExposureUsd: 0.25,
+      providerEnforcedMaximumCharge: false, exposureIsHumanAcceptedOnly: true },
+    bindings: { editorialApprovalSha256: planning.approvalSha256, pilotProposalSha256: planning.proposalSha256,
+      v5PackageIndexSha256: planning.v5IndexSha256, pilotPackageIndexSha256: planning.pilotIndexSha256,
+      pilotRunId: pilotWorkflow.PILOT02.runId, scope: 'ANIMATION_ONLY', requestKey: request.requestKey, beatId: 'ACT3_B005',
+      repromptApprovalSha256: planning.repromptApprovalSha256, priorRejectionRecordSha256: pilotWorkflow.PILOT02.rejection,
+      priorRejectedStillSha256: pilotWorkflow.PILOT02.rejectedStill, pilot02PackageIndexSha256: pilotWorkflow.PILOT02.packageIndex,
+      stillSha256: pilotWorkflow.PILOT02.approvedStill, stillApprovalSha256,
+      stillAuthorizationSha256: pilotWorkflow.PILOT02.stillAuthorization, stillRequestKey: pilotWorkflow.PILOT02.requestKey,
+      currentPilotLedgerSha256: pilotWorkflow.PILOT02.currentLedger,
+      animationExtensionPackageIndexSha256: pilotWorkflow.PILOT02_EXTENSION.packageIndex,
+      animationExtensionProposalSha256: pilotWorkflow.PILOT02_EXTENSION.proposal,
+      animationExtensionApprovalSha256: '4b2a72062a0defd1c945a413995c5108d0a2d5fd8ea64af1f5b3f7927e312047' },
+    authorizedRequests: [{ requestKey: request.requestKey, provider: request.provider, model: request.model,
+      endpointId: request.endpointId, parameters: request.parameters, prompt: request.prompt, negativePrompt: request.negativePrompt }],
+    ...overrides,
+  };
+}
 function makePilot02Fixture({ provider, packageDir = PILOT02_DIR, approvalPath = PILOT02_APPROVAL } = {}) {
   const base = tempRoot(), root = path.join(base, pilotWorkflow.PILOT02.runId);
   const pins = { ...pilotWorkflow.TRUST, runId: pilotWorkflow.PILOT02.runId };
   const planning = pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, editorialApprovalPath: EDITORIAL_APPROVAL,
     pilotDir: packageDir, pins });
-  const authorization = pilot02Authorization(planning);
+  const animationPackage = path.join(path.dirname(PILOT02_DIR), 'phase3-media-pilot-animation-extension-20261003-v1');
+  const animationApproval = path.join(path.dirname(animationPackage), 'phase3-media-pilot-animation-extension-20261003-v1-human-approval.v1.json');
+  const fullPlanning = pilotWorkflow.verifyPilot02AnimationExtension(planning,
+    { extensionDir: animationPackage, extensionApprovalPath: animationApproval });
+  const authorization = pilot02Authorization(fullPlanning);
   const authorizationBytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
   fs.mkdirSync(root); fs.writeFileSync(path.join(root, 'still-execution-authorization.v1.json'), authorizationBytes);
   const calls = [];
@@ -221,8 +264,10 @@ function makePilot02Fixture({ provider, packageDir = PILOT02_DIR, approvalPath =
     return { bytes: pilotPng(), contentType: 'image/png', actualChargeUsd: 0.024 }; } };
   const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: packageDir,
     editorialApprovalPath: EDITORIAL_APPROVAL, pins, enforcePilot01Rejection: true, provider: providerImpl,
+    extensionDir: animationPackage, extensionApprovalPath: animationApproval,
     expectedAuthorizationSha256: sha(authorizationBytes), now: () => new Date('2026-10-02T12:00:00.000Z') });
-  return { base, root, planning, authorization, authorizationBytes, workflow, calls, approvalPath };
+  return { base, root, planning: fullPlanning, authorization, authorizationBytes, workflow, calls, approvalPath,
+    animationPackage, animationApproval };
 }
 function attachAnimationAuthorization(f) {
   const stillPath = path.join(f.root, 'ACT3_B005-still.png'), approvalPath = path.join(f.root, 'still-approval.v1.json');
@@ -1681,9 +1726,11 @@ test('pilot-02 v2 approval and rejection bindings pass read-only preflight witho
   const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR,
     editorialApprovalPath: EDITORIAL_APPROVAL, pilotDir: PILOT02_DIR, pins });
   const result = workflow.preflight();
-  assert.equal(result.status, 'PILOT_PREFLIGHT_PASS_PLANNING_ONLY');
-  assert.equal(result.providerSubmissionsMaximum, 1);
-  assert.deepEqual(result.requestKeys, [pilotWorkflow.PILOT02.requestKey]);
+  assert.equal(result.status, 'PILOT_PREFLIGHT_PASS_ANIMATION_PLANNING_READY_EXECUTION_UNAUTHORIZED');
+  assert.equal(result.executionAuthorized, false);
+  assert.equal(result.providerSubmissionsMaximum, 2);
+  assert.deepEqual(result.requestKeys, [pilotWorkflow.PILOT02.requestKey, pilotWorkflow.PILOT02_EXTENSION.requestKey]);
+  assert.equal(result.sourceBindings.animationExtensionPackageIndexSha256, pilotWorkflow.PILOT02_EXTENSION.packageIndex);
   assert.equal(fs.existsSync(root), false);
   assert.equal(fs.existsSync(path.join(root, 'pilot.lock')), false);
 });
@@ -1713,6 +1760,72 @@ test('pilot-02 planning fails closed on a missing or altered rejection record, p
   assert.throws(verify, /PILOT02_HUMAN_APPROVAL_HASH_MISMATCH/);
 });
 
+test('Pilot-02 animation extension package and detached planning approval verify as immutable inputs', t => {
+  const f = makePilotReadOnlyFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const planning = pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, editorialApprovalPath: EDITORIAL_APPROVAL,
+    pilotDir: PILOT02_DIR, pins: { ...pilotWorkflow.TRUST, runId: pilotWorkflow.PILOT02.runId } });
+  const extensionDir = path.join(path.dirname(PILOT02_DIR), 'phase3-media-pilot-animation-extension-20261003-v1');
+  const approvalPath = path.join(path.dirname(extensionDir), 'phase3-media-pilot-animation-extension-20261003-v1-human-approval.v1.json');
+  const extension = pilotWorkflow.verifyPilot02AnimationExtension(planning, { extensionDir, extensionApprovalPath: approvalPath });
+  assert.equal(extension.animation.requestKey, pilotWorkflow.PILOT02_EXTENSION.requestKey);
+  assert.equal(extension.animation.sourceStillSha256, pilotWorkflow.PILOT02.approvedStill);
+  assert.equal(extension.animationExtension.packageIndexSha256, pilotWorkflow.PILOT02_EXTENSION.packageIndex);
+  assert.equal(fs.existsSync(f.root), false);
+  const copy = path.join(f.base, 'altered-extension'); fs.cpSync(extensionDir, copy, { recursive: true });
+  fs.writeFileSync(path.join(copy, 'animation-extension-proposal.v1.json'), 'altered');
+  assert.throws(() => pilotWorkflow.verifyPilot02AnimationExtension(planning,
+    { extensionDir: copy, extensionApprovalPath: approvalPath }), /PILOT_INDEX_FILE_MISMATCH/);
+  const approvalCopy = path.join(f.base, 'altered-approval.json'); fs.writeFileSync(approvalCopy, 'altered');
+  assert.throws(() => pilotWorkflow.verifyPilot02AnimationExtension(planning,
+    { extensionDir, extensionApprovalPath: approvalCopy }), /PILOT02_ANIMATION_EXTENSION_APPROVAL_HASH_MISMATCH/);
+});
+
+test('Pilot-02 animation authorization is separate, post-approval, still-bound and one-request only', t => {
+  const f = makePilot02Fixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const approval = { decision: 'APPROVED', decidedAt: '2026-10-03T12:00:00.000Z' };
+  const approvalSha256 = 'd'.repeat(64), auth = pilot02AnimationAuthorization(f.planning, approval, approvalSha256);
+  const bytes = Buffer.from(`${JSON.stringify(auth, null, 2)}\n`);
+  const authPath = path.join(f.root, 'animation-execution-authorization.v1.json'); fs.writeFileSync(authPath, bytes);
+  const context = { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION', stillSha256: pilotWorkflow.PILOT02.approvedStill,
+    stillApprovalSha256: approvalSha256, stillApprovalDecidedAt: approval.decidedAt };
+  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context);
+  assert.equal(loaded.scope, 'ANIMATION_ONLY');
+  assert.equal(loaded.record.maxProviderSubmissions, 1);
+  assert.deepEqual(loaded.record.authorizedRequests.map(item => item.requestKey), [pilotWorkflow.PILOT02_EXTENSION.requestKey]);
+  for (const altered of [
+    { ...auth, authorizedRequests: [...auth.authorizedRequests, auth.authorizedRequests[0]] },
+    { ...auth, maxProviderSubmissions: 2 },
+    { ...auth, requestKey: pilotWorkflow.PILOT02.requestKey },
+    { ...auth, authorizedAt: '2026-10-03T11:59:59.000Z' },
+    { ...auth, bindings: { ...auth.bindings, stillSha256: '0'.repeat(64) } },
+    { ...auth, animationExposureAcceptance: { ...auth.animationExposureAcceptance, providerEnforcedMaximumCharge: true } },
+  ]) {
+    const changed = Buffer.from(`${JSON.stringify(altered, null, 2)}\n`); fs.writeFileSync(authPath, changed);
+    assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(changed), context),
+      /PILOT_AUTHORIZED_REQUEST_COUNT_INVALID|PILOT_EXECUTION_LIMITS_INVALID|PILOT_AUTHORIZATION_SCOPE_BINDING_MISMATCH|PILOT_ANIMATION_AUTHORIZATION_STILL_BINDING_INVALID|PILOT02_ANIMATION_AUTHORIZATION_BINDING_INVALID|PILOT02_ANIMATION_EXPOSURE_ACCEPTANCE_INVALID/);
+  }
+});
+
+test('Pilot-02 media fit deterministically trims to 110 frames at 30 fps and fails if source coverage is short', t => {
+  const dir = tempRoot(), input = path.join(dir, 'provider.bin'), output = path.join(dir, 'fit.mp4'), temp = `${output}.tmp.mp4`;
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true })); fs.writeFileSync(input, 'provider video');
+  let probes = 0, ffmpegCalls = 0;
+  const ffprobe = () => { probes += 1; return probes === 1
+    ? { container: 'mov,mp4', durationSeconds: 5, bytes: 100, video: { codec: 'h264', width: 640, height: 360,
+      frameRate: '30/1', frameCount: 150 }, audioStreams: [] }
+    : { container: 'mov,mp4', durationSeconds: 110 / 30, bytes: 80, video: { codec: 'h264', width: 640, height: 360,
+      frameRate: '30/1', frameCount: 110 }, audioStreams: [] }; };
+  const fit = pilotWorkflow.normalizeAnimation({ sourcePath: input, outputPath: output, temporaryOutputPath: temp,
+    ffprobe, ffmpeg: (_bin, args) => { ffmpegCalls += 1; fs.writeFileSync(args.at(-1), 'normalized video'); return { status: 0 }; } });
+  assert.equal(ffmpegCalls, 1); assert.equal(fit.fitted.video.frameCount, 110); assert.match(fit.args.join(' '), /fps=30.*-frames:v 110/u);
+  assert.equal(fs.existsSync(output), true); assert.equal(fs.existsSync(temp), false);
+  const shortOutput = path.join(dir, 'short.mp4'), shortTemp = `${shortOutput}.tmp.mp4`;
+  assert.throws(() => pilotWorkflow.normalizeAnimation({ sourcePath: input, outputPath: shortOutput,
+    temporaryOutputPath: shortTemp, ffprobe: () => ({ video: { frameCount: 109 } }),
+    ffmpeg: () => { throw new Error('must not encode'); } }), /PILOT_ANIMATION_SOURCE_TOO_FEW_FRAMES/);
+  assert.equal(fs.existsSync(shortOutput), false); assert.equal(fs.existsSync(shortTemp), false);
+});
+
 test('pilot-02 accepts only its separate one-request authorization and keeps its run data isolated', async t => {
   const f = makePilot02Fixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
   const authPath = path.join(f.root, 'still-execution-authorization.v1.json');
@@ -1731,7 +1844,7 @@ test('pilot-02 accepts only its separate one-request authorization and keeps its
   const ledger = pilotWorkflow.readLedger(path.join(f.root, 'request-ledger.jsonl'));
   assert.deepEqual(ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').map(row => row.requestKey), [pilotWorkflow.PILOT02.requestKey]);
   assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
-  await assert.rejects(f.workflow.generateAnimation(), /PILOT02_ANIMATION_NOT_AUTHORIZED/);
+  await assert.rejects(f.workflow.generateAnimation(), /PILOT_STILL_HUMAN_APPROVAL_REQUIRED/);
   assert.equal(f.calls.length, 1);
   assert.throws(() => v3AssetReadiness.assertNoDisposablePilotMedia({ assetClass: 'NON_PRODUCTION_DISPOSABLE_PILOT',
     assetPath: '/data/.review/phase3-media-pilots/phase3-media-pilot-02/ACT3_B005-still.png' }), /DISPOSABLE_PILOT_ASSET_FORBIDDEN/);
@@ -1750,12 +1863,13 @@ test('pilot-02 refuses pilot-01 request keys and output files', t => {
   const workflow = pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR,
     editorialApprovalPath: EDITORIAL_APPROVAL, pilotDir: PILOT02_DIR,
     pins: { ...pilotWorkflow.TRUST, runId: pilotWorkflow.PILOT02.runId } });
-  assert.throws(() => workflow.preflight(), /PILOT_PREFLIGHT_EXISTING_RUN_NOT_EMPTY/);
+  assert.throws(() => workflow.preflight(), /PILOT02_STILL_RUN_FILE_SET_INVALID/);
 });
 
-test('pilot-02 CLI permits only the new run and never grants animation scope', () => {
+test('pilot-02 CLI permits its isolated animation command but retains run-specific gates', () => {
   assert.equal(pilotWorkflow.parseCli(['--preflight', '--pilot-run-id', pilotWorkflow.PILOT02.runId]).mode, '--preflight');
   assert.equal(pilotWorkflow.parseCli(['--preflight', '--pilot-run-id', pilotWorkflow.TRUST.runId]).mode, '--preflight');
-  assert.throws(() => pilotWorkflow.parseCli(['--generate-animation', '--pilot-run-id', pilotWorkflow.PILOT02.runId,
-    '--expected-execution-authorization-sha256', 'a'.repeat(64)]), /PILOT02_OPERATION_OUT_OF_SCOPE/);
+  assert.equal(pilotWorkflow.parseCli(['--generate-animation', '--pilot-run-id', pilotWorkflow.PILOT02.runId,
+    '--expected-execution-authorization-sha256', 'a'.repeat(64)]).mode, '--generate-animation');
+  assert.equal(pilotWorkflow.parseCli(['--finalize', '--pilot-run-id', pilotWorkflow.PILOT02.runId]).mode, '--finalize');
 });
