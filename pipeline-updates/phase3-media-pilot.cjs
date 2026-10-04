@@ -652,7 +652,8 @@ function assertPilot02AnimationSubmissionEligible(ledger, planning) {
 }
 function validatePilot02StillState(root, planning, fsImpl = fs,
   { allowAnimationResults = false, animationAuthorizationSha256 = '', executionLockPath = '',
-    allowFinalizeFailureReceipt = false, finalizationPins = PILOT02_FINALIZATION } = {}) {
+    allowFinalizeFailureReceipt = false, finalizationPins = PILOT02_FINALIZATION,
+    authorizationNow = () => new Date().toISOString() } = {}) {
   const fileSetLedger = readLedger(path.join(root, 'request-ledger.jsonl'), fsImpl);
   const runState = validatePilot02RunFileSet(root, planning, fsImpl,
     { allowAnimationResults, animationAuthorizationSha256, executionLockPath,
@@ -663,7 +664,8 @@ function validatePilot02StillState(root, planning, fsImpl = fs,
     const approvalPath = path.join(root, 'still-approval.v1.json'), approval = readJson(approvalPath, fsImpl);
     loadDetachedExecutionAuthorization(root, planning, fsImpl, animationAuthorizationSha256,
       { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION', stillSha256: PILOT02.approvedStill,
-        stillApprovalSha256: hash(fsImpl.readFileSync(approvalPath)), stillApprovalDecidedAt: approval.decidedAt });
+        stillApprovalSha256: hash(fsImpl.readFileSync(approvalPath)), stillApprovalDecidedAt: approval.decidedAt },
+      { now: authorizationNow });
   }
   const still = path.join(root, 'ACT3_B005-still.png'), stillAuth = path.join(root, 'still-execution-authorization.v1.json');
   const stillBytes = fsImpl.readFileSync(still), authBytes = fsImpl.readFileSync(stillAuth);
@@ -674,7 +676,7 @@ function validatePilot02StillState(root, planning, fsImpl = fs,
     && hash(fsImpl.readFileSync(path.join(root, 'inputs/still-execution-authorization.v1.json'))) === PILOT02.stillAuthorization,
   'PILOT02_STILL_AUTHORIZATION_INVALID');
   loadDetachedExecutionAuthorization(root, planning, fsImpl, PILOT02.stillAuthorization,
-    { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' });
+    { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' }, { now: authorizationNow });
   const receiptBytes = fsImpl.readFileSync(path.join(root, 'still-receipt.v1.json'));
   const inspectionBytes = fsImpl.readFileSync(path.join(root, 'still-inspection.v1.json'));
   const approvalBytes = fsImpl.readFileSync(path.join(root, 'still-approval.v1.json'));
@@ -774,7 +776,31 @@ function assertOwnershipDisposition(record) {
     && risk.noRightsConclusionFromCommercialUseLabel === true,
   'PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID');
 }
-function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha256, context = {}) {
+function strictUtcInstant(value, errorCode) {
+  fail(typeof value === 'string'
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u.test(value), errorCode);
+  const parsed = new Date(value);
+  fail(Number.isFinite(parsed.getTime()) && parsed.toISOString() === value, errorCode);
+  return parsed;
+}
+function validateAuthorizationPriceFreshness(record, { now = () => new Date().toISOString() } = {}) {
+  const checkedAt = strictUtcInstant(record.priceCheckedAt, 'PILOT_AUTHORIZATION_PRICE_TIMESTAMP_INVALID');
+  const currentAt = strictUtcInstant(typeof now === 'function' ? now() : now, 'PILOT_VALIDATION_CLOCK_INVALID');
+  const checkedDay = checkedAt.toISOString().slice(0, 10);
+  const currentDay = currentAt.toISOString().slice(0, 10);
+  if (record.pilotRunId === PILOT02.runId && record.scope === 'ANIMATION_ONLY') {
+    const expiry = Date.UTC(checkedAt.getUTCFullYear(), checkedAt.getUTCMonth(), checkedAt.getUTCDate() + 1);
+    // Animation pricing is valid only for the UTC calendar day on which it was checked.
+    // The following midnight is exclusive; future-dated checks are never accepted.
+    fail(checkedAt.getTime() <= currentAt.getTime() && currentAt.getTime() < expiry,
+      'PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED');
+  } else {
+    fail(checkedDay <= REQUESTS.still.promoEnds, 'PILOT_PRICE_ASSUMPTION_EXPIRED');
+    fail(currentDay <= REQUESTS.still.promoEnds, 'PILOT_PRICE_ASSUMPTION_EXPIRED');
+  }
+  return { checkedAt, currentAt };
+}
+function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha256, context = {}, clock = {}) {
   const scope = context.scope;
   const policy = AUTH_SCOPES[scope];
   fail(policy, 'PILOT_AUTHORIZATION_SCOPE_REQUIRED');
@@ -850,15 +876,7 @@ function loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha2
       'PILOT02_ANIMATION_AUTHORIZATION_BINDING_INVALID');
     }
   }
-  const asOf = new Date(record.priceCheckedAt || 'invalid');
-  if (runId === PILOT02.runId && scope === 'ANIMATION_ONLY') {
-    fail(Number.isFinite(asOf.getTime()) && asOf.toISOString().slice(0, 10) === new Date().toISOString().slice(0, 10),
-      'PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED');
-  } else {
-    fail(Number.isFinite(asOf.getTime()) && asOf.toISOString().slice(0, 10) <= REQUESTS.still.promoEnds,
-      'PILOT_PRICE_ASSUMPTION_EXPIRED');
-    fail(new Date().toISOString().slice(0, 10) <= REQUESTS.still.promoEnds, 'PILOT_PRICE_ASSUMPTION_EXPIRED');
-  }
+  validateAuthorizationPriceFreshness(record, clock);
   const requiredPriceAssumptions = { stillUsdPerImage: 0.024, stillPromotionEnds: '2026-10-08',
     animationUsdPerSecond: 0.0333, proposedCapUsd: 0.25, capProviderEnforced: false };
   fail(canonical(record.priceAssumptions) === canonical(requiredPriceAssumptions), 'PILOT_AUTHORIZED_PRICE_DRIFT');
@@ -1099,6 +1117,7 @@ function assertPilotAssetNotProduction(value, pointer = '$') {
 
 function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pilotDir, editorialApprovalPath,
   pins = TRUST, provider = null, downloader = downloadRemote, ffprobe = probeVideo, now = () => new Date(),
+  authorizationNow = () => new Date().toISOString(),
   expectedAuthorizationSha256 = '', planningVerifier = null, enforcePilot01Rejection = false,
   extensionDir = path.join(WELLS_ROOT, PILOT02_EXTENSION_NAME),
   extensionApprovalPath = path.join(WELLS_ROOT, PILOT02_EXTENSION_APPROVAL_NAME),
@@ -1223,7 +1242,7 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
             animationAuth = loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedAuthorizationSha256,
               { scope: 'ANIMATION_ONLY', operation: AUTH_SCOPES.ANIMATION_ONLY.operation,
                 stillSha256: stillApproval.stillSha256, stillApprovalSha256: hash(fsImpl.readFileSync(path.join(root, 'still-approval.v1.json'))),
-                stillApprovalDecidedAt: stillApproval.decidedAt });
+                stillApprovalDecidedAt: stillApproval.decidedAt }, { now: authorizationNow });
           }
           const hasAnimationResults = planning.runId === PILOT02.runId
             && fsImpl.existsSync(path.join(root, 'animation-receipt.v1.json'));
@@ -1231,7 +1250,7 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
             ? { animationAuthorizationSha256: animationAuth.sha256,
               ...(hasAnimationResults ? { allowAnimationResults: true,
                 allowFinalizeFailureReceipt: fsImpl.existsSync(path.join(root, 'finalize-failure-receipt.json')),
-                finalizationPins } : {}) }
+                finalizationPins } : {}), authorizationNow }
             : {});
           if (hasAnimationResults) {
             const documents = verifyPilot02FinalizationDocuments({ planning, fsImpl,
@@ -1247,7 +1266,7 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
           fail(canonical(existing) === canonical([AUTH_SCOPES.STILL_ONLY.file]) && expectedAuthorizationSha256,
             'PILOT_PREFLIGHT_EXISTING_RUN_NOT_EMPTY');
           const auth = loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedAuthorizationSha256,
-            { scope: 'STILL_ONLY', operation: AUTH_SCOPES.STILL_ONLY.operation });
+            { scope: 'STILL_ONLY', operation: AUTH_SCOPES.STILL_ONLY.operation }, { now: authorizationNow });
           authorizationStatus = `VERIFIED:${auth.sha256}`; executionAuthorized = true;
         }
       }
@@ -1301,7 +1320,8 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
       authorizationContext = { ...authorizationContext, stillSha256: hash(stillBytes),
         stillApprovalSha256: hash(fsImpl.readFileSync(approvalPath)), stillApprovalDecidedAt: approval.decidedAt };
     }
-    const auth = loadDetachedExecutionAuthorization(runRoot, planning, fsImpl, expectedAuthorizationSha256, authorizationContext);
+    const auth = loadDetachedExecutionAuthorization(runRoot, planning, fsImpl, expectedAuthorizationSha256,
+      authorizationContext, { now: authorizationNow });
     const existing = fsImpl.existsSync(runRoot) ? strictTreeFiles(runRoot, fsImpl) : [];
     if (stageExisting === 'still') {
       fail(canonical(existing) === canonical([policy.file]), 'PILOT_RUN_ALREADY_USED');
@@ -1451,7 +1471,7 @@ function createPilotWorkflow({ fsImpl = fs, root, expectedRoot = root, v5Dir, pi
       const animationAuthBytes = fsImpl.readFileSync(path.join(runRoot, AUTH_SCOPES.ANIMATION_ONLY.file));
       const state = pilot02StateVerifier(runRoot, planning, fsImpl,
         { allowAnimationResults: true, animationAuthorizationSha256: hash(animationAuthBytes),
-          executionLockPath: lockPath, allowFinalizeFailureReceipt: true, finalizationPins });
+          executionLockPath: lockPath, allowFinalizeFailureReceipt: true, finalizationPins, authorizationNow });
       (pilot02InputCopyIndexVerifier || verifyPilot02InputCopyIndexes)(planning);
     fail(hash(animationAuthBytes) === finalizationPins.animationAuthorizationSha256,
       'PILOT02_FINAL_ANIMATION_AUTHORIZATION_HASH_MISMATCH');

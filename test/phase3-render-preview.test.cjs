@@ -20,6 +20,19 @@ const PHASE3_PROFILE = require('../pipeline-updates/surface-renderer.cjs').PHASE
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 
 function tempRoot() { return fs.mkdtempSync(path.join(os.tmpdir(), 'eo-phase3-')); }
+function withFixedDate(iso, callback) {
+  const RealDate = global.Date;
+  const fixedTime = RealDate.parse(iso);
+  global.Date = class FixedDate extends RealDate {
+    constructor(...args) { super(...(args.length ? args : [fixedTime])); }
+    static now() { return fixedTime; }
+  };
+  try { return callback(); } finally { global.Date = RealDate; }
+}
+function loadTestAuthorization(root, planning, fsImpl, expectedSha256, context, clock = {}) {
+  return pilotWorkflow.loadDetachedExecutionAuthorization(root, planning, fsImpl, expectedSha256, context,
+    { now: () => '2026-10-03T12:00:00.000Z', ...clock });
+}
 function fixture() {
   const root = tempRoot();
   const review = path.join(root, '.review', `phase2.3b-p-activation-${PHASE2_RUN}`);
@@ -171,6 +184,7 @@ function makePilotFixture(overrides = {}) {
     video: { codec: 'h264', width: 640, height: 360, frameRate: '30/1', frameCount: 150 }, audioStreams: [] }));
   const workflowFor = bytes => pilotWorkflow.createPilotWorkflow({ root, expectedRoot: base, v5Dir: V5_DIR, pilotDir: PILOT_DIR,
     editorialApprovalPath: EDITORIAL_APPROVAL, provider, ffprobe: probe, now: () => new Date('2026-10-02T12:00:00.000Z'),
+    authorizationNow: () => '2026-10-02T12:00:00.000Z',
     expectedAuthorizationSha256: sha(bytes), ...(overrides.workflow || {}) });
   const workflow = workflowFor(authorizationBytes);
   return { base, root, workflow, workflowFor, planning, calls, authorization, authorizationBytes, probe };
@@ -269,7 +283,8 @@ function makePilot02Fixture({ provider, packageDir = PILOT02_DIR, approvalPath =
     v5Dir: V5_DIR, pilotDir: packageDir, editorialApprovalPath: EDITORIAL_APPROVAL, pins,
     enforcePilot01Rejection: true, provider: providerImpl, extensionDir: animationPackage,
     extensionApprovalPath: animationApproval, expectedAuthorizationSha256: sha(bytes),
-    now: () => new Date('2026-10-02T12:00:00.000Z'), ...workflowOverrides });
+    now: () => new Date('2026-10-02T12:00:00.000Z'),
+    authorizationNow: () => '2026-10-03T12:00:00.000Z', ...workflowOverrides });
   const workflow = workflowFor(authorizationBytes);
   return { base, root, planning: fullPlanning, authorization, authorizationBytes, workflow, workflowFor, calls, approvalPath,
     animationPackage, animationApproval };
@@ -1519,7 +1534,7 @@ test('pilot request parameters, model, endpoint and exact prompt must match the 
   f.authorization.authorizedRequests[0].endpointId = 'fal.ai/another-model';
   const altered = Buffer.from(`${JSON.stringify(f.authorization, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), altered);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs,
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs,
     sha(altered), { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' }), /PILOT_AUTHORIZED_REQUEST_DRIFT/);
 });
 
@@ -1540,7 +1555,7 @@ test('detached execution authorization is mandatory, hash-bound, ownership-aware
 
 test('request-scoped still authorization accepts exactly one deterministic still request', t => {
   const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
-  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes),
+  const loaded = loadTestAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes),
     { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' });
   assert.equal(loaded.record.scope, 'STILL_ONLY');
   assert.equal(loaded.record.operation, 'GENERATE_STILL');
@@ -1573,30 +1588,30 @@ test('combined requests, two-submission scoped auth, and missing ownership accep
   const combined = { ...f.authorization, authorizedRequests: [...f.authorization.authorizedRequests, animationRequest] };
   let bytes = Buffer.from(`${JSON.stringify(combined, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(bytes), context),
     /PILOT_AUTHORIZED_REQUEST_COUNT_INVALID/);
   const twoLimit = { ...f.authorization, maxProviderSubmissions: 2 };
   bytes = Buffer.from(`${JSON.stringify(twoLimit, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(bytes), context),
     /PILOT_EXECUTION_LIMITS_INVALID/);
   const noRiskAcceptance = { ...f.authorization, nonProductionRiskAcceptance: null };
   bytes = Buffer.from(`${JSON.stringify(noRiskAcceptance, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(bytes), context),
     /PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID/);
 });
 
 test('non-production ownership risk disposition is accepted only with every explicit restriction', t => {
   const f = makePilotFixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
   const context = { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' };
-  assert.equal(pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes), context)
+  assert.equal(loadTestAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes), context)
     .record.ownershipDisposition, 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_PILOT_ONLY');
   const production = { ...f.authorization, outputClassification: 'PRODUCTION',
     nonProductionRiskAcceptance: { ...f.authorization.nonProductionRiskAcceptance, outputClassification: 'PRODUCTION' } };
   const bytes = Buffer.from(`${JSON.stringify(production, null, 2)}\n`);
   fs.writeFileSync(path.join(f.root, 'still-execution-authorization.v1.json'), bytes);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(bytes), context),
     /PILOT_NONPRODUCTION_RESTRICTIONS_INVALID|PILOT_UNRESOLVED_OWNERSHIP_RISK_ACCEPTANCE_INVALID/);
 });
 
@@ -1898,7 +1913,8 @@ test('Pilot-02 animation authorization is separate, post-approval, still-bound a
   const authPath = path.join(f.root, 'animation-execution-authorization.v1.json'); fs.writeFileSync(authPath, bytes);
   const context = { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION', stillSha256: pilotWorkflow.PILOT02.approvedStill,
     stillApprovalSha256: approvalSha256, stillApprovalDecidedAt: approval.decidedAt };
-  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context);
+  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context,
+    { now: () => '2026-10-03T12:00:00.000Z' });
   assert.equal(loaded.scope, 'ANIMATION_ONLY');
   assert.equal(loaded.record.maxProviderSubmissions, 1);
   assert.deepEqual(loaded.record.authorizedRequests.map(item => item.requestKey), [pilotWorkflow.PILOT02_EXTENSION.requestKey]);
@@ -1911,9 +1927,67 @@ test('Pilot-02 animation authorization is separate, post-approval, still-bound a
     { ...auth, animationExposureAcceptance: { ...auth.animationExposureAcceptance, providerEnforcedMaximumCharge: true } },
   ]) {
     const changed = Buffer.from(`${JSON.stringify(altered, null, 2)}\n`); fs.writeFileSync(authPath, changed);
-    assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(changed), context),
+    assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(changed), context),
       /PILOT_AUTHORIZED_REQUEST_COUNT_INVALID|PILOT_EXECUTION_LIMITS_INVALID|PILOT_AUTHORIZATION_SCOPE_BINDING_MISMATCH|PILOT_ANIMATION_AUTHORIZATION_STILL_BINDING_INVALID|PILOT02_ANIMATION_AUTHORIZATION_BINDING_INVALID|PILOT02_ANIMATION_EXPOSURE_ACCEPTANCE_INVALID/);
   }
+});
+
+test('Pilot-02 animation price freshness uses an explicit UTC clock and expires at next UTC midnight', t => {
+  const f = makePilot02Fixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  const approval = { decision: 'APPROVED', decidedAt: '2026-10-03T12:00:00.000Z' };
+  const approvalSha256 = 'd'.repeat(64), auth = pilot02AnimationAuthorization(f.planning, approval, approvalSha256);
+  const bytes = Buffer.from(JSON.stringify(auth, null, 2) + '\n');
+  const authPath = path.join(f.root, 'animation-execution-authorization.v1.json');
+  fs.writeFileSync(authPath, bytes);
+  const context = { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION',
+    stillSha256: pilotWorkflow.PILOT02.approvedStill, stillApprovalSha256: approvalSha256,
+    stillApprovalDecidedAt: approval.decidedAt };
+  const loadAt = now => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context,
+    { now: () => now });
+  const deadline = '2026-10-04T00:00:00.000Z';
+
+  assert.doesNotThrow(() => loadAt('2026-10-03T23:59:59.999Z'));
+  assert.throws(() => loadAt(deadline), /PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED/);
+  assert.throws(() => loadAt('2026-10-04T00:00:00.001Z'), /PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED/);
+  assert.throws(() => loadAt('not-a-time'), /PILOT_VALIDATION_CLOCK_INVALID/);
+  assert.throws(() => loadAt('2026-10-03T12:00:00.000+01:00'), /PILOT_VALIDATION_CLOCK_INVALID/);
+
+  withFixedDate('2026-10-03T23:59:59.999Z', () => {
+    assert.doesNotThrow(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context));
+  });
+  withFixedDate(deadline, () => {
+    assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context),
+      /PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED/);
+  });
+});
+
+test('historical read-only authorization validation cannot authorize a new expired animation submission', async t => {
+  const f = makePilot02Fixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
+  await f.workflow.generateStill();
+  f.workflow.inspectStill();
+  const stillApproval = f.workflow.approveStill({ decision: 'APPROVED', approvedBy: 'Yakubu Moshood',
+    approvalRef: pilotWorkflow.PILOT02_EXTENSION.stillApprovalRef });
+  const stillApprovalBytes = fs.readFileSync(path.join(f.root, 'still-approval.v1.json'));
+  const animationAuth = pilot02AnimationAuthorization(f.planning, stillApproval, sha(stillApprovalBytes),
+    { priceCheckedAt: '2026-10-03T00:00:00.000Z' });
+  animationAuth.bindings.stillSha256 = stillApproval.stillSha256;
+  const bytes = Buffer.from(JSON.stringify(animationAuth, null, 2) + '\n');
+  fs.writeFileSync(path.join(f.root, 'animation-execution-authorization.v1.json'), bytes);
+  const context = { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION',
+    stillSha256: stillApproval.stillSha256, stillApprovalSha256: sha(stillApprovalBytes),
+    stillApprovalDecidedAt: stillApproval.decidedAt };
+  assert.doesNotThrow(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(bytes), context,
+    { now: () => '2026-10-03T12:00:00.000Z' }));
+
+  const ledgerPath = path.join(f.root, 'request-ledger.jsonl');
+  const ledgerBefore = fs.readFileSync(ledgerPath), providerCallsBefore = f.calls.length;
+  const expiredWorkflow = f.workflowFor(bytes, { authorizationNow: () => '2026-10-04T00:00:00.000Z' });
+  assert.throws(() => expiredWorkflow.preflight(), /PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED/);
+  await assert.rejects(expiredWorkflow.generateAnimation(), /PILOT02_ANIMATION_PRICE_RECHECK_REQUIRED/);
+  assert.equal(f.calls.length, providerCallsBefore);
+  assert.deepEqual(fs.readFileSync(ledgerPath), ledgerBefore);
+  assert.equal(pilotWorkflow.readLedger(ledgerPath).filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(fs.existsSync(path.join(f.root, 'pilot.lock')), false);
 });
 
 test('Pilot-02 file-set validation admits only its verified animation state and pre-reservation failure audit', async t => {
@@ -1936,9 +2010,10 @@ test('Pilot-02 file-set validation admits only its verified animation state and 
   const animationAuthPath = path.join(f.root, 'animation-execution-authorization.v1.json');
   fs.writeFileSync(animationAuthPath, animationBytes);
   const animationAuthSha = sha(animationBytes);
-  pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, animationAuthSha,
+  loadTestAuthorization(f.root, f.planning, fs, animationAuthSha,
     { scope: 'ANIMATION_ONLY', operation: 'GENERATE_ANIMATION', stillSha256: pilotWorkflow.PILOT02.approvedStill,
-      stillApprovalSha256: approvalSha256, stillApprovalDecidedAt: approval.decidedAt });
+      stillApprovalSha256: approvalSha256, stillApprovalDecidedAt: approval.decidedAt },
+    { now: () => '2026-10-03T12:00:00.000Z' });
   const options = { animationAuthorizationSha256: animationAuthSha, ledger };
   assert.equal(pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs, options).hasAnimationAuthorization, true);
   assert.throws(() => pilotWorkflow.validatePilot02RunFileSet(f.root, f.planning, fs,
@@ -2205,14 +2280,14 @@ test('Pilot-02 media fit deterministically trims to 110 frames at 30 fps and fai
 test('pilot-02 accepts only its separate one-request authorization and keeps its run data isolated', async t => {
   const f = makePilot02Fixture(); t.after(() => fs.rmSync(f.base, { recursive: true, force: true }));
   const authPath = path.join(f.root, 'still-execution-authorization.v1.json');
-  const loaded = pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes),
+  const loaded = loadTestAuthorization(f.root, f.planning, fs, sha(f.authorizationBytes),
     { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' });
   assert.equal(loaded.record.pilotRunId, pilotWorkflow.PILOT02.runId);
   assert.deepEqual(loaded.record.authorizedRequests.map(entry => entry.requestKey), [pilotWorkflow.PILOT02.requestKey]);
   const p1Planning = pilotWorkflow.verifyPlanningInputs({ v5Dir: V5_DIR, editorialApprovalPath: EDITORIAL_APPROVAL, pilotDir: PILOT_DIR });
   const p1Auth = pilotExecutionAuthorization(p1Planning);
   const p1Bytes = Buffer.from(`${JSON.stringify(p1Auth, null, 2)}\n`); fs.writeFileSync(authPath, p1Bytes);
-  assert.throws(() => pilotWorkflow.loadDetachedExecutionAuthorization(f.root, f.planning, fs, sha(p1Bytes),
+  assert.throws(() => loadTestAuthorization(f.root, f.planning, fs, sha(p1Bytes),
     { scope: 'STILL_ONLY', operation: 'GENERATE_STILL' }), /PILOT_AUTHORIZATION_SCOPE_BINDING_MISMATCH/);
   fs.writeFileSync(authPath, f.authorizationBytes);
   await f.workflow.generateStill();
