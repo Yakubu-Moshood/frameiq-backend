@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "exactApprovalStatements": {
+    "controlledAmendment": "I, Yakubu Moshood, approve production application of the exact hash-bound 34-row child amendment [insert verified amendment SHA-256], changing only assetType from generated_clip to controlled_image. productionMethod remains CONTROLLED_STILL; beat identity, narration, timing, visual intent, ownership, evidence bindings, revision lineage, episode and channel remain unchanged. Rebuild the child candidate and renew amendment-required candidate, manifest, validation/readiness and dependent media-plan bindings. This does not authorize provider calls, media generation, staging, promotion or rendering.",
+    "act5B009": "I, Yakubu Moshood, approve production application of the exact ACT5_B009 child amendment [insert verified SHA-256] to a zero-provider GRAPHIC_COMPILATION/graphic_compilation with exactly year labels 2013 through 2023 in order and no other factual text; narration, timing, intent and beat identity remain unchanged. I also approve the exact deterministic SVG canvas dimensions, viewBox, layout, font and validation specification attached to the child package. This grants no provider or downstream production authority."
+  },
+  "decisions": [
+    {
+      "topic": "34-row amendment",
+      "status": "NOT_AUTHORIZED_FOR_PRODUCTION",
+      "approvalNeeded": "Yakubu explicitly approve production application; renew child candidate and amendment-listed bindings.",
+      "requiredBinding": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3"
+    },
+    {
+      "topic": "ACT5_B009",
+      "status": "UNSIGNED_AND_LAYOUT_UNSPECIFIED",
+      "approvalNeeded": "Approve one-row method/type amendment and exact canvas/layout/validation spec.",
+      "requiredBinding": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8"
+    },
+    {
+      "topic": "ACT5_B016",
+      "status": "BLOCKED_SOURCE",
+      "approvalNeeded": "Provide exact approved ACT5_B015 clean-frame path/hash/index or approve changed dependency."
+    },
+    {
+      "topic": "provider route/terms/price/rights",
+      "status": "UNRESOLVED",
+      "approvalNeeded": "Current authoritative provider terms and price, output properties, ownership and one-shot cap."
+    },
+    {
+      "topic": "clip fit policy",
+      "status": "PILOT_PLANNING_ONLY",
+      "approvalNeeded": "Production-specific approval of normalization/fit after validate output compatibility."
+    },
+    {
+      "topic": "first batch",
+      "status": "NOT_APPROVED",
+      "approvalNeeded": "Select beat IDs after blockers clear and issue detached per-request production authorizations."
+    }
+  ],
+  "exactControlledAmendmentApproval": "I, Yakubu Moshood, approve production application of the exact v5 hash-bound 34-row amendment SHA-256 fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3, changing only assetType from generated_clip to controlled_image. productionMethod remains CONTROLLED_STILL; beat identity, narration, timing, visual intent, ownership, evidence bindings, revision lineage, episode and channel remain unchanged. Rebuild a child candidate and renew every amendment-required candidate, manifest, validation/readiness and dependent media-plan binding. This approval grants no provider, generation, staging, promotion or rendering authority.",
+  "exactB009Approval": "I, Yakubu Moshood, approve the exact v5 hash-bound ACT5_B009 child amendment SHA-256 f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8, changing the route to zero-provider GRAPHIC_COMPILATION/graphic_compilation with exactly the ordered labels 2013 through 2023 and no additional text or facts, while preserving narration, timing, intent and ownership. Before application, provide and separately bind the final SVG canvas dimensions, viewBox, layout, typography/font, sanitization and visual-validation specification for my approval; the current proposal leaves these unresolved. This grants no provider or downstream production authority."
+}

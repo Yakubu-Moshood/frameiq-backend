@@ -1,0 +1,1874 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-v5/amendments/phase3-controlled-image-child-amendment.v1.json",
+  "sourceSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+  "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+  "shotDefinitionsSha256": "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7",
+  "productionManifestSha256": "0caef389bd517c5a0898377dc304708fe83666c51205fbdeeddfb365d5ec531e",
+  "rowCount": 34,
+  "sourceStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "change": {
+    "productionMethod": "CONTROLLED_STILL remains",
+    "assetType": "generated_clip → controlled_image",
+    "onlyChangedField": "assetType"
+  },
+  "rows": [
+    {
+      "beatId": "ACT1_B005",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "while accountability at the top arrived slowly",
+      "timing": {
+        "startSec": 18.239999771118164,
+        "endSec": 22.139999389648438,
+        "durationSec": 3.8999996185302734,
+        "startWordIndex": 37,
+        "endWordIndex": 43
+      },
+      "visualIntent": "Empty executive corridor suggests delayed justice at the top.",
+      "ownership": {
+        "shotId": "ACT1_B005",
+        "manifestShotId": "ACT1_B005",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B011",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "who hadn't asked for them",
+      "timing": {
+        "startSec": 36.439998626708984,
+        "endSec": 38.779998779296875,
+        "durationSec": 2.3400001525878906,
+        "startWordIndex": 75,
+        "endWordIndex": 79
+      },
+      "visualIntent": "The nature of the fraud becomes clear—accounts without consent.",
+      "ownership": {
+        "shotId": "ACT1_B011",
+        "manifestShotId": "ACT1_B011",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B012",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "credit cards checking accounts savings accounts all",
+      "timing": {
+        "startSec": 38.779998779296875,
+        "endSec": 42,
+        "durationSec": 3.220001220703125,
+        "startWordIndex": 80,
+        "endWordIndex": 86
+      },
+      "visualIntent": "Unauthorized products accumulate—cards and account documents pile up.",
+      "ownership": {
+        "shotId": "ACT1_B012",
+        "manifestShotId": "ACT1_B012",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B013",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "tied to real people who had no idea they existed",
+      "timing": {
+        "startSec": 42,
+        "endSec": 45.84000015258789,
+        "durationSec": 3.8400001525878906,
+        "startWordIndex": 87,
+        "endWordIndex": 96
+      },
+      "visualIntent": "Real customers unaware while accounts multiply in their names.",
+      "ownership": {
+        "shotId": "ACT1_B013",
+        "manifestShotId": "ACT1_B013",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B015",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "then to hr then to the ethics hotline",
+      "timing": {
+        "startSec": 47.86000061035156,
+        "endSec": 51.97999954223633,
+        "durationSec": 4.119998931884766,
+        "startWordIndex": 103,
+        "endWordIndex": 110
+      },
+      "visualIntent": "Escalation through institutional channels meets bureaucratic indifference.",
+      "ownership": {
+        "shotId": "ACT1_B015",
+        "manifestShotId": "ACT1_B015",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B020",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "create accounts customers had never requested never signed for and sometimes",
+      "timing": {
+        "startSec": 66.9000015258789,
+        "endSec": 71.9000015258789,
+        "durationSec": 5,
+        "startWordIndex": 143,
+        "endWordIndex": 153
+      },
+      "visualIntent": "The systematic pattern becomes clear—accounts never requested, never signed.",
+      "ownership": {
+        "shotId": "ACT1_B020",
+        "manifestShotId": "ACT1_B020",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B022",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "false email addresses or misused customer identities",
+      "timing": {
+        "startSec": 76.72000122070312,
+        "endSec": 81.18000030517578,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 162,
+        "endWordIndex": 168
+      },
+      "visualIntent": "Fake emails and misused customer data complete the fraud pattern.",
+      "ownership": {
+        "shotId": "ACT1_B022",
+        "manifestShotId": "ACT1_B022",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT1_B030",
+      "actKey": "act1",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "none went to prison",
+      "timing": {
+        "startSec": 112.66000366210938,
+        "endSec": 114.013379,
+        "durationSec": 1.3533753378906255,
+        "startWordIndex": 226,
+        "endWordIndex": 229
+      },
+      "visualIntent": "Empty prison corridor—the justice that never came.",
+      "ownership": {
+        "shotId": "ACT1_B030",
+        "manifestShotId": "ACT1_B030",
+        "actKey": "act1"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B002",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "rush for over 150 years it built a reputation as",
+      "timing": {
+        "startSec": 118.53337898092651,
+        "endSec": 123.71337880926514,
+        "durationSec": 5.179999828338623,
+        "startWordIndex": 10,
+        "endWordIndex": 19
+      },
+      "visualIntent": "Time passage across American landscape.",
+      "ownership": {
+        "shotId": "ACT2_B002",
+        "manifestShotId": "ACT2_B002",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B003",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "the bank of the american heartland conservative reliable",
+      "timing": {
+        "startSec": 123.71337880926514,
+        "endSec": 128.71337880926512,
+        "durationSec": 4.999999999999986,
+        "startWordIndex": 20,
+        "endWordIndex": 27
+      },
+      "visualIntent": "Land the virtue of institutional solidity.",
+      "ownership": {
+        "shotId": "ACT2_B003",
+        "manifestShotId": "ACT2_B003",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B009",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "and at the center of this empire was a deceptively simple strategy",
+      "timing": {
+        "startSec": 144.27337922888182,
+        "endSec": 149.073380373291,
+        "durationSec": 4.80000114440918,
+        "startWordIndex": 64,
+        "endWordIndex": 75
+      },
+      "visualIntent": "Move from corporate exterior to the inner workings.",
+      "ownership": {
+        "shotId": "ACT2_B009",
+        "manifestShotId": "ACT2_B009",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B011",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "convince them to open a savings account",
+      "timing": {
+        "startSec": 154.573380373291,
+        "endSec": 156.89338006811522,
+        "durationSec": 2.3199996948242188,
+        "startWordIndex": 89,
+        "endWordIndex": 95
+      },
+      "visualIntent": "The upsell begins with a second product.",
+      "ownership": {
+        "shotId": "ACT2_B011",
+        "manifestShotId": "ACT2_B011",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B012",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "if they had a savings account sell them a credit card",
+      "timing": {
+        "startSec": 156.89338006811522,
+        "endSec": 160.11337747412108,
+        "durationSec": 3.2199974060058594,
+        "startWordIndex": 96,
+        "endWordIndex": 106
+      },
+      "visualIntent": "Another product added to the stack.",
+      "ownership": {
+        "shotId": "ACT2_B012",
+        "manifestShotId": "ACT2_B012",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B013",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "if they had a credit card get them a mortgage",
+      "timing": {
+        "startSec": 160.11337747412108,
+        "endSec": 164.013379,
+        "durationSec": 3.9000015258789062,
+        "startWordIndex": 107,
+        "endWordIndex": 116
+      },
+      "visualIntent": "The mortgage completes the capture.",
+      "ownership": {
+        "shotId": "ACT2_B013",
+        "manifestShotId": "ACT2_B013",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B015",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "eight accounts eight fees eight relationships",
+      "timing": {
+        "startSec": 167.95337762670897,
+        "endSec": 171.89338006811522,
+        "durationSec": 3.94000244140625,
+        "startWordIndex": 125,
+        "endWordIndex": 130
+      },
+      "visualIntent": "Eight products per customer visualized as accumulating system.",
+      "ownership": {
+        "shotId": "ACT2_B015",
+        "manifestShotId": "ACT2_B015",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B020",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "became the internal motto branch managers were evaluated on it",
+      "timing": {
+        "startSec": 187.71337594824217,
+        "endSec": 192.65337838964842,
+        "durationSec": 4.94000244140625,
+        "startWordIndex": 168,
+        "endWordIndex": 177
+      },
+      "visualIntent": "The slogan spreads through the organization as evaluation metric.",
+      "ownership": {
+        "shotId": "ACT2_B020",
+        "manifestShotId": "ACT2_B020",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B021",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "bonuses were tied to it careers depended on it",
+      "timing": {
+        "startSec": 192.65337838964842,
+        "endSec": 196.05337991552733,
+        "durationSec": 3.4000015258789062,
+        "startWordIndex": 178,
+        "endWordIndex": 186
+      },
+      "visualIntent": "Compensation and careers hang on one metric.",
+      "ownership": {
+        "shotId": "ACT2_B021",
+        "manifestShotId": "ACT2_B021",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B024",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "the pressure came from above",
+      "timing": {
+        "startSec": 203.0333756430664,
+        "endSec": 205.27338113623046,
+        "durationSec": 2.2400054931640625,
+        "startWordIndex": 200,
+        "endWordIndex": 204
+      },
+      "visualIntent": "Pressure visualized as descending force.",
+      "ownership": {
+        "shotId": "ACT2_B024",
+        "manifestShotId": "ACT2_B024",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT2_B025",
+      "actKey": "act2",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "the fraud came from below",
+      "timing": {
+        "startSec": 205.27338113623046,
+        "endSec": 208.15337838964842,
+        "durationSec": 2.8799972534179688,
+        "startWordIndex": 205,
+        "endWordIndex": 209
+      },
+      "visualIntent": "Fraud visualized as emerging from below.",
+      "ownership": {
+        "shotId": "ACT2_B025",
+        "manifestShotId": "ACT2_B025",
+        "actKey": "act2"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B006",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "but the banker would also open a savings account and a",
+      "timing": {
+        "startSec": 228.4959873051758,
+        "endSec": 232.815987,
+        "durationSec": 4.319999694824219,
+        "startWordIndex": 34,
+        "endWordIndex": 44
+      },
+      "visualIntent": "Unauthorized products multiply without customer awareness.",
+      "ownership": {
+        "shotId": "ACT3_B006",
+        "manifestShotId": "ACT3_B006",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B007",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "credit card and online banking with a new password",
+      "timing": {
+        "startSec": 232.815987,
+        "endSec": 237.27598608447266,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 45,
+        "endWordIndex": 53
+      },
+      "visualIntent": "Credit card and online banking added in rapid succession.",
+      "ownership": {
+        "shotId": "ACT3_B007",
+        "manifestShotId": "ACT3_B007",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B010",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "were fake often just the customer's real",
+      "timing": {
+        "startSec": 242.9959873051758,
+        "endSec": 245.9159854741211,
+        "durationSec": 2.9199981689453125,
+        "startWordIndex": 66,
+        "endWordIndex": 72
+      },
+      "visualIntent": "Establish email addresses were systematically falsified.",
+      "ownership": {
+        "shotId": "ACT3_B010",
+        "manifestShotId": "ACT3_B010",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B013",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "some employees got creative",
+      "timing": {
+        "startSec": 253.77598608447266,
+        "endSec": 256.6359866948242,
+        "durationSec": 2.8600006103515625,
+        "startWordIndex": 87,
+        "endWordIndex": 90
+      },
+      "visualIntent": "Signal the escalation from technique to predation.",
+      "ownership": {
+        "shotId": "ACT3_B013",
+        "manifestShotId": "ACT3_B013",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B020",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "per day tracking their progress toward quotas",
+      "timing": {
+        "startSec": 283.03598822070313,
+        "endSec": 287.0959857792969,
+        "durationSec": 4.05999755859375,
+        "startWordIndex": 155,
+        "endWordIndex": 161
+      },
+      "visualIntent": "Email surveillance as daily pressure mechanism.",
+      "ownership": {
+        "shotId": "ACT3_B020",
+        "manifestShotId": "ACT3_B020",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B026",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "another said she developed an ulcer",
+      "timing": {
+        "startSec": 305.5959857792969,
+        "endSec": 307.8959888310547,
+        "durationSec": 2.3000030517578125,
+        "startWordIndex": 205,
+        "endWordIndex": 210
+      },
+      "visualIntent": "Physical manifestation of stress.",
+      "ownership": {
+        "shotId": "ACT3_B026",
+        "manifestShotId": "ACT3_B026",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3_B027",
+      "actKey": "act3",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "a third said he vomited before work every morning",
+      "timing": {
+        "startSec": 307.8959888310547,
+        "endSec": 311.05598486376954,
+        "durationSec": 3.1599960327148438,
+        "startWordIndex": 211,
+        "endWordIndex": 219
+      },
+      "visualIntent": "The morning ritual of dread.",
+      "ownership": {
+        "shotId": "ACT3_B027",
+        "manifestShotId": "ACT3_B027",
+        "actKey": "act3"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "the customers paid first",
+      "timing": {
+        "startSec": 317.262744,
+        "endSec": 319.5627439523163,
+        "durationSec": 2.299999952316284,
+        "startWordIndex": 0,
+        "endWordIndex": 3
+      },
+      "visualIntent": "A customer opens a bank statement, face shifting from routine to confusion.",
+      "ownership": {
+        "shotId": "ACT3B_B001",
+        "manifestShotId": "ACT3B_B001",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "annual fees for credit cards they never applied for",
+      "timing": {
+        "startSec": 327.12274365667724,
+        "endSec": 330.22274403814697,
+        "durationSec": 3.1000003814697266,
+        "startWordIndex": 17,
+        "endWordIndex": 25
+      },
+      "visualIntent": "Credit card statement for a card never requested.",
+      "ownership": {
+        "shotId": "ACT3B_B004",
+        "manifestShotId": "ACT3B_B004",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "others couldn't get car loans a few lost their homes",
+      "timing": {
+        "startSec": 338.5427446866455,
+        "endSec": 342.71274476293945,
+        "durationSec": 4.170000076293945,
+        "startWordIndex": 48,
+        "endWordIndex": 57
+      },
+      "visualIntent": "Car dealership rejection and the ultimate loss—homes taken.",
+      "ownership": {
+        "shotId": "ACT3B_B007",
+        "manifestShotId": "ACT3B_B007",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "some had opened unauthorized accounts",
+      "timing": {
+        "startSec": 363.78274445776367,
+        "endSec": 367.06274323706054,
+        "durationSec": 3.279998779296875,
+        "startWordIndex": 101,
+        "endWordIndex": 105
+      },
+      "visualIntent": "Some employees genuinely committed fraud—the guilty acknowledged.",
+      "ownership": {
+        "shotId": "ACT3B_B013",
+        "manifestShotId": "ACT3B_B013",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "the people who missed their targets were pushed out",
+      "timing": {
+        "startSec": 376.0227423215332,
+        "endSec": 379.0827436948242,
+        "durationSec": 3.0600013732910156,
+        "startWordIndex": 123,
+        "endWordIndex": 131
+      },
+      "visualIntent": "The employee who couldn't meet targets—pushed out.",
+      "ownership": {
+        "shotId": "ACT3B_B016",
+        "manifestShotId": "ACT3B_B016",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "actKey": "act3b",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "and some of the people who warned the bank said they were fired too",
+      "timing": {
+        "startSec": 381.6827421689453,
+        "endSec": 386.25093,
+        "durationSec": 4.568187831054672,
+        "startWordIndex": 142,
+        "endWordIndex": 155
+      },
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+      "ownership": {
+        "shotId": "ACT3B_B018",
+        "manifestShotId": "ACT3B_B018",
+        "actKey": "act3b"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT5_B010",
+      "actKey": "act5",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "reported misconduct the outcome was uneven federal investigators found",
+      "timing": {
+        "startSec": 544.5758733051757,
+        "endSec": 550.495871474121,
+        "durationSec": 5.9199981689453125,
+        "startWordIndex": 97,
+        "endWordIndex": 105
+      },
+      "visualIntent": "The uneven outcomes for those who spoke up.",
+      "ownership": {
+        "shotId": "ACT5_B010",
+        "manifestShotId": "ACT5_B010",
+        "actKey": "act5"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    },
+    {
+      "beatId": "ACT5_B013",
+      "actKey": "act5",
+      "productionMethodBeforeAfter": [
+        "CONTROLLED_STILL",
+        "CONTROLLED_STILL"
+      ],
+      "assetTypeBeforeAfter": [
+        "generated_clip",
+        "controlled_image"
+      ],
+      "narration": "spent years fighting settled privately or left banking altogether",
+      "timing": {
+        "startSec": 561.3758725422363,
+        "endSec": 566.5758733051757,
+        "durationSec": 5.200000762939453,
+        "startWordIndex": 128,
+        "endWordIndex": 136
+      },
+      "visualIntent": "Others left behind by the system entirely.",
+      "ownership": {
+        "shotId": "ACT5_B013",
+        "manifestShotId": "ACT5_B013",
+        "actKey": "act5"
+      },
+      "evidenceBindingSha256": "3f9db1976f2b593d43f1afceafc2b4551c4f819330ebffafe07bfc49a1ba4270",
+      "revisionHistoryArtifacts": [
+        {
+          "path": "revision-lineage/b017-plan-amendment-proof.v1.json",
+          "sha256": "2dbfe4dd2c80721064ceb513ab592c87b6559357d607ce35d9138e067779e369"
+        },
+        {
+          "path": "revision-lineage/phase2.2d-lineage.v1.json",
+          "sha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-b017-factual-correction.v1.json",
+          "sha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-p-retiming.v1.json",
+          "sha256": "32232c254d3f26f7b7bbb7d8077482b0191188a8ee1479bc4b87564876a9667e"
+        },
+        {
+          "path": "revision-lineage/phase2.3b-sv-amendment.v1.json",
+          "sha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+        },
+        {
+          "path": "validation/revision-lineage-validation.json",
+          "sha256": "f4d10341360a91dca38238872eccfce4ba6a4157c65d169a8504c6694af59a08"
+        }
+      ],
+      "allNonAssetTypeFieldsUnchanged": true
+    }
+  ],
+  "proof": {
+    "changeSetSha256": "e684c152295e3fb14ca2878645fb7e07e69c040da2795e5a2a91d197f6a680b2",
+    "sourceArtifactsRemainUnchanged": true,
+    "notApplied": true,
+    "childFileHashes": null,
+    "childCandidateIndexSha256": null,
+    "reason": "The candidate is deliberately not transformed; child output hashes are assigned only when a separately approved implementation constructs the child package."
+  },
+  "approvalBindingsToRenew": [
+    "this exact amendment proposal",
+    "shot definitions and production manifest",
+    "candidate package index",
+    "candidate validation/readiness receipts",
+    "any dependent media plan and later staged candidate approvals"
+  ],
+  "existingV5Decision": "APPROVED_FOR_PILOT_PLANNING_ONLY",
+  "productionApplicationAuthorized": false,
+  "explanation": "The human approval is pilot-planning-only and explicitly does not authorize applying amendments. Prepare no child candidate until Yakubu separately approves production application."
+}

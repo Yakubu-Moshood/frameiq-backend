@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-v5/amendments/phase3-act5-b009-controlled-graphic-child-amendment.v1.json",
+  "sourceSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+  "current": {
+    "productionMethod": "GENERATED_STILL",
+    "assetType": "generated_image"
+  },
+  "proposed": {
+    "productionMethod": "GRAPHIC_COMPILATION",
+    "assetType": "graphic_compilation",
+    "providerRequests": 0,
+    "labels": [
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023"
+    ],
+    "exactText": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+    "proposedPath": "outputs/graphics/ACT5_B009-year-pages.svg",
+    "format": "SVG",
+    "aspectRatio": "16:9 proposed only",
+    "widthPx": null,
+    "heightPx": null,
+    "viewBox": null,
+    "layout": "unresolved",
+    "validation": "exact labels only, order preserved, no extra text/dates/facts; sanitize SVG and verify render",
+    "newProductionRequestKey": null,
+    "requestMechanismRequired": false,
+    "requestKeyRationale": "The proposed GRAPHIC_COMPILATION route is deterministic and zero-provider; no provider request key is required. A new child-candidate/lineage binding is still required when the amendment is approved and applied."
+  },
+  "amendmentStatus": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signed": false,
+  "applied": false,
+  "unchangedInvariants": {
+    "narrationUnchanged": true,
+    "timingUnchanged": true,
+    "visualIntentUnchanged": true,
+    "beatOwnershipUnchanged": true,
+    "evidenceBindingUnchanged": true,
+    "existingRevisionHistoryPreserved": true,
+    "newLineageEdgeRequiredWhenApplied": true,
+    "noOtherBeatChanged": true
+  },
+  "approvalSufficient": false,
+  "reason": "v5 approval is planning-only; child remains unsigned. Exact layout/canvas/font remain unspecified."
+}

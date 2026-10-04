@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "phase3-production-media-readiness-closure-index/1.0.0",
+  "packageId": "phase3-production-media-readiness-closure-20261003-v1",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "fileCount": 12,
+  "selfHashExcluded": true,
+  "files": [
+    {
+      "path": "act5-b009-amendment-review.v1.json",
+      "bytes": 2180,
+      "sha256": "a6f8b7738cd203de1f4cd9322ec4ea93e9e8e0927943ecd610fee5015eb1b92c"
+    },
+    {
+      "path": "act5-b016-binding-report.v1.json",
+      "bytes": 1495,
+      "sha256": "15b4f68bb8b1fc7eb138dfce801ae8b0fd8327df65e2863d98e0674f7fe4d35b"
+    },
+    {
+      "path": "animation-clip-fit-docket.v1.json",
+      "bytes": 39397,
+      "sha256": "5fd7925a88e0f25ab3f303f9661c77fb1ba2ee25210092395891c908e44b7bb8"
+    },
+    {
+      "path": "continuity-reference-reconciliation.v1.json",
+      "bytes": 33471,
+      "sha256": "670acc1e89d1f55b4c3f3ef8a84dbbb6271c1a0f72a60d50167d68c59435af19"
+    },
+    {
+      "path": "controlled-still-amendment-review.v1.json",
+      "bytes": 69717,
+      "sha256": "4774e7a900c2d0b42862fe0b1e8b2eab2e82d88a744c34261947056b89a59ec1"
+    },
+    {
+      "path": "dependency-graph.v1.json",
+      "bytes": 10846,
+      "sha256": "be42681481079f640210b8646d66bb70602097860358c0345a42d054ad0cdc28"
+    },
+    {
+      "path": "first-production-batch-proposal.v1.json",
+      "bytes": 1438,
+      "sha256": "59e2b02d9ad2dca054840bf0351ed9ebaab05846d9984409381f5eb49f0fcc75"
+    },
+    {
+      "path": "production-readiness-report.md",
+      "bytes": 9310,
+      "sha256": "647ddc97ae0382c7b6d5016a9ee879cc863827dc0bc4df8a65b8fa5cc0614250"
+    },
+    {
+      "path": "production-readiness-report.v1.json",
+      "bytes": 8635,
+      "sha256": "80d5bc93689e2a379ee5cf86c5b8985337772e590e3d7b677abbb4db5536c83b"
+    },
+    {
+      "path": "request-cost-census.v1.json",
+      "bytes": 2267,
+      "sha256": "e6d7775ea5e2199e387c46982cb80132908569f3eaa193b00063326877a43729"
+    },
+    {
+      "path": "unresolved-decision-docket.v1.json",
+      "bytes": 4181,
+      "sha256": "f637c5c4e7bd6ace3cdb9cfb17b1ba2cae2651982ffe415048882f77413d1cdd"
+    },
+    {
+      "path": "unsigned-approval-proposal.v1.json",
+      "bytes": 730,
+      "sha256": "227a53511c6fd8c219b2a0ea23ea197b2733a5c4ec3afc68a7c46ac9340c97b3"
+    }
+  ]
+}

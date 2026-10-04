@@ -16,7 +16,7 @@ const BEAT_FIELDS = [
   'rhythmIntent', 'graphics', 'audioDirection', 'evidenceRequirement', 'intentionalStillness',
   'timingExceptionReason', 'postNarrationHoldSec', 'reconstructionMode', 'continuityRefs',
 ];
-const SUPPORTED_ASSET_TYPES = new Set(['evidence_reference', 'graphic_compilation', 'generated_image', 'generated_clip']);
+const SUPPORTED_ASSET_TYPES = new Set(['evidence_reference', 'graphic_compilation', 'generated_image', 'generated_clip', 'controlled_image']);
 const V3_COLOR_GRADES = new Set(['cold_blue', 'gold_warm', 'deep_shadow', 'red_alert', 'neutral', 'desaturated']);
 
 function planFingerprint(plan) {
@@ -34,9 +34,11 @@ function sameJson(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function validateShotDefinitions({ plan, shotDefs, revisionChain } = {}) {
+function validateShotDefinitions({ plan, shotDefs, revisionChain, controlledStillContext } = {}) {
   const errors = [];
   const error = (code, location, message) => errors.push({ code, path: location, message });
+  const controlledStillContract = require('./controlled-still-asset-amendment.cjs');
+  const controlledStillContextVerified = controlledStillContract.isVerifiedControlledStillContext(controlledStillContext);
   const lineage = validateRevisionChain({ shotDefs, revisionChain });
   for (const item of lineage.errors) error(item.code, item.path, item.message);
   const lineageCounts = {
@@ -111,10 +113,18 @@ function validateShotDefinitions({ plan, shotDefs, revisionChain } = {}) {
         }
         if (shot.visualType !== source.beat.visual?.type) error('VISUAL_TYPE_MISMATCH', `${location}/visualType`, 'visualType must match the locked visual type.');
         const hasGraphics = Array.isArray(source.beat.graphics) && source.beat.graphics.length > 0;
-        const expectedAssetType = source.beat.visualClass === 'EVIDENCE'
+        const baseExpectedAssetType = source.beat.visualClass === 'EVIDENCE'
           ? 'evidence_reference'
           : hasGraphics ? 'graphic_compilation'
             : source.beat.visual?.type === 'CLIP' ? 'generated_clip' : 'generated_image';
+        const approvedControlledStill = shot.assetType === 'controlled_image'
+          && controlledStillContextVerified && controlledStillContext.authorizedBeatIds.includes(shot.beatId)
+          && source.beat.visualClass !== 'EVIDENCE' && !hasGraphics && source.beat.visual?.type === 'CLIP';
+        if (shot.assetType === 'controlled_image' && !approvedControlledStill) {
+          error('CONTROLLED_IMAGE_AMENDMENT_CONTEXT_REQUIRED', `${location}/assetType`,
+            'controlled_image requires the exact verified 34-row candidate amendment and ACT1_B030 renewal context.');
+        }
+        const expectedAssetType = approvedControlledStill ? 'controlled_image' : baseExpectedAssetType;
         if (!SUPPORTED_ASSET_TYPES.has(shot.assetType)) error('UNSUPPORTED_ASSET_TYPE', `${location}/assetType`, `Unsupported asset type ${String(shot.assetType)}.`);
         else if (shot.assetType !== expectedAssetType) error('ASSET_TYPE_MISMATCH', `${location}/assetType`, `Expected ${expectedAssetType} for this locked visual class and type.`);
         if (!sameJson(shot.overlaySpecification, source.beat.graphics)) error('OVERLAY_MISMATCH', `${location}/overlaySpecification`, 'Overlay specification must preserve locked graphics.');
@@ -153,7 +163,9 @@ function validateShotDefinitions({ plan, shotDefs, revisionChain } = {}) {
     if (shot.assetType === 'generated_clip' && (typeof shot.animationPrompt !== 'string' || !shot.animationPrompt.trim())) {
       error('UNRESOLVED_PRODUCTION_INTENT', `${location}/animationPrompt`, 'Generated clips need a nonblank motion prompt.');
     }
-    if (shot.assetType !== 'generated_clip' && shot.animationPrompt !== '' && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'animationPrompt', actual: shot.animationPrompt, approvedPlanDifferences: lineage.approvedPlanDifferences }))) error('UNEXPECTED_ANIMATION_PROMPT', `${location}/animationPrompt`, 'Only generated clips may carry an animation prompt.');
+    const approvedControlledStill = shot.assetType === 'controlled_image'
+      && controlledStillContextVerified && controlledStillContext.authorizedBeatIds.includes(shot.beatId);
+    if (shot.assetType !== 'generated_clip' && !approvedControlledStill && shot.animationPrompt !== '' && !(lineage.status === 'PASS' && revisionAuthorizesCurrentValue({ beatId: shot.beatId, fieldPath: 'animationPrompt', actual: shot.animationPrompt, approvedPlanDifferences: lineage.approvedPlanDifferences }))) error('UNEXPECTED_ANIMATION_PROMPT', `${location}/animationPrompt`, 'Only generated clips or verified controlled images may carry a preserved locked animation prompt.');
   });
 
   for (const { beat } of expected) {

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "beatId": "ACT5_B016",
+  "requiredDependency": {
+    "beatId": "ACT5_B015",
+    "description": "approved clean frame",
+    "use": "composition-only",
+    "notFinalOutput": true,
+    "noCrossBeatReuse": true
+  },
+  "eligibleSourceFound": false,
+  "onlyIndexedCandidateMatch": {
+    "path": "assets/graphics/ACT5_B015__g00.svg",
+    "bytes": 538,
+    "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "graphicManifestSha256": "3450c75ac8a1b50eb4426e394df48d450038e7a26f7dee2100e642585195e1d2",
+    "graphicId": "ACT5_B015:g00",
+    "role": "PRIMARY",
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "format": "svg",
+    "text": "REGULATORS PUNISHED THE BANK",
+    "eligibleAsCleanFrame": false
+  },
+  "requiredSourcePath": null,
+  "requiredSourceSha256": null,
+  "blocker": "No exact authorized ACT5_B015 clean frame exists in the verified candidate. The indexed SVG is a takeaway graphic, not the requested clean frame.",
+  "humanDecision": "Provide exact approved source path/bytes/hash and authorizing index, or approve a changed dependency. Composition-only use does not change lineage/ownership by itself; record source and derivative provenance, rights do not transfer."
+}

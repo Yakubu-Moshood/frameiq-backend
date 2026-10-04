@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "counts": {
+    "controlledManualLocal": 34,
+    "deterministicB009Graphic": 1,
+    "generatedFinalStillsAfterAmendment": 8,
+    "animationDependencyStills": 23,
+    "animationClips": 23,
+    "dedicatedReferenceStills": 12,
+    "compositionReferenceAssets": 0,
+    "providerRequestsBeforeB009Amendment": 67,
+    "providerRequestsAfterB009Amendment": 66,
+    "controlledAndB009ProviderRequests": 0
+  },
+  "historicalPlanningPrices": {
+    "stillPerSuccessUsd": {
+      "min": 0.0043,
+      "max": 0.08
+    },
+    "animationPerSuccessUsd": {
+      "min": 0.18,
+      "max": 0.35
+    },
+    "basis": "prior v1 committed route constants only; current provider/model/prices unverified"
+  },
+  "priorHistoricalCostEstimate": {
+    "beforeB009Amendment": {
+      "min": 4.3292,
+      "max": 11.57
+    },
+    "afterB009Amendment": {
+      "min": 4.3249,
+      "max": 11.49
+    },
+    "basis": "Recomputed from v2 historical per-success constants; not a current quote. Assumes all provider-routed jobs succeed once, no retries, 12 separately generated reference stills, and the stated clip/still request mix."
+  },
+  "currentPublishedPrices": null,
+  "currentPriceStatus": "UNRESOLVED",
+  "pilotCharges": [
+    null,
+    null
+  ],
+  "providerEnforcedSpendCap": false,
+  "retryFallbackExposure": "Not authorized; no retry/fallback policy or bounded exposure approved for production. Baseline request count assumes one request per job.",
+  "requestKeys": {
+    "productionApproved": [
+      "cc2927c051bdff21bec411f3110d0f248797ac431e68e4ad3e0296a668b9fb14"
+    ],
+    "otherProductionKeys": "none assigned"
+  },
+  "callsMade": 0,
+  "details": {
+    "controlled": "Local/manual, zero-provider unless explicit contract requires generation.",
+    "references": "12 potential separate provider-generated requests; local/manual possible only if an approved source/construction exists. No production key assigned.",
+    "B009": "One deterministic zero-provider output only after amendment/layout approval.",
+    "B016": "No source output count until the approved clean-frame source is bound."
+  }
+}

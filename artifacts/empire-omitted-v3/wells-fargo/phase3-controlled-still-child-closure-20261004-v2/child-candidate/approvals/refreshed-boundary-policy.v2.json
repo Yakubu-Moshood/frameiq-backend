@@ -1,0 +1,414 @@
+{
+  "schemaVersion": "phase2.3b-p-approved-boundary-ranges/2.0.0",
+  "status": "USER_APPROVED",
+  "runId": "phase2-3b-p-act-20260925",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "channelKey": "EmpireOmitted",
+  "approval": {
+    "approvedBy": "Yakubu Moshood",
+    "approvalRef": "phase2.3b-act3-refresh-boundary-audio-rebind-2026-09-28",
+    "decision": "APPROVED",
+    "recordedDate": "2026-09-28",
+    "boundaryProposalSha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e",
+    "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+    "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+    "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42"
+  },
+  "binding": {
+    "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+    "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+    "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "combinedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+    "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+    "boundaryProposalSha256": "1d43fb52c0fd75f9040f25b1b811b1b54d880cc7fad411bc37951d1bb784971e",
+    "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+    "newAct3AudioSha256": "79909b5f4923fbe2aae04663068cbf4b5926a2ae3fb7a274b73013a778193449",
+    "unchangedAudioHashes": {
+      "act1": "453206fdeb6f6d2f36abd63a58bd2efb0fb40d92b5aa6453161e8779f2a72986",
+      "act2": "46f59093fede22d2ea84a1a52d81d3a913d50cdf3f69afa27e84bcb1c3c37d32",
+      "act3b": "31390130983a45394b920f72e148235046779dd027287a1b2fead77c8847054e",
+      "act4": "9043109ad5b9d4907114d5fd7f3f8649f8b7191dc92409ddf636c6b2aff285e0",
+      "act5": "a80cc813614e8012849ddbec8c584ae1112ba14bf72306aabbd02d96b0b187db"
+    },
+    "evidenceApprovalSha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2",
+    "globalRequestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+    "retainedTimingSourceReceiptSha256": "a13249e0503f047e3c2d705aa3efabcf072d6e0098655e6317fd4566b5e241d1",
+    "previousApprovedBoundaryPolicySha256": "3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9"
+  },
+  "tokenization": {
+    "rangeTokenization": "js-trim-split-whitespace/1.0.0",
+    "mappingTokenization": "phase2.3b-p-lexical-tokenization/1.0.0",
+    "act3Translation": "lexical-token-offset-to-whitespace-span-intersection/1.0.0",
+    "indexConvention": "zero-based-inclusive"
+  },
+  "supersedesPolicySha256": "3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9",
+  "declaredCounts": {
+    "boundaryAuthorizations": 1,
+    "allocations": 10,
+    "retirements": 1
+  },
+  "decisionOrder": {
+    "boundaryAuthorizations": [
+      "approved-boundary:act2:ACT2_B011:start:89"
+    ],
+    "allocations": [
+      "act3:ACT3_B016",
+      "act3:ACT3_B017",
+      "act3:ACT3_B018",
+      "act3:ACT3_B019",
+      "act3b:ACT3B_B008",
+      "act3b:ACT3B_B009",
+      "act3b:ACT3B_B011",
+      "act3b:ACT3B_B012",
+      "act4:ACT4_B001",
+      "act4:ACT4_B002"
+    ],
+    "retirements": [
+      "act3b:ACT3B_B010"
+    ]
+  },
+  "boundaryAuthorizations": [
+    {
+      "authorizationVersion": "phase2.3b-p-boundary-authorization/1.0.0",
+      "authorizationId": "approved-boundary:act2:ACT2_B011:start:89",
+      "actKey": "act2",
+      "beatId": "ACT2_B011",
+      "edge": "start",
+      "sourceBoundaryIndex": 89,
+      "sourceBeatRange": {
+        "startWordIndex": 89,
+        "endWordIndex": 96,
+        "indexConvention": "zero-based-inclusive"
+      },
+      "targetTranscriptIndex": 89,
+      "approvedTranscriptSpan": {
+        "startIndex": 89,
+        "endIndex": 96,
+        "indexConvention": "zero-based-inclusive"
+      },
+      "sourceAnchors": [
+        {
+          "index": 88,
+          "token": "account",
+          "role": "preceding"
+        },
+        {
+          "index": 89,
+          "token": "and",
+          "role": "deleted"
+        },
+        {
+          "index": 90,
+          "token": "convinced",
+          "role": "replacement-source"
+        },
+        {
+          "index": 91,
+          "token": "them",
+          "role": "following"
+        }
+      ],
+      "candidateAnchors": [
+        {
+          "index": 88,
+          "token": "account",
+          "sourceIndex": 88,
+          "role": "preceding"
+        },
+        {
+          "index": 89,
+          "token": "convince",
+          "sourceIndex": 90,
+          "role": "replacement"
+        },
+        {
+          "index": 90,
+          "token": "them",
+          "sourceIndex": 91,
+          "role": "following"
+        }
+      ],
+      "transcriptAnchors": [
+        {
+          "index": 88,
+          "token": "account",
+          "candidateIndex": 88,
+          "role": "preceding"
+        },
+        {
+          "index": 89,
+          "token": "convince",
+          "candidateIndex": 89,
+          "role": "target"
+        },
+        {
+          "index": 90,
+          "token": "them",
+          "candidateIndex": 90,
+          "role": "following"
+        }
+      ],
+      "uniqueAnchorSequences": {
+        "sourcePreceding": [
+          "had",
+          "a",
+          "checking",
+          "account"
+        ],
+        "sourceFollowing": [
+          "convinced",
+          "them",
+          "to"
+        ],
+        "candidatePreceding": [
+          "had",
+          "a",
+          "checking",
+          "account"
+        ],
+        "candidateFollowing": [
+          "convince",
+          "them",
+          "to"
+        ],
+        "transcriptPreceding": [
+          "had",
+          "a",
+          "checking",
+          "account"
+        ],
+        "transcriptFollowing": [
+          "convince",
+          "them",
+          "to"
+        ]
+      },
+      "inputHashes": {
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "previousApprovedBoundaryPolicySha256": "3b745ad921ef4fadea24579e0a9bd61ad9ea28d6e88372e861620d80a87b59b9",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5"
+      },
+      "revisionLineageEntry": "approved-boundary:act2:ACT2_B011:start:89",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "priorInputs": {
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "a15f99e70788343569a9620695923e94374f8c12986fcffc21e143d290a7a03a",
+        "candidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "retainedTranscriptSha256": "238a5316b9297a07f4c3122212e2131d64ac1c6ac55ec61237867a2f8f5e70a1",
+        "alignmentProposalSha256": "9a1810c17d5313265de0f934960a5352c5c89b1cfec645de60a24dc30feb9ce0",
+        "alignmentApprovalSha256": "24e339f62138e63ec4b9960e6b037f079f716ee36dafda8a122f962e5fc61369",
+        "previousApprovedBoundaryPolicySha256": "95a816be1e8ddb76d70d916a98d3d689ab74b6d4b17b07cbf1d5e30f19f5b58d",
+        "candidateAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a"
+      },
+      "actLocalSourceTargetContentPreserved": true,
+      "newAlignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee"
+    }
+  ],
+  "allocations": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B016",
+      "startTokenIndex": 116,
+      "endTokenIndex": 124,
+      "indexConvention": "zero-based-inclusive-act-local-lexical-word",
+      "excerpt": "They would create accounts for people who had died.",
+      "revisionLineageEntry": "phase2.3b-b017-factual-correction/1.0.0:ACT3_B016",
+      "amendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "lexicalRange": {
+        "start": 115,
+        "end": 123,
+        "indexConvention": "zero-based-inclusive-act-local-lexical-word"
+      },
+      "whitespaceRange": {
+        "start": 116,
+        "end": 124,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "derivedFrom": "candidate-script-lexical-offset/whitespace-span-intersection/1.0.0"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B017",
+      "startTokenIndex": 125,
+      "endTokenIndex": 136,
+      "indexConvention": "zero-based-inclusive-act-local-lexical-word",
+      "excerpt": "The board’s investigation found a branch manager’s teenage daughter had 24 accounts,",
+      "revisionLineageEntry": "phase2.3b-b017-factual-correction/1.0.0:ACT3_B017",
+      "amendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "lexicalRange": {
+        "start": 124,
+        "end": 135,
+        "indexConvention": "zero-based-inclusive-act-local-lexical-word"
+      },
+      "whitespaceRange": {
+        "start": 125,
+        "end": 136,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "derivedFrom": "candidate-script-lexical-offset/whitespace-span-intersection/1.0.0"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B018",
+      "startTokenIndex": 137,
+      "endTokenIndex": 147,
+      "indexConvention": "zero-based-inclusive-act-local-lexical-word",
+      "excerpt": "an adult daughter had 18, and the manager’s spouse had 21.",
+      "revisionLineageEntry": "phase2.3b-b017-factual-correction/1.0.0:ACT3_B018",
+      "amendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "lexicalRange": {
+        "start": 136,
+        "end": 146,
+        "indexConvention": "zero-based-inclusive-act-local-lexical-word"
+      },
+      "whitespaceRange": {
+        "start": 137,
+        "end": 147,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "derivedFrom": "candidate-script-lexical-offset/whitespace-span-intersection/1.0.0"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B019",
+      "startTokenIndex": 148,
+      "endTokenIndex": 155,
+      "indexConvention": "zero-based-inclusive-act-local-lexical-word",
+      "excerpt": "The pressure was relentless. Employees received multiple emails",
+      "revisionLineageEntry": "phase2.3b-b017-factual-correction/1.0.0:ACT3_B019",
+      "amendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "lexicalRange": {
+        "start": 147,
+        "end": 154,
+        "indexConvention": "zero-based-inclusive-act-local-lexical-word"
+      },
+      "whitespaceRange": {
+        "start": 148,
+        "end": 155,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "derivedFrom": "candidate-script-lexical-offset/whitespace-span-intersection/1.0.0"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "startTokenIndex": 58,
+      "endTokenIndex": 74,
+      "excerpt": "Wells Fargo says it refunded about $2.6 million in fees tied to accounts flagged by its review.",
+      "revisionLineageEntry": "approved-range:act3b:ACT3B_B008",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 58,
+        "end": 74,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B009",
+      "startTokenIndex": 75,
+      "endTokenIndex": 80,
+      "excerpt": "That is the bank’s own figure.",
+      "revisionLineageEntry": "approved-range:act3b:ACT3B_B009",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 75,
+        "end": 80,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B011",
+      "startTokenIndex": 81,
+      "endTokenIndex": 85,
+      "excerpt": "Meanwhile, between 2011 and 2016,",
+      "revisionLineageEntry": "approved-range:act3b:ACT3B_B011",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 81,
+        "end": 85,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "startTokenIndex": 86,
+      "endTokenIndex": 97,
+      "excerpt": "Wells Fargo said it fired more than 5,300 employees for sales-practice violations.",
+      "revisionLineageEntry": "approved-range:act3b:ACT3B_B012",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 86,
+        "end": 97,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B001",
+      "startTokenIndex": 0,
+      "endTokenIndex": 8,
+      "excerpt": "In 2013, Los Angeles Times reporter E. Scott Reckard",
+      "revisionLineageEntry": "approved-range:act4:ACT4_B001",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 0,
+        "end": 8,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    },
+    {
+      "actKey": "act4",
+      "beatId": "ACT4_B002",
+      "startTokenIndex": 9,
+      "endTokenIndex": 18,
+      "excerpt": "documented Wells Fargo’s sales pressure, unauthorized accounts and employee firings.",
+      "revisionLineageEntry": "approved-range:act4:ACT4_B002",
+      "status": "PROPOSED_RENEWAL_REQUIRED",
+      "actLocalScriptAndAudioInputsUnchanged": true,
+      "previousScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+      "lexicalRange": null,
+      "whitespaceRange": {
+        "start": 9,
+        "end": 18,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      }
+    }
+  ],
+  "retirements": [
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B010",
+      "reason": "Its former narration, “the real number is almost certainly higher,” was removed as unsupported. Its replacement visual merely repeats B009’s bank-attributed refund figure; no replacement narration or zero-duration beat is authorized.",
+      "revisionLineageEntry": "approved-retirement:act3b:ACT3B_B010",
+      "status": "PRESERVE",
+      "act3bB010RemainsRetired": true
+    }
+  ],
+  "unlistedChangesPolicy": "REFUSE"
+}

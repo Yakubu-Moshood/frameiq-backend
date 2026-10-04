@@ -13,11 +13,14 @@ process.env.DB_MODULE_PATH = testDbStub;
 const contract = require('../pipeline-updates/production-method-manifest.cjs');
 const { generateImages } = require('../pipeline-updates/surface-image-generator.cjs');
 const { animateClips } = require('../pipeline-updates/surface-animator.cjs');
-const { resolveAssetPath } = require('../pipeline-updates/surface-renderer.cjs');
+const { resolveAssetPath, frameCountForShot } = require('../pipeline-updates/surface-renderer.cjs');
 const productionMotion = require('../pipeline-updates/phase3-act3-b005-production-motion-contract.cjs');
 const motionContractBytes = fs.readFileSync(productionMotion.CONTRACT_PATH);
 const motionApprovalPath = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo', 'phase3-act3-b005-production-motion-approval-20261003.v1.json');
 const motionApprovalBytes = fs.readFileSync(motionApprovalPath);
+const controlledStillAmendment = require('../pipeline-updates/controlled-still-asset-amendment.cjs');
+const shotDefinitionsValidator = require('../pipeline-updates/shot-definitions-validator.cjs');
+const revisionLineageValidator = require('../pipeline-updates/revision-lineage.cjs');
 
 function sha(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
 function tempDir() { return fs.mkdtempSync(path.join(os.tmpdir(), 'eo-v3-method-')); }
@@ -99,6 +102,119 @@ test('manifest accepts all five method classes and computes the 67-image/23-anim
   assert.deepEqual(contract.validateProductionMethodManifest({ manifest: value.manifest, shotDefs: value.shotDefs, candidateSha256: value.manifest.candidateSha256 }), { status: 'PASS', errors: [] });
   assert.deepEqual(contract.essentialAnimationShotIds(value.manifest), [value.shotDefs.allShots[0].shotId]);
   assert.deepEqual(contract.baseImageShotIds(value.manifest), value.shotDefs.allShots.slice(0, 3).map(s => s.shotId));
+});
+
+test('verified controlled-image child changes only the 34 approved asset types and retains ACT1_B030 timing/visual fields', () => {
+  const childDir = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+    'phase3-controlled-still-child-closure-20261004-v2', 'child-candidate');
+  const verified = controlledStillAmendment.readVerifiedChildContext(childDir);
+  const parent = JSON.parse(verified.files.get('revision-lineage/parent-shot-definitions.json'));
+  const child = JSON.parse(verified.files.get('shot-definitions.json'));
+  const parentPolicy = JSON.parse(verified.files.get('revision-lineage/parent-timing-policy.v5.json'));
+  const childPolicy = JSON.parse(verified.files.get('approvals/refreshed-timing-policy.act1-b030-renewal.v1.json'));
+  const childManifest = JSON.parse(verified.files.get('production-manifest.json'));
+  const plan = JSON.parse(verified.files.get('edit-plan.json'));
+  const revisionChain = [
+    'revision-lineage/phase2.2d-lineage.v1.json',
+    'revision-lineage/phase2.3b-sv-amendment.v1.json',
+    'revision-lineage/phase2.3b-b017-factual-correction.v1.json',
+    'revision-lineage/phase2.3b-p-retiming.v1.json',
+    'revision-lineage/phase3-controlled-still-asset-type-lineage.v1.json',
+  ].map(name => JSON.parse(verified.files.get(name)));
+  const childShotDefs = JSON.parse(verified.files.get('shot-definitions.json'));
+  assert.deepEqual(shotDefinitionsValidator.validateShotDefinitions({ plan, shotDefs: childShotDefs, revisionChain,
+    controlledStillContext: verified.context }).status, 'PASS');
+  assert.equal(shotDefinitionsValidator.validateShotDefinitions({ plan, shotDefs: childShotDefs, revisionChain }).status, 'FAIL');
+  assert.deepEqual(revisionLineageValidator.validateRevisionChain({ shotDefs: childShotDefs, revisionChain }).status, 'PASS');
+  const parentById = new Map(parent.allShots.map(shot => [shot.beatId, shot]));
+  const childById = new Map(child.allShots.map(shot => [shot.beatId, shot]));
+  const changed = child.allShots.filter(shot => parentById.get(shot.beatId).assetType !== shot.assetType);
+  assert.equal(verified.fileCount, 162);
+  assert.deepEqual(changed.map(shot => shot.beatId), controlledStillAmendment.CONTROLLED_STILL_BEAT_IDS);
+  for (const shot of child.allShots) {
+    const before = parentById.get(shot.beatId);
+    if (controlledStillAmendment.CONTROLLED_STILL_BEAT_IDS.includes(shot.beatId)) {
+      const a = structuredClone(before), b = structuredClone(shot);
+      delete a.assetType; delete b.assetType;
+      assert.deepEqual(b, a);
+      assert.equal(shot.assetType, 'controlled_image');
+      assert.equal(childManifest.shots.find(item => item.shotId === shot.beatId).productionMethod, 'CONTROLLED_STILL');
+      assert.equal(shot.visualType, 'CLIP');
+    } else assert.deepEqual(shot, before, `unaffected beat ${shot.beatId}`);
+  }
+  const oldB030 = parentById.get('ACT1_B030'), newB030 = childById.get('ACT1_B030');
+  assert.equal(oldB030.visualType, newB030.visualType);
+  assert.equal(oldB030.durationSec, newB030.durationSec);
+  assert.equal(oldB030.startSec, newB030.startSec);
+  assert.equal(oldB030.endSec, newB030.endSec);
+  const planB030 = plan.sequences.flatMap(sequence => sequence.beats).find(beat => beat.beatId === 'ACT1_B030');
+  assert.equal(newB030.durationSec, planB030.durationSec);
+  assert.equal(Math.round(newB030.durationSec * 30), Math.round(planB030.durationSec * 30));
+  assert.equal(frameCountForShot({ durSec: newB030.durationSec }, 30), Math.round(planB030.durationSec * 30));
+  const parentObligation = parentPolicy.exceptions.find(item => item.beatId === 'ACT1_B030').productionObligations;
+  const childObligation = childPolicy.exceptions.find(item => item.beatId === 'ACT1_B030').productionObligations;
+  const expected = structuredClone(parentObligation); expected.assetType = 'controlled_image';
+  assert.deepEqual(childObligation, expected);
+  assert.equal(sha(Buffer.from(JSON.stringify(parentObligation))), controlledStillAmendment.PARENT.oldAct1B030ObligationSha256);
+  assert.equal(sha(Buffer.from(JSON.stringify(childObligation))), controlledStillAmendment.PARENT.newAct1B030ObligationSha256);
+  const parentApproval = fs.readFileSync(path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+    'phase2.3b-p-act3-refresh-candidate-local-20260928-v2', 'approvals', 'timing-approval.v1.json'));
+  assert.equal(sha(parentApproval), controlledStillAmendment.PARENT.timingApprovalSha256);
+  const renewalInput = {
+    parentCandidateIndexBytes: verified.files.get('revision-lineage/parent-candidate-package-sha256.v1.json'),
+    parentShotDefinitionsBytes: verified.files.get('revision-lineage/parent-shot-definitions.json'),
+    parentProductionManifestBytes: verified.files.get('revision-lineage/parent-production-manifest.json'),
+    childShotDefinitionsBytes: verified.files.get('shot-definitions.json'),
+    childProductionManifestBytes: verified.files.get('production-manifest.json'),
+    amendmentBytes: verified.files.get('revision-lineage/controlled-still-amendment.v1.json'),
+    applicationApprovalBytes: verified.files.get('approvals/controlled-still-application-approval.v1.json'),
+    renewalApprovalBytes: verified.files.get('approvals/act1-b030-timing-obligation-renewal-approval.v1.json'),
+    renewalPolicyBytes: verified.files.get('approvals/refreshed-timing-policy.act1-b030-renewal.v1.json'),
+    renewalBindingBytes: verified.files.get('approvals/act1-b030-timing-policy-renewal-binding.v1.json'),
+    parentTimingPolicy: verified.files.get('revision-lineage/parent-timing-policy.v5.json'),
+    parentTimingPolicyBytes: verified.files.get('revision-lineage/parent-timing-policy.v5.json'),
+  };
+  const alteredRenewal = JSON.parse(renewalInput.renewalPolicyBytes);
+  alteredRenewal.exceptions.find(entry => entry.beatId === 'ACT2_B006').productionObligations.assetType = 'controlled_image';
+  renewalInput.renewalPolicyBytes = Buffer.from(JSON.stringify(alteredRenewal));
+  const binding = JSON.parse(renewalInput.renewalBindingBytes);
+  binding.childTimingPolicySha256 = sha(renewalInput.renewalPolicyBytes);
+  renewalInput.renewalBindingBytes = Buffer.from(JSON.stringify(binding));
+  assert.throws(() => controlledStillAmendment.makeVerifiedControlledStillContext(renewalInput), /RENEWED_POLICY_UNAPPROVED_CHANGE/);
+});
+
+test('controlled_image routes only as a verified raster still and is excluded from all provider queues', () => {
+  const value = fixture([
+    { shotId: 'ACT1_B030', visualClass: 'RECONSTRUCTION', assetType: 'controlled_image', productionMethod: 'CONTROLLED_STILL', visualType: 'CLIP' },
+    { shotId: 'ACT1_B031', visualClass: 'RECONSTRUCTION', assetType: 'generated_clip', productionMethod: 'ESSENTIAL_ANIMATION' },
+  ]);
+  assert.deepEqual(contract.validateProductionMethodManifest({ manifest: value.manifest, shotDefs: value.shotDefs }), { status: 'PASS', errors: [] });
+  assert.deepEqual(contract.baseImageShotIds(value.manifest), ['ACT1_B031']);
+  assert.deepEqual(contract.essentialAnimationShotIds(value.manifest), ['ACT1_B031']);
+  assert.throws(() => contract.validateImagePromptBatch([
+    { shotId: 'ACT1_B030', filename: 'ACT1_B030.png', assetType: 'controlled_image', prompt: 'no provider', negativePrompt: '' },
+  ], value.manifest), /synthetic image route/);
+  const mismatch = structuredClone(value.manifest);
+  mismatch.shots[0].productionMethod = 'GENERATED_STILL';
+  assert.ok(contract.validateProductionMethodManifest({ manifest: mismatch, shotDefs: value.shotDefs }).errors
+    .some(error => error.code === 'PRODUCTION_METHOD_ASSET_MISMATCH'));
+
+  const dir = tempDir(), assets = path.join(dir, 'assets');
+  fs.mkdirSync(path.join(assets, 'stills'), { recursive: true });
+  const still = path.join(assets, 'stills', 'ACT1_B030.png');
+  fs.writeFileSync(still, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/MioAAAAASUVORK5CYII=', 'base64'));
+  const shot = { shotId: 'ACT1_B030', assetType: 'controlled_image', productionMethod: 'CONTROLLED_STILL', visualType: 'CLIP' };
+  assert.equal(resolveAssetPath(shot, assets), still);
+  assert.deepEqual({ format: contract.validateControlledStillRasterAsset(still).format,
+    width: contract.validateControlledStillRasterAsset(still).width, height: contract.validateControlledStillRasterAsset(still).height },
+  { format: 'png', width: 1, height: 1 });
+  const truncated = path.join(assets, 'stills', 'ACT1_B030-truncated.png');
+  fs.writeFileSync(truncated, Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a,0x00]));
+  assert.throws(() => contract.validateControlledStillRasterAsset(truncated), /NOT_REGULAR_FILE|MUST_BE_VALID_RASTER/);
+  fs.mkdirSync(path.join(assets, 'clips'), { recursive: true });
+  fs.writeFileSync(path.join(assets, 'clips', 'ACT1_B030.mp4'), 'video');
+  assert.throws(() => resolveAssetPath(shot, assets), /CONTROLLED_IMAGE_VIDEO_INPUT_FORBIDDEN/);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 test('manifest rejects changed candidate bytes, unknown, duplicate, and reordered shot IDs', () => {

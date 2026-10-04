@@ -1,0 +1,14 @@
+{
+  "status": "BLOCKED_PENDING_REVIEW_AND_PROVIDER_CONTRACT",
+  "blockers": [
+    "ACT5_B009 child amendment and deterministic graphic binding remain unsigned/unapplied.",
+    "ACT5_B016 approved ACT5_B015 source path and hash remain unresolved.",
+    "Production route, terms, ownership, current price, output acceptance and per-request execution authority remain unresolved; the completed Pilot-02 is non-production route validation only."
+  ],
+  "pilotExecutionAuthorized": false,
+  "mediaGenerationAuthorized": false,
+  "candidateReconstructionAuthorized": false,
+  "promotionAuthorized": false,
+  "renderingAuthorized": false,
+  "pilotRouteValidation": "COMPLETED_NONPRODUCTION_ONLY_NOT_PRODUCTION_AUTHORITY"
+}

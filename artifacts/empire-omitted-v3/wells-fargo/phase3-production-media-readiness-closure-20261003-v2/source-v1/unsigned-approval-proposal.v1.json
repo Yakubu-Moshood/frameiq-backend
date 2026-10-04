@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "reviewer": "Yakubu Moshood",
+  "decision": "",
+  "approvalDate": "",
+  "signature": "",
+  "providerAuthorization": "",
+  "packageIndexSha256": "",
+  "approvalScope": {
+    "apply34RowAmendment": false,
+    "applyB009": false,
+    "resolveB016Source": false,
+    "approveCurrentProviderRightsPricing": false,
+    "approveClipFitForProduction": false,
+    "approveFirstBatch": false
+  },
+  "notAuthorized": [
+    "provider calls",
+    "generation",
+    "candidate reconstruction",
+    "promotion",
+    "rendering",
+    "episode-root writes"
+  ]
+}

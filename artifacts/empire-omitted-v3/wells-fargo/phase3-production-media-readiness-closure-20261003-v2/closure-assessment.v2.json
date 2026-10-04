@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "phase3-production-media-readiness-closure/2.0.0",
+  "packageId": "phase3-production-media-readiness-closure-20261003-v2",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "branchParity": {
+    "currentFeatureBranch": {"name":"codex/phase3-controlled-media-pilot","localTip":"0b7cf084386bc65a88021b3b11026036f9ddb3ca","matchesSourceCommit":true},
+    "otherAuthorizedBranch": {"name":"empire-omitted-v3-phase2","localTip":"74d3812a33695da34b9eb5d42abf8b35c4883862","matchesSourceCommit":false},
+    "remoteTipsFetched":false,
+    "status":"PARITY_NOT_CONFIRMED; no commit or push was authorized or required for this planning-only package"
+  },
+  "authoritativeStage04": {
+    "runId": "phase2-3b-p-act3-refresh-20260928-stage04",
+    "activationStatus": "PROMOTED",
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "activeShots": 153,
+    "retiredBeatIds": ["ACT3B_B010"]
+  },
+  "verifiedPlanningState": {
+    "candidate": {"indexSha256":"8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac","indexedFiles":150,"verifiedFiles":150,"status":"PASS"},
+    "reviewV5": {"indexSha256":"2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0","indexedFiles":49,"verifiedFiles":49,"status":"PASS"},
+    "pilot02Proposal": {"indexSha256":"e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6","indexedFiles":4,"verifiedFiles":4,"status":"PASS"},
+    "animationExtension": {"indexSha256":"00969089236256818908bc82174f6263e690958e65769e3afead39ce1e6bec26","indexedFiles":5,"verifiedFiles":5,"status":"PASS"},
+    "motionPolicy": {"indexSha256":"67480b179694af4784e97d2eec0443735aac455a36a8fd23277d3025d76a0e13","indexedFiles":1,"verifiedFiles":1,"status":"PASS"},
+    "pilotFinalizationInputs": {"indexSha256":"a3f67bbf6cab9290b5f4c6285ff8e5631f786df99df08f5c86f8909fbfeaa11f","indexedFiles":39,"locallyVerifiedFiles":1,"missingLocalFiles":38,"status":"PARTIAL_LOCAL_VERIFICATION_ONLY"}
+  },
+  "productionOutputCensus": {
+    "activeShots":153,"manifestShots":153,"controlledStillOutputs":34,"generatedStillOutputs":9,"essentialAnimationOutputs":23,"animationDependencyStills":23,"continuityDecisions":14,"retiredAct3bB010":true,
+    "differenceFromPriorCensus":null
+  },
+  "amendmentDecision": {
+    "amendmentSha256":"fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "rows":34,"onlyProposedFieldChange":{"assetType":{"from":"generated_clip","to":"controlled_image"}},
+    "productionMethod":"CONTROLLED_STILL unchanged","invariantsVerifiedByProposal":["beat ID","narration","timing","visual intent","ownership","evidence binding","revision history","episode identity","channel identity"],
+    "v5Decision":"APPROVED_FOR_PILOT_PLANNING_ONLY; not itself production application authority",
+    "detachedProductionApplicationApproval":{"decision":"APPROVED_FOR_ISOLATED_CANDIDATE_APPLICATION","sourceSha256":"c88c2a78820d27f9dfe84128581083d11f6249bbfb77c0a54aa59ecba9205f94","recordPath":"detached-controlled-still-application-approval.v1.json"},
+    "productionApplicationAuthorizedForIsolatedChild":true,
+    "validatorCompatibility":"BLOCKED: locked CLIP visual maps to generated_clip; controlled_image is outside the supported asset-type set and production-method mapping.",
+    "candidateApplicationPerformed":false,
+    "requiredNext":"Resolve the validator contract without changing any approved editorial field, then apply only in a new isolated child candidate; no visual or narration field may be changed to evade the mismatch."
+  },
+  "act5B009": {
+    "amendmentSha256":"f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "current":{"productionMethod":"GENERATED_STILL","assetType":"generated_image"},
+    "proposed":{"productionMethod":"GRAPHIC_COMPILATION","assetType":"graphic_compilation","providerRequests":0,"orderedLabels":["2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023"],"format":"SVG","path":"outputs/graphics/ACT5_B009-year-pages.svg","requestKey":null},
+    "specificationGaps":["canvas width and height","viewBox","layout and hierarchy","typography and font","sanitization profile","exact structural and visual validation rules"],
+    "approvalSufficient":false,"applied":false,
+    "requiredHumanDecision":"Approve the exact child amendment and its fully specified deterministic SVG construction/validation attachment; preserve narration, timing, visual intent, ownership and beat identity. No provider or downstream execution authority."
+  },
+  "act5B016": {
+    "requiredSourceBeat":"ACT5_B015","purpose":"composition-only","eligibleSourceFound":false,
+    "onlyIndexedCandidateMatch":{"path":"assets/graphics/ACT5_B015__g00.svg","bytes":538,"sha256":"0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24","authorizingCandidateIndex":"8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac","graphicManifestSha256":"3450c75ac8a1b50eb4426e394df48d450038e7a26f7dee2100e642585195e1d2","dimensions":[1920,1080],"format":"svg","text":"REGULATORS PUNISHED THE BANK","eligibleAsCleanFrame":false},
+    "requiredSourcePath":null,"requiredSourceSha256":null,"status":"BLOCKED_NO_VERIFIED_CLEAN_FRAME_SOURCE",
+    "ownershipAndLineage":"Composition-only reference does not itself transfer rights or ownership; the source and derivative still require separate provenance and permission bindings.",
+    "requiredNext":"Supply an exact approved ACT5_B015 clean-frame asset path, byte count, hash and authorizing index, or explicitly approve a changed dependency."
+  },
+  "continuity": {"decisionCount":14,"dedicatedReferenceStills":12,"sameBeatAliasesRejected":5,"crossBeatSharing":"PROHIBITED","detailsPath":"source-v1/continuity-reference-reconciliation.v1.json"},
+  "requestsAndCost": {"plannedOutputsAfterB009":101,"potentialProviderSubmissionsAfterB009":66,"historicalEstimateUsd":{"min":4.3249,"max":11.49},"currentPricing":"Unresolved as a production contract; official route prices are included only as dated scenario references in provider-rate-snapshot.v1.json.","retryOrFailover":"Not authorized; cost exposure cannot be treated as bounded until each route’s request semantics and authorization are fixed."},
+  "firstBatch": {"recommendation":"CONDITIONAL_SHORTLIST_ONLY","beats":["ACT1_B005","ACT1_B006","ACT1_B009"],"mix":["controlled still","generated still","animation dependency still then clip"],"executableNow":false,"ACT3_B005Included":false,"ACT3_B005Reason":"Motion review is approved, but production base still, route, rights, current price and output contract are not closed."},
+  "execution": {"currentlyAuthorizedProductionRequests":0,"currentlyExecutableJobs":[],"providerCalls":0,"mediaGenerated":false,"candidateReconstructed":false,"Stage04Modified":false,"promotionOrRenderAuthorized":false}
+}

@@ -1,0 +1,444 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "edges": [
+    {
+      "from": "approve34rowAmendment",
+      "to": "rebuildChildCandidateAndRenewBindings"
+    },
+    {
+      "from": "approveAct5B009AmendmentAndLayout",
+      "to": "buildAndValidateDeterministicGraphic"
+    },
+    {
+      "from": "bindApprovedAct5B015CleanFrame",
+      "to": "ACT5_B016_compositionOnlyDerivative"
+    },
+    {
+      "from": "approveCurrentProviderTermsRightsPrice",
+      "to": "detachedProductionAuthorizations"
+    },
+    {
+      "from": "baseStill",
+      "to": "humanStillReview"
+    },
+    {
+      "from": "humanStillReview",
+      "to": "animationClipRequest"
+    },
+    {
+      "from": "animationClipOutput",
+      "to": "30fpsNormalizeAndFitPerBeatFrames"
+    },
+    {
+      "from": "fittedClip",
+      "to": "humanClipQC"
+    }
+  ],
+  "animationDependencies": [
+    {
+      "still": "BASE_ACT1_B009",
+      "thenClip": "ACT1_B009",
+      "frames": 114,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.8000011444091797,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 36,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.0000011444091798651357
+    },
+    {
+      "still": "BASE_ACT1_B010",
+      "thenClip": "ACT1_B010",
+      "frames": 66,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.1999969482421875,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 84,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.0000030517578126776357
+    },
+    {
+      "still": "BASE_ACT1_B014",
+      "thenClip": "ACT1_B014",
+      "frames": 61,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.020000457763672,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 89,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.01333287556966134
+    },
+    {
+      "still": "BASE_ACT1_B016",
+      "thenClip": "ACT1_B016",
+      "frames": 86,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.8600006103515625,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 64,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.006666056315104196
+    },
+    {
+      "still": "BASE_ACT1_B018",
+      "thenClip": "ACT1_B018",
+      "frames": 113,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.779998779296875,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 37,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.013332112630208393
+    },
+    {
+      "still": "BASE_ACT1_B021",
+      "thenClip": "ACT1_B021",
+      "frames": 145,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.819999694824219,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 5,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.013333638509114287
+    },
+    {
+      "still": "BASE_ACT1_B023",
+      "thenClip": "ACT1_B023",
+      "frames": 132,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.400001525878906,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 18,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.0000015258789058947286
+    },
+    {
+      "still": "BASE_ACT2_B016",
+      "thenClip": "ACT2_B016",
+      "frames": 118,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.9199981689453125,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 32,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.013335164388020626
+    },
+    {
+      "still": "BASE_ACT2_B022",
+      "thenClip": "ACT2_B022",
+      "frames": 158,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 5.260002136230469,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 0,
+      "endFrameHoldFrames": 8,
+      "roundingDeltaSeconds": 0.0066645304361978575
+    },
+    {
+      "still": "BASE_ACT2_B023",
+      "thenClip": "ACT2_B023",
+      "frames": 52,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 1.7199935913085938,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 98,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.013339742024739643
+    },
+    {
+      "still": "BASE_ACT2_B026",
+      "thenClip": "ACT2_B026",
+      "frames": 140,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.662608610351583,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 10,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.0040580563150838245
+    },
+    {
+      "still": "BASE_ACT3_B005",
+      "thenClip": "ACT3_B005",
+      "frames": 110,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.6599998474121094,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 40,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.006666819254557144
+    },
+    {
+      "still": "BASE_ACT3_B008",
+      "thenClip": "ACT3_B008",
+      "frames": 76,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.530000686645508,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 74,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.0033326466878254024
+    },
+    {
+      "still": "BASE_ACT3_B014",
+      "thenClip": "ACT3_B014",
+      "frames": 151,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 5.040000915527344,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 0,
+      "endFrameHoldFrames": 1,
+      "roundingDeltaSeconds": -0.006667582194010535
+    },
+    {
+      "still": "BASE_ACT3_B015",
+      "thenClip": "ACT3_B015",
+      "frames": 106,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.5400009155273438,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 44,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.006667582194010535
+    },
+    {
+      "still": "BASE_ACT3_B023",
+      "thenClip": "ACT3_B023",
+      "frames": 127,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.220001220703125,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 23,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.013332112630208393
+    },
+    {
+      "still": "BASE_ACT3_B028",
+      "thenClip": "ACT3_B028",
+      "frames": 86,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.8600006103515625,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 64,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.006666056315104196
+    },
+    {
+      "still": "BASE_ACT3B_B003",
+      "thenClip": "ACT3B_B003",
+      "frames": 115,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 3.8399996757507324,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 35,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.0066663424173989405
+    },
+    {
+      "still": "BASE_ACT3B_B006",
+      "thenClip": "ACT3B_B006",
+      "frames": 140,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.680000305175781,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 10,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": -0.013333638509114287
+    },
+    {
+      "still": "BASE_ACT3B_B014",
+      "thenClip": "ACT3B_B014",
+      "frames": 121,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 4.020000457763672,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 29,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.01333287556966134
+    },
+    {
+      "still": "BASE_ACT3B_B017",
+      "thenClip": "ACT3B_B017",
+      "frames": 78,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 2.5999984741210938,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 72,
+      "endFrameHoldFrames": 0,
+      "roundingDeltaSeconds": 0.0000015258789063388178
+    },
+    {
+      "still": "BASE_ACT5_B012",
+      "thenClip": "ACT5_B012",
+      "frames": 183,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 6.099998474121094,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 0,
+      "endFrameHoldFrames": 33,
+      "roundingDeltaSeconds": 0.0000015258789058947286
+    },
+    {
+      "still": "BASE_ACT5_B017",
+      "thenClip": "ACT5_B017",
+      "frames": 160,
+      "order": [
+        "still",
+        "still-QC",
+        "clip",
+        "fit",
+        "clip-QC"
+      ],
+      "exactBeatDurationSeconds": 5.339996337890625,
+      "sourceClipDurationSeconds": 5,
+      "trimFrames": 0,
+      "endFrameHoldFrames": 10,
+      "roundingDeltaSeconds": -0.006663004557291963
+    }
+  ],
+  "continuityDecisionCount": 14,
+  "dedicatedReferencesAfterDecisions": 12,
+  "retiredBeat": "ACT3B_B010",
+  "clipFitDocket": {
+    "path": "animation-clip-fit-docket.v1.json",
+    "sha256": "5fd7925a88e0f25ab3f303f9661c77fb1ba2ee25210092395891c908e44b7bb8",
+    "clipCount": 23,
+    "sourceDurationSeconds": 5,
+    "sourceFrameCountAt30Fps": 150,
+    "targetFrameCountsMatchApprovedDocket": true,
+    "providerOutputPropertiesUnresolved": true
+  }
+}

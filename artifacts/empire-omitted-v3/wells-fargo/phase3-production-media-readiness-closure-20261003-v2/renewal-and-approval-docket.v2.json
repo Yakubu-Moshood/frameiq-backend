@@ -1,0 +1,14 @@
+{
+  "schemaVersion":"phase3-production-readiness-approval-docket/2.0.0",
+  "status":"PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "signature":"",
+  "providerAuthorization":"",
+  "decisions":[
+    {"id":"CONTROLLED_STILL_34_ROW_APPLICATION","status":"APPROVED_FOR_ISOLATED_CANDIDATE_APPLICATION","approvalRecord":"detached-controlled-still-application-approval.v1.json","requiredBinding":"fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3","statement":"Yakubu Moshood approves production application of the exact hash-bound 34-row controlled-still amendment with SHA-256 fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3. This approval is limited to changing assetType from generated_clip to controlled_image for the 34 identified CONTROLLED_STILL rows. productionMethod, beat IDs, narration, timing and frame allocations, visual intent, evidence bindings, ownership, revision history and lineage, channel and episode identity remain unchanged. This authorizes an isolated child candidate only; no provider requests, media generation, deployment, production promotion, rendering or modification of the live Stage04 episode is authorized."},
+    {"id":"ACT5_B009_DETERMINISTIC_GRAPHIC","status":"NOT_AUTHORIZED; SPECIFICATION_INCOMPLETE","requiredBinding":"f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8","statement":"I, Yakubu Moshood, approve the exact ACT5_B009 child amendment SHA-256 f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8, changing the route to zero-provider GRAPHIC_COMPILATION/graphic_compilation with exactly the ordered labels 2013 through 2023 and no additional text or facts, while preserving narration, timing, intent and ownership. I also approve the exact deterministic SVG canvas dimensions, viewBox, layout, typography/font, sanitization and visual-validation specification attached to this child package. This grants no provider or downstream production authority."},
+    {"id":"ACT5_B016_SOURCE","status":"BLOCKED_SOURCE","required":"Provide the exact authorized ACT5_B015 clean-frame source path, bytes, SHA-256 and authorizing index, or approve a changed dependency."},
+    {"id":"PROVIDER_AND_EXECUTION","status":"UNRESOLVED","required":"For each selected production request: approve endpoint/model/parameters, current pricing, rights/ownership terms, output acceptance, cost exposure, no-retry/fallback policy and a detached one-request execution authorization."}
+  ],
+  "renewedBindingsAfterAnyApprovedAmendment":["child shot definitions","child production manifest","child candidate index","candidate validation/readiness reports","revision lineage","media dependency plan","any package or request authorization bound to changed artifacts"],
+  "approvalDoesNotAuthorize":["provider calls","media generation","candidate reconstruction","staging","promotion","rendering","episode-root writes"]
+}

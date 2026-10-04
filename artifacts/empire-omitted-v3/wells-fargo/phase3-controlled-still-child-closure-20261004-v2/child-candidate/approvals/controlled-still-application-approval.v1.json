@@ -1,0 +1,24 @@
+{
+  "schemaVersion":"phase3-controlled-still-application-approval/1.0.0",
+  "status":"APPROVED_FOR_ISOLATED_CANDIDATE_APPLICATION",
+  "recordedAt":"2026-10-03T22:31:23Z",
+  "approvedBy":"Yakubu Moshood",
+  "decision":"APPROVED_FOR_ISOLATED_CANDIDATE_APPLICATION",
+  "scope":"Apply only the exact 34-row assetType amendment to a new isolated child candidate; no production execution.",
+  "approvalSource":{
+    "path":"C:/Users/dyaky/.codex/attachments/88f83fae-8261-4468-af93-9060e18d6b24/Pasted text.txt",
+    "bytes":5594,
+    "sha256":"c88c2a78820d27f9dfe84128581083d11f6249bbfb77c0a54aa59ecba9205f94"
+  },
+  "bindings":{
+    "sourceClosurePackageIndexSha256":"9066efc95bf13bc64e1467a8a48c712628a1c2f024761b68dd2b53be848a1b18",
+    "amendmentSha256":"fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "rowCount":34,
+    "affectedBeatIds":["ACT1_B005","ACT1_B011","ACT1_B012","ACT1_B013","ACT1_B015","ACT1_B020","ACT1_B022","ACT1_B030","ACT2_B002","ACT2_B003","ACT2_B009","ACT2_B011","ACT2_B012","ACT2_B013","ACT2_B015","ACT2_B020","ACT2_B021","ACT2_B024","ACT2_B025","ACT3_B006","ACT3_B007","ACT3_B010","ACT3_B013","ACT3_B020","ACT3_B026","ACT3_B027","ACT3B_B001","ACT3B_B004","ACT3B_B007","ACT3B_B013","ACT3B_B016","ACT3B_B018","ACT5_B010","ACT5_B013"]
+  },
+  "authorizedChange":{"assetType":{"from":"generated_clip","to":"controlled_image"},"productionMethod":"CONTROLLED_STILL (unchanged)"},
+  "requiredUnchangedFields":["beat IDs","narration","timing and frame allocations","visual intent","evidence bindings","ownership","revision history and lineage","channel identity","episode identity"],
+  "prohibitedAuthority":{"providerRequests":false,"mediaGeneration":false,"deployment":false,"productionPromotion":false,"rendering":false,"liveStage04Modification":false,"episodeRootWrites":false},
+  "applicationState":"NOT_APPLIED_IN_THIS_PACKAGE",
+  "technicalGate":"The committed shot-definition and production-manifest validators do not accept this authorized type for the existing locked CLIP visual/method mapping. Resolve the validator contract without changing approved editorial fields, then rebuild and validate the isolated child; do not bypass the existing checks."
+}

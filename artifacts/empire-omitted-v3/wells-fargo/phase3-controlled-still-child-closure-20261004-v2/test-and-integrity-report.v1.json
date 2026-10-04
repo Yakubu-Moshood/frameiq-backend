@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "baselineCommit": "dd8062a1e6853890328c201d9140e73691d7770c",
+  "baselineSuite": {
+    "files": 28,
+    "passed": 574,
+    "failed": 0,
+    "skipped": 0
+  },
+  "patchedSuite": {
+    "files": 28,
+    "passed": 576,
+    "failed": 0,
+    "skipped": 0
+  },
+  "sourceParentCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "focusedSuite": {
+    "files": 5,
+    "passed": 134,
+    "failed": 0,
+    "skipped": 0
+  },
+  "validation": {
+    "node": "v24.18.0",
+    "install": "npm ci --offline --ignore-scripts from committed package-lock.json",
+    "suiteCommand": "node --test --test-reporter=tap test/*.test.cjs"
+  },
+  "localPatchFiles": [
+    ".gitattributes",
+    "pipeline-updates/production-method-manifest.cjs",
+    "pipeline-updates/shot-definitions-production-contract.cjs",
+    "pipeline-updates/shot-definitions-validator.cjs",
+    "pipeline-updates/surface-renderer.cjs",
+    "pipeline-updates/controlled-still-asset-amendment.cjs",
+    "test/production-method-manifest.test.cjs",
+    "scripts/build-phase3-controlled-still-child.cjs"
+  ]
+}

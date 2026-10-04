@@ -1,7 +1,7 @@
 'use strict';
 
 const COLOR_GRADES = Object.freeze(['cold_blue', 'gold_warm', 'deep_shadow', 'red_alert', 'neutral', 'desaturated']);
-const ASSET_TYPES = Object.freeze(['evidence_reference', 'graphic_compilation', 'generated_image', 'generated_clip']);
+const ASSET_TYPES = Object.freeze(['evidence_reference', 'graphic_compilation', 'generated_image', 'generated_clip', 'controlled_image']);
 
 // This is the shared contract for the V3 response, canonical shot fields, and
 // their owners. Model output is deliberately limited to the enrichment fields;

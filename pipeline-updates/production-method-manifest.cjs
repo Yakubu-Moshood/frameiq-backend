@@ -19,6 +19,7 @@ const METHOD_BY_ASSET_TYPE = Object.freeze({
   graphic_compilation: new Set(['GRAPHIC_COMPILATION']),
   generated_image: new Set(['GENERATED_STILL']),
   generated_clip: new Set(['ESSENTIAL_ANIMATION', 'CONTROLLED_STILL']),
+  controlled_image: new Set(['CONTROLLED_STILL']),
 });
 const REQUIRED_ENTRY_FIELDS = new Set([
   'shotId', 'actKey', 'sequenceId', 'visualClass', 'assetType', 'productionMethod', 'status',
@@ -171,7 +172,12 @@ function loadProductionMethodManifest({ manifestPath, shotDefsPath, shotDefs = n
 }
 
 function baseImageShotIds(manifest) {
-  return manifest.shots.filter(entry => BASE_IMAGE_METHODS.has(entry.productionMethod)).map(entry => entry.shotId);
+  // CONTROLLED_STILL normally supplies the approved base frame for a later
+  // animation. A corrected controlled_image is already that final, reviewed
+  // raster input and must never enter a synthetic image-provider queue.
+  return manifest.shots.filter(entry => BASE_IMAGE_METHODS.has(entry.productionMethod)
+    && !(entry.productionMethod === 'CONTROLLED_STILL' && entry.assetType === 'controlled_image'))
+    .map(entry => entry.shotId);
 }
 
 function essentialAnimationShotIds(manifest) {
@@ -198,6 +204,9 @@ function validateImagePromptBatch(prompts, manifest) {
     if (!allowed.has(id)) throw new Error(`[production-manifest] Refusing synthetic image route for ${id || '(missing shotId)'}.`);
     const entry = entriesById.get(id);
     if (item.assetType !== entry.assetType) throw new Error(`[production-manifest] Image prompt assetType mismatch for ${id}.`);
+    if (entry.productionMethod === 'CONTROLLED_STILL' && entry.assetType === 'controlled_image') {
+      throw new Error(`[production-manifest] Refusing provider generation for controlled raster ${id}.`);
+    }
     if (item.requiresGraphicCompilation === true || item.assetType === 'evidence_reference' || item.assetType === 'graphic_compilation') throw new Error(`[production-manifest] Refusing synthetic image route for protected asset ${id}.`);
     if (item.filename !== `${id}.png`) throw new Error(`[production-manifest] Unsafe or mismatched output filename for ${id}.`);
     if (seen.has(id)) throw new Error(`[production-manifest] Duplicate image prompt shotId ${id}.`);
@@ -228,6 +237,51 @@ function resolveProductionAssetLocation(method) {
   return locations[method] || null;
 }
 
+function validateControlledStillRasterAsset(filePath, { fsImpl = fs } = {}) {
+  if (typeof filePath !== 'string' || !filePath) throw new Error('CONTROLLED_STILL_ASSET_PATH_REQUIRED');
+  const stat = fsImpl.lstatSync(filePath);
+  if (stat.isSymbolicLink() || !stat.isFile() || stat.size < 24) throw new Error('CONTROLLED_STILL_ASSET_NOT_REGULAR_FILE');
+  const extension = require('node:path').extname(filePath).toLowerCase();
+  const bytes = fsImpl.readFileSync(filePath);
+  let png = false, jpeg = false, width = null, height = null;
+  if (extension === '.png' && bytes.length >= 57
+      && bytes.subarray(0, 8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]))
+      && bytes.readUInt32BE(8) === 13 && bytes.toString('ascii', 12, 16) === 'IHDR') {
+    width = bytes.readUInt32BE(16); height = bytes.readUInt32BE(20);
+    let offset = 8, sawData = false, sawEnd = false;
+    while (offset + 12 <= bytes.length) {
+      const length = bytes.readUInt32BE(offset);
+      if (length > bytes.length - offset - 12) break;
+      const type = bytes.toString('ascii', offset + 4, offset + 8);
+      if (type === 'IDAT' && length > 0) sawData = true;
+      offset += length + 12;
+      if (type === 'IEND') { sawEnd = length === 0 && offset === bytes.length; break; }
+    }
+    png = width > 0 && height > 0 && sawData && sawEnd;
+  }
+  if (extension === '.jpg' && bytes.length >= 16 && bytes[0] === 0xff && bytes[1] === 0xd8
+      && bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9) {
+    let offset = 2;
+    while (offset + 4 < bytes.length - 2) {
+      if (bytes[offset] !== 0xff) { offset++; continue; }
+      while (bytes[offset] === 0xff) offset++;
+      const marker = bytes[offset++];
+      if (marker === 0xd9 || marker === 0xda) break;
+      if ([0xd8,0x01,0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7].includes(marker)) continue;
+      if (offset + 2 > bytes.length) break;
+      const length = bytes.readUInt16BE(offset);
+      if (length < 2 || offset + length > bytes.length) break;
+      if ([0xc0,0xc1,0xc2,0xc3,0xc5,0xc6,0xc7,0xc9,0xca,0xcb,0xcd,0xce,0xcf].includes(marker) && length >= 7) {
+        height = bytes.readUInt16BE(offset + 3); width = bytes.readUInt16BE(offset + 5); break;
+      }
+      offset += length;
+    }
+    jpeg = Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0;
+  }
+  if (!png && !jpeg) throw new Error('CONTROLLED_STILL_ASSET_MUST_BE_VALID_RASTER');
+  return { status: 'PASS', format: png ? 'png' : 'jpeg', width, height, bytes: stat.size, sha256: sha256(bytes) };
+}
+
 module.exports = {
   MANIFEST_VERSION,
   PRODUCTION_METHODS,
@@ -242,4 +296,5 @@ module.exports = {
   validateImagePromptBatch,
   assertManifestReadyForRender,
   resolveProductionAssetLocation,
+  validateControlledStillRasterAsset,
 };

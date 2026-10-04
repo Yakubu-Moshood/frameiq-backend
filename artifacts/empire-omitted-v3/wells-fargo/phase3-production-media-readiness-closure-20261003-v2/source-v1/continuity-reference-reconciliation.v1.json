@@ -1,0 +1,621 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "reviewSourceIndexSha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+  "entryCount": 14,
+  "sameBeatAliasesRejected": [
+    "ACT3_B005",
+    "ACT3_B023",
+    "ACT3B_B014",
+    "ACT5_B012",
+    "ACT5_B017"
+  ],
+  "crossBeatSharing": false,
+  "entries": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B005",
+      "narration": "customer would come in to open a checking account Simple enough",
+      "timing": {
+        "startSec": 224.83598745776368,
+        "endSec": 228.4959873051758,
+        "durationSec": 3.6599998474121094
+      },
+      "visualIntent": "The innocent transaction begins.",
+      "visualDescription": "A customer slides ID across a desk to a banker; the banker begins typing.",
+      "prompt": "Medium shot of a customer's hands sliding a driver's license across a polished wood-grain desk surface toward a banker's hands positioned at a keyboard, banker beginning to type, neutral business casual attire visible on both figures from mid-torso down, no faces visible, generic computer monitor edge in frame, soft office lighting, clean professional desk surface",
+      "negativePrompt": "identifiable faces, real IDs with readable information, specific bank logos, branded materials, cluttered desk, unprofessional setting",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3_B005",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B005",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B023",
+      "narration": "improvement plans the first step toward termination",
+      "timing": {
+        "startSec": 295.77598608447266,
+        "endSec": 299.9959873051758,
+        "durationSec": 4.220001220703125
+      },
+      "visualIntent": "Termination as the inevitable endpoint.",
+      "visualDescription": "An employee removes personal items from a desk drawer; a badge lies face-down.",
+      "prompt": "Medium shot of anonymous employee removing personal items from desk drawer into small cardboard box, employee badge lying face-down on desk surface, personal photos and small objects being collected, empty cubicle atmosphere, fluorescent lighting, quiet defeat in gesture and composition",
+      "negativePrompt": "identifiable faces, readable badges, specific company logos, real employee names, documentary footage, news imagery",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3_B023",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B023",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B027",
+      "narration": "A third said he vomited before work every morning",
+      "timing": {
+        "startSec": 307.8959888310547,
+        "endSec": 311.05598486376954,
+        "durationSec": 3.1599960327148438
+      },
+      "visualIntent": "The morning ritual of dread.",
+      "visualDescription": "Anonymous person at a bathroom sink with a completely blank, unmarked lanyard card.",
+      "prompt": "Illustrative reconstruction: an anonymous person seen from behind, leaning over a plain bathroom sink in dim early-morning light. Both hands grip the basin, shoulders tense, head bowed and face completely hidden. A blank, unmarked lanyard card rests on the counter with no logo, name, text or identifying details. Restrained, non-graphic composition.",
+      "negativePrompt": "Wells Fargo badge, logo, readable name, identifiable face, real employee ID, documentary footage, graphic illness",
+      "decision": "REVISE",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3_B027",
+        "proposedRelativePath": "reference-stills/REF_ACT3_B027",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B001",
+      "narration": "The customers paid first",
+      "timing": {
+        "startSec": 317.262744,
+        "endSec": 319.5627439523163,
+        "durationSec": 2.299999952316284
+      },
+      "visualIntent": "A customer opens a bank statement, face shifting from routine to confusion.",
+      "visualDescription": "Close on hands opening an envelope, unfolding a statement—a slight hesitation as eyes scan.",
+      "prompt": "Close-up of anonymous hands opening a white business envelope at a kitchen table, fingers unfolding a bank statement document, shallow depth of field, soft natural window light from the side, muted earth tones, the paper slightly creased from the envelope, a coffee mug blurred in the background, photorealistic documentary style, 35mm film grain",
+      "negativePrompt": "identifiable face, recognizable person, specific bank logo, readable account numbers, legible personal information, Wells Fargo branding, bright saturated colors, stylized lighting, fantasy elements",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3B_B001",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B001",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B014",
+      "narration": "Others said they had been punished for resisting impossible quotas or reporting",
+      "timing": {
+        "startSec": 367.06274323706054,
+        "endSec": 371.0827436948242,
+        "durationSec": 4.020000457763672
+      },
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims.",
+      "visualDescription": "Different employee steps away from desk, refusing to participate; manager approaches with performance folder.",
+      "prompt": "Medium shot of anonymous bank employee stepping back from cubicle desk with hands raised in refusal gesture, manager silhouette approaching from side holding manila performance folder, fluorescent office lighting, generic corporate cubicle environment with neutral partitions, photorealistic documentary style, tension in body language",
+      "negativePrompt": "identifiable faces, recognizable individuals, Wells Fargo branding, specific bank logo, readable documents, personal information visible, bright cheerful colors, fantasy elements, celebratory mood",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3B_B014",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B014",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "narration": "And some of the people who warned the bank said they were fired too",
+      "timing": {
+        "startSec": 381.6827421689453,
+        "endSec": 386.25093,
+        "durationSec": 4.568187831054672
+      },
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+      "visualDescription": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+      "prompt": "Controlled still, illustrative reconstruction: one anonymous office composition places a plain telephone in the foreground and a closed, unmarked cardboard box farther back near a generic corridor. No person, face, logos, readable hotline material, elevator-door action, or scene transition.",
+      "negativePrompt": "two-scene layout, identifiable face, company branding, readable number, authentic poster, specific employee, documentary footage",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT3B_B018",
+        "proposedRelativePath": "reference-stills/REF_ACT3B_B018",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B003",
+      "narration": "At the time no senior executive",
+      "timing": {
+        "startSec": 509.13587277111816,
+        "endSec": 514.555872847412,
+        "durationSec": 5.4200000762938885
+      },
+      "visualIntent": "The absence of criminal charges as a gap in accountability.",
+      "visualDescription": "Empty federal courtroom bench, no defendant present.",
+      "prompt": "Empty federal courtroom interior, dark wood judicial bench with no judge present, empty defendant's table and chairs, American flag in corner, institutional lighting casting long shadows, absence emphasized through negative space, documentary photography style, wide establishing shot",
+      "negativePrompt": "people present, judges, defendants, lawyers, jury, courtroom activity, text overlays, watermarks, cartoon style, illustration style",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B003",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B003",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B009",
+      "narration": "Those consequences were real They were also late For employees who",
+      "timing": {
+        "startSec": 539.455874373291,
+        "endSec": 544.5758733051757,
+        "durationSec": 5.119998931884766
+      },
+      "visualIntent": "Acknowledge the reality of consequences while questioning their timing.",
+      "visualDescription": "Calendar pages spanning years, 2013 through 2023, stacked and faded.",
+      "prompt": "Deterministic, zero-provider editorial graphic of stacked, faded calendar sheets. Show exactly these year labels in chronological order: 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023. Preserve the approved visual description: calendar pages spanning years 2013 through 2023, stacked and faded. Add no other dates or text.",
+      "negativePrompt": "No year labels other than exactly 2013 through 2023; no additional dates, circled dates, handwritten notes, personal information, corporate logos, event markers, fabricated facts, or external imagery.",
+      "decision": "REVISE",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "GRAPHIC_ACT5_B009_YEAR_PAGES",
+        "proposedRelativePath": "outputs/graphics/ACT5_B009-year-pages.svg",
+        "assetType": "deterministic_controlled_graphic",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": "SVG",
+        "dimensionsAndFormatStatus": "UNRESOLVED_REQUIRES_LAYOUT_SPECIFICATION",
+        "providerRequests": 0
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DETERMINISTIC_ZERO_PROVIDER_GRAPHIC_INSTEAD_OF_REFERENCE",
+      "potentialProviderSubmissions": 0,
+      "productionRequestKey": null,
+      "status": "BLOCKED_UNSIGNED_AMENDMENT_AND_LAYOUT_SPEC"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B010",
+      "narration": "reported misconduct the outcome was uneven Federal investigators found",
+      "timing": {
+        "startSec": 544.5758733051757,
+        "endSec": 550.495871474121,
+        "durationSec": 5.9199981689453125
+      },
+      "visualIntent": "The uneven outcomes for those who spoke up.",
+      "visualDescription": "A person sits alone in a small apartment, reviewing documents, phone beside them.",
+      "prompt": "Non-identifiable person from behind sitting alone at small kitchen table in modest apartment, reviewing scattered documents and papers, smartphone placed beside them unanswered, evening light through window blinds, isolating composition, documentary cinematography style, medium wide shot",
+      "negativePrompt": "identifiable face, recognizable features, specific documents readable, corporate logos, Wells Fargo branding, bright cheerful lighting, multiple people",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B010",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B010",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "narration": "workers clear their records and pay back wages or damages Other employees",
+      "timing": {
+        "startSec": 555.2758740681152,
+        "endSec": 561.3758725422363,
+        "durationSec": 6.099998474121094
+      },
+      "visualIntent": "The bureaucratic process of clearing records and paying damages.",
+      "visualDescription": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+      "prompt": "Illustrative reconstruction: anonymous hand with a pen rests beside a plain, unmarked sheet on a conference table. The page contains no title, terms, signatures, names, figures, logos, or recognizable legal layout. Shallow focus and restrained neutral light.",
+      "negativePrompt": "settlement terms, readable legal text, dollar amounts, names, real signatures, logos, authentic agreement, documentary footage",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B012",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B012",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B013",
+      "narration": "spent years fighting settled privately or left banking altogether",
+      "timing": {
+        "startSec": 561.3758725422363,
+        "endSec": 566.5758733051757,
+        "durationSec": 5.200000762939453
+      },
+      "visualIntent": "Others left behind by the system entirely.",
+      "visualDescription": "Controlled still of an anonymous departure silhouette outside an unbranded building.",
+      "prompt": "Controlled still, illustrative reconstruction: a distant non-identifiable silhouette stands beyond the entrance of a generic unbranded building in afternoon backlight. Keep the figure still and the composition quiet; no specific bank architecture, signage, or identifiable person.",
+      "negativePrompt": "Wells Fargo, recognizable bank, identifiable face, readable signage, specific person, documentary footage",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B013",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B013",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B016",
+      "narration": "a sales system that rewarded impossible numbers ignored warnings and treated people",
+      "timing": {
+        "startSec": 577.515875746582,
+        "endSec": 583.0758733051757,
+        "durationSec": 5.55999755859375
+      },
+      "visualIntent": "The record contradicts the clean version.",
+      "visualDescription": "Same frame cracks and distorts, revealing document layers beneath.",
+      "prompt": "Use the approved ACT5_B015 clean frame only as the compositional reference for ACT5_B016’s cracked-frame derivative. Preserve ACT5_B016’s approved intent: a clean corporate statement surface develops hairline cracks and reveals document layers. Do not use the ACT5_B015 frame as ACT5_B016’s final output and do not reuse it for other beats.",
+      "negativePrompt": "real documents, readable text, corporate logos, identifiable names, cheerful imagery, complete destruction, fire or violence, cartoon style",
+      "decision": "REVISE",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "FINAL_ACT5_B016_CRACKED_FRAME",
+        "proposedRelativePath": "outputs/assets/stills/ACT5_B016.png",
+        "assetType": "generated_image",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL",
+        "sourceDependency": "ACT5_B015 approved clean frame (compositional reference only)"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "COMPOSITION_ONLY_ACT5_B015_CLEAN_FRAME_DEPENDENCY",
+      "potentialProviderSubmissions": 0,
+      "productionRequestKey": null,
+      "status": "BLOCKED_NO_VERIFIED_CLEAN_FRAME_SOURCE"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B017",
+      "narration": "lower down as disposable when the system finally became public",
+      "timing": {
+        "startSec": 583.0758733051757,
+        "endSec": 588.4158696430663,
+        "durationSec": 5.339996337890625
+      },
+      "visualIntent": "People below absorbed as system cost when exposure arrived.",
+      "visualDescription": "Distinct restrained composition of an anonymous desk after belongings have been removed, without repeating a packing action.",
+      "prompt": "Illustrative reconstruction: a quiet generic office desk after personal objects have been removed, with one closed plain cardboard box in the foreground and an empty chair beyond. No people, readable material, logos, or identifiable office. Use a composed aftermath image distinct from a person packing belongings.",
+      "negativePrompt": "packing action, manager watching, identifiable people, readable papers, company branding, specific office, documentary footage",
+      "decision": "APPROVED_AS_WRITTEN",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B017",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B017",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "REJECTED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B021",
+      "narration": "Some senior leaders lost money positions and the right to",
+      "timing": {
+        "startSec": 601.3758763569335,
+        "endSec": 604.3558720844726,
+        "durationSec": 2.9799957275390625
+      },
+      "visualIntent": "Senior leaders faced real but limited consequences.",
+      "visualDescription": "Executive office nameplate removed from door, corporate portrait taken down.",
+      "prompt": "Medium shot of a generic executive-office door. An anonymous maintenance hand unscrews a blank brass nameplate with no text. On the adjacent wall, an empty rectangular shadow and exposed picture hooks show that a corporate portrait has already been removed. Institutional hallway lighting, subdued documentary composition, no people or identifying details.",
+      "negativePrompt": "identifiable names on nameplate, recognizable face in portrait, specific corporate logos, Wells Fargo branding, cheerful mood, new nameplate being installed",
+      "decision": "REVISE",
+      "planningOnly": true,
+      "requiredOutput": {
+        "assetId": "REF_ACT5_B021",
+        "proposedRelativePath": "reference-stills/REF_ACT5_B021",
+        "assetType": "dedicated_reference_still",
+        "targetAspectRatio": "16:9 (proposed target carried from v2)",
+        "widthPx": null,
+        "heightPx": null,
+        "imageFormat": null,
+        "dimensionsAndFormatStatus": "UNRESOLVED_PENDING_APPROVAL"
+      },
+      "rightsOwnership": {
+        "basis": "No existing local approved asset selected; a new dedicated reference still is proposed.",
+        "rightsStatus": "UNRESOLVED_PENDING_PROVIDER_ROUTE_AND_TERMS_REVIEW",
+        "ownershipStatus": "UNRESOLVED_PENDING_PROVIDER_TERMS_AND_HUMAN_REVIEW",
+        "requirements": [
+          "review provider terms and output-ownership rights before any request",
+          "record source/ownership and license basis for final output",
+          "human visual approval before downstream use"
+        ]
+      },
+      "sameBeatAliasDecision": "NOT_PROPOSED",
+      "sameBeatAliasRejected": true,
+      "crossBeatSharing": "PROHIBITED",
+      "role": "DEDICATED_CONTINUITY_REFERENCE_STILL",
+      "potentialProviderSubmissions": 1,
+      "productionRequestKey": null,
+      "status": "BLOCKED_TERMS_RIGHTS_PRICE_AND_PRODUCTION_AUTHORIZATION"
+    }
+  ]
+}

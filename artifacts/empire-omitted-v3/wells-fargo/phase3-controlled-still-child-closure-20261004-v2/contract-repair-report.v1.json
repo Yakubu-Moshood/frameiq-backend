@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "phase3-controlled-still-contract-repair-report/1.0.0",
+  "status": "PASS",
+  "repair": "CONTROLLED_STILL + controlled_image is accepted only in the exact approved 34-beat child amendment; still outputs route through CONTROLLED_STILL raster validation.",
+  "excludedFromAnimationQueue": true,
+  "visualTypePreserved": "CLIP",
+  "unknownCombinationsFailClosed": true,
+  "noMediaGenerated": true,
+  "noProviderRequests": true,
+  "noEpisodeRootWrites": true
+}

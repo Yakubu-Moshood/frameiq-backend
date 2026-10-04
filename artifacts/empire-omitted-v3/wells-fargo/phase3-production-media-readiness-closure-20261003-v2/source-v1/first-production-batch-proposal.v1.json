@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "recommendation": "NO_EXECUTABLE_BATCH_YET",
+  "selectedBeats": [],
+  "why": "Cannot satisfy requested mix without unresolved 34-row production amendment authority; provider routes, current pricing/rights and production authorization are also unresolved. ACT5_B009 and ACT5_B016 have specific blockers; ACT3_B005 provider/rights/price and production base still remain unspecified.",
+  "conditionalShortlist": [
+    {
+      "beatId": "ACT1_B005",
+      "role": "controlled still",
+      "blocker": "34-row amendment production approval/application"
+    },
+    {
+      "beatId": "ACT1_B006",
+      "role": "generated still",
+      "blocker": "current provider terms/price/rights and detached authorization"
+    },
+    {
+      "beatId": "ACT1_B009",
+      "role": "animation base still followed by clip",
+      "blocker": "still review, provider/output/rights/cost and detached authorizations"
+    },
+    {
+      "beatId": "ACT3_B005",
+      "role": "motion-contract animation",
+      "productionRequestKey": "cc2927c051bdff21bec411f3110d0f248797ac431e68e4ad3e0296a668b9fb14",
+      "included": false,
+      "blocker": "base still plus current production route/rights/price/output requirements incomplete"
+    }
+  ],
+  "retiredBeatExcluded": "ACT3B_B010"
+}

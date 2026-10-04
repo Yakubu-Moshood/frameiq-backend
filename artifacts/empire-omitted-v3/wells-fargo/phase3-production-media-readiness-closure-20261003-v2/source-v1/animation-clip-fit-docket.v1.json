@@ -1,0 +1,987 @@
+{
+  "schemaVersion": "phase3-production-animation-clip-fit-docket/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceBindings": {
+    "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "editPlanSha256": "6ed83289146316d939e9f0507d5d19e7ce2278b10250ca179285e1e74392c407",
+    "shotDefinitionsSha256": "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7",
+    "approvedClipFitPolicySha256": "b03a64a5dd0570e057237a2dc01f3084be90d1f36420ecf3f2394ad9478594f9"
+  },
+  "calculation": {
+    "fps": 30,
+    "sourceDurationSeconds": 5,
+    "sourceFramesAtCalculationFps": 150,
+    "roundingRule": "Math.round(durationSec * 30); resulting planned timeline differs from exact edit-plan duration by (targetFrames/30)-durationSec. This is disclosed per beat.",
+    "totalClipBeats": 23,
+    "outputPropertiesRemainUnresolved": true
+  },
+  "entries": [
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B009",
+      "exactNarration": "employee in los angeles noticed something strange",
+      "exactBeatDurationSeconds": 3.8000011444091797,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 114,
+        "trimFrames": 36,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.8,
+        "roundingDeltaSeconds": -0.0000011444091798651357,
+        "roundingDisclosure": "shortens the exact beat by 0.000001144409 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B009",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B010",
+      "exactNarration": "her colleague was opening accounts for customers",
+      "exactBeatDurationSeconds": 2.1999969482421875,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 66,
+        "trimFrames": 84,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.2,
+        "roundingDeltaSeconds": 0.0000030517578126776357,
+        "roundingDisclosure": "Lengthens the exact beat by 0.000003051758 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B010",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B014",
+      "exactNarration": "she reported it to her manager",
+      "exactBeatDurationSeconds": 2.020000457763672,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 61,
+        "trimFrames": 89,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.033333333333333,
+        "roundingDeltaSeconds": 0.01333287556966134,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013332875570 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B014",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B016",
+      "exactNarration": "within months she was fired",
+      "exactBeatDurationSeconds": 2.8600006103515625,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 86,
+        "trimFrames": 64,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.8666666666666667,
+        "roundingDeltaSeconds": 0.006666056315104196,
+        "roundingDisclosure": "Lengthens the exact beat by 0.006666056315 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B016",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B018",
+      "exactNarration": "she believed she was being punished for speaking up and she wasn't",
+      "exactBeatDurationSeconds": 3.779998779296875,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 113,
+        "trimFrames": 37,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.7666666666666666,
+        "roundingDeltaSeconds": -0.013332112630208393,
+        "roundingDisclosure": "shortens the exact beat by 0.013332112630 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B018",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B021",
+      "exactNarration": "never knew about some forged signatures some created",
+      "exactBeatDurationSeconds": 4.819999694824219,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 145,
+        "trimFrames": 5,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.833333333333333,
+        "roundingDeltaSeconds": 0.013333638509114287,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013333638509 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B021",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act1",
+      "beatId": "ACT1_B023",
+      "exactNarration": "others opened accounts for relatives without telling them",
+      "exactBeatDurationSeconds": 4.400001525878906,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 132,
+        "trimFrames": 18,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.4,
+        "roundingDeltaSeconds": -0.0000015258789058947286,
+        "roundingDisclosure": "shortens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT1_B023",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B016",
+      "exactNarration": "binding each person to wells fargo for life",
+      "exactBeatDurationSeconds": 3.9199981689453125,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 118,
+        "trimFrames": 32,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.933333333333333,
+        "roundingDeltaSeconds": 0.013335164388020626,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013335164388 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT2_B016",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B022",
+      "exactNarration": "and when employees couldn't meet these impossible quotas legitimately",
+      "exactBeatDurationSeconds": 5.260002136230469,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 158,
+        "trimFrames": 0,
+        "endFrameHoldFrames": 8,
+        "frameAccurateDurationSeconds": 5.266666666666667,
+        "roundingDeltaSeconds": 0.0066645304361978575,
+        "roundingDisclosure": "Lengthens the exact beat by 0.006664530436 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT2_B022",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "exactNarration": "they found another way",
+      "exactBeatDurationSeconds": 1.7199935913085938,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 52,
+        "trimFrames": 98,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 1.7333333333333334,
+        "roundingDeltaSeconds": 0.013339742024739643,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013339742025 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT2_B023",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act2",
+      "beatId": "ACT2_B026",
+      "exactNarration": "and for years nobody at the top claimed to notice",
+      "exactBeatDurationSeconds": 4.662608610351583,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 140,
+        "trimFrames": 10,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.666666666666667,
+        "roundingDeltaSeconds": 0.0040580563150838245,
+        "roundingDisclosure": "Lengthens the exact beat by 0.004058056315 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT2_B026",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B005",
+      "exactNarration": "customer would come in to open a checking account simple enough",
+      "exactBeatDurationSeconds": 3.6599998474121094,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 110,
+        "trimFrames": 40,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.6666666666666665,
+        "roundingDeltaSeconds": 0.006666819254557144,
+        "roundingDisclosure": "Lengthens the exact beat by 0.006666819255 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B005",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B008",
+      "exactNarration": "all without the customer's knowledge",
+      "exactBeatDurationSeconds": 2.530000686645508,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 76,
+        "trimFrames": 74,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.533333333333333,
+        "roundingDeltaSeconds": 0.0033326466878254024,
+        "roundingDisclosure": "Lengthens the exact beat by 0.003332646688 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B008",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B014",
+      "exactNarration": "they would open accounts using the identities of elderly customers who wouldn't notice",
+      "exactBeatDurationSeconds": 5.040000915527344,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 151,
+        "trimFrames": 0,
+        "endFrameHoldFrames": 1,
+        "frameAccurateDurationSeconds": 5.033333333333333,
+        "roundingDeltaSeconds": -0.006667582194010535,
+        "roundingDisclosure": "shortens the exact beat by 0.006667582194 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B014",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B015",
+      "exactNarration": "they would sign up immigrants who couldn't read the english paperwork",
+      "exactBeatDurationSeconds": 3.5400009155273438,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 106,
+        "trimFrames": 44,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.533333333333333,
+        "roundingDeltaSeconds": -0.006667582194010535,
+        "roundingDisclosure": "shortens the exact beat by 0.006667582194 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B015",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B023",
+      "exactNarration": "improvement plans the first step toward termination",
+      "exactBeatDurationSeconds": 4.220001220703125,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 127,
+        "trimFrames": 23,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.233333333333333,
+        "roundingDeltaSeconds": 0.013332112630208393,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013332112630 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B023",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B028",
+      "exactNarration": "and when they reported what was happening the",
+      "exactBeatDurationSeconds": 2.8600006103515625,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 86,
+        "trimFrames": 64,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.8666666666666667,
+        "roundingDeltaSeconds": 0.006666056315104196,
+        "roundingDisclosure": "Lengthens the exact beat by 0.006666056315 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3_B028",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B003",
+      "exactNarration": "overdraft charges for accounts they didn't know existed",
+      "exactBeatDurationSeconds": 3.8399996757507324,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 115,
+        "trimFrames": 35,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 3.8333333333333335,
+        "roundingDeltaSeconds": -0.0066663424173989405,
+        "roundingDisclosure": "shortens the exact beat by 0.006666342417 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3B_B003",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B006",
+      "exactNarration": "some customers were denied mortgages because of the damage to their credit",
+      "exactBeatDurationSeconds": 4.680000305175781,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 140,
+        "trimFrames": 10,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.666666666666667,
+        "roundingDeltaSeconds": -0.013333638509114287,
+        "roundingDisclosure": "shortens the exact beat by 0.013333638509 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3B_B006",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B014",
+      "exactNarration": "others said they had been punished for resisting impossible quotas or reporting",
+      "exactBeatDurationSeconds": 4.020000457763672,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 121,
+        "trimFrames": 29,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 4.033333333333333,
+        "roundingDeltaSeconds": 0.01333287556966134,
+        "roundingDisclosure": "Lengthens the exact beat by 0.013332875570 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3B_B014",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act3b",
+      "beatId": "ACT3B_B017",
+      "exactNarration": "the people who cheated to meet them could be fired",
+      "exactBeatDurationSeconds": 2.5999984741210938,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_TRIM_DETERMINISTICALLY",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 78,
+        "trimFrames": 72,
+        "endFrameHoldFrames": 0,
+        "frameAccurateDurationSeconds": 2.6,
+        "roundingDeltaSeconds": 0.0000015258789063388178,
+        "roundingDisclosure": "Lengthens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT3B_B017",
+        "required": true,
+        "referenceStillAliasCandidate": false,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "exactNarration": "workers clear their records and pay back wages or damages other employees",
+      "exactBeatDurationSeconds": 6.099998474121094,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 183,
+        "trimFrames": 0,
+        "endFrameHoldFrames": 33,
+        "frameAccurateDurationSeconds": 6.1,
+        "roundingDeltaSeconds": 0.0000015258789058947286,
+        "roundingDisclosure": "Lengthens the exact beat by 0.000001525879 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT5_B012",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    },
+    {
+      "actKey": "act5",
+      "beatId": "ACT5_B017",
+      "exactNarration": "lower down as disposable when the system finally became public",
+      "exactBeatDurationSeconds": 5.339996337890625,
+      "approvedFitPolicy": "GENERATE_5_SECOND_SOURCE_THEN_HOLD_FINAL_FRAME",
+      "sourceClipRequest": {
+        "durationSeconds": 5,
+        "sourceFrameCountAt30Fps": 150,
+        "sourceFrameRate": "UNRESOLVED_PENDING_PILOT"
+      },
+      "frameTreatment": {
+        "fps": 30,
+        "targetFrames": 160,
+        "trimFrames": 0,
+        "endFrameHoldFrames": 10,
+        "frameAccurateDurationSeconds": 5.333333333333333,
+        "roundingDeltaSeconds": -0.006663004557291963,
+        "roundingDisclosure": "shortens the exact beat by 0.006663004557 seconds after rounding to whole 30-fps frames."
+      },
+      "requiredStillDependency": {
+        "dependencyId": "BASE_ACT5_B017",
+        "required": true,
+        "referenceStillAliasCandidate": true,
+        "status": "MISSING_NOT_CREATED"
+      },
+      "sourceAndOutputProperties": {
+        "providerRoute": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "providerModel": "UNRESOLVED_PENDING_SEPARATELY_APPROVED_PILOT",
+        "currentPrice": "UNRESOLVED; historical planning values are not current quotes",
+        "container": null,
+        "codec": null,
+        "widthPx": null,
+        "heightPx": null,
+        "nativeFrameRate": null,
+        "returnedFrameCount": null,
+        "returnedDurationSeconds": null
+      },
+      "planningRequestKey": null,
+      "productionRequestKey": null,
+      "executionStatus": "BLOCKED_PENDING_PRODUCTION_AUTHORIZATION_AND_PILOT_PROPERTIES"
+    }
+  ]
+}

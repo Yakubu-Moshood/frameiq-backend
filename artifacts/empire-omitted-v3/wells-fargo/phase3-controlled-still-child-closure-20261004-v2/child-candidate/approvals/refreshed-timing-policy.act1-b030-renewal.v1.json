@@ -1,0 +1,2536 @@
+{
+  "schemaVersion": "phase2.3b-p-approved-timing-exceptions/5.0.0",
+  "status": "USER_APPROVED",
+  "runId": "phase2-3b-p-act-20260925",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "channelKey": "EmpireOmitted",
+  "approval": {
+    "approvedBy": "Yakubu Moshood",
+    "approvalRef": "phase2.3b-act3-refresh-timing-2026-09-28",
+    "decision": "APPROVED",
+    "recordedDate": "2026-09-28",
+    "proposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+    "approvalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1"
+  },
+  "binding": {
+    "runId": "phase2-3b-p-act-20260925",
+    "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+    "channelKey": "EmpireOmitted",
+    "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+    "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+    "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+    "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+    "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+    "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+    "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+    "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+    "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+  },
+  "refreshBindings": {
+    "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+    "proposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+    "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+    "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+    "boundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+    "timestampsSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+    "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+    "evidenceApprovalSha256": "c0de5baef64e8a9ff6a612b58f2d5089cd6789562c3b367686d243ca72c0afb2",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1"
+  },
+  "globalLimits": {
+    "minimumSeconds": 2,
+    "maximumSeconds": 6,
+    "unchanged": true
+  },
+  "tokenization": {
+    "sourcePlan": "edit-plan-schema/3.0.0-inclusive-word-indices",
+    "candidateScript": "js-trim-split-whitespace/1.0.0",
+    "retainedTranscript": "word-timestamps-array/zero-based-inclusive/1.0.0",
+    "timingBoundary": "next-word-start-or-act-terminal-boundary/1.0.0"
+  },
+  "exceptions": [
+    {
+      "exceptionId": "412d660ece8619d4f9ab1685f092126db906188cd506a9e39f9cd897b6ba72ea",
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "sourcePlanWordRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 227,
+        "end": 230,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "None went to prison.",
+      "approvedNarrationSha256": "03e57cb492317561a582feae54c1c3019f96198a461854a25fd4693a7a3454c9",
+      "sourcePlanNarrationExcerpt": "none went to prison",
+      "sourcePlanNarrationSha256": "2326296a29ba4f5bcb4ddef7d243f9d23e8eae9656aefa8907cf1896de687222",
+      "mappedTranscriptWordRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "none",
+        "end": "prison"
+      },
+      "approvedDurationSec": 1.3533753378906255,
+      "minimumAllowedDurationSec": 1.3523753378906256,
+      "maximumAllowedDurationSec": 1.3543753378906254,
+      "priorTimingExceptionReason": "Final beat of hook requires landing space before act transition.",
+      "justification": "Deliberate closing impact beat: the short isolated statement “None went to prison” is intended to land as a final consequence.",
+      "productionMethod": "CONTROLLED_STILL",
+      "productionObligations": {
+        "productionMethod": "CONTROLLED_STILL",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "visualIntent": "Empty prison corridor—the justice that never came.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": "atmospheric",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "music fades to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Prison corridor, empty, fluorescent lights, no one walking through—justice absent.",
+          "motionType": "dolly_back",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_back"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act1:ACT1_B030",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 1.3533753378906255,
+        "mappedTranscriptWordRange": {
+          "start": 226,
+          "end": 229,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "none",
+          "end": "prison"
+        }
+      }
+    },
+    {
+      "exceptionId": "32ded58383bb3505fa3261a857ce22d4947c475599290be46ca908d00480bac4",
+      "actKey": "act2",
+      "beatId": "ACT2_B006",
+      "sourcePlanWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo survived.",
+      "approvedNarrationSha256": "9d21928564e0b7ccc99f25c90b3771e8c927b0c3654684da6cc318b3ee8e6f49",
+      "sourcePlanNarrationExcerpt": "wells fargo survived",
+      "sourcePlanNarrationSha256": "7e43c36187d2ccd59873577d68c49381bb6ac97dc3719640ca751072924a2e23",
+      "mappedTranscriptWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 1.720001220703125,
+      "minimumAllowedDurationSec": 1.719001,
+      "maximumAllowedDurationSec": 1.721001,
+      "justification": "This short, complete three-word statement is a deliberate dramatic contrast: the bank survived the 2008 financial crisis. Keep the approved evidence reference and narration ownership unchanged.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Wells Fargo stands apart from the wreckage.",
+        "rhythmIntent": "building",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo headquarters exterior, stable and gleaming.",
+          "motionType": "crane_rise",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "crane_rise"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "photograph",
+          "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Corporate Photography",
+          "humanReviewRequired": true
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "photograph",
+            "description": "Wells Fargo San Francisco headquarters circa 2008-2009",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Corporate Photography",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate photographs of Wells Fargo's San Francisco headquarters building (420 Montgomery Street) taken during 2008-2009 period. Search corporate photography archives, architectural photography databases, financial news image libraries (Reuters, AP, Getty, Bloomberg). Prioritize exterior shots showing the building's distinctive architecture in clear weather conditions. Verify dating through metadata or publication context."
+        }
+      },
+      "productionObligationsSha256": "8b02f4eb576f9cf4a2a38f7c82279b3fce120a0bf6c4f64eb67a0d0d7bf5ecc1",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act2:ACT2_B006",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "survived"
+      },
+      "priorTimingExceptionReason": null,
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 1.720001220703125,
+        "mappedTranscriptWordRange": {
+          "start": 43,
+          "end": 45,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "wells",
+          "end": "survived"
+        }
+      }
+    },
+    {
+      "exceptionId": "3405a370fdae72404c09f9c35a3d9f6324f0fa84ea4c5d8d262396084b463ffd",
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "sourcePlanWordRange": {
+        "start": 197,
+        "end": 200,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 195,
+        "end": 198,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "they found another way.",
+      "approvedNarrationSha256": "4f3139df7caa6f3c94991429134f6d3f20ef7d92e387b0f02c7cffc7cc198ea5",
+      "sourcePlanNarrationExcerpt": "they found another way",
+      "sourcePlanNarrationSha256": "24e98260cd688294b9f0f96df9b38b5eeeeb18198457e62371983ec546d17601",
+      "mappedTranscriptWordRange": {
+        "start": 196,
+        "end": 199,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "they",
+        "end": "way"
+      },
+      "mappedTranscriptNarrationExcerpt": "they found another way",
+      "mappedTranscriptNarrationSha256": "24e98260cd688294b9f0f96df9b38b5eeeeb18198457e62371983ec546d17601",
+      "approvedDurationSec": 1.7199935913085938,
+      "minimumAllowedDurationSec": 1.7189935913085939,
+      "maximumAllowedDurationSec": 1.7209935913085939,
+      "priorTimingExceptionReason": "Brief beat captures the precise moral turning point before act conclusion.",
+      "justification": "A deliberate short moral-turn beat; combining it with neighbouring narration would weaken the precise shift in the argument and alter narration ownership.",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "The moment of moral compromise.",
+        "rhythmIntent": "suspended",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": "representative",
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "tension suspends",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [
+            "keyboard typing"
+          ],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "CLIP",
+          "description": "Controlled still of anonymous hands beside a single abstract, blank account interface.",
+          "motionType": "rack_focus",
+          "secondaryAction": "Customer details populate a new account form."
+        },
+        "motionIntent": {
+          "type": "rack_focus"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "5c2f06baeeabc677d9d8a98c113ed61cc38b21d073b0689f997c5298e5b77f60",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act2:ACT2_B023",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 1.7199935913085938,
+        "mappedTranscriptWordRange": {
+          "start": 196,
+          "end": 199,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "they",
+          "end": "way"
+        }
+      }
+    },
+    {
+      "exceptionId": "578481d1492359d6d7fa21857e1b7ec32efcf9bc483ac26aa5a3abb1a33a6a9a",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "sourcePlanWordRange": {
+        "start": 59,
+        "end": 69,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 58,
+        "end": 74,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo says it refunded about $2.6 million in fees tied to accounts flagged by its review.",
+      "approvedNarrationSha256": "2285bdcb657e52824e7dd7e4046a2ef0866701e76b4f8204ccc67615c70160b6",
+      "sourcePlanNarrationExcerpt": "bank collected an estimated 2 6 million in fees from accounts",
+      "sourcePlanNarrationSha256": "7600ded519b1c1852509b8301497bb71ed47894d73178daf8c0ac1d45952d011",
+      "mappedTranscriptWordRange": {
+        "start": 58,
+        "end": 75,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 7.270000457763672,
+      "minimumAllowedDurationSec": 7.269,
+      "maximumAllowedDurationSec": 7.271,
+      "justification": "This complete sentence attributes the approximately $2.6 million fee refund to Wells Fargo and its review. Preserve the evidence reference and the approved fee-refund graphic for the entire verified narration interval.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Show the bank-attributed refund figure with a clear source label; do not imply every flagged account was proven unauthorized.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo 3Q16 quarterly supplement supporting the bank’s statement that about $2.6 million in fees tied to accounts flagged by its review were refunded.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure",
+          "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+            "text": "$2.6 MILLION IN FEES REFUNDED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure",
+            "description": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo 3Q16 Quarterly Supplement",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo."
+        }
+      },
+      "productionObligationsSha256": "80ce9834259333a8377255a183511401932c637e230b1d0d0db37d5acb4a070a",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "approved-range:act3b:ACT3B_B008",
+        "relationship": "approved-rewritten-range"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "review"
+      },
+      "priorTimingExceptionReason": null,
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 7.270000457763672,
+        "mappedTranscriptWordRange": {
+          "start": 58,
+          "end": 75,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "wells",
+          "end": "review"
+        }
+      }
+    },
+    {
+      "exceptionId": "f70bbfecd09640dbfd751778a19bfd21d43a17ef7467546cf0208a7be4fec3f0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "sourcePlanWordRange": {
+        "start": 90,
+        "end": 101,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 86,
+        "end": 97,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Wells Fargo said it fired more than 5,300 employees for sales-practice violations.",
+      "approvedNarrationSha256": "f0e222f3e73415ba2d52dd237186594689a25c92c814bbac4feb49279664676a",
+      "sourcePlanNarrationExcerpt": "fargo said it fired more than 5 300 employees for sales practice",
+      "sourcePlanNarrationSha256": "e6a87b4f66a4902fadf3431d164c1b39b5c564da8a307424381353ddd95faf72",
+      "mappedTranscriptWordRange": {
+        "start": 87,
+        "end": 100,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.760002136230469,
+      "minimumAllowedDurationSec": 6.759002,
+      "maximumAllowedDurationSec": 6.761002,
+      "justification": "This complete sentence states the bank-reported termination count and its sales-practice scope. Preserve the evidence reference and the approved 5,300-employees graphic across the full verified narration interval.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "The mass firing figure lands with institutional coldness.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Wells Fargo disclosure or regulatory document citing 5,300 terminations.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "corporate disclosure or regulatory filing",
+          "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Wells Fargo Disclosure",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the termination scale",
+            "text": "5,300 EMPLOYEES FIRED"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "corporate disclosure or regulatory filing",
+            "description": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Wells Fargo Disclosure",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
+        }
+      },
+      "productionObligationsSha256": "991c17db21fc6f3f8c40c63409c1193645120fc450b57eda553e97264f4d0c4e",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "approved-range:act3b:ACT3B_B012",
+        "relationship": "approved-rewritten-range"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "wells",
+        "end": "violations"
+      },
+      "priorTimingExceptionReason": null,
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 6.760002136230469,
+        "mappedTranscriptWordRange": {
+          "start": 87,
+          "end": 100,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "wells",
+          "end": "violations"
+        }
+      }
+    },
+    {
+      "exceptionId": "06dd6482e21b82e900b5c687dbe89358d2ffdef83d8c6e935fe3e0d5ce259cc8",
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "sourcePlanWordRange": {
+        "start": 198,
+        "end": 207,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 198,
+        "end": 207,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "then terminated the remaining 2018 enforcement action in March 2026.",
+      "approvedNarrationSha256": "b65b76c608968740754647aeba34804497a6f4f83f845c429eabbf44cee32fc3",
+      "sourcePlanNarrationExcerpt": "then terminated the remaining 2018 enforcement action in march 2026",
+      "sourcePlanNarrationSha256": "62d0545dff80c1c096cf2aa8be03d0419d1cdee54a91028edb061ab5562ccb3f",
+      "mappedTranscriptWordRange": {
+        "start": 195,
+        "end": 204,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.019996643066406,
+      "minimumAllowedDurationSec": 6.018997,
+      "maximumAllowedDurationSec": 6.020997,
+      "justification": "This dated Federal Reserve closure clause is 19.997 milliseconds above the normal maximum because of the approved retained-VO word boundaries. Preserve the Fed evidence and March 2026 date marker; do not reassign narration.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Final enforcement termination closes the regulatory chapter.",
+        "rhythmIntent": "reflective",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": null,
+        "visual": {
+          "type": "STILL",
+          "description": "Federal Reserve termination of 2018 enforcement action.",
+          "motionType": "static_locked",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "static_locked"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "regulatory document",
+          "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "Federal Reserve, March 2026",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "date_marker",
+            "intent": "Mark the final closure.",
+            "text": "MARCH 2026"
+          }
+        ],
+        "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "regulatory document",
+            "description": "Fed termination of remaining 2018 enforcement action, March 2026",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "Federal Reserve, March 2026",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate Federal Reserve termination of remaining 2018 Wells Fargo enforcement action, March 2026. Search Federal Reserve Board enforcement action database, press releases, or regulatory filings from March 2026 for final Wells Fargo enforcement closure."
+        }
+      },
+      "productionObligationsSha256": "88115ceebd4f7f87cee1ecaf536feabca65140caecb01fec20333517f4f154d7",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act4:ACT4_B022",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "then",
+        "end": "2026"
+      },
+      "priorTimingExceptionReason": null,
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 6.019996643066406,
+        "mappedTranscriptWordRange": {
+          "start": 195,
+          "end": 204,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "then",
+          "end": "2026"
+        }
+      }
+    },
+    {
+      "exceptionId": "886d895993d984e0353751e07cba40da3c02317d361f4099b68c79f48ee6a335",
+      "actKey": "act4",
+      "beatId": "ACT4_B024",
+      "sourcePlanWordRange": {
+        "start": 218,
+        "end": 231,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 219,
+        "end": 231,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "single 2022 consumer-protection order required 3.7 billion dollars in penalties and customer redress.",
+      "approvedNarrationSha256": "7b427916364f935732efe6fd0389b4fe2905dd3095cf4b660e35da1174a5bb4a",
+      "sourcePlanNarrationExcerpt": "single 2022 consumer protection order required 3 7 billion in penalties and customer redress",
+      "sourcePlanNarrationSha256": "28e763e3f8ee3a80cab0aa9742ee3789a3c3ce88a381581c0bd84231ba97171f",
+      "mappedTranscriptWordRange": {
+        "start": 215,
+        "end": 228,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "single",
+        "end": "redress"
+      },
+      "mappedTranscriptNarrationExcerpt": "single 2022 consumer protection order required 3 7 billion in penalties and customer redress",
+      "mappedTranscriptNarrationSha256": "28e763e3f8ee3a80cab0aa9742ee3789a3c3ce88a381581c0bd84231ba97171f",
+      "approvedDurationSec": 8.304946662109387,
+      "minimumAllowedDurationSec": 8.303946662109388,
+      "maximumAllowedDurationSec": 8.305946662109386,
+      "priorTimingExceptionReason": "Final act impact card requires hold for audience absorption of total institutional cost.",
+      "justification": "The beat contains one complete, sourced regulatory claim and its total-cost impact card; splitting it would separate the figure from its evidentiary context and change approved narration ownership.",
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligations": {
+        "productionMethod": "EVIDENCE_REFERENCE",
+        "visualClass": "EVIDENCE",
+        "assetType": "evidence_reference",
+        "visualIntent": "Single CFPB order document delivers the devastating final number.",
+        "rhythmIntent": "impact",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 1.5,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "resolve to silence",
+          "musicEvent": "resolve",
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "2022 CFPB consent order showing $3.7 billion penalty and redress figure.",
+          "motionType": "document_reveal",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "document_reveal"
+        },
+        "evidenceRequirement": {
+          "required": true,
+          "evidenceType": "consent order",
+          "description": "2022 CFPB consent order requiring $3.7 billion in penalties and customer redress",
+          "sourceStatus": "pending",
+          "rightsStatus": "unknown",
+          "authenticityStatus": "pending_review",
+          "citationLabel": "CFPB Consent Order, December 2022",
+          "humanReviewRequired": true
+        },
+        "graphics": [
+          {
+            "type": "impact_card",
+            "intent": "Land the final devastating number.",
+            "text": "$3.7 BILLION"
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "impact_card",
+            "intent": "Land the final devastating number.",
+            "text": "$3.7 BILLION"
+          }
+        ],
+        "sourceSearchInstruction": "Locate December 2022 CFPB consent order against Wells Fargo showing $3.7 billion in combined penalties and customer redress. Search CFPB enforcement database for Wells Fargo December 2022 consent order, verify penalty and redress breakdown figures.",
+        "sourceRequirement": {
+          "evidenceRequirement": {
+            "required": true,
+            "evidenceType": "consent order",
+            "description": "2022 CFPB consent order requiring $3.7 billion in penalties and customer redress",
+            "sourceStatus": "pending",
+            "rightsStatus": "unknown",
+            "authenticityStatus": "pending_review",
+            "citationLabel": "CFPB Consent Order, December 2022",
+            "humanReviewRequired": true
+          },
+          "sourceSearchInstruction": "Locate December 2022 CFPB consent order against Wells Fargo showing $3.7 billion in combined penalties and customer redress. Search CFPB enforcement database for Wells Fargo December 2022 consent order, verify penalty and redress breakdown figures."
+        }
+      },
+      "productionObligationsSha256": "c72b14e15b90319a4028888d116d2adf03e6518318e1ae13de5cd296d780430c",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act4:ACT4_B024",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 8.304946662109387,
+        "mappedTranscriptWordRange": {
+          "start": 215,
+          "end": 228,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "single",
+          "end": "redress"
+        }
+      }
+    },
+    {
+      "exceptionId": "a4c3a0f334560025e6cd4922d614d6efc92b71aa4e23f72761a8ed772d40f19e",
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "sourcePlanWordRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 119,
+        "end": 130,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "workers, clear their records and pay back wages or damages. Other employees",
+      "approvedNarrationSha256": "d630a57fa5047d31695578546debcf43dabd5580e8ab303976351c10326f479e",
+      "sourcePlanNarrationExcerpt": "workers clear their records and pay back wages or damages other employees",
+      "sourcePlanNarrationSha256": "ffc6a715e1e7e996aa0e1dca4c6bd712874d1c9181dbfdc8dce6d480027603be",
+      "mappedTranscriptWordRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "approvedDurationSec": 6.099998474121094,
+      "minimumAllowedDurationSec": 6.098998,
+      "maximumAllowedDurationSec": 6.100998,
+      "justification": "This approved reconstruction sentence explains the remedy for reinstated workers. Its retained-VO timing is 99.998 milliseconds above the normal maximum; preserve the approved essential-animation method and narration ownership.",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligations": {
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_clip",
+        "visualIntent": "The bureaucratic process of clearing records and paying damages.",
+        "rhythmIntent": "measured",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": "representative",
+        "continuityRefs": [
+          "employee-cost"
+        ],
+        "audioDirection": null,
+        "visual": {
+          "type": "CLIP",
+          "description": "Anonymous hand beside a generic agreement-like blank sheet; terms remain completely unreadable.",
+          "motionType": "rack_focus",
+          "secondaryAction": "The signed settlement slides across the table."
+        },
+        "motionIntent": {
+          "type": "rack_focus"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "6a2f47986f227abf39cb9e1109ffb36af2a39c94479d7e3870c03a302cc24380",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act5:ACT5_B012",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "workers",
+        "end": "employees"
+      },
+      "priorTimingExceptionReason": null,
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 6.099998474121094,
+        "mappedTranscriptWordRange": {
+          "start": 116,
+          "end": 127,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "workers",
+          "end": "employees"
+        }
+      }
+    },
+    {
+      "exceptionId": "5829401a8c4589f1607b6287255d3199ecca345c9a28da769d91c655809e7b57",
+      "actKey": "act3",
+      "beatId": "ACT3_B004",
+      "sourcePlanWordRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-act-local-plan-word"
+      },
+      "candidateScriptWordRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-whitespace-token"
+      },
+      "approvedNarrationExcerpt": "Here's how it worked. A",
+      "approvedNarrationSha256": "4df055e8b459a60cea3c44febfdac24a8fe87dea60d2b8ff95cc5d581e1c74e1",
+      "sourcePlanNarrationExcerpt": "here's how it worked a",
+      "sourcePlanNarrationSha256": "0d579de33db09068e484ce0c46206bb403e3e762738286d2bd2188b30d4a1987",
+      "mappedTranscriptWordRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "mappedTranscriptAnchors": {
+        "start": "here's",
+        "end": "a"
+      },
+      "mappedTranscriptNarrationExcerpt": "here's how it worked a",
+      "mappedTranscriptNarrationSha256": "0d579de33db09068e484ce0c46206bb403e3e762738286d2bd2188b30d4a1987",
+      "approvedDurationSec": 1.640000343322754,
+      "minimumAllowedDurationSec": 1.639000343322754,
+      "maximumAllowedDurationSec": 1.6410003433227538,
+      "priorTimingExceptionReason": "Brief transitional phrase bridges sequences",
+      "justification": "A deliberately brief transition into the explanatory sequence; moving its boundary would alter the established sequence handoff.",
+      "productionMethod": "GENERATED_STILL",
+      "productionObligations": {
+        "productionMethod": "GENERATED_STILL",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "generated_image",
+        "visualIntent": "Set up the explanation of fraud mechanics.",
+        "rhythmIntent": "measured",
+        "intentionalStillness": false,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "audioDirection": {
+          "musicCue": "clinical procedural rhythm begins",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "visual": {
+          "type": "STILL",
+          "description": "A branch interior from customer perspective—clean, orderly, unthreatening.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "sourceSearchInstruction": null,
+        "sourceRequirement": null
+      },
+      "productionObligationsSha256": "7d0945d14c07718f8aa4b33336274b0178a0af5b467a048763ac47a0d90d955f",
+      "revisionLineage": {
+        "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "entryId": "locked-plan:act3:ACT3_B004",
+        "relationship": "retained-approved-plan-beat"
+      },
+      "inputHashes": {
+        "runId": "phase2-3b-p-act-20260925",
+        "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+        "channelKey": "EmpireOmitted",
+        "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+        "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+        "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+        "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+        "candidateShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+        "candidateProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755"
+      },
+      "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+      "revisionLineageProof": {
+        "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionChainFileSha256s": [
+          "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+        ],
+        "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+        "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+        "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+        "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+        "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+        "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+        "changedBeatIds": [
+          "ACT3_B016",
+          "ACT3_B017",
+          "ACT3_B018",
+          "ACT3_B019"
+        ],
+        "preservedTimingOwnerKeys": [
+          "act1:ACT1_B030",
+          "act2:ACT2_B006",
+          "act2:ACT2_B023",
+          "act2:ACT2_B026",
+          "act3:ACT3_B004",
+          "act3:ACT3_B025",
+          "act3b:ACT3B_B008",
+          "act3b:ACT3B_B012",
+          "act3b:ACT3B_B018",
+          "act4:ACT4_B022",
+          "act4:ACT4_B024",
+          "act5:ACT5_B012",
+          "act5:ACT5_B022",
+          "act5:ACT5_B023",
+          "act5:ACT5_B027"
+        ],
+        "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+      },
+      "currentTimingBinding": {
+        "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+        "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+        "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+        "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+        "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+        "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+        "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+        "approvedDurationSec": 1.640000343322754,
+        "mappedTranscriptWordRange": {
+          "start": 18,
+          "end": 22,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "here's",
+          "end": "a"
+        }
+      }
+    }
+  ],
+  "editorialIntentMigrations": {
+    "schemaVersion": "phase2.3b-p-editorial-intent-migrations/1.0.0",
+    "status": "USER_APPROVED",
+    "entries": [
+      {
+        "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act2:ACT2_B026",
+        "actKey": "act2",
+        "beatId": "ACT2_B026",
+        "sourcePlanWordRange": {
+          "start": 211,
+          "end": 220,
+          "indexConvention": "zero-based-inclusive-act-local-plan-word"
+        },
+        "candidateScriptWordRange": {
+          "start": 209,
+          "end": 218,
+          "indexConvention": "zero-based-inclusive-whitespace-token"
+        },
+        "approvedNarrationExcerpt": "And for years... nobody at the top claimed to notice.",
+        "approvedNarrationSha256": "77db81392daa8f89ba1a622c59bf2b14cfb883cf5ce4bfc7aeae35b6c9d80f7f",
+        "sourcePlanNarrationExcerpt": "and for years nobody at the top claimed to notice",
+        "sourcePlanNarrationSha256": "df8fe74e6c12310a7b03f1c95607972f13e41348acfc666d8a391d2498e3fd91",
+        "mappedTranscriptWordRange": {
+          "start": 210,
+          "end": 219,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "and",
+          "end": "notice"
+        },
+        "mappedTranscriptNarrationExcerpt": "and for years nobody at the top claimed to notice",
+        "mappedTranscriptNarrationSha256": "df8fe74e6c12310a7b03f1c95607972f13e41348acfc666d8a391d2498e3fd91",
+        "approvedDurationSec": 4.662608610351583,
+        "existingTimingExceptionReason": "Act-ending thesis requires space for audience processing of institutional complicity.",
+        "postNarrationHoldSec": 1.2,
+        "intentionalStillness": false,
+        "rhythmIntent": "suspended",
+        "productionMethod": "ESSENTIAL_ANIMATION",
+        "visualClass": "RECONSTRUCTION",
+        "productionObligations": {
+          "productionMethod": "ESSENTIAL_ANIMATION",
+          "visualClass": "RECONSTRUCTION",
+          "assetType": "generated_clip",
+          "visualIntent": "Executive isolation and claimed ignorance.",
+          "rhythmIntent": "suspended",
+          "intentionalStillness": false,
+          "postNarrationHoldSec": 1.2,
+          "reconstructionMode": "atmospheric",
+          "continuityRefs": [],
+          "audioDirection": {
+            "musicCue": "tension holds then fades",
+            "musicEvent": "duck_under_line",
+            "musicLevelDb": null,
+            "duckUnderVO": null,
+            "sfx": [],
+            "silenceIntent": null
+          },
+          "visual": {
+            "type": "CLIP",
+            "description": "Executive office door closes; through frosted glass, a figure turns away from the window.",
+            "motionType": "dolly_back",
+            "secondaryAction": null
+          },
+          "motionIntent": {
+            "type": "dolly_back"
+          },
+          "evidenceRequirement": {
+            "required": false,
+            "evidenceType": null,
+            "description": null,
+            "sourceStatus": "not_applicable",
+            "rightsStatus": "not_applicable",
+            "authenticityStatus": "not_applicable",
+            "citationLabel": null,
+            "humanReviewRequired": false
+          },
+          "graphics": null,
+          "overlaySpecification": null,
+          "sourceSearchInstruction": null,
+          "sourceRequirement": null
+        },
+        "productionObligationsSha256": "a706f6b5dd4a085dafec52cbb654ca6317dfbe5839dbca49a11a46ab66c3bd20",
+        "revisionLineage": {
+          "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "entryId": "locked-plan:act2:ACT2_B026",
+          "relationship": "retained-approved-plan-beat"
+        },
+        "inputHashes": {
+          "runId": "phase2-3b-p-act-20260925",
+          "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+          "channelKey": "EmpireOmitted",
+          "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+          "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+          "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+          "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "candidateShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "candidateProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+        },
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionLineageProof": {
+          "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+          "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "revisionChainFileSha256s": [
+            "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+            "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+            "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          ],
+          "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+          "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+          "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+          "changedBeatIds": [
+            "ACT3_B016",
+            "ACT3_B017",
+            "ACT3_B018",
+            "ACT3_B019"
+          ],
+          "preservedTimingOwnerKeys": [
+            "act1:ACT1_B030",
+            "act2:ACT2_B006",
+            "act2:ACT2_B023",
+            "act2:ACT2_B026",
+            "act3:ACT3_B004",
+            "act3:ACT3_B025",
+            "act3b:ACT3B_B008",
+            "act3b:ACT3B_B012",
+            "act3b:ACT3B_B018",
+            "act4:ACT4_B022",
+            "act4:ACT4_B024",
+            "act5:ACT5_B012",
+            "act5:ACT5_B022",
+            "act5:ACT5_B023",
+            "act5:ACT5_B027"
+          ],
+          "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+        },
+        "currentTimingBinding": {
+          "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+          "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+          "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+          "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+          "approvedDurationSec": 4.662608610351583,
+          "mappedTranscriptWordRange": {
+            "start": 210,
+            "end": 219,
+            "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+          },
+          "mappedTranscriptAnchors": {
+            "start": "and",
+            "end": "notice"
+          }
+        }
+      },
+      {
+        "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act3b:ACT3B_B018",
+        "actKey": "act3b",
+        "beatId": "ACT3B_B018",
+        "sourcePlanWordRange": {
+          "start": 144,
+          "end": 157,
+          "indexConvention": "zero-based-inclusive-act-local-plan-word"
+        },
+        "candidateScriptWordRange": {
+          "start": 139,
+          "end": 152,
+          "indexConvention": "zero-based-inclusive-whitespace-token"
+        },
+        "approvedNarrationExcerpt": "And some of the people who warned the bank said they were fired too.",
+        "approvedNarrationSha256": "527593d0115cb1d9680479f416f340ca3f9dd246f969314209a78549a917a506",
+        "sourcePlanNarrationExcerpt": "and some of the people who warned the bank said they were fired too",
+        "sourcePlanNarrationSha256": "fb10f38d46e5ba41596313ad8b3231fb3627ae8116f5169ef80e966467670ee6",
+        "mappedTranscriptWordRange": {
+          "start": 142,
+          "end": 155,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "and",
+          "end": "too"
+        },
+        "mappedTranscriptNarrationExcerpt": "and some of the people who warned the bank said they were fired too",
+        "mappedTranscriptNarrationSha256": "fb10f38d46e5ba41596313ad8b3231fb3627ae8116f5169ef80e966467670ee6",
+        "approvedDurationSec": 4.568187831054672,
+        "existingTimingExceptionReason": "Final beat requires emotional landing space after the triple injustice",
+        "postNarrationHoldSec": 1.5,
+        "intentionalStillness": false,
+        "rhythmIntent": "reflective",
+        "productionMethod": "CONTROLLED_STILL",
+        "visualClass": "RECONSTRUCTION",
+        "productionObligations": {
+          "productionMethod": "CONTROLLED_STILL",
+          "visualClass": "RECONSTRUCTION",
+          "assetType": "generated_clip",
+          "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+          "rhythmIntent": "reflective",
+          "intentionalStillness": false,
+          "postNarrationHoldSec": 1.5,
+          "reconstructionMode": "representative",
+          "continuityRefs": [
+            "ethics-hotline",
+            "whistleblower"
+          ],
+          "audioDirection": {
+            "musicCue": "single sustained tone, unresolved",
+            "musicEvent": null,
+            "musicLevelDb": null,
+            "duckUnderVO": null,
+            "sfx": [
+              "elevator doors closing"
+            ],
+            "silenceIntent": "Let the institutional betrayal settle"
+          },
+          "visual": {
+            "type": "CLIP",
+            "description": "Single static office composition with a plain telephone and anonymous packed box, without a two-scene sequence.",
+            "motionType": "dolly_back",
+            "secondaryAction": "Elevator doors close on their face"
+          },
+          "motionIntent": {
+            "type": "dolly_back",
+            "secondaryAction": "Elevator doors close on their face"
+          },
+          "evidenceRequirement": {
+            "required": false,
+            "evidenceType": null,
+            "description": null,
+            "sourceStatus": "not_applicable",
+            "rightsStatus": "not_applicable",
+            "authenticityStatus": "not_applicable",
+            "citationLabel": null,
+            "humanReviewRequired": false
+          },
+          "graphics": null,
+          "overlaySpecification": null,
+          "sourceSearchInstruction": null,
+          "sourceRequirement": null
+        },
+        "productionObligationsSha256": "c1990f3d8b7fab744c4a23cb3874cebe6b57488d56a711470b468e41b62fec66",
+        "revisionLineage": {
+          "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "entryId": "locked-plan:act3b:ACT3B_B018",
+          "relationship": "retained-approved-plan-beat"
+        },
+        "inputHashes": {
+          "runId": "phase2-3b-p-act-20260925",
+          "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+          "channelKey": "EmpireOmitted",
+          "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+          "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+          "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+          "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "candidateShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "candidateProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+        },
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionLineageProof": {
+          "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+          "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "revisionChainFileSha256s": [
+            "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+            "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+            "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          ],
+          "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+          "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+          "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+          "changedBeatIds": [
+            "ACT3_B016",
+            "ACT3_B017",
+            "ACT3_B018",
+            "ACT3_B019"
+          ],
+          "preservedTimingOwnerKeys": [
+            "act1:ACT1_B030",
+            "act2:ACT2_B006",
+            "act2:ACT2_B023",
+            "act2:ACT2_B026",
+            "act3:ACT3_B004",
+            "act3:ACT3_B025",
+            "act3b:ACT3B_B008",
+            "act3b:ACT3B_B012",
+            "act3b:ACT3B_B018",
+            "act4:ACT4_B022",
+            "act4:ACT4_B024",
+            "act5:ACT5_B012",
+            "act5:ACT5_B022",
+            "act5:ACT5_B023",
+            "act5:ACT5_B027"
+          ],
+          "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+        },
+        "currentTimingBinding": {
+          "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+          "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+          "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+          "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+          "approvedDurationSec": 4.568187831054672,
+          "mappedTranscriptWordRange": {
+            "start": 142,
+            "end": 155,
+            "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+          },
+          "mappedTranscriptAnchors": {
+            "start": "and",
+            "end": "too"
+          }
+        }
+      },
+      {
+        "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B022",
+        "actKey": "act5",
+        "beatId": "ACT5_B022",
+        "sourcePlanWordRange": {
+          "start": 213,
+          "end": 222,
+          "indexConvention": "zero-based-inclusive-act-local-plan-word"
+        },
+        "candidateScriptWordRange": {
+          "start": 215,
+          "end": 224,
+          "indexConvention": "zero-based-inclusive-whitespace-token"
+        },
+        "approvedNarrationExcerpt": "work in banking. One pleaded guilty. None went to prison.",
+        "approvedNarrationSha256": "408929e29dd803d14218ce103299623b9e80f39cc3c1e642822ffdc363534281",
+        "sourcePlanNarrationExcerpt": "work in banking one pleaded guilty none went to prison",
+        "sourcePlanNarrationSha256": "e10a80728804747e777fb4227df0ca808442a1463b2ded5e55df89df7f228c38",
+        "mappedTranscriptWordRange": {
+          "start": 214,
+          "end": 223,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "work",
+          "end": "prison"
+        },
+        "mappedTranscriptNarrationExcerpt": "work in banking one pleaded guilty none went to prison",
+        "mappedTranscriptNarrationSha256": "e10a80728804747e777fb4227df0ca808442a1463b2ded5e55df89df7f228c38",
+        "approvedDurationSec": 5.3000030517578125,
+        "existingTimingExceptionReason": "Major reveal: the contrast between a single guilty plea and absence of prison time requires stillness for impact.",
+        "postNarrationHoldSec": 0,
+        "intentionalStillness": true,
+        "rhythmIntent": "impact",
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "productionObligations": {
+          "productionMethod": "GRAPHIC_COMPILATION",
+          "visualClass": "EDITORIAL_ILLUSTRATION",
+          "assetType": "graphic_compilation",
+          "visualIntent": "The single guilty plea against the absence of prison.",
+          "rhythmIntent": "impact",
+          "intentionalStillness": true,
+          "postNarrationHoldSec": 0,
+          "reconstructionMode": null,
+          "continuityRefs": [
+            "criminal-accountability",
+            "accountability-gap"
+          ],
+          "audioDirection": {
+            "musicCue": "silence, room tone only",
+            "musicEvent": null,
+            "musicLevelDb": null,
+            "duckUnderVO": null,
+            "sfx": [],
+            "silenceIntent": null
+          },
+          "visual": {
+            "type": "STILL",
+            "description": "The word GUILTY isolated beside empty prison cell, door open.",
+            "motionType": "static_locked",
+            "secondaryAction": null
+          },
+          "motionIntent": {
+            "type": "static_locked"
+          },
+          "evidenceRequirement": {
+            "required": false,
+            "evidenceType": null,
+            "description": null,
+            "sourceStatus": "not_applicable",
+            "rightsStatus": "not_applicable",
+            "authenticityStatus": "not_applicable",
+            "citationLabel": null,
+            "humanReviewRequired": false
+          },
+          "graphics": [
+            {
+              "type": "impact_card",
+              "intent": "Land the contrast between plea and incarceration.",
+              "text": "ONE PLEADED GUILTY • NONE WENT TO PRISON"
+            }
+          ],
+          "overlaySpecification": [
+            {
+              "type": "impact_card",
+              "intent": "Land the contrast between plea and incarceration.",
+              "text": "ONE PLEADED GUILTY • NONE WENT TO PRISON"
+            }
+          ],
+          "sourceSearchInstruction": null,
+          "sourceRequirement": null
+        },
+        "productionObligationsSha256": "bdd09ebfbcf234dd567e29386d4e66269893a26e7f53444df6f1d82c760836eb",
+        "revisionLineage": {
+          "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "entryId": "locked-plan:act5:ACT5_B022",
+          "relationship": "retained-approved-plan-beat"
+        },
+        "inputHashes": {
+          "runId": "phase2-3b-p-act-20260925",
+          "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+          "channelKey": "EmpireOmitted",
+          "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+          "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+          "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+          "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "candidateShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "candidateProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+        },
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionLineageProof": {
+          "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+          "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "revisionChainFileSha256s": [
+            "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+            "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+            "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          ],
+          "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+          "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+          "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+          "changedBeatIds": [
+            "ACT3_B016",
+            "ACT3_B017",
+            "ACT3_B018",
+            "ACT3_B019"
+          ],
+          "preservedTimingOwnerKeys": [
+            "act1:ACT1_B030",
+            "act2:ACT2_B006",
+            "act2:ACT2_B023",
+            "act2:ACT2_B026",
+            "act3:ACT3_B004",
+            "act3:ACT3_B025",
+            "act3b:ACT3B_B008",
+            "act3b:ACT3B_B012",
+            "act3b:ACT3B_B018",
+            "act4:ACT4_B022",
+            "act4:ACT4_B024",
+            "act5:ACT5_B012",
+            "act5:ACT5_B022",
+            "act5:ACT5_B023",
+            "act5:ACT5_B027"
+          ],
+          "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+        },
+        "currentTimingBinding": {
+          "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+          "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+          "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+          "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+          "approvedDurationSec": 5.3000030517578125,
+          "mappedTranscriptWordRange": {
+            "start": 214,
+            "end": 223,
+            "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+          },
+          "mappedTranscriptAnchors": {
+            "start": "work",
+            "end": "prison"
+          }
+        }
+      },
+      {
+        "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B023",
+        "actKey": "act5",
+        "beatId": "ACT5_B023",
+        "sourcePlanWordRange": {
+          "start": 223,
+          "end": 232,
+          "indexConvention": "zero-based-inclusive-act-local-plan-word"
+        },
+        "candidateScriptWordRange": {
+          "start": 225,
+          "end": 234,
+          "indexConvention": "zero-based-inclusive-whitespace-token"
+        },
+        "approvedNarrationExcerpt": "Accountability arrived, but it did not land evenly. This is",
+        "approvedNarrationSha256": "e7857e1289a36728c9011bc3dec16e08531f381c198b4472660c457704777f44",
+        "sourcePlanNarrationExcerpt": "accountability arrived but it did not land evenly this is",
+        "sourcePlanNarrationSha256": "849c7baf74b567a48a9eacf5eb71bcc0c646b0bdf4de8f87807f36ab4b61048d",
+        "mappedTranscriptWordRange": {
+          "start": 224,
+          "end": 233,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "accountability",
+          "end": "is"
+        },
+        "mappedTranscriptNarrationExcerpt": "accountability arrived but it did not land evenly this is",
+        "mappedTranscriptNarrationSha256": "849c7baf74b567a48a9eacf5eb71bcc0c646b0bdf4de8f87807f36ab4b61048d",
+        "approvedDurationSec": 4.2599945068359375,
+        "existingTimingExceptionReason": "Final thesis moment requires stillness and hold for audience absorption.",
+        "postNarrationHoldSec": 1.5,
+        "intentionalStillness": true,
+        "rhythmIntent": "reflective",
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "productionObligations": {
+          "productionMethod": "GRAPHIC_COMPILATION",
+          "visualClass": "EDITORIAL_ILLUSTRATION",
+          "assetType": "graphic_compilation",
+          "visualIntent": "The final verdict on institutional accountability.",
+          "rhythmIntent": "reflective",
+          "intentionalStillness": true,
+          "postNarrationHoldSec": 1.5,
+          "reconstructionMode": null,
+          "continuityRefs": [
+            "accountability-gap"
+          ],
+          "audioDirection": {
+            "musicCue": "low sustained chord resolving to minor",
+            "musicEvent": "resolve",
+            "musicLevelDb": null,
+            "duckUnderVO": null,
+            "sfx": [],
+            "silenceIntent": null
+          },
+          "visual": {
+            "type": "STILL",
+            "description": "A scales of justice image, visibly unbalanced, one side weighted with documents.",
+            "motionType": "static_locked",
+            "secondaryAction": null
+          },
+          "motionIntent": {
+            "type": "static_locked"
+          },
+          "evidenceRequirement": {
+            "required": false,
+            "evidenceType": null,
+            "description": null,
+            "sourceStatus": "not_applicable",
+            "rightsStatus": "not_applicable",
+            "authenticityStatus": "not_applicable",
+            "citationLabel": null,
+            "humanReviewRequired": false
+          },
+          "graphics": [
+            {
+              "type": "takeaway",
+              "intent": "Deliver the structural thesis.",
+              "text": "ACCOUNTABILITY ARRIVED. IT DID NOT LAND EVENLY."
+            }
+          ],
+          "overlaySpecification": [
+            {
+              "type": "takeaway",
+              "intent": "Deliver the structural thesis.",
+              "text": "ACCOUNTABILITY ARRIVED. IT DID NOT LAND EVENLY."
+            }
+          ],
+          "sourceSearchInstruction": null,
+          "sourceRequirement": null
+        },
+        "productionObligationsSha256": "ac54fae50e322f1f464a1994c979be6dbd1d4983bb9ced78419651039c2cfc70",
+        "revisionLineage": {
+          "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "entryId": "locked-plan:act5:ACT5_B023",
+          "relationship": "retained-approved-plan-beat"
+        },
+        "inputHashes": {
+          "runId": "phase2-3b-p-act-20260925",
+          "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+          "channelKey": "EmpireOmitted",
+          "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+          "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+          "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+          "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "candidateShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "candidateProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+        },
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionLineageProof": {
+          "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+          "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "revisionChainFileSha256s": [
+            "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+            "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+            "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          ],
+          "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+          "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+          "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+          "changedBeatIds": [
+            "ACT3_B016",
+            "ACT3_B017",
+            "ACT3_B018",
+            "ACT3_B019"
+          ],
+          "preservedTimingOwnerKeys": [
+            "act1:ACT1_B030",
+            "act2:ACT2_B006",
+            "act2:ACT2_B023",
+            "act2:ACT2_B026",
+            "act3:ACT3_B004",
+            "act3:ACT3_B025",
+            "act3b:ACT3B_B008",
+            "act3b:ACT3B_B012",
+            "act3b:ACT3B_B018",
+            "act4:ACT4_B022",
+            "act4:ACT4_B024",
+            "act5:ACT5_B012",
+            "act5:ACT5_B022",
+            "act5:ACT5_B023",
+            "act5:ACT5_B027"
+          ],
+          "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+        },
+        "currentTimingBinding": {
+          "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+          "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+          "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+          "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+          "approvedDurationSec": 4.2599945068359375,
+          "mappedTranscriptWordRange": {
+            "start": 224,
+            "end": 233,
+            "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+          },
+          "mappedTranscriptAnchors": {
+            "start": "accountability",
+            "end": "is"
+          }
+        }
+      },
+      {
+        "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B027",
+        "actKey": "act5",
+        "beatId": "ACT5_B027",
+        "sourcePlanWordRange": {
+          "start": 268,
+          "end": 280,
+          "indexConvention": "zero-based-inclusive-act-local-plan-word"
+        },
+        "candidateScriptWordRange": {
+          "start": 271,
+          "end": 283,
+          "indexConvention": "zero-based-inclusive-whitespace-token"
+        },
+        "approvedNarrationExcerpt": "Which corporate scandal should we examine next? Let us know in the comments.",
+        "approvedNarrationSha256": "a6982a07a66ff26d17e13b46a99e9c024df046d6b84312eab2233f79124522ed",
+        "sourcePlanNarrationExcerpt": "which corporate scandals should we examine next let us know in the comments",
+        "sourcePlanNarrationSha256": "19a27939cb2702e2d21358c76f434e31481ab1f70d8340919b395fd0dcb3630b",
+        "mappedTranscriptWordRange": {
+          "start": 269,
+          "end": 281,
+          "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+        },
+        "mappedTranscriptAnchors": {
+          "start": "which",
+          "end": "comments"
+        },
+        "mappedTranscriptNarrationExcerpt": "which corporate scandal should we examine next let us know in the comments",
+        "mappedTranscriptNarrationSha256": "e4e3fcefd80b7afbe784ee69f409ff25683fac9e5e1b38c29962c9430b7e1e64",
+        "approvedDurationSec": 5.526575389648542,
+        "existingTimingExceptionReason": "Final beat invites audience participation and requires hold for engagement.",
+        "postNarrationHoldSec": 2,
+        "intentionalStillness": false,
+        "rhythmIntent": "reflective",
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "productionObligations": {
+          "productionMethod": "GRAPHIC_COMPILATION",
+          "visualClass": "EDITORIAL_ILLUSTRATION",
+          "assetType": "graphic_compilation",
+          "visualIntent": "Invitation for future episodes.",
+          "rhythmIntent": "reflective",
+          "intentionalStillness": false,
+          "postNarrationHoldSec": 2,
+          "reconstructionMode": null,
+          "continuityRefs": [],
+          "audioDirection": {
+            "musicCue": "theme resolves, fades to silence",
+            "musicEvent": "resolve",
+            "musicLevelDb": null,
+            "duckUnderVO": null,
+            "sfx": [],
+            "silenceIntent": null
+          },
+          "visual": {
+            "type": "STILL",
+            "description": "Comment prompt with question mark, inviting viewer participation.",
+            "motionType": "static_locked",
+            "secondaryAction": "Cursor blink effect."
+          },
+          "motionIntent": {
+            "type": "static_locked",
+            "secondaryAction": "Cursor blink effect."
+          },
+          "evidenceRequirement": {
+            "required": false,
+            "evidenceType": null,
+            "description": null,
+            "sourceStatus": "not_applicable",
+            "rightsStatus": "not_applicable",
+            "authenticityStatus": "not_applicable",
+            "citationLabel": null,
+            "humanReviewRequired": false
+          },
+          "graphics": [
+            {
+              "type": "takeaway",
+              "intent": "Invite viewer input.",
+              "text": "WHICH SCANDAL SHOULD WE EXAMINE NEXT?"
+            }
+          ],
+          "overlaySpecification": [
+            {
+              "type": "takeaway",
+              "intent": "Invite viewer input.",
+              "text": "WHICH SCANDAL SHOULD WE EXAMINE NEXT?"
+            }
+          ],
+          "sourceSearchInstruction": null,
+          "sourceRequirement": null
+        },
+        "productionObligationsSha256": "5eaaa36861c5b2d1a22b5fadfd4511852839e678fb0d8f9ef0f3815a84f9d1da",
+        "revisionLineage": {
+          "artifactSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "entryId": "locked-plan:act5:ACT5_B027",
+          "relationship": "retained-approved-plan-beat"
+        },
+        "inputHashes": {
+          "runId": "phase2-3b-p-act-20260925",
+          "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+          "channelKey": "EmpireOmitted",
+          "lockedEditPlanSha256": "33f5a89fb724bdc8982f85fd9cf8ff223f6e1031bfa557a6f8df609f44bf5337",
+          "candidatePreTimingEditPlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+          "candidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "retainedTranscriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "alignmentProposalSha256": "7bea33b6be01432f5e0d4e2703e98640e1f27a2f4e473ec586eee76ea060ffee",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "approvedBoundaryPolicySha256": "cf59c265604e3b602df12bc89aa8328b7a8faa18df78f0273f5139789e4eaebf",
+          "candidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "candidateHistorySha256": "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+          "candidateShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "candidateProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe"
+        },
+        "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+        "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+        "revisionLineageProof": {
+          "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+          "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+          "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+          "revisionChainFileSha256s": [
+            "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+            "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+            "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+          ],
+          "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+          "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+          "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+          "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+          "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+          "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+          "changedBeatIds": [
+            "ACT3_B016",
+            "ACT3_B017",
+            "ACT3_B018",
+            "ACT3_B019"
+          ],
+          "preservedTimingOwnerKeys": [
+            "act1:ACT1_B030",
+            "act2:ACT2_B006",
+            "act2:ACT2_B023",
+            "act2:ACT2_B026",
+            "act3:ACT3_B004",
+            "act3:ACT3_B025",
+            "act3b:ACT3B_B008",
+            "act3b:ACT3B_B012",
+            "act3b:ACT3B_B018",
+            "act4:ACT4_B022",
+            "act4:ACT4_B024",
+            "act5:ACT5_B012",
+            "act5:ACT5_B022",
+            "act5:ACT5_B023",
+            "act5:ACT5_B027"
+          ],
+          "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+        },
+        "currentTimingBinding": {
+          "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+          "transcriptSha256": "e7c341bdde3cd0537bcb6a840dd130b185864ebc25d659b60f27362f9464dea0",
+          "audioManifestSha256": "1aeedf337e7b1356174472fe725ddc1e7755ec595e23e98b984cea8577196e4d",
+          "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+          "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+          "timingProposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+          "timingApprovalRecordSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+          "approvedDurationSec": 5.526575389648542,
+          "mappedTranscriptWordRange": {
+            "start": 269,
+            "end": 281,
+            "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+          },
+          "mappedTranscriptAnchors": {
+            "start": "which",
+            "end": "comments"
+          }
+        }
+      }
+    ]
+  },
+  "resumeEligibility": {
+    "failureError": "EDIT_PLAN_VALIDATION:BEAT_TOO_SHORT",
+    "completedActs": [
+      "act1",
+      "act2",
+      "act3",
+      "act3b",
+      "act4",
+      "act5"
+    ],
+    "attemptsByAct": {
+      "act1": 1,
+      "act2": 1,
+      "act3": 1,
+      "act3b": 1,
+      "act4": 2,
+      "act5": 1
+    },
+    "alignmentApprovalExceptionCount": 18,
+    "expectedBoundaryCounts": {
+      "act1": 60,
+      "act2": 52,
+      "act3": 58,
+      "act3b": 34,
+      "act4": 48,
+      "act5": 54
+    },
+    "expectedActiveBeatCounts": {
+      "act1": 30,
+      "act2": 26,
+      "act3": 29,
+      "act3b": 17,
+      "act4": 24,
+      "act5": 27
+    },
+    "expectedTotalDurationSec": 633.782449,
+    "totalDurationToleranceSec": 0.001
+  },
+  "formalExceptionCount": 9,
+  "editorialIntentMigrationCount": 5,
+  "excludedFormalExceptionIds": [
+    "act3:ACT3_B025"
+  ],
+  "proposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+  "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+  "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+  "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+  "revisionLineage": {
+    "schemaVersion": "phase2.3b-p-timing-revision-lineage-proof/1.0.0",
+    "approvalProvenanceAmendmentSha256": "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+    "currentCandidateAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+    "revisionChainFileSha256s": [
+      "82964237109ebf33f6502cb270957b739623870609f6399b0f95e0cde10f3c86",
+      "6ac0e48bb2b9f90112a46db117f08b7d79f98e8c7aa73236e47a1b98b98c660a",
+      "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a"
+    ],
+    "parentCandidateScriptSha256": "319d0cf162b7a90a8c163e2edb0fe12b37acaf0d36a22e59995dda1a42db1955",
+    "currentCandidateScriptSha256": "fd377ddc30498bf921b33c9cb409ff159804e99862d96910bf68ae12e4dee7f4",
+    "parentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+    "currentShotDefinitionsSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+    "reconstructedParentShotDefinitionsSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+    "parentProductionManifestSha256": "9fc39863342bec152ea81363fab45919e181f5f16f66272c617e445e922e1aed",
+    "currentProductionManifestSha256": "364eeeedb1a5ddfc91a3761f0f99806fb46dad902586b4dfd83e70a613f14dfe",
+    "changedBeatIds": [
+      "ACT3_B016",
+      "ACT3_B017",
+      "ACT3_B018",
+      "ACT3_B019"
+    ],
+    "preservedTimingOwnerKeys": [
+      "act1:ACT1_B030",
+      "act2:ACT2_B006",
+      "act2:ACT2_B023",
+      "act2:ACT2_B026",
+      "act3:ACT3_B004",
+      "act3:ACT3_B025",
+      "act3b:ACT3B_B008",
+      "act3b:ACT3B_B012",
+      "act3b:ACT3B_B018",
+      "act4:ACT4_B022",
+      "act4:ACT4_B024",
+      "act5:ACT5_B012",
+      "act5:ACT5_B022",
+      "act5:ACT5_B023",
+      "act5:ACT5_B027"
+    ],
+    "preservedTimingScopeSha256": "381e562db94254823d61b3e4ff23e591fdc93e7bcf0bf6ccb863a8a3a6913d5a"
+  }
+}

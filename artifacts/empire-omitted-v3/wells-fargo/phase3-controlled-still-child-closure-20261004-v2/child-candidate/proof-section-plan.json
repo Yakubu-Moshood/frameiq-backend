@@ -1,0 +1,350 @@
+{
+  "plannerVersion": "1.0.0",
+  "durationBoundsSec": {
+    "min": 60,
+    "max": 90
+  },
+  "startSec": 330.22274403814697,
+  "endSec": 415.0309306866455,
+  "durationSec": 84.80818664849852,
+  "acts": [
+    "act3b",
+    "act4"
+  ],
+  "sequences": [
+    "SEQ_ACT3B_02",
+    "SEQ_ACT3B_03",
+    "SEQ_ACT3B_04",
+    "SEQ_ACT3B_05",
+    "SEQ_ACT3B_06",
+    "SEQ_ACT4_01",
+    "SEQ_ACT4_02",
+    "SEQ_ACT4_03"
+  ],
+  "shotIds": [
+    "ACT3B_B005",
+    "ACT3B_B006",
+    "ACT3B_B007",
+    "ACT3B_B008",
+    "ACT3B_B009",
+    "ACT3B_B011",
+    "ACT3B_B012",
+    "ACT3B_B013",
+    "ACT3B_B014",
+    "ACT3B_B015",
+    "ACT3B_B016",
+    "ACT3B_B017",
+    "ACT3B_B018",
+    "ACT4_B001",
+    "ACT4_B002",
+    "ACT4_B003",
+    "ACT4_B004",
+    "ACT4_B005",
+    "ACT4_B006"
+  ],
+  "selectionScore": 86.1,
+  "criteria": {
+    "evidenceShotIds": [
+      "ACT3B_B008",
+      "ACT3B_B012",
+      "ACT4_B001",
+      "ACT4_B002",
+      "ACT4_B003",
+      "ACT4_B004",
+      "ACT4_B005",
+      "ACT4_B006"
+    ],
+    "primaryGraphicShotIds": [
+      "ACT3B_B005",
+      "ACT3B_B011",
+      "ACT3B_B015"
+    ],
+    "overlayShotIds": [
+      "ACT3B_B008",
+      "ACT3B_B012",
+      "ACT4_B001",
+      "ACT4_B002",
+      "ACT4_B004",
+      "ACT4_B005",
+      "ACT4_B006"
+    ],
+    "reconstructionShotIds": [
+      "ACT3B_B006",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B014",
+      "ACT3B_B016",
+      "ACT3B_B017",
+      "ACT3B_B018"
+    ],
+    "essentialAnimationShotIds": [
+      "ACT3B_B006",
+      "ACT3B_B014",
+      "ACT3B_B017"
+    ],
+    "controlledStillShotIds": [
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018"
+    ],
+    "methodTransitions": 13,
+    "narrationTimingPresent": true
+  },
+  "requiredEvidenceSources": [
+    {
+      "shotId": "ACT3B_B008",
+      "exactRequirement": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+      "sourceSearchInstruction": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo."
+    },
+    {
+      "shotId": "ACT3B_B012",
+      "exactRequirement": "Wells Fargo disclosure or CFPB/OCC document citing 5,300 terminations for sales practice violations",
+      "sourceSearchInstruction": "Locate Wells Fargo official disclosure, SEC filing, or CFPB/OCC regulatory document from 2016 citing the 5,300 employee terminations for sales practice violations, verify authenticity through official regulatory databases or company investor relations filings"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "exactRequirement": "Los Angeles Times 2013 Wells Fargo coverage establishing contemporaneous reporting; do not assert this was the first report.",
+      "sourceSearchInstruction": "Locate and verify the original 2013 Los Angeles Times Wells Fargo reporting and publication date. Do not characterize it as the first disclosure or first report."
+    },
+    {
+      "shotId": "ACT4_B002",
+      "exactRequirement": "E. Scott Reckard byline and Los Angeles Times reporting documenting Wells Fargo sales pressure, unauthorized accounts and employee firings.",
+      "sourceSearchInstruction": "Locate the Los Angeles Times article by E. Scott Reckard supporting the narrated reporting; verify byline and article text. Do not claim the article broke or first exposed the story."
+    },
+    {
+      "shotId": "ACT4_B003",
+      "exactRequirement": "City of Los Angeles complaint and federal regulatory enforcement actions against Wells Fargo",
+      "sourceSearchInstruction": "Locate City of Los Angeles lawsuit filing against Wells Fargo related to fraudulent account practices. Search Los Angeles City Attorney records, PACER, or court archives for complaint documents. Cross-reference with federal regulatory enforcement actions OCC, CFPB filings from same period."
+    },
+    {
+      "shotId": "ACT4_B004",
+      "exactRequirement": "The $185 million 2016 aggregate comprised a $100 million CFPB penalty, a $35 million OCC penalty, and a $50 million City and County of Los Angeles penalty; present these as separate actions, not one order.",
+      "sourceSearchInstruction": "Locate and independently verify the CFPB 2016 Wells Fargo enforcement action ($100 million), OCC 2016 Wells Fargo penalty ($35 million), and City and County of Los Angeles 2016 action ($50 million). Present as three distinct actions whose aggregate is $185 million; do not describe the aggregate as a single order."
+    },
+    {
+      "shotId": "ACT4_B005",
+      "exactRequirement": "Senate Banking Committee hearing room setup, September 2016",
+      "sourceSearchInstruction": "Locate C-SPAN or Senate Banking Committee archive footage of September 2016 hearing room setup before or during John Stumpf testimony on Wells Fargo. Search Senate Banking Committee hearing archives, C-SPAN video library for Wells Fargo September 2016 hearing establishing shots."
+    },
+    {
+      "shotId": "ACT4_B006",
+      "exactRequirement": "Elizabeth Warren questioning Stumpf about compensation",
+      "sourceSearchInstruction": "Locate C-SPAN or Senate Banking Committee footage of Senator Elizabeth Warren questioning John Stumpf about returning compensation during September 2016 Wells Fargo hearing. Search C-SPAN video library for Warren-Stumpf exchange on clawback or compensation return."
+    }
+  ],
+  "requiredGraphicObjects": [
+    {
+      "shotId": "ACT3B_B005",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "data_graphic",
+        "intent": "Show the hidden damage",
+        "text": "CREDIT SCORE IMPACT"
+      }
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+        "text": "$2.6 MILLION IN FEES REFUNDED"
+      }
+    },
+    {
+      "shotId": "ACT3B_B011",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Establish the timeframe",
+        "text": "2011–2016"
+      }
+    },
+    {
+      "shotId": "ACT3B_B012",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "Land the termination scale",
+        "text": "5,300 EMPLOYEES FIRED"
+      }
+    },
+    {
+      "shotId": "ACT3B_B015",
+      "graphicIndex": 0,
+      "role": "PRIMARY",
+      "graphic": {
+        "type": "takeaway",
+        "text": "DIFFERENT CONDUCT. SAME INSTITUTION.",
+        "intent": "Land the editorial contrast without presenting it as a quotation."
+      }
+    },
+    {
+      "shotId": "ACT4_B001",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the public exposure moment.",
+        "text": "2013"
+      }
+    },
+    {
+      "shotId": "ACT4_B002",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the reporter and publication without a firstness claim.",
+        "text": "E. Scott Reckard | Los Angeles Times"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "data_graphic",
+        "intent": "Break out the CFPB component of the 2016 aggregate.",
+        "text": "CFPB  $100 MILLION"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 1,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "data_graphic",
+        "intent": "Break out the OCC component of the 2016 aggregate.",
+        "text": "OCC  $35 MILLION"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 2,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "data_graphic",
+        "intent": "Break out the City and County of Los Angeles component of the 2016 aggregate.",
+        "text": "CITY & COUNTY OF L.A.  $50 MILLION"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 3,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "impact_card",
+        "intent": "Show the sum of three separate actions.",
+        "text": "$185 MILLION TOTAL"
+      }
+    },
+    {
+      "shotId": "ACT4_B004",
+      "graphicIndex": 4,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the separate actions to 2016.",
+        "text": "2016"
+      }
+    },
+    {
+      "shotId": "ACT4_B005",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "date_marker",
+        "intent": "Anchor the congressional moment.",
+        "text": "SEPTEMBER 2016"
+      }
+    },
+    {
+      "shotId": "ACT4_B006",
+      "graphicIndex": 0,
+      "role": "OVERLAY",
+      "graphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the Senator delivering accountability.",
+        "text": "Sen. Elizabeth Warren | Massachusetts"
+      }
+    }
+  ],
+  "requiredGeneratedBaseImages": [
+    {
+      "shotId": "ACT3B_B006",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "A couple at a banker's desk receiving denial—the dream deferred."
+    },
+    {
+      "shotId": "ACT3B_B007",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "Car dealership rejection and the ultimate loss—homes taken."
+    },
+    {
+      "shotId": "ACT3B_B009",
+      "productionMethod": "GENERATED_STILL",
+      "visualIntent": "Attribute the review category to Wells Fargo and avoid implying every flagged account was proven unauthorized."
+    },
+    {
+      "shotId": "ACT3B_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "Some employees genuinely committed fraud—the guilty acknowledged."
+    },
+    {
+      "shotId": "ACT3B_B014",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims."
+    },
+    {
+      "shotId": "ACT3B_B016",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "The employee who couldn't meet targets—pushed out."
+    },
+    {
+      "shotId": "ACT3B_B017",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "visualIntent": "The employee who cheated—also expendable."
+    },
+    {
+      "shotId": "ACT3B_B018",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save."
+    }
+  ],
+  "requiredAnimations": [
+    {
+      "shotId": "ACT3B_B006",
+      "visualIntent": "A couple at a banker's desk receiving denial—the dream deferred.",
+      "animationPrompt": "Slow dolly forward toward the couple's backs as loan officer shakes head, woman's hand reaches across to partner's hand on armrest, postures visibly deflate, camera movement emphasizes the weight of the moment"
+    },
+    {
+      "shotId": "ACT3B_B014",
+      "visualIntent": "Others punished for resistance or reporting—the system's true victims.",
+      "animationPrompt": "Lateral tracking shot as employee steps away from desk, manager figure enters frame and places hand deliberately on the back of the empty chair, the territorial gesture implying threat"
+    },
+    {
+      "shotId": "ACT3B_B017",
+      "visualIntent": "The employee who cheated—also expendable.",
+      "animationPrompt": "Lateral tracking shot following the escort past cubicles, employee silhouette reaches security desk and surrenders badge, the mechanical process emphasizing institutional indifference"
+    }
+  ],
+  "expectedProviderCalls": {
+    "imageJobs": 8,
+    "animationJobs": 3,
+    "evidenceSourceProviderCalls": 0,
+    "graphicCompilationProviderCalls": 0,
+    "generationProviderCallsTotal": 11,
+    "note": "Counts are deterministic job counts; provider failover may add attempts. This plan does not execute them."
+  },
+  "knownBlockers": [
+    "Evidence sources and rights have not yet been approved; all source candidates require individual review.",
+    "Episode-level graphics have not been compiled; only one representative preview per unique type is produced in Phase 2.3A.",
+    "Generated base images and animations are requirements only; no provider calls are made in this phase."
+  ]
+}

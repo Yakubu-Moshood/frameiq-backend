@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "phase3-production-media-readiness-closure-index/2.0.0",
+  "packageId": "phase3-production-media-readiness-closure-20261003-v2",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "fileCount": 21,
+  "selfHashExcluded": true,
+  "files": [
+    {
+      "path": "closure-assessment.v2.json",
+      "bytes": 6898,
+      "sha256": "33232204df9f2d4433c51ea6547370810132f15bb906aa082efd6a5d399cf97f"
+    },
+    {
+      "path": "closure-report.v2.md",
+      "bytes": 5777,
+      "sha256": "b5f8de27f30eac91a74e4cd25f009709406d7c1e4f62877051bc10569a83c86c"
+    },
+    {
+      "path": "detached-controlled-still-application-approval.v1.json",
+      "bytes": 2202,
+      "sha256": "e4d93e08935ebdf1f84a6e532a2a39a736a261f92cfa338ace7fe84354aa742b"
+    },
+    {
+      "path": "first-batch-proposal.v2.json",
+      "bytes": 1300,
+      "sha256": "fc1c0c4982b141356343f0f6ca7232b10397474893da91bb3c34b5a9ccbf2903"
+    },
+    {
+      "path": "provider-contract-docket.v1.json",
+      "bytes": 4464,
+      "sha256": "26221ff748f7df1ead63d54fecbdd4ab41cffb7bc89915664f1282d3ed145732"
+    },
+    {
+      "path": "provider-rate-snapshot.v1.json",
+      "bytes": 2079,
+      "sha256": "7b405714cc47214950d5b84993f521c8316e2f74a6c299de1c1f1a9623dd6638"
+    },
+    {
+      "path": "renewal-and-approval-docket.v2.json",
+      "bytes": 2889,
+      "sha256": "8c2a13d5f89a87851468e366ada311d503b23c4e8d3083d854a409638e170934"
+    },
+    {
+      "path": "source-v1/act5-b009-amendment-review.v1.json",
+      "bytes": 2180,
+      "sha256": "a6f8b7738cd203de1f4cd9322ec4ea93e9e8e0927943ecd610fee5015eb1b92c"
+    },
+    {
+      "path": "source-v1/act5-b016-binding-report.v1.json",
+      "bytes": 1495,
+      "sha256": "15b4f68bb8b1fc7eb138dfce801ae8b0fd8327df65e2863d98e0674f7fe4d35b"
+    },
+    {
+      "path": "source-v1/animation-clip-fit-docket.v1.json",
+      "bytes": 39397,
+      "sha256": "5fd7925a88e0f25ab3f303f9661c77fb1ba2ee25210092395891c908e44b7bb8"
+    },
+    {
+      "path": "source-v1/continuity-reference-reconciliation.v1.json",
+      "bytes": 33471,
+      "sha256": "670acc1e89d1f55b4c3f3ef8a84dbbb6271c1a0f72a60d50167d68c59435af19"
+    },
+    {
+      "path": "source-v1/controlled-still-amendment-review.v1.json",
+      "bytes": 69717,
+      "sha256": "4774e7a900c2d0b42862fe0b1e8b2eab2e82d88a744c34261947056b89a59ec1"
+    },
+    {
+      "path": "source-v1/dependency-graph.v1.json",
+      "bytes": 10846,
+      "sha256": "be42681481079f640210b8646d66bb70602097860358c0345a42d054ad0cdc28"
+    },
+    {
+      "path": "source-v1/first-production-batch-proposal.v1.json",
+      "bytes": 1438,
+      "sha256": "59e2b02d9ad2dca054840bf0351ed9ebaab05846d9984409381f5eb49f0fcc75"
+    },
+    {
+      "path": "source-v1/package-index.v1.json",
+      "bytes": 2360,
+      "sha256": "9066efc95bf13bc64e1467a8a48c712628a1c2f024761b68dd2b53be848a1b18"
+    },
+    {
+      "path": "source-v1/production-readiness-report.md",
+      "bytes": 9310,
+      "sha256": "647ddc97ae0382c7b6d5016a9ee879cc863827dc0bc4df8a65b8fa5cc0614250"
+    },
+    {
+      "path": "source-v1/production-readiness-report.v1.json",
+      "bytes": 8635,
+      "sha256": "80d5bc93689e2a379ee5cf86c5b8985337772e590e3d7b677abbb4db5536c83b"
+    },
+    {
+      "path": "source-v1/request-cost-census.v1.json",
+      "bytes": 2267,
+      "sha256": "e6d7775ea5e2199e387c46982cb80132908569f3eaa193b00063326877a43729"
+    },
+    {
+      "path": "source-v1/unresolved-decision-docket.v1.json",
+      "bytes": 4181,
+      "sha256": "f637c5c4e7bd6ace3cdb9cfb17b1ba2cae2651982ffe415048882f77413d1cdd"
+    },
+    {
+      "path": "source-v1/unsigned-approval-proposal.v1.json",
+      "bytes": 730,
+      "sha256": "227a53511c6fd8c219b2a0ea23ea197b2733a5c4ec3afc68a7c46ac9340c97b3"
+    },
+    {
+      "path": "test-and-integrity-report.v2.json",
+      "bytes": 2791,
+      "sha256": "67fc80fa607e320c90a61e106efd100195b334bf395b889cfaf2227486fe4970"
+    }
+  ]
+}

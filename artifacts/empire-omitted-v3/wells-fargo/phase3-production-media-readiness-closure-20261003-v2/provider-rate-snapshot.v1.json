@@ -1,0 +1,19 @@
+{
+  "schemaVersion":"phase3-provider-rate-snapshot/1.0.0",
+  "retrievedOn":"2026-10-03",
+  "status":"REFERENCE_ONLY_NO_PRODUCTION_ROUTE_APPROVED",
+  "sources":[
+    {"provider":"fal.ai","route":"blackforestlabs/flux-3/text-to-image","officialUrl":"https://fal.ai/models/blackforestlabs/flux-3/text-to-image","publishedPriceUsdPerImage":0.024,"qualification":"Official page reports a limited promotional rate through 2026-10-08, then $0.048/image. Not bound as a production route or quote."},
+    {"provider":"fal.ai","route":"fal-ai/framepack","officialUrl":"https://fal.ai/models/fal-ai/framepack","publishedPriceUsdPerSecond":0.0333,"fiveSecondScenarioUsd":0.1665,"qualification":"Official page publishes per-second billing; exact billed returned duration, output properties and production authorization remain unresolved."},
+    {"provider":"fal.ai","route":"fal-ai/framepack","officialSchemaUrl":"https://fal.ai/models/fal-ai/framepack/api","qualification":"Official schema exposes image_url, prompt, negative_prompt, aspect_ratio, resolution, cfg_scale, guidance_scale, num_frames and safety checker; it does not establish a guaranteed output frame rate/container/codec for this production plan."}
+  ],
+  "scenarioOnly": {
+    "assumption":"43 image submissions (8 generated final stills + 23 animation dependency stills + 12 dedicated references) at the Flux 3 listed rate, plus 23 five-second Framepack clips at the listed rate; exactly one successful submission per output, no failed/charged attempts, no retries, no storage or tax.",
+    "through2026-10-08Usd":4.8615,
+    "afterPromotionUsd":5.8935,
+    "notAQuote":true,
+    "providerEnforcedAggregateCap":false
+  },
+  "productionPrices":"UNRESOLVED: the package has no approved production endpoint/model selection, and listed route prices do not fix production terms, ownership, billed output duration or failure billing.",
+  "retryFailoverExposure":"Not authorized. Without provider-enforced caps, any additional submission could increase cost; detached per-request approvals and reservation checks are required."
+}

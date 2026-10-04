@@ -29,7 +29,7 @@ const { execSync }  = require('child_process');
 const { AsyncLocalStorage } = require('node:async_hooks');
 const { loadValidatedV3Plan, validateShotDefinitions } = require('./shot-definitions-validator.cjs');
 const { validateEditPlan } = require('./edit-plan-validator.cjs');
-const { loadProductionMethodManifest, assertManifestReadyForRender, resolveProductionAssetLocation } = require('./production-method-manifest.cjs');
+const { loadProductionMethodManifest, assertManifestReadyForRender, resolveProductionAssetLocation, validateControlledStillRasterAsset } = require('./production-method-manifest.cjs');
 const { assertV3AssetsReadyForRender } = require('./v3-asset-readiness.cjs');
 // ─── Constants ────────────────────────────────────────────────────────────────
 const W   = 1920;
@@ -150,6 +150,12 @@ const RENDER_CONTEXT = new AsyncLocalStorage();
 const DEFAULT_RENDER_SETTINGS = Object.freeze({ width: W, height: H, fps: FPS, preset: 'fast', crf: null, audioBitrate: '192k' });
 const PHASE3_PREVIEW_SETTINGS = Object.freeze({ width: 1280, height: 720, fps: 30, preset: 'veryfast', crf: 26, audioBitrate: '128k' });
 function renderSettings() { return RENDER_CONTEXT.getStore()?.settings || DEFAULT_RENDER_SETTINGS; }
+function frameCountForShot(shot, fps = renderSettings().fps) {
+  if (!shot || !Number.isFinite(shot.durSec) || shot.durSec <= 0 || !Number.isFinite(fps) || fps <= 0) {
+    throw new Error('INVALID_SHOT_FRAME_ALLOCATION');
+  }
+  return Math.round(shot.durSec * fps);
+}
 function scaleFilter() {
   const { width, height } = renderSettings();
   return `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height}`;
@@ -716,7 +722,7 @@ function renderSegments({ resolved, episodeDir, assetsDir, brand, strictFailureG
       const isImg       = ['.png', '.jpg'].includes(path.extname(assetPath).toLowerCase())
         || (shot.phase3PreviewAsset === true && shot.phase3StillInput === true);
       const isZoom      = shot.visualType === 'STILL_ZOOM';
-      const totalFrames  = Math.round(shot.durSec * settings.fps);
+      const totalFrames  = frameCountForShot(shot, settings.fps);
       const motionFrames = Math.max(1, Math.round((shot.motionDurSec || shot.durSec) * settings.fps));
       const freezeDurSec = shot.freezeDurSec || 0;
       const filterParts = [];
@@ -813,10 +819,19 @@ function resolveAssetPath(shot, assetsDir) {
     }
     const location = resolveProductionAssetLocation(shot.productionMethod);
     if (!location || !SAFE_SHOT_ID_RE.test(shot.shotId || '')) return null;
+    if (shot.assetType === 'controlled_image' && shot.productionMethod !== 'CONTROLLED_STILL') {
+      throw new Error(`CONTROLLED_IMAGE_METHOD_MISMATCH:${shot.shotId}`);
+    }
+    if (shot.assetType === 'controlled_image' && fs.existsSync(path.join(clipsDir, `${shot.shotId}.mp4`))) {
+      throw new Error(`CONTROLLED_IMAGE_VIDEO_INPUT_FORBIDDEN:${shot.shotId}`);
+    }
     const methodDir = path.join(assetsDir, location.directory);
     for (const extension of location.extensions) {
       const candidate = path.join(methodDir, `${shot.shotId}${extension}`);
-      if (fs.existsSync(candidate)) return candidate;
+      if (fs.existsSync(candidate)) {
+        if (shot.assetType === 'controlled_image') validateControlledStillRasterAsset(candidate);
+        return candidate;
+      }
     }
     return null;
   }
@@ -1232,4 +1247,4 @@ if (require.main === module) {
     });
 }
 module.exports = { renderEpisode, resolveTimestamps, resolveEditPlanTimestamps, resolveAssetPath,
-  validateV3ShotDefinitionsForRender, getRendererCapabilities, PHASE3_PREVIEW_SETTINGS };
+  validateV3ShotDefinitionsForRender, getRendererCapabilities, PHASE3_PREVIEW_SETTINGS, frameCountForShot };

@@ -1,0 +1,13 @@
+{
+  "schemaVersion":"phase3-first-production-batch-proposal/2.0.0",
+  "status":"PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "recommendation":"CONDITIONAL_THREE_BEAT_BATCH_NOT_EXECUTABLE",
+  "items":[
+    {"order":1,"beatId":"ACT1_B005","role":"CONTROLLED_STILL","requiredBeforeBatch":"production authorization and technically accepted child candidate contract for the 34-row amendment"},
+    {"order":2,"beatId":"ACT1_B006","role":"GENERATED_STILL","requiredBeforeBatch":"approved provider/model, current price/terms, rights/ownership, output spec, cost exposure and detached one-request authorization"},
+    {"order":3,"beatId":"ACT1_B009","role":"ANIMATION_DEPENDENCY_STILL_THEN_ESSENTIAL_ANIMATION","requiredBeforeBatch":"separate still review; provider route/price/rights/output and clip-fit compatibility; independent one-request authorizations for still and clip"}
+  ],
+  "ACT3_B005":{"included":false,"motionPolicyApproval":"2b48bcd255d60db4bfd554eb2c482ed32c6f80debd2441290b9266d7770a3b0f","productionRequestKey":"cc2927c051bdff21bec411f3110d0f248797ac431e68e4ad3e0296a668b9fb14","reason":"Approved motion contract is unchanged, but production base still plus route, rights, current price and output acceptance are not closed."},
+  "notAuthorized":true,
+  "retiredBeatExcluded":"ACT3B_B010"
+}

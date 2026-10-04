@@ -1,0 +1,2944 @@
+{
+  "manifestVersion": "1.0.0",
+  "episodeId": "e59b6b79-96aa-4dcd-92c3-749fd536f55e",
+  "sourceShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+  "sourceProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755",
+  "sourceEvidenceManifestSha256": "ffb13c833d77b35eca20a3bd70da3657230e61d3b1c34a2e69ae0ac0bec1eba0",
+  "sourceBrandTemplateSha256": "02733113d6d1f57c57f0573235d50c1b2c756694d7084a3b4fa0e6035b48d35b",
+  "compiler": "pipeline-updates/graphic-compiler.cjs",
+  "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f",
+  "brandConfig": {
+    "name": "Empire Omitted",
+    "provenance": "Palette is derived from the approved visual identity description: charcoal/black foundation, gold accent, restrained red, and high-contrast typography.",
+    "width": 1920,
+    "height": 1080,
+    "fontFamily": "Arial, sans-serif",
+    "palette": {
+      "background": "#171615",
+      "foreground": "#f4f0e6",
+      "accent": "#c8a24a",
+      "muted": "#99938b",
+      "danger": "#9e3d35"
+    }
+  },
+  "requirementCount": 76,
+  "entries": [
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B002",
+      "shotId": "ACT1_B002",
+      "graphicId": "ACT1_B002:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "a92e059766b818773f513211317c83a73a8afcd17c1966644e2888a74a173c92",
+      "filename": "ACT1_B002__g00.svg",
+      "relativePath": "ACT1_B002__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 509,
+      "sha256": "3f7e9921f0feca9abccf5c56a77a32e709a566732429d6b76c3ae3c4d7bbe0a0",
+      "durationSec": 2.5,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Establish the scale of wealth and power.",
+        "text": "$300 BILLION"
+      },
+      "sourceGraphicSha256": "cd16e4c8d3be213636456b6a29cd6132f33a01cf4323df5ade0ca0038675da3c",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 2.5,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT1_B002__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B003",
+      "shotId": "ACT1_B003",
+      "graphicId": "ACT1_B003:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "55598f013853c97e43eaadcc8e14eb6aa3cd86089b4e5a029ff70d51f79f978e",
+      "filename": "ACT1_B003__g00.svg",
+      "relativePath": "ACT1_B003__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "62cfdde431216cd1b0f207cf3ef1017f2c5d8656d7dc7505cdb02f8784b71307",
+      "durationSec": 5.580000400543213,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Mark the timeline endpoint.",
+        "text": "2020"
+      },
+      "sourceGraphicSha256": "2b4fee905cc5ca5d76436a04ae531e119d4bee2fe1d7ca40cc21304f2227e220",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 5.580000400543213,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT1_B003__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B003",
+      "shotId": "ACT1_B003",
+      "graphicId": "ACT1_B003:g01",
+      "graphicIndex": 1,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "779381794feddca3701daeb9f1cde767100215d26fc116afc09f62f5b2927646",
+      "filename": "ACT1_B003__g01.svg",
+      "relativePath": "ACT1_B003__g01.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 482,
+      "sha256": "f5d244f4a99bb69f6339c2e41b35bef37223c12631e2b13d69e8e428626fd680",
+      "durationSec": 5.580000400543213,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the settlement figure.",
+        "text": "$3 BILLION FEDERAL RESOLUTION"
+      },
+      "sourceGraphicSha256": "d35eca35861b6dd1ce7def8ca311016a9b054652f00a61dbc7966b5590b0db68",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.580000400543213,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B004",
+      "shotId": "ACT1_B004",
+      "graphicId": "ACT1_B004:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "e3d31eb7507d94b5130ccf51bbc1e9545752a34cd1330120cacb31d95cf50c43",
+      "filename": "ACT1_B004__g00.svg",
+      "relativePath": "ACT1_B004__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 529,
+      "sha256": "a15ee476b1398494801b0149a0a251748b9a484893ec9fe6e05fa272e685e1ec",
+      "durationSec": 5.679999351501465,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Quantify the human toll.",
+        "text": "5,300+ EMPLOYEES FIRED"
+      },
+      "sourceGraphicSha256": "943e6df139ca09d2d01f78572e213961da6e61c7d1b3773e9404907bbfa95b03",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.679999351501465,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B007",
+      "shotId": "ACT1_B007",
+      "graphicId": "ACT1_B007:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "a4fed41f4baffb032d0c67ee73c0a65f9d780a9e1dd215b7c20a1af2a3ed06bd",
+      "filename": "ACT1_B007__g00.svg",
+      "relativePath": "ACT1_B007__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 560,
+      "sha256": "8ad518c559a2471578cde7662efa08ef4332e620c7489176db2cd3928004e988",
+      "durationSec": 3.6200008392333984,
+      "sourceGraphic": {
+        "type": "chapter_marker",
+        "intent": "Series tagline.",
+        "text": "THE STORY THEY DIDN'T WANT TOLD"
+      },
+      "sourceGraphicSha256": "69fc2ae154fab77776994fcf06cd31537afc41e36440cd5695b9eaaa33d966cc",
+      "renderInstructions": {
+        "animation": "chapter-title-reveal",
+        "deterministic": true,
+        "durationSec": 3.6200008392333984,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT1_B007__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B008",
+      "shotId": "ACT1_B008",
+      "graphicId": "ACT1_B008:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "5adf98afd7a9525011756ef2487a3f6b48bf41c3c499854db85c3e8c7c478342",
+      "filename": "ACT1_B008__g00.svg",
+      "relativePath": "ACT1_B008__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 525,
+      "sha256": "3bd7307d7af34efc44c2a6edf8ea66c1c527b07500031b3e7a6f8c8b82186408",
+      "durationSec": 2.260000228881836,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Establish timeline and location.",
+        "text": "2013 — LOS ANGELES"
+      },
+      "sourceGraphicSha256": "5814a57157280aeff691478fa60668469b8c926ae29c72fc185fe4220f450215",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 2.260000228881836,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B017",
+      "shotId": "ACT1_B017",
+      "graphicId": "ACT1_B017:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "18dd85cd904fc63db172895b63e7c5aea0cdea2c0bbc246870b6c599f8d50564",
+      "filename": "ACT1_B017__g00.svg",
+      "relativePath": "ACT1_B017__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 581,
+      "sha256": "7829a816b6c375718ee5402b38266dcf933cb0b3db9d4c7986bbb7d345b96bff",
+      "durationSec": 3.3800010681152344,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "text": "WELLS FARGO’S STATED REASON: PERFORMANCE ISSUE",
+        "intent": "Attribute the bank's stated reason without fabricating a termination document."
+      },
+      "sourceGraphicSha256": "c032d94901f25b6981ef3b3c7ef4783676acd159d34a7a7bee2608788c5d16c7",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.3800010681152344,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B019",
+      "shotId": "ACT1_B019",
+      "graphicId": "ACT1_B019:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "892ebe209b02c20523c698bed54f3312c2fa5b6c51e0e0fca5096c1edc0f0285",
+      "filename": "ACT1_B019__g00.svg",
+      "relativePath": "ACT1_B019__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 540,
+      "sha256": "4b4304ef9422a2a7ae90718448ccf13cc59c825571eccbcd3fc7a360a0a36522",
+      "durationSec": 4.900001525878906,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Visualize geographic spread.",
+        "text": "EMPLOYEE REPORTS NATIONWIDE"
+      },
+      "sourceGraphicSha256": "513c18144af23977c0694bf8b7d739b56603d670ebbb7443679155784a56c615",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.900001525878906,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT1_B019__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B026",
+      "shotId": "ACT1_B026",
+      "graphicId": "ACT1_B026:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "76faee1493b74aba2dc77b7e8791f966d9866b30dfcf60a6f51f67aa4bf384be",
+      "filename": "ACT1_B026__g00.svg",
+      "relativePath": "ACT1_B026__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 531,
+      "sha256": "c4236bfa320bdceb0add354732498feae1ef3514aae7024004bb0b5fd2d83e09",
+      "durationSec": 4.680000305175781,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "text": "UNREALISTIC SALES GOALS",
+        "intent": "Name the central pressure mechanism without presenting a fabricated source document."
+      },
+      "sourceGraphicSha256": "f391c03db48197f2836be9bf79e4600baf4b2c2c3453e418245c9ed19f8d97d1",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.680000305175781,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B027",
+      "shotId": "ACT1_B027",
+      "graphicId": "ACT1_B027:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "f45e601bef4f25032e2b5bdf7c52c2aa2dd1245ddb518a0264715f29ba93e3e8",
+      "filename": "ACT1_B027__g00.svg",
+      "relativePath": "ACT1_B027__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 541,
+      "sha256": "6e17abbe5189b80f44fd03019decdab4eab18c90d8059dbd9aa93e373dbb3373",
+      "durationSec": 5.079994201660156,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Establish duration of misconduct.",
+        "text": "COMMUNITY BANK — FOR YEARS"
+      },
+      "sourceGraphicSha256": "00f639ac45eb7f4fa8b092621e586942391d45fef3dc2ef44658d9f11abc9a56",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.079994201660156,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B028",
+      "shotId": "ACT1_B028",
+      "graphicId": "ACT1_B028:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "b42be80f24dfacda982ec4a6527533e706225d3e4a4993f417831cf4a1d88981",
+      "filename": "ACT1_B028__g00.svg",
+      "relativePath": "ACT1_B028__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 551,
+      "sha256": "063def4ef6b070901b017302d1fbb9d14d352ccd5d03f72f0a8ee82144f97b3a",
+      "durationSec": 5.5200042724609375,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the scale of harm.",
+        "text": "3.5 MILLION UNAUTHORIZED ACCOUNTS"
+      },
+      "sourceGraphicSha256": "c2fb451877cb7a3e5ce5e4e96004f22e4922623fd053a5c5a894e9bea027eb36",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.5200042724609375,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act1",
+      "beatId": "ACT1_B029",
+      "shotId": "ACT1_B029",
+      "graphicId": "ACT1_B029:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "70720364383df707c27ca836780e92af962fe49b9d537b476a8f84c3578d3f28",
+      "filename": "ACT1_B029__g00.svg",
+      "relativePath": "ACT1_B029__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 523,
+      "sha256": "31d97326b39ee4036bce5f8a0139e41e748de818de6d381d9ed40e3ab82bbb4c",
+      "durationSec": 4.44000244140625,
+      "sourceGraphic": {
+        "type": "document_callout",
+        "intent": "Specify the charge.",
+        "text": "PLEADED GUILTY — OBSTRUCTING BANK EXAMINATION"
+      },
+      "sourceGraphicSha256": "d3ed6e4b9c3d032fbbe6b26b6192016c98bdf2493e2afa17eaa921b7512d1198",
+      "renderInstructions": {
+        "animation": "document-highlight-reveal",
+        "deterministic": true,
+        "durationSec": 4.44000244140625,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT1_B029__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B001",
+      "shotId": "ACT2_B001",
+      "graphicId": "ACT2_B001:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "e90afcc34171c8cc7863d9a0fe561c77e4afdc571e0115c9fda595934923f872",
+      "filename": "ACT2_B001__g00.svg",
+      "relativePath": "ACT2_B001__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "3a53c61283686f86ca63be136fd295efe607d5da4974c2c67652b04e076dc42d",
+      "durationSec": 4.519999980926514,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Ground the founding moment.",
+        "text": "1852"
+      },
+      "sourceGraphicSha256": "a5d307a7b8b5720af60fd90e7217cafe80636b99c4a7d62dc1c455a7fd5ff72e",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 4.519999980926514,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B008",
+      "shotId": "ACT2_B008",
+      "graphicId": "ACT2_B008:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "e2df6100a120d8275fe7260adf51f0ad7829eabe85be810ef7ca0a82a8c27eca",
+      "filename": "ACT2_B008__g00.svg",
+      "relativePath": "ACT2_B008__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 470,
+      "sha256": "70dc31ce775906b131e16cad565b69f10b65a291ebb04e3883e0695298efd378",
+      "durationSec": 3.9200000762939453,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the scale of dominance.",
+        "text": "LARGEST BANK IN AMERICA"
+      },
+      "sourceGraphicSha256": "ec6299970c2fffc189c16e675391fd2374a2849d8be64dd5760c5832e2c601b7",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.9200000762939453,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B010",
+      "shotId": "ACT2_B010",
+      "graphicId": "ACT2_B010:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "447e28929250595ebdd166cdc7e1fcc3f34e386fd17a51abec615d4d59666549",
+      "filename": "ACT2_B010__g00.svg",
+      "relativePath": "ACT2_B010__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 514,
+      "sha256": "dbd53dd36cd77e2d3e87c62a019ee39a30a879709fba0ee63d8a9921b0fd0cfb",
+      "durationSec": 5.5,
+      "sourceGraphic": {
+        "type": "chapter_marker",
+        "intent": "Name the mechanism.",
+        "text": "CROSS-SELLING"
+      },
+      "sourceGraphicSha256": "9acc08ebdb212c8a33d2c8cfa6f41b385cfd25f89c00ddfd7045271262ee029b",
+      "renderInstructions": {
+        "animation": "chapter-title-reveal",
+        "deterministic": true,
+        "durationSec": 5.5,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B014",
+      "shotId": "ACT2_B014",
+      "graphicId": "ACT2_B014:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "7101011f35dc88a2ffa7783aa46f92687ba2ea57567cb899557032f4c95388ab",
+      "filename": "ACT2_B014__g00.svg",
+      "relativePath": "ACT2_B014__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 487,
+      "sha256": "105d543bb1b59804ae0686da437e9355a23f610e454c2fffea3d9e9f16d2372b",
+      "durationSec": 3.9399986267089844,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Introduce the governing number.",
+        "text": "8"
+      },
+      "sourceGraphicSha256": "e4844f61e613687e2cfcf8a05324e152c4397e098d775689c44b7ad6eed8c8f3",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.9399986267089844,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B017",
+      "shotId": "ACT2_B017",
+      "graphicId": "ACT2_B017:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "293cdba42422ded9f5e1120f4fb81ec5863a87de810643cd5d3d4f614c694f05",
+      "filename": "ACT2_B017__g00.svg",
+      "relativePath": "ACT2_B017__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 520,
+      "sha256": "26d95bf0957dcf60f61b8a4e16d39f313ffcef1712f31d5ac578efd4c67b4757",
+      "durationSec": 4.640003204345703,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the speaker.",
+        "text": "JOHN STUMPF | CEO, Wells Fargo"
+      },
+      "sourceGraphicSha256": "c5e35a2011e25bb5e60734000dc85dc36dfad1ac613537a2d4bb1de217c1212f",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 4.640003204345703,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT2_B017__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act2",
+      "beatId": "ACT2_B019",
+      "shotId": "ACT2_B019",
+      "graphicId": "ACT2_B019:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "12dc311e9097c7f6156c69a3fabad56c01fcdbb616a345c9f92a0b8afd15d4c5",
+      "filename": "ACT2_B019__g00.svg",
+      "relativePath": "ACT2_B019__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 477,
+      "sha256": "764356a3d0db26d8b5786d31f16d84a623e037577c334775333637632f26f590",
+      "durationSec": 3.3600006103515625,
+      "sourceGraphic": {
+        "type": "direct_quote",
+        "intent": "Land the slogan as doctrine.",
+        "text": "\"EIGHT IS GREAT\""
+      },
+      "sourceGraphicSha256": "e426b43bfd7485e101c779c3d0b65b243b3f1d04c99bf871b9d9272b1bdd27bc",
+      "renderInstructions": {
+        "animation": "quote-reveal",
+        "deterministic": true,
+        "durationSec": 3.3600006103515625,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT2_B019__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B001",
+      "shotId": "ACT3_B001",
+      "graphicId": "ACT3_B001:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "2b13150be2038c4180f6f81178f9da1202161c78cdf72b354e03c5562b4e4495",
+      "filename": "ACT3_B001__g00.svg",
+      "relativePath": "ACT3_B001__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 519,
+      "sha256": "a194c14b83e726e9dc30f6006ea421d5a94ddcc874abd0145f565f994b4b4119",
+      "durationSec": 4.139999866485596,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "text": "GAMING STRATEGIES",
+        "intent": "Name the employee euphemism as a label rather than a sourced quotation."
+      },
+      "sourceGraphicSha256": "4e08ef4b26bcad35e4361ce9acae2dff67fe4da1a3609cd59489e50b91f136f1",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.139999866485596,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B002",
+      "shotId": "ACT3_B002",
+      "graphicId": "ACT3_B002:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "090abc1dd9836bc14cc7dc94b5ec7563f5db8f6a5d344c4e7de6a3d450d8bcd4",
+      "filename": "ACT3_B002__g00.svg",
+      "relativePath": "ACT3_B002__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 515,
+      "sha256": "a10e0dac14ce1ab4e413e83c7ab4594288bb65b8780571e5b0c50d46f4ca928d",
+      "durationSec": 2.6200003623962402,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "text": "SALES PRACTICES",
+        "intent": "Name management's sanitized term as a label rather than a sourced quotation."
+      },
+      "sourceGraphicSha256": "081134f0237828cc990c734b7bd4fe8751058e4d0bc6d24d7a19fe3c8ca62295",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 2.6200003623962402,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B003",
+      "shotId": "ACT3_B003",
+      "graphicId": "ACT3_B003:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "d21beae39ab15bd3f116c0022e0840e3c7d01d83fbda5ab3b210276201912ed8",
+      "filename": "ACT3_B003__g00.svg",
+      "relativePath": "ACT3_B003__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 495,
+      "sha256": "1bad1e75068906a400f7390610856e8fe20129dccd8d2c3d72974c13c8c2fadf",
+      "durationSec": 3.619999885559082,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the legal definition.",
+        "text": "FRAUD"
+      },
+      "sourceGraphicSha256": "2c1ef120a9c4b6a5352f477a1c61b5d18e393dd9e29e0640a059796620dd879e",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.619999885559082,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B011",
+      "shotId": "ACT3_B011",
+      "graphicId": "ACT3_B011:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "ca5d5f0e7f8791a84b469a4354f2e65399a27f6bbcf9fedecda8bcf5d90d4f83",
+      "filename": "ACT3_B011__g00.svg",
+      "relativePath": "ACT3_B011__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 570,
+      "sha256": "fa62878405b3d28fe0be98e0d9ca4927879a3d071c9f8d16ea58b62bb641f58b",
+      "durationSec": 3.2600021362304688,
+      "sourceGraphic": {
+        "type": "document_callout",
+        "intent": "Show the manipulation technique.",
+        "text": "jsmith@email.com → jsmith123@email.com"
+      },
+      "sourceGraphicSha256": "5202b41be5bd8d7d8f33fc63ec5fcc570d147bbf02ed1220ceff31602aa4845e",
+      "renderInstructions": {
+        "animation": "document-highlight-reveal",
+        "deterministic": true,
+        "durationSec": 3.2600021362304688,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B012",
+      "shotId": "ACT3_B012",
+      "graphicId": "ACT3_B012:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "14d2f1a346560bf395dcc25466dd1dd5c7b913ecc21706d590d75bf5022d9d83",
+      "filename": "ACT3_B012__g00.svg",
+      "relativePath": "ACT3_B012__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 493,
+      "sha256": "9f1b7381df55c9b2f60b97cebdb5dbe3ddb286733727197f7adaf0e020f8bc9c",
+      "durationSec": 4.599998474121094,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Make the default visible.",
+        "text": "0000"
+      },
+      "sourceGraphicSha256": "b229973ff3a1b769473ffec6b57eedd5af67734014defdc1de6fd86598f2745d",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.599998474121094,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B016",
+      "shotId": "ACT3_B016",
+      "graphicId": "ACT3_B016:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "af27b59506574c89ccebe683aeb178ee4d817849ff89c84a4c08ef2057ee9801",
+      "filename": "ACT3_B016__g00.svg",
+      "relativePath": "ACT3_B016__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 535,
+      "sha256": "00f9bfcb4d8a3f38fdd95b697cfe6750cd7a65c4d8bd3e46046e2c97c639c13c",
+      "durationSec": 2.759998321533203,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the moral nadir.",
+        "text": "ACCOUNTS FOR THE DECEASED"
+      },
+      "sourceGraphicSha256": "1f8a1d0f45f83df4d2e49a8d399a80da43ef37f0a9f7942173eea5da440cb992",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 2.759998321533203,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B018",
+      "shotId": "ACT3_B018",
+      "graphicId": "ACT3_B018:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "d8a0049d0249efdd355ac70ac6e657d5560e4beac22012be7953019ad88d08ba",
+      "filename": "ACT3_B018__g00.svg",
+      "relativePath": "ACT3_B018__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 858,
+      "sha256": "8ce66d6ca782e07c57f3ec889ad73b0cc79d8a90bcc2f60640dcc5bfc9d59c45",
+      "durationSec": 4.5800018310546875,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Show the three distinct account counts reported by the board investigation, with source attribution.",
+        "text": "24 · TEENAGE DAUGHTER | 18 · ADULT DAUGHTER | 21 · SPOUSE\nSOURCE: INDEPENDENT DIRECTORS’ REPORT, P. 36"
+      },
+      "sourceGraphicSha256": "52f1533a3d45c106b861ec1b226460cfd1bb29b5b879d91c99fef623f342e185",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.5800018310546875,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B019",
+      "shotId": "ACT3_B019",
+      "graphicId": "ACT3_B019:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "48a6ce81c74977719f4de810972cc61d3f2d9ceb9da89b8d7b58222a1e92b06d",
+      "filename": "ACT3_B019__g00.svg",
+      "relativePath": "ACT3_B019__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 539,
+      "sha256": "c9af4c84f52dbf7b912dcbf4557a0dd4238235e3789170c77a7062c596456f18",
+      "durationSec": 4.6399993896484375,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Signal the pressure section.",
+        "text": "THE PRESSURE WAS RELENTLESS"
+      },
+      "sourceGraphicSha256": "51b0c38fe26e2128e4eaf7b6f0bb08521e21c44f6adfca0109b8f9e88b5d0524",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.6399993896484375,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B021",
+      "shotId": "ACT3_B021",
+      "graphicId": "ACT3_B021:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "175934f17a4f46e9e4931b6e85fb35e6d85ec46bd36ac37c2489f4ea3a748c6c",
+      "filename": "ACT3_B021__g00.svg",
+      "relativePath": "ACT3_B021__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 529,
+      "sha256": "975c57ff2a12a5441b7090a7e20aaf0999267a0204b855b781266afd9ded2fb8",
+      "durationSec": 4.55999755859375,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "text": "4 O'CLOCK HUDDLES",
+        "intent": "Name the pressure ritual as an editorial label."
+      },
+      "sourceGraphicSha256": "72a777a5551f7c4d1407edfd1dffe3a1b9fd99df91e8e4367352d41f93c4b592",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.55999755859375,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B022",
+      "shotId": "ACT3_B022",
+      "graphicId": "ACT3_B022:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "8e415729570670ec97c0a1deca9de8d27c413b0de97cefbd346d6f561d4e2fa0",
+      "filename": "ACT3_B022__g00.svg",
+      "relativePath": "ACT3_B022__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 546,
+      "sha256": "a1d254886e48a3568f40bfe47dd3a7eff33dae3dad97219771d05793b58d8bb2",
+      "durationSec": 4.120002746582031,
+      "sourceGraphic": {
+        "type": "document_callout",
+        "intent": "Identify the termination pathway.",
+        "text": "PERFORMANCE IMPROVEMENT PLAN"
+      },
+      "sourceGraphicSha256": "aa9a8353936d9b3055ad9df07249cdb6146b2244ad5503a270e3a3070a30a5df",
+      "renderInstructions": {
+        "animation": "document-highlight-reveal",
+        "deterministic": true,
+        "durationSec": 4.120002746582031,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B025",
+      "shotId": "ACT3_B025",
+      "graphicId": "ACT3_B025:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "1c1ff448e185750bfb9853c97cd3deaf7b81f988170545bc74d1dfd38e2fa17b",
+      "filename": "ACT3_B025__g00.svg",
+      "relativePath": "ACT3_B025__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 515,
+      "sha256": "8f7980e29607a18b53872c94e254c90d4a7e8dcbfe047879d02211642007561e",
+      "durationSec": 2.0199966430664062,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the impossible choice.",
+        "text": "CHEAT OR STARVE"
+      },
+      "sourceGraphicSha256": "d899ce58040c414555e0db769f28e05c459e200400b04ea5335cfb35d7731ef8",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 2.0199966430664062,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3",
+      "beatId": "ACT3_B029",
+      "shotId": "ACT3_B029",
+      "graphicId": "ACT3_B029:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "36e7f93f4697aeaa5db5bea2ec1e12b0c38f6cb9e6a0df85f121ed4b3d1a8caa",
+      "filename": "ACT3_B029__g00.svg",
+      "relativePath": "ACT3_B029__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 533,
+      "sha256": "7775488be0de1f4189617f6e4c840955139f29fd42b5daac41a292b6e6f69904",
+      "durationSec": 3.346758525878897,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the betrayal as structural.",
+        "text": "PIPELINE TO UNEMPLOYMENT"
+      },
+      "sourceGraphicSha256": "fbf0ed5632b80486afdafd4b3a09cbe5ec3279017fc9ca3e1eb12c1b023761a1",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.346758525878897,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B002",
+      "shotId": "ACT3B_B002",
+      "graphicId": "ACT3B_B002:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "4e2c1b03bc913f27e2243285ba48aa3f453367db8d91b7cf264f9084bc51062b",
+      "filename": "ACT3B_B002__g00.svg",
+      "relativePath": "ACT3B_B002__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 572,
+      "sha256": "be25f5849af6c0e881c6e9e5cdc89da569ba283ab5ab0cae1430d63c2b68d53a",
+      "durationSec": 3.7200000286102295,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Visualize the fee multiplication",
+        "text": "UNAUTHORIZED ACCOUNTS → UNAUTHORIZED FEES"
+      },
+      "sourceGraphicSha256": "129affddff5416e3c8fd66b01f41204a440e59c7f5d560f0cd59a56d706f527a",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 3.7200000286102295,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B005",
+      "shotId": "ACT3B_B005",
+      "graphicId": "ACT3B_B005:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "22d68d68cc7497be4e0ba6a7f11cd795531c45eb20047327f1d81e0c161cfaee",
+      "filename": "ACT3B_B005__g00.svg",
+      "relativePath": "ACT3B_B005__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 524,
+      "sha256": "60c77e06072ead8ebfa268d607cc03ae50f9e7c266e3a1f952eabe023c65b667",
+      "durationSec": 3.640000343322754,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Show the hidden damage",
+        "text": "CREDIT SCORE IMPACT"
+      },
+      "sourceGraphicSha256": "7b45f8bef729b8b6d4b070e17e7eb83c7184e4d66e90becafb0a4511c995170d",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 3.640000343322754,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT3B_B005__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "shotId": "ACT3B_B008",
+      "graphicId": "ACT3B_B008:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "43c286d7a27addaec17b03977c10ec9162b14958356092c16b769994a196ef32",
+      "filename": "ACT3B_B008__g00.svg",
+      "relativePath": "ACT3B_B008__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 482,
+      "sha256": "e8d05c298f96fc41ddfcf149affda7b25326ef89a35c65069eb697f4ecada5ae",
+      "durationSec": 7.270000457763672,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+        "text": "$2.6 MILLION IN FEES REFUNDED"
+      },
+      "sourceGraphicSha256": "f817dcce50b09a57c53fcc0b36fd801fc800c3f294a6cb1c30c7b1b3d25e96d2",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 7.270000457763672,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B011",
+      "shotId": "ACT3B_B011",
+      "graphicId": "ACT3B_B011:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "c6dab67ee38ecb324838da93e1a6b00de8e9a7df6c5fe9cc16e5bbf92cf94b52",
+      "filename": "ACT3B_B011__g00.svg",
+      "relativePath": "ACT3B_B011__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 507,
+      "sha256": "87b1dbb29b372fe401a29e889e6629ff48c3f19eaa25773f3e2f1f47e1394617",
+      "durationSec": 4.019996643066406,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Establish the timeframe",
+        "text": "2011–2016"
+      },
+      "sourceGraphicSha256": "f557919d1cd95274c9c3b7db33b180756fd103a70bd844a19b25e21e1467ff58",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 4.019996643066406,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT3B_B011__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "shotId": "ACT3B_B012",
+      "graphicId": "ACT3B_B012:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "d7e6147d55e6a32ce438fa288a6f48f032cf9946faeed42df8db1cd26b59cf36",
+      "filename": "ACT3B_B012__g00.svg",
+      "relativePath": "ACT3B_B012__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 466,
+      "sha256": "769050b8338dfacee0af252794476bb9d6ded09664272e40c5f8fd69ec2b8ec6",
+      "durationSec": 6.760002136230469,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the termination scale",
+        "text": "5,300 EMPLOYEES FIRED"
+      },
+      "sourceGraphicSha256": "cd4ca7f4cb1a531e43b56db7297fa859a16dc6146ab74a4544b760c279a7f9f0",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 6.760002136230469,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT3B_B012__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B015",
+      "shotId": "ACT3B_B015",
+      "graphicId": "ACT3B_B015:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "48d457491dc5426a3b41060b20cf253c7a9c231f17b877550be388d0ee1b14b7",
+      "filename": "ACT3B_B015__g00.svg",
+      "relativePath": "ACT3B_B015__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 554,
+      "sha256": "20f891b15dcdabe027685611b8e9457bfdbe0bc19fe37495f73093cc7bf31f7a",
+      "durationSec": 4.939998626708984,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "text": "DIFFERENT CONDUCT. SAME INSTITUTION.",
+        "intent": "Land the editorial contrast without presenting it as a quotation."
+      },
+      "sourceGraphicSha256": "eb5d7c9768c5d3afee2673b351da108190d63619bc494309ab6515154b961231",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 4.939998626708984,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT3B_B015__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B001",
+      "shotId": "ACT4_B001",
+      "graphicId": "ACT4_B001:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "b8bd6162b6dba912769f40c058fb27df52baccb4fe5be31c4ac2d767ea2e6f33",
+      "filename": "ACT4_B001__g00.svg",
+      "relativePath": "ACT4_B001__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "42eb24112e47a440acdc49d6f3f14f6fad8af74233e3581f66483e97ceff9c0b",
+      "durationSec": 3.700000047683716,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Anchor the public exposure moment.",
+        "text": "2013"
+      },
+      "sourceGraphicSha256": "486f83da0e4a74ea562057aaf5907c5622fc8eb2275685839985f2e66e9ac3ff",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 3.700000047683716,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT4_B001__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B002",
+      "shotId": "ACT4_B002",
+      "graphicId": "ACT4_B002:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "e093a0aec9d67a804d46a0b4c0774db9056a61a0c2631c4ea67fdd4ade61c8b5",
+      "filename": "ACT4_B002__g00.svg",
+      "relativePath": "ACT4_B002__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 532,
+      "sha256": "99a1d53fbc88af7400718194b67934c5616adb271c28972ab66da7f44db42e6e",
+      "durationSec": 5.739999532699585,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the reporter and publication without a firstness claim.",
+        "text": "E. Scott Reckard | Los Angeles Times"
+      },
+      "sourceGraphicSha256": "2244ff87733a1a56e5c98e2a073e66312108a62c6ab205baf6a3eed9b4bc9a4c",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 5.739999532699585,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B004",
+      "shotId": "ACT4_B004",
+      "graphicId": "ACT4_B004:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "a442b9facc0537a9db6be6e1e6e6404eb631f79a05e4f364842bbe6a3a6dc5a5",
+      "filename": "ACT4_B004__g00.svg",
+      "relativePath": "ACT4_B004__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 460,
+      "sha256": "adf659ce927dfc0672e21790a1b5e90c1b79802217f8b9c723f9c2f455919cea",
+      "durationSec": 4.600000381469727,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Break out the CFPB component of the 2016 aggregate.",
+        "text": "CFPB  $100 MILLION"
+      },
+      "sourceGraphicSha256": "d97fa67dd548c6d76ad36c9c21423c918da7aa0c1f81282af5259f2985357b35",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.600000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B004",
+      "shotId": "ACT4_B004",
+      "graphicId": "ACT4_B004:g01",
+      "graphicIndex": 1,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "ab486904b2557361d3290ea92159717a306de2cbae7ac089015b4f9dd3ede649",
+      "filename": "ACT4_B004__g01.svg",
+      "relativePath": "ACT4_B004__g01.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 456,
+      "sha256": "833f6c7c01b363abdd80e8c37fc58d2f299c672170eaf138aa6453d6b050197c",
+      "durationSec": 4.600000381469727,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Break out the OCC component of the 2016 aggregate.",
+        "text": "OCC  $35 MILLION"
+      },
+      "sourceGraphicSha256": "ec6365a6552f935f2cdcef278fb6b1db83fc3147c95ee739db7de5814f2415d0",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.600000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B004",
+      "shotId": "ACT4_B004",
+      "graphicId": "ACT4_B004:g02",
+      "graphicIndex": 2,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "07381c8739da820be338d8e6a138d6b2195173b438808e87bdd3fafa9d4a7902",
+      "filename": "ACT4_B004__g02.svg",
+      "relativePath": "ACT4_B004__g02.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 500,
+      "sha256": "89ddc67d4510d1c45dbaf7202fc452db2317dbd3a60b23af48909e7ccbe248e6",
+      "durationSec": 4.600000381469727,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Break out the City and County of Los Angeles component of the 2016 aggregate.",
+        "text": "CITY & COUNTY OF L.A.  $50 MILLION"
+      },
+      "sourceGraphicSha256": "14cf6a573d39edda34be84f9dd83d69dd69b55a9c1a8ed5cf98eee36d6a3064d",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.600000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B004",
+      "shotId": "ACT4_B004",
+      "graphicId": "ACT4_B004:g03",
+      "graphicIndex": 3,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "9d91f4ee95455e9e04d35830aea2726b7a0770e399291b2a996c84e2b8ed1354",
+      "filename": "ACT4_B004__g03.svg",
+      "relativePath": "ACT4_B004__g03.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 460,
+      "sha256": "38f3c635a4f4aaf5f4fb1c7d7880a92ba638de2da557abcdd0a0625874714af1",
+      "durationSec": 4.600000381469727,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Show the sum of three separate actions.",
+        "text": "$185 MILLION TOTAL"
+      },
+      "sourceGraphicSha256": "dae6a2e771d8e08b416654bcf9e1bd3d0670e848228b101e2e4c5b024b03024a",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.600000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B004",
+      "shotId": "ACT4_B004",
+      "graphicId": "ACT4_B004:g04",
+      "graphicIndex": 4,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "e2805609f4d494001341dbebcdbd07eb926e55eab869eec90f3114c6734553e3",
+      "filename": "ACT4_B004__g04.svg",
+      "relativePath": "ACT4_B004__g04.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "4c078fa2d699706088183135da4d3e7dfb6931fd1cd38ccdf8a63cd5ec22aad1",
+      "durationSec": 4.600000381469727,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Anchor the separate actions to 2016.",
+        "text": "2016"
+      },
+      "sourceGraphicSha256": "c4f265d5346cf10217173144ef90233d204d584c6775e5680ccd85c971e65663",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 4.600000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B005",
+      "shotId": "ACT4_B005",
+      "graphicId": "ACT4_B005:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "5606f6379b2b0e9e115754cf8d0f4e5f303301b0afe09aa45c88b577f485e026",
+      "filename": "ACT4_B005__g00.svg",
+      "relativePath": "ACT4_B005__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 452,
+      "sha256": "098940f987483abe358aa114ccbc0e714882b220f3afe29eca44dda1f47598dd",
+      "durationSec": 5.239999771118164,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Anchor the congressional moment.",
+        "text": "SEPTEMBER 2016"
+      },
+      "sourceGraphicSha256": "dc0bddec57cf7c826d3c185e9635dec7b1a8126389ff217415090f130f3f9d03",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 5.239999771118164,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT4_B005__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B006",
+      "shotId": "ACT4_B006",
+      "graphicId": "ACT4_B006:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "44ae2a488aadfb2f2e15981c08db783c3b21b84ffd91322ab5cb7e21a35c0230",
+      "filename": "ACT4_B006__g00.svg",
+      "relativePath": "ACT4_B006__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 534,
+      "sha256": "f6e55326c9450bc45ecb1ee655123361b2d950f35749e19b2646435f45099b19",
+      "durationSec": 4.3600006103515625,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the Senator delivering accountability.",
+        "text": "Sen. Elizabeth Warren | Massachusetts"
+      },
+      "sourceGraphicSha256": "2a965a543b22683510591fb3d0e5e5091f431d2fb23333983ff120e735ee9d17",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 4.3600006103515625,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-proof-assets-d1adcef2117b/graphics/svg/ACT4_B006__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B010",
+      "shotId": "ACT4_B010",
+      "graphicId": "ACT4_B010:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "1dcec1cb424e0c46ce5b88874fae16ff9e8cf7500a3c2be8ab6146684ff52097",
+      "filename": "ACT4_B010__g00.svg",
+      "relativePath": "ACT4_B010__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 471,
+      "sha256": "a64c6e7c52141685eb15762e1b21914fd4ab15022b3457b34352ad2f4e0b63e6",
+      "durationSec": 5.200000762939453,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Quantify the clawback.",
+        "text": "$69 MILLION CLAWED BACK"
+      },
+      "sourceGraphicSha256": "6d9e07322cd9380e607d7d0551a84ab67fa39b52a885c614d8c3dd92026d9114",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 5.200000762939453,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B011",
+      "shotId": "ACT4_B011",
+      "graphicId": "ACT4_B011:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "64cc83f62e2ac758470e62aacfd59f843e007b0db1d1df92e52667c8ea1eb8e7",
+      "filename": "ACT4_B011__g00.svg",
+      "relativePath": "ACT4_B011__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 546,
+      "sha256": "30740f98b857b52d4ac5e2d9c1456107194c213cc614743ed8e83b4b6a17e1f9",
+      "durationSec": 5.779998779296875,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the Community Bank executive.",
+        "text": "Carrie Tolstedt | Head of Community Banking"
+      },
+      "sourceGraphicSha256": "01944704e7bf17482082341fbf91420024b2beca495d20f88edc6c441ca2b5b9",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 5.779998779296875,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B012",
+      "shotId": "ACT4_B012",
+      "graphicId": "ACT4_B012:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "569fe6b89b0e92f0b976e26e66ca5d5be82a34a1271017da0050d8abccc74f6a",
+      "filename": "ACT4_B012__g00.svg",
+      "relativePath": "ACT4_B012__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 467,
+      "sha256": "014e1b90abbf4f12db8f685dee11802b882061d7b6d47ada2f198180a74126b2",
+      "durationSec": 4.260002136230469,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Quantify second clawback.",
+        "text": "$67 MILLION FORFEITED"
+      },
+      "sourceGraphicSha256": "790c24e25d97d7c5d1a8aab3bf33983945af9f67eaf6ab942fa6534e22aa90c3",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.260002136230469,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B013",
+      "shotId": "ACT4_B013",
+      "graphicId": "ACT4_B013:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "0d436c9c3446cf3e7fdc4c82ce173fac38ece84b8f0cf5ac6e37ef9188c232fa",
+      "filename": "ACT4_B013__g00.svg",
+      "relativePath": "ACT4_B013__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 453,
+      "sha256": "4f12f92650cce502f388f8e9766258f1011f3f99e1e6cd517c438a9403029474",
+      "durationSec": 3.3400001525878906,
+      "sourceGraphic": {
+        "type": "document_callout",
+        "text": "NO SEVERANCE",
+        "intent": "Isolate the severance decision in the authentic board record."
+      },
+      "sourceGraphicSha256": "2400c8363c4b87634492660f43d294e27ca6103ed2d1b1a7750f173d107302c0",
+      "renderInstructions": {
+        "animation": "document-highlight-reveal",
+        "deterministic": true,
+        "durationSec": 3.3400001525878906,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B014",
+      "shotId": "ACT4_B014",
+      "graphicId": "ACT4_B014:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "15740b1c45eb6436df3f9987ed7199733ace662b5e9a45009056a7e55a9f7150",
+      "filename": "ACT4_B014__g00.svg",
+      "relativePath": "ACT4_B014__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 528,
+      "sha256": "99defd084b79703b2e33dc50fed238021d5815b4a4d7168477a5456fdaee847e",
+      "durationSec": 5.719997406005859,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Show the expanding scope.",
+        "text": "UNAUTHORIZED ACCOUNTS"
+      },
+      "sourceGraphicSha256": "610bfeaa355f0bd8626df80aa7a14062c67f8d8edafe9cbe68936d6746d4c713",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 5.719997406005859,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B015",
+      "shotId": "ACT4_B015",
+      "graphicId": "ACT4_B015:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "fff171dee91565b96187359f187322ceaf019c6eed6ee04aee3fcccb4420568b",
+      "filename": "ACT4_B015__g00.svg",
+      "relativePath": "ACT4_B015__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 535,
+      "sha256": "eb8b364e340e20e72b5151e78f6ea607cf5cb368171a228c7a83fc6ed7b3c8ca",
+      "durationSec": 4.520000457763672,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the expanded scope.",
+        "text": "2 MILLION → 3.5 MILLION"
+      },
+      "sourceGraphicSha256": "c7d2b452573d518ad9145d5d99fa718a019582062fc02166af3be96db41a31d6",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.520000457763672,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B019",
+      "shotId": "ACT4_B019",
+      "graphicId": "ACT4_B019:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "475ddb7b093d2b7393670d2064686ba3257571c484ee3e9f3167b9d6c2580766",
+      "filename": "ACT4_B019__g00.svg",
+      "relativePath": "ACT4_B019__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "aaee090b439ffc67ac1813f25be85f7163d0713b902610c0084c1902b3ecc46c",
+      "durationSec": 4.519996643066406,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Anchor the Fed intervention.",
+        "text": "2018"
+      },
+      "sourceGraphicSha256": "ba1d42467dffb9014d1a33cf2c552bfd230e744b918c18a335875a530f623c06",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 4.519996643066406,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B021",
+      "shotId": "ACT4_B021",
+      "graphicId": "ACT4_B021:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "3442e32f9ffd291fbd37aa2670a959de0a94917c7ffcced23f9d062facb699af",
+      "filename": "ACT4_B021__g00.svg",
+      "relativePath": "ACT4_B021__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 442,
+      "sha256": "0ba45324a976232a1879baf7ca126e35d5cd48d04692a03c52f1338366806a91",
+      "durationSec": 3.4800033569335938,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Mark the cap removal.",
+        "text": "JUNE 2025"
+      },
+      "sourceGraphicSha256": "ebe7942dd6949ce1a2ddb146cdb9cb572ca238c4bb8544a3d95429c575dcf9c3",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 3.4800033569335938,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "shotId": "ACT4_B022",
+      "graphicId": "ACT4_B022:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "a7dec67f30ad4d2cbec6ea971e0c50689ce8a656a7ce2c2881a8efa421db021b",
+      "filename": "ACT4_B022__g00.svg",
+      "relativePath": "ACT4_B022__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 444,
+      "sha256": "924513a5544259df4bbf026df1909b6cd7bd2c254b3cc086cc56ff5edb238780",
+      "durationSec": 6.019996643066406,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Mark the final closure.",
+        "text": "MARCH 2026"
+      },
+      "sourceGraphicSha256": "ad12f39211ddb35753350b893165d939eccc9c1e4b2b1a0701b3663795e0009a",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 6.019996643066406,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B023",
+      "shotId": "ACT4_B023",
+      "graphicId": "ACT4_B023:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "bfce3b9c5e9788a6b019107f7475e3cbdabba1eaa7c4e0863431f3cfb518d1a9",
+      "filename": "ACT4_B023__g00.svg",
+      "relativePath": "ACT4_B023__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 552,
+      "sha256": "195db8eede7884b45f826e0e328ce214cba07359e77c550baf07c8b759307a4b",
+      "durationSec": 4.239997863769531,
+      "sourceGraphic": {
+        "type": "data_graphic",
+        "intent": "Establish the cost exceeds previous figures.",
+        "text": "TOTAL COST: FAR BEYOND $3 BILLION"
+      },
+      "sourceGraphicSha256": "d00624fa4d86f34c8e80136a628f4d78e2fc077de48b04185566d9cae2523416",
+      "renderInstructions": {
+        "animation": "deterministic-data-reveal",
+        "deterministic": true,
+        "durationSec": 4.239997863769531,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act4",
+      "beatId": "ACT4_B024",
+      "shotId": "ACT4_B024",
+      "graphicId": "ACT4_B024:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "56af7c04cdfffa2cfc09a346510391d980c106009991d238ae757343f5565b0b",
+      "filename": "ACT4_B024__g00.svg",
+      "relativePath": "ACT4_B024__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 448,
+      "sha256": "c247ece97167cbd4cb46c4a58c86b0dad36996ea729fe8f7eeed9016e61c02ad",
+      "durationSec": 8.304946662109387,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the final devastating number.",
+        "text": "$3.7 BILLION"
+      },
+      "sourceGraphicSha256": "8451e9d1d8c15dc46503a3a2f7d90bda84e6df9736f76a6f91de20bb5ced4755",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 8.304946662109387,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B001",
+      "shotId": "ACT5_B001",
+      "graphicId": "ACT5_B001:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "029d66a176072eab1a2850a992e192f1d082ea9b76d48693ef5a44db55d2e5ac",
+      "filename": "ACT5_B001__g00.svg",
+      "relativePath": "ACT5_B001__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 432,
+      "sha256": "62cfdde431216cd1b0f207cf3ef1017f2c5d8656d7dc7505cdb02f8784b71307",
+      "durationSec": 5.800000190734863,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Anchor the federal action in time.",
+        "text": "2020"
+      },
+      "sourceGraphicSha256": "95dfe41eb0e2f4436d3ef735c1a0af3ff6b5534c96feef1f5a568aa9a23d3c58",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 5.800000190734863,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B001",
+      "shotId": "ACT5_B001",
+      "graphicId": "ACT5_B001:g01",
+      "graphicIndex": 1,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "25c3355fc8bcec4cc61ef7a210d0a5f744c0fddefb489beed9eae98260722c9a",
+      "filename": "ACT5_B001__g01.svg",
+      "relativePath": "ACT5_B001__g01.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 466,
+      "sha256": "8fd9b7f204c0bcd35f112f4eea1315571b3cc601e901235c4607316950055553",
+      "durationSec": 5.800000190734863,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the scale of the resolution.",
+        "text": "$3 BILLION RESOLUTION"
+      },
+      "sourceGraphicSha256": "65b882b2c4d626f0afc02ecf98824a4bac7272d40be92a7a3c5c47f77ce6a275",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.800000190734863,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B002",
+      "shotId": "ACT5_B002",
+      "graphicId": "ACT5_B002:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "2de5d5f5ec74791f9c1130e119e49afd4fa882ed1ab1b4909649ce346d239b11",
+      "filename": "ACT5_B002__g00.svg",
+      "relativePath": "ACT5_B002__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 508,
+      "sha256": "801ce697841209c28e06aabae0aebdb916acfdac07bc602de08c6ac76cca7409",
+      "durationSec": 5.439999580383301,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the subject of the penalty.",
+        "text": "JOHN STUMPF | Former CEO"
+      },
+      "sourceGraphicSha256": "253e5d411786be2695df39f7302ff074493339b58af098a2fa7396375426ea96",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 5.439999580383301,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B002",
+      "shotId": "ACT5_B002",
+      "graphicId": "ACT5_B002:g01",
+      "graphicIndex": 1,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "29e2a239f042a6634168b9107e04d9f6d7ad4aa5427667bf03963b1fe5600ee7",
+      "filename": "ACT5_B002__g01.svg",
+      "relativePath": "ACT5_B002__g01.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 460,
+      "sha256": "f07b4fee42ac396581eadf9cc8b526edbaf71bd2c5b59357a82ede63440de7df",
+      "durationSec": 5.439999580383301,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the personal fine.",
+        "text": "$17.5 MILLION FINE"
+      },
+      "sourceGraphicSha256": "a516dc7dec4e69c3d7566c783ec31c98b6b849e0883e7d6f6d30f44c46ce98dc",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.439999580383301,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B004",
+      "shotId": "ACT5_B004",
+      "graphicId": "ACT5_B004:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "4121c299747502d89d44b7f8366433ba2c684eb4a284bc26b4fbb69134c9e2d8",
+      "filename": "ACT5_B004__g00.svg",
+      "relativePath": "ACT5_B004__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 493,
+      "sha256": "5f05721ea34422d44d6a4fca8f9c74a30c05c391426acae5d0875b45b4e7a833",
+      "durationSec": 5.399999618530273,
+      "sourceGraphic": {
+        "type": "date_marker",
+        "intent": "Mark the year criminal charges arrived.",
+        "text": "2023"
+      },
+      "sourceGraphicSha256": "0a462e02b726df933e82b15ec63676759076535d0b31c2dfb898a2c41cc65801",
+      "renderInstructions": {
+        "animation": "timeline-marker-reveal",
+        "deterministic": true,
+        "durationSec": 5.399999618530273,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B005",
+      "shotId": "ACT5_B005",
+      "graphicId": "ACT5_B005:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "a3d1fc64bd6a76cb2c3a52a4e331146f7b64fab783f17805acc15f5ad9887b3a",
+      "filename": "ACT5_B005__g00.svg",
+      "relativePath": "ACT5_B005__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 560,
+      "sha256": "916307d5be1c08cc996fbe95dd361f171af2ac6dbe7ed5c774907a3a24524b39",
+      "durationSec": 4.480001449584961,
+      "sourceGraphic": {
+        "type": "identity_lower_third",
+        "intent": "Identify the defendant.",
+        "text": "CARRIE TOLSTEDT | Former Head of Community Banking"
+      },
+      "sourceGraphicSha256": "66cdd36b30666239c94dbff6e49adf3e1a9874a0ecaf507d4461b27876475c88",
+      "renderInstructions": {
+        "animation": "lower-third-slide-in",
+        "deterministic": true,
+        "durationSec": 4.480001449584961,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B006",
+      "shotId": "ACT5_B006",
+      "graphicId": "ACT5_B006:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "b5f5dd7bff6ee118f3ff2d0400dac9f4e5466cc937ff634eb1f11104cc5b6f35",
+      "filename": "ACT5_B006__g00.svg",
+      "relativePath": "ACT5_B006__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 516,
+      "sha256": "ad79c0d8728e21761ef06ea6b444952d4364c8e6be1408d81665ef7ec5406ee5",
+      "durationSec": 5.399999618530273,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the nature of the sentence.",
+        "text": "SENTENCED TO PROBATION • BARRED FROM BANKING"
+      },
+      "sourceGraphicSha256": "a2119bda9eaa378987bdd90fc8c6783f3c9578bdc2aceda37bda37643518c23b",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.399999618530273,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B007",
+      "shotId": "ACT5_B007",
+      "graphicId": "ACT5_B007:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "a55b7d786a5a7ec30be57fc55fb38388228951624a25e8d8e2f5d8fbabcd585c",
+      "filename": "ACT5_B007__g00.svg",
+      "relativePath": "ACT5_B007__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 468,
+      "sha256": "83407208e9eb8a530e77410a0a49ceab4f2682d057cd45a70f963a793c0f5a14",
+      "durationSec": 5.100000381469727,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the regulatory fine.",
+        "text": "$17 MILLION | OCC FINE"
+      },
+      "sourceGraphicSha256": "47da6cadb02f64b41aac0c4f2169c5faa5b72b5f6c1ffa3f33d92d66cf77dd92",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.100000381469727,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B008",
+      "shotId": "ACT5_B008",
+      "graphicId": "ACT5_B008:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "f6d4a99ec9dc49694c565a1d0f44635b52463165958d13e2344674d9c7992ef5",
+      "filename": "ACT5_B008__g00.svg",
+      "relativePath": "ACT5_B008__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 468,
+      "sha256": "72694174f4c76e4a4e2009a6a3643578019befea772d9d48366a565498ab0a66",
+      "durationSec": 4.520000457763672,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Stack the second penalty.",
+        "text": "~$5 MILLION | SEC CASE"
+      },
+      "sourceGraphicSha256": "b34c1ef1f7fe146c50d15c30cd7cc877dda4a2d2b2a9c06f24985b5c81d92756",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.520000457763672,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B011",
+      "shotId": "ACT5_B011",
+      "graphicId": "ACT5_B011:g00",
+      "graphicIndex": 0,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionRequirementSha256": "4572ef67ce68a01b06bc6735f512a8d31274318f198b52575fc3dbe31488b53f",
+      "filename": "ACT5_B011__g00.svg",
+      "relativePath": "ACT5_B011__g00.svg",
+      "role": "OVERLAY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 497,
+      "sha256": "eaad1f5b703946f997ba038d7396c446c9c06a54ec7cf6132fa269591ef753f0",
+      "durationSec": 4.780002593994141,
+      "sourceGraphic": {
+        "type": "source_citation",
+        "intent": "Attribute the finding.",
+        "text": "Federal Investigators"
+      },
+      "sourceGraphicSha256": "7e670cf4eb175d2d791e359798b03db2c9018b7f24e89e2ef287c81781b2c0ac",
+      "renderInstructions": {
+        "animation": "citation-fade-in",
+        "deterministic": true,
+        "durationSec": 4.780002593994141,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "REUSED_EXACT_MATCH",
+        "sourcePath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3a/previews/ACT5_B011__g00.svg",
+        "verifiedChecks": {
+          "owner": true,
+          "sourceGraphic": true,
+          "role": true,
+          "dimensions": true,
+          "byteCount": true,
+          "hash": true
+        }
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B014",
+      "shotId": "ACT5_B014",
+      "graphicId": "ACT5_B014:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "3e827d92046053252cbb6e68212e571d0592a2cb399e34ab0d19b9bbb7628669",
+      "filename": "ACT5_B014__g00.svg",
+      "relativePath": "ACT5_B014__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 538,
+      "sha256": "f1b1a70d743b3c14d382c6bb89f40a04380be7fe0c013d1dd397b7271b807968",
+      "durationSec": 5.379997253417969,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "text": "WORKERS OPENED FAKE ACCOUNTS",
+        "intent": "Present the simplified account as editorial framing, not a sourced quotation."
+      },
+      "sourceGraphicSha256": "cb8e58ec0299931a2e71bb4b7630ec5821dfaa574d3ff98a98471fc90a58186e",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 5.379997253417969,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B015",
+      "shotId": "ACT5_B015",
+      "graphicId": "ACT5_B015:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "08c941acfaf7abfc39ca7e3ac1bdeb481feab9bb72898915cdb7c7eab0e6f16a",
+      "filename": "ACT5_B015__g00.svg",
+      "relativePath": "ACT5_B015__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 538,
+      "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+      "durationSec": 5.560005187988281,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "text": "REGULATORS PUNISHED THE BANK",
+        "intent": "Complete the simplified account as editorial framing, not a sourced quotation."
+      },
+      "sourceGraphicSha256": "c421fb2ba363fe2d6e99b19658f0750170870d00b44ee2782da269be688a2310",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 5.560005187988281,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B018",
+      "shotId": "ACT5_B018",
+      "graphicId": "ACT5_B018:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "1f767cdeaab878555aa25a738feb867984d66de35e2ab3c0aebc223d5d249f6c",
+      "filename": "ACT5_B018__g00.svg",
+      "relativePath": "ACT5_B018__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 575,
+      "sha256": "4de8d80ceff5860ff549c8125ec5870ac51d15b7a2e3becfe4032462b0260217",
+      "durationSec": 4.3800048828125,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the account count.",
+        "text": "3.5 MILLION POTENTIALLY UNAUTHORIZED ACCOUNTS"
+      },
+      "sourceGraphicSha256": "0ffe910ea42787118100f53b848cac32901f29204c77ef8b28e8df3100af3b61",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 4.3800048828125,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B019",
+      "shotId": "ACT5_B019",
+      "graphicId": "ACT5_B019:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "f1b988a9accdf02516131ba406878e630ff32ecfbb4a8a7f91c95cd6a1ffa5a2",
+      "filename": "ACT5_B019__g00.svg",
+      "relativePath": "ACT5_B019__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 529,
+      "sha256": "a15ee476b1398494801b0149a0a251748b9a484893ec9fe6e05fa272e685e1ec",
+      "durationSec": 5.3600006103515625,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the employee count.",
+        "text": "5,300+ EMPLOYEES FIRED"
+      },
+      "sourceGraphicSha256": "8f72ab0086801f6635f9cd884ec74e2e197a38f8e8957d6ea7a4e2d101c92ae1",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.3600006103515625,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B020",
+      "shotId": "ACT5_B020",
+      "graphicId": "ACT5_B020:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "a8bbbf1ec58d5dbc966e9f763e41843f4f2a809ca99c57bd801eaab098e9bfce",
+      "filename": "ACT5_B020__g00.svg",
+      "relativePath": "ACT5_B020__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 569,
+      "sha256": "cfb563349565f4adc9c076abbc80b98c4e3b5c113dcd1917163d0795f575ed75",
+      "durationSec": 3.220001220703125,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the financial scale.",
+        "text": "BILLIONS IN PENALTIES AND CUSTOMER REDRESS"
+      },
+      "sourceGraphicSha256": "c76fb9aabc2ea9b7eed44b432251cd7a2ca3835d7bc50a74320dfad2afc48130",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 3.220001220703125,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B022",
+      "shotId": "ACT5_B022",
+      "graphicId": "ACT5_B022:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "748fe2949332a23149b24c4573db7757ca35c4ceff03673825b30bee8c3ba79a",
+      "filename": "ACT5_B022__g00.svg",
+      "relativePath": "ACT5_B022__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 569,
+      "sha256": "b9b1710d32246b0cf45548c9a5dca0c6f5eb499ddc4adf591c32237b4003c2c2",
+      "durationSec": 5.3000030517578125,
+      "sourceGraphic": {
+        "type": "impact_card",
+        "intent": "Land the contrast between plea and incarceration.",
+        "text": "ONE PLEADED GUILTY • NONE WENT TO PRISON"
+      },
+      "sourceGraphicSha256": "5141a09542521401a80c4353b76152230c7a3e6092c1b7476c2d23081db53f30",
+      "renderInstructions": {
+        "animation": "opacity-fade-and-scale",
+        "deterministic": true,
+        "durationSec": 5.3000030517578125,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B023",
+      "shotId": "ACT5_B023",
+      "graphicId": "ACT5_B023:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "b400fca27b35fe03f50dd913403e9b036f5fd5f435d9314e23ec1edcdca4601d",
+      "filename": "ACT5_B023__g00.svg",
+      "relativePath": "ACT5_B023__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 576,
+      "sha256": "f48546b27309eb6e9d770a7ba66805a823b59fd06158d0607d8033aa4db08358",
+      "durationSec": 4.2599945068359375,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "intent": "Deliver the structural thesis.",
+        "text": "ACCOUNTABILITY ARRIVED. IT DID NOT LAND EVENLY."
+      },
+      "sourceGraphicSha256": "0a2b1064a3c428b832e7a5403e192d51c5fd6eb1e5201cd6e8c11a9b7f3c1800",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 4.2599945068359375,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B024",
+      "shotId": "ACT5_B024",
+      "graphicId": "ACT5_B024:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "30cfd31757fd18f3cc87c0a4b5b1c8d58f195aeec49f589134a9287cfa16197d",
+      "filename": "ACT5_B024__g00.svg",
+      "relativePath": "ACT5_B024__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 516,
+      "sha256": "f7601926ef9520e449d2190f3e472f3403b185f243919ef9c50e66c9db9fd4fe",
+      "durationSec": 4.660003662109375,
+      "sourceGraphic": {
+        "type": "chapter_marker",
+        "intent": "Establish series identity.",
+        "text": "EMPIRE OMITTED"
+      },
+      "sourceGraphicSha256": "7729d44abedff78de37ef63d2381808da360da2d1e0570a25586ebc299107ef4",
+      "renderInstructions": {
+        "animation": "chapter-title-reveal",
+        "deterministic": true,
+        "durationSec": 4.660003662109375,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B025",
+      "shotId": "ACT5_B025",
+      "graphicId": "ACT5_B025:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "2d775113a5c24c09ad8c204c70e6e0b056fe0622eabc672fd91f5f0ee33b4e50",
+      "filename": "ACT5_B025__g00.svg",
+      "relativePath": "ACT5_B025__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 520,
+      "sha256": "1c4c3ee5f6ad1b77d510630c9bf9cf644227683ad486e737faa04d24dde4850c",
+      "durationSec": 4.779998779296875,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "intent": "Direct viewer action.",
+        "text": "SUBSCRIBE • SHARE"
+      },
+      "sourceGraphicSha256": "0be0669ac4ecdcb9ada0a7fd672bd6d465ae729d2b2d79866d30969245f73956",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 4.779998779296875,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    },
+    {
+      "manifestVersion": "1.0.0",
+      "actKey": "act5",
+      "beatId": "ACT5_B027",
+      "shotId": "ACT5_B027",
+      "graphicId": "ACT5_B027:g00",
+      "graphicIndex": 0,
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionRequirementSha256": "01cdc6f55550b2cb16c796bf3079bb4ed527cffadbeea269e2c76f7b5f171f22",
+      "filename": "ACT5_B027__g00.svg",
+      "relativePath": "ACT5_B027__g00.svg",
+      "role": "PRIMARY",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "width": 1920,
+      "height": 1080,
+      "byteSize": 556,
+      "sha256": "5716926edd1c6d8cd243e5585998287a56bb9a684c1d016c0c6e789ec3968bd0",
+      "durationSec": 5.526575389648542,
+      "sourceGraphic": {
+        "type": "takeaway",
+        "intent": "Invite viewer input.",
+        "text": "WHICH SCANDAL SHOULD WE EXAMINE NEXT?"
+      },
+      "sourceGraphicSha256": "08317028dd6a34df95808dc699c5800b4f74cd3a64c61a2338740be87630a2f3",
+      "renderInstructions": {
+        "animation": "takeaway-reveal",
+        "deterministic": true,
+        "durationSec": 5.526575389648542,
+        "textIsBurnedFromLockedGraphicObject": true
+      },
+      "construction": {
+        "mode": "DETERMINISTIC_COMPILATION",
+        "compiler": "pipeline-updates/graphic-compiler.cjs",
+        "compilerSha256": "70d11dd838d978565a8fe29c8a453d7eeae329d4f8052adbb1a3b3fd71d56a0f"
+      }
+    }
+  ]
+}

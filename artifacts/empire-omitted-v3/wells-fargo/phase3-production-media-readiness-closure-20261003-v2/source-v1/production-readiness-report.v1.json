@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "phase3-production-readiness-closure/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+  "verifiedPackages": [
+    {
+      "label": "Stage04 v2",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase2.3b-p-act3-refresh-candidate-local-20260928-v2/candidate-package-sha256.json",
+      "indexBytes": 25793,
+      "indexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+      "indexedFiles": 150,
+      "locallyVerified": 150,
+      "notLocallyPresent": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Review v5",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-v5/phase3-media-package-index.v5.json",
+      "indexBytes": 9979,
+      "indexSha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+      "indexedFiles": 49,
+      "locallyVerified": 49,
+      "notLocallyPresent": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Pilot-02 proposal v2",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v2/package-index.json",
+      "indexBytes": 859,
+      "indexSha256": "e6987203db61a88b82b36302d95df64694e0823a5d41108247dc5c403c2f8ca6",
+      "indexedFiles": 4,
+      "locallyVerified": 4,
+      "notLocallyPresent": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Animation extension",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1/package-index.json",
+      "indexBytes": 1137,
+      "indexSha256": "00969089236256818908bc82174f6263e690958e65769e3afead39ce1e6bec26",
+      "indexedFiles": 5,
+      "locallyVerified": 5,
+      "notLocallyPresent": 0,
+      "status": "PASS"
+    },
+    {
+      "label": "Finalization inputs",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-pilot02-finalization-live-inputs-20261003-v1/pilot-package-index.v1.json",
+      "indexBytes": 7007,
+      "indexSha256": "a3f67bbf6cab9290b5f4c6285ff8e5631f786df99df08f5c86f8909fbfeaa11f",
+      "indexedFiles": 39,
+      "locallyVerified": 1,
+      "notLocallyPresent": 38,
+      "status": "INDEX_AND_AVAILABLE_ENTRIES_VERIFIED"
+    },
+    {
+      "label": "Motion policy",
+      "indexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-policy-20261003-v1/package-index.v1.json",
+      "indexBytes": 352,
+      "indexSha256": "67480b179694af4784e97d2eec0443735aac455a36a8fd23277d3025d76a0e13",
+      "indexedFiles": 1,
+      "locallyVerified": 1,
+      "notLocallyPresent": 0,
+      "status": "PASS"
+    }
+  ],
+  "detachedApprovals": {
+    "v5": {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-completion-review-20261002-v5-human-editorial-approval.v1.json",
+      "bytes": 3402,
+      "sha256": "99b14463be09903e53dfea68914d12faa6bff0be756f7fe5f3eef5cabcb72e7a"
+    },
+    "pilot": {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v2-human-approval.v1.json",
+      "bytes": 2429,
+      "sha256": "7569cf6f75807f256fa760d53a0fa28311cf98d41ecd572e18b96ca2920b90f9"
+    },
+    "animation": {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1-human-approval.v1.json",
+      "bytes": 2912,
+      "sha256": "4b2a72062a0defd1c945a413995c5108d0a2d5fd8ea64af1f5b3f7927e312047"
+    },
+    "pilotValidation": {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-pilot02-animation-review-20261003-v1/human-validation-approval.v1.json",
+      "bytes": 2261,
+      "sha256": "0ee2ce8916225eb13c061cd360d59c25a8127e7bd908ae85b06cc679f3845e2c"
+    },
+    "motion": {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-approval-20261003.v1.json",
+      "bytes": 3075,
+      "sha256": "2b48bcd255d60db4bfd554eb2c482ed32c6f80debd2441290b9266d7770a3b0f"
+    }
+  },
+  "bindings": {
+    "candidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "v5IndexSha256": "2d7fae8b138b259f7e4917290cdae7489307b9055904817d1b69e4867935c8b0",
+    "finalReceiptSha256": "7799de961366d32a3ce9e47923b1a2ee25453186a6dc13365501443ef6d2fc02",
+    "finalizationIndexSha256": "a3f67bbf6cab9290b5f4c6285ff8e5631f786df99df08f5c86f8909fbfeaa11f",
+    "motionApprovalSha256": "2b48bcd255d60db4bfd554eb2c482ed32c6f80debd2441290b9266d7770a3b0f",
+    "motionContractSha256": "3de05198dbc264595643dd1054b2f27ddca7baa372064b1ec5378c50d25f8979"
+  },
+  "candidateCensus": {
+    "activeShots": 153,
+    "manifestShots": 153,
+    "controlledStill": 34,
+    "generatedStill": 9,
+    "animation": 23,
+    "animationDependencyStills": 23,
+    "referenceDecisionEntries": 14,
+    "baseImageCount": 66,
+    "graphicAssets": 76,
+    "retiredB010Absent": true
+  },
+  "coreDeliverablesCurrent": 89,
+  "coreDeliverablesAfterB009": 89,
+  "additionalDedicatedReferenceStills": 12,
+  "proposedDeliverablesAfterB009": 101,
+  "pilot": {
+    "status": "PILOT_VALIDATED_DISPOSABLE_NOT_PRODUCTION",
+    "assetClass": "NON_PRODUCTION_DISPOSABLE_PILOT",
+    "productionReadiness": "REJECTED",
+    "submissions": 2,
+    "requestKeys": [
+      "bd8e80547f1d5371644540aa5d0ceb20e05a16845f1ea28dbd29449172c59d10",
+      "d49253e9ff98d254350a13929d56488a05b7a3b2a28a76b8c8b75d0b9ab318b1"
+    ],
+    "ledgerBefore": "0e62704de96f16d690f58fc5a9b9c53671c8902a20be12985c58970467f42d83",
+    "ledgerAfter": "0e62704de96f16d690f58fc5a9b9c53671c8902a20be12985c58970467f42d83"
+  },
+  "currentlyAuthorizedProductionRequests": 0,
+  "currentlyExecutableJobs": 0,
+  "ACT3B_B010": "RETIRED_ABSENT_FROM_ACTIVE_SHOTS",
+  "decisionsAlreadyAuthorized": [
+    {
+      "decision": "ACT3_B005 production motion/review gate",
+      "approvalSha256": "2b48bcd255d60db4bfd554eb2c482ed32c6f80debd2441290b9266d7770a3b0f",
+      "scope": "ACT3_B005 only; no media execution authority"
+    },
+    {
+      "decision": "14 continuity prompt decisions and proposed routes",
+      "approvalSha256": "99b14463be09903e53dfea68914d12faa6bff0be756f7fe5f3eef5cabcb72e7a",
+      "scope": "pilot planning only"
+    },
+    {
+      "decision": "Pilot-02 route validation",
+      "receiptSha256": "7799de961366d32a3ce9e47923b1a2ee25453186a6dc13365501443ef6d2fc02",
+      "scope": "non-production disposable pilot; production readiness rejected"
+    }
+  ],
+  "decisionsStillRequiringYakubuApproval": [
+    {
+      "decision": "Apply exact 34-row amendment",
+      "proposalSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+      "childCandidateAndDependentBindingRenewalRequired": true
+    },
+    {
+      "decision": "ACT5_B009 deterministic graphic amendment and complete visual specification",
+      "proposalSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+      "unresolved": [
+        "canvas dimensions",
+        "viewBox",
+        "layout",
+        "font/typography",
+        "sanitization and validation spec"
+      ]
+    },
+    {
+      "decision": "ACT5_B016 source dependency",
+      "required": "exact indexed ACT3_B015 clean-frame path, bytes and SHA-256, or approved change to dependency"
+    },
+    {
+      "decision": "Production provider route, current price, terms, ownership, output properties and bounded cost exposure",
+      "currentStatus": "UNRESOLVED"
+    },
+    {
+      "decision": "Production-specific clip-fit compatibility and batch selection",
+      "currentStatus": "UNRESOLVED"
+    },
+    {
+      "decision": "Detached per-request production execution authorizations",
+      "currentStatus": "NOT_CREATED"
+    }
+  ],
+  "jobsExecutableNow": [],
+  "conditionalFirstBatchAfterBlockersResolve": [
+    {
+      "order": 1,
+      "beatId": "ACT1_B005",
+      "role": "controlled still",
+      "dependency": "34-row amendment applied to child candidate and all hashes renewed"
+    },
+    {
+      "order": 2,
+      "beatId": "ACT1_B006",
+      "role": "generated still",
+      "dependency": "verified current route/terms/price/rights/output contract and one-request authorization"
+    },
+    {
+      "order": 3,
+      "beatId": "ACT1_B009",
+      "role": "animation dependency still then animation clip",
+      "dependency": "separate still approval, clip-fit compatibility and request authorizations"
+    }
+  ],
+  "firstBatchRecommendation": "These three beats are a conditional planning shortlist only and are not executable now. ACT3_B005 is excluded until its production base still and production route, rights, price and output contract are resolved; its approved motion approval remains intact."
+}

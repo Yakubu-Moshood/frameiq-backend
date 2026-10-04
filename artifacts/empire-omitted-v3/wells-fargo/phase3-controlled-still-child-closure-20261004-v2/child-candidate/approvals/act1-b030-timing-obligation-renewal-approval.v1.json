@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "phase3-candidate-specific-timing-obligation-renewal-approval/1.0.0",
+  "status": "APPROVED",
+  "approvedBy": "Yakubu Moshood",
+  "approvalRef": "YAKUBU_MOSHOOD_ACT1_B030_CONTROLLED_IMAGE_TIMING_RENEWAL_20261004",
+  "recordedAt": "2026-10-03T23:27:00Z",
+  "scope": {
+    "candidate": "isolated-child-of-phase2.3b-p-act3-refresh-candidate-local-20260928-v2",
+    "beatId": "ACT1_B030",
+    "field": "productionObligations.assetType",
+    "from": "generated_clip",
+    "to": "controlled_image",
+    "reason": "APPROVED_ASSET_TYPE_CORRECTION_WITH_TIMING_AND_EDITORIAL_FIELDS_UNCHANGED"
+  },
+  "bindings": {
+    "sourceCommit": "0b7cf084386bc65a88021b3b11026036f9ddb3ca",
+    "parentCandidateId": "phase2.3b-p-act3-refresh-candidate-local-20260928-v2",
+    "parentCandidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+    "parentShotDefinitionsSha256": "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7",
+    "parentProductionManifestSha256": "0caef389bd517c5a0898377dc304708fe83666c51205fbdeeddfb365d5ec531e",
+    "parentTimingPolicySha256": "8a0173087b2e7364e8bd46c4a9e53c3acb738904fc3f94968099b357deea843b",
+    "parentTimingApprovalSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+    "closurePackageIndexSha256": "1437c1b1bdd34f60d7a42dd4904941f2f2d44b668cbbb0026d3ab018887cce2b",
+    "applicationApprovalSha256": "e4d93e08935ebdf1f84a6e532a2a39a736a261f92cfa338ace7fe84354aa742b",
+    "approved34RowAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "originalProductionObligationSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4",
+    "correctedProductionObligationSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29"
+  },
+  "proof": {
+    "scopeOnly": ["ACT1_B030"],
+    "onlyChangedPath": "/productionObligations/assetType",
+    "from": "generated_clip",
+    "to": "controlled_image",
+    "originalObligationCanonicalSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4",
+    "correctedObligationCanonicalSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29",
+    "preservedFields": [
+      "narrationExcerpt", "startSec", "endSec", "durationSec", "startWordIndex", "endWordIndex",
+      "approvedDurationSec", "minimumAllowedDurationSec", "maximumAllowedDurationSec",
+      "sourcePlanWordRange", "candidateScriptWordRange", "mappedTranscriptWordRange", "mappedTranscriptAnchors",
+      "productionMethod", "visualClass", "visualIntent", "visual", "motionIntent", "rhythmIntent",
+      "intentionalStillness", "postNarrationHoldSec", "reconstructionMode", "continuityRefs",
+      "audioDirection", "evidenceRequirement", "graphics", "overlaySpecification", "ownership",
+      "revisionLineage", "evidenceBinding", "candidateHistory"
+    ],
+    "preservedApprovedTimingException": true,
+    "preservedVisualType": "CLIP",
+    "preservedProductionMethod": "CONTROLLED_STILL",
+    "otherTimingAndEditorialFieldsChanged": false,
+    "amendmentScopeMatches34ApprovedRows": true
+  },
+  "authority": {
+    "candidateSpecificRenewalOnly": true,
+    "preserveParentTimingApprovalAsImmutableHistory": true,
+    "providerAuthorization": false,
+    "mediaGenerationAuthorization": false,
+    "deploymentAuthorization": false,
+    "promotionAuthorization": false,
+    "renderAuthorization": false,
+    "episodeRootWriteAuthorization": false
+  }
+}

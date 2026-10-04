@@ -1,0 +1,23 @@
+{
+  "schemaVersion":"phase3-production-readiness-verification/2.0.0",
+  "status":"COMPLETED_WITH_ENVIRONMENT_FAILURES",
+  "canonicalTestFilesExpected":28,
+  "focusedCommand":"node --test test/production-method-manifest.test.cjs test/shot-definitions-production-contract.test.cjs test/v3-asset-readiness.test.cjs test/phase3-render-preview.test.cjs",
+  "canonicalCommand":"node --test test/*.test.cjs",
+  "focusedResult":{"files":4,"tests":100,"passed":99,"failed":1,"skipped":0,"failingTest":"approved Wells Fargo 2.2D manifest validates exact workload, graphics and 24 targeted revisions","error":"CANDIDATE_HASH_MISMATCH: manifest does not identify current shot-definitions bytes"},
+  "canonicalResult":{"files":28,"tests":572,"passed":551,"failed":18,"skipped":3,"command":"node --test test/*.test.cjs"},
+  "canonicalFailureGroups":[
+    {"count":2,"cause":"Git write-tree tests could not create the shared worktree index.lock: Permission denied in the restricted workspace."},
+    {"count":10,"cause":"Phase 2 activation fixtures fail closed on approved boundary binding mismatch; one staging fixture also lacks phase2.3b-s-authoritative-input/authoritative-edit-plan.json."},
+    {"count":1,"cause":"Pacing package reports PACING_PACKAGE_HASH_MISMATCH for pacing-run-spec.json."},
+    {"count":1,"cause":"2.2D production manifest fixture reports CANDIDATE_HASH_MISMATCH for current shot-definitions bytes."},
+    {"count":1,"cause":"Legacy boundary policy fixture reports ACTIVATION_APPROVED_BOUNDARY_BINDING_MISMATCH."},
+    {"count":3,"cause":"Refreshed timing lineage fixtures report ACTIVATION_REFRESHED_TIMING_REVISION_LINEAGE_HASH_MISMATCH (including one expected-error-code assertion)."}
+  ],
+  "syntaxChecks":["node --check pipeline-updates/production-method-manifest.cjs","node --check pipeline-updates/shot-definitions-validator.cjs","node --check pipeline-updates/shot-definitions-production-contract.cjs","node --check pipeline-updates/v3-asset-readiness.cjs","node --check pipeline-updates/episode-activation.cjs","node --check scripts/phase2.3b-p-activate.cjs"],
+  "jsonChecks":["all JSON files in the v2 package parsed successfully"],
+  "packageChecks":["closure v1: 12/12","Stage04 candidate: 150/150","v5 review: 49/49","Pilot-02 proposal: 4/4","animation extension: 5/5","B005 motion policy: 1/1","Pilot finalization: index valid, 1/39 payload files locally available; not represented as fully verified"],
+  "gitDiffCheck":"PASS for tracked changes (none); generated package files independently checked for trailing whitespace",
+  "archiveGitObjectCheck":"NOT_APPLICABLE_NO_SOURCE_OR_TEST_CHANGES",
+  "worktreeNotes":"Only the new versioned review package is created; v1 closure package and unrelated untracked files are preserved. No source or tests are modified."
+}

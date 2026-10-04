@@ -40,3 +40,13 @@ pipeline-updates/phase3-act3-b005-production-motion-contract.v1.json -text
 pipeline-updates/surface-animator.cjs -text
 test/production-method-manifest.test.cjs -text
 test/fixtures/phase3-pilot02-approved-still.png -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b030-timing-obligation-renewal-20261004-v1/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-controlled-still-child-closure-20261004-v1/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-controlled-still-child-closure-20261004-v2/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-production-media-readiness-closure-20261003-v2/** -text
+artifacts/empire-omitted-v3/wells-fargo/phase2.3b-s-authoritative-input/** -text
+pipeline-updates/controlled-still-asset-amendment.cjs -text
+scripts/build-phase3-controlled-still-child.cjs -text
+pipeline-updates/production-method-manifest.cjs -text whitespace=cr-at-eol
+pipeline-updates/shot-definitions-production-contract.cjs -text whitespace=cr-at-eol
+pipeline-updates/shot-definitions-validator.cjs -text whitespace=cr-at-eol
