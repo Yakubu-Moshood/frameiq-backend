@@ -2375,6 +2375,29 @@ test('v5 package indexes, approvals, source lineage and corrected final-output c
   assert.deepEqual(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json')), before);
 });
 
+test('v5 Stage04 verification reuses the backup-bound Phase 3 validation context', () => {
+  const record = { status: 'PROMOTED', runId: PHASE2_RUN, candidateFiles: [] };
+  const staged = { stagedFileCount: 151, stagedIndexSha256: 'b'.repeat(64) };
+  let supplied;
+  const result = mediaExecution.verifyStage04StagedContext({ runId: PHASE2_RUN, runDir: '/episode/.review/stage04',
+    candidateDirectory: '/episode/.review/stage04/candidate', activationRecord: record, runner: {
+      verifyStagedCandidateIndexes: () => { throw new Error('GENERIC_VALIDATOR_MUST_NOT_RUN'); },
+    }, verifyStagedValidationContextFn: options => {
+      supplied = options;
+      return { boundaryBackup: { backupDirectory: '/episode/.review/stage04/backup' }, staged };
+    } });
+  assert.equal(result.staged, staged);
+  assert.equal(supplied.runId, PHASE2_RUN);
+  assert.equal(supplied.reviewDirectory, '/episode/.review/stage04');
+  assert.equal(supplied.candidateDirectory, '/episode/.review/stage04/candidate');
+  assert.equal(supplied.activationRecord, record);
+  assert.equal(supplied.runner.verifyStagedCandidateIndexes instanceof Function, true);
+  assert.throws(() => mediaExecution.verifyStage04StagedContext({ runId: PHASE2_RUN, runDir: '/episode/.review/stage04',
+    candidateDirectory: '/episode/.review/stage04/candidate', activationRecord: record, runner: {},
+    verifyStagedValidationContextFn: () => ({ staged: { stagedFileCount: 150 } }) }),
+  /PHASE3_MEDIA_EXECUTION_STAGE04_STAGED_INDEX_INVALID/);
+});
+
 test('v5 staging and read-only preflight stage only isolated candidate bytes and report all media blockers', t => {
   const f = makeMediaExecutionFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
   const staged = f.runner.stage({ runId: V5_MEDIA_RUN });

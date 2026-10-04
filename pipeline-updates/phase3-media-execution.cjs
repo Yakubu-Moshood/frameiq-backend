@@ -9,6 +9,7 @@ const crypto = require('node:crypto');
 const activation = require('./episode-activation.cjs');
 const evidence = require('./evidence-source-validator.cjs');
 const { validateGraphicAssetManifest } = require('./graphic-compiler.cjs');
+const phase3Render = require('../scripts/phase3-render-preview.cjs');
 
 const OUTER_INDEX_SHA256 = 'c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4';
 const CANDIDATE_INDEX_SHA256 = 'a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf';
@@ -135,7 +136,16 @@ function verifyApprovalBindings(candidateRoot, fsImpl = fs) {
     b009AmendmentSha256: B009_AMENDMENT_SHA256, b009ApprovalSha256: B009_APPROVAL_SHA256,
     b016ApprovalSha256: B016_APPROVAL_SHA256 };
 }
-function verifyStage04({ episodeRoot, fsImpl = fs, runner = activation } = {}) {
+function verifyStage04StagedContext({ runId, runDir, candidateDirectory, activationRecord, runner, fsImpl = fs,
+  verifyStagedValidationContextFn = phase3Render.verifyStagedValidationContext } = {}) {
+  fail(typeof verifyStagedValidationContextFn === 'function', 'PHASE3_MEDIA_EXECUTION_STAGE04_VALIDATOR_UNAVAILABLE');
+  const context = verifyStagedValidationContextFn({ runId, reviewDirectory: runDir, candidateDirectory,
+    activationRecord, runner, fsImpl });
+  fail(context?.staged?.stagedFileCount === 151, 'PHASE3_MEDIA_EXECUTION_STAGE04_STAGED_INDEX_INVALID');
+  return context;
+}
+function verifyStage04({ episodeRoot, fsImpl = fs, runner = activation,
+  verifyStagedValidationContextFn = phase3Render.verifyStagedValidationContext } = {}) {
   const runDir = path.join(episodeRoot, '.review', `phase2.3b-p-activation-${STAGE04_RUN_ID}`);
   const recordPath = path.join(runDir, 'activation-record.json');
   fail(fsImpl.existsSync(recordPath), 'PHASE3_MEDIA_EXECUTION_STAGE04_RECORD_MISSING');
@@ -149,9 +159,8 @@ function verifyStage04({ episodeRoot, fsImpl = fs, runner = activation } = {}) {
   const globalLock = path.join(episodeRoot, '.review', 'phase2.3b-p-activation-active.lock');
   fail(!fsImpl.existsSync(globalLock), 'PHASE3_MEDIA_EXECUTION_ACTIVATION_LOCK_ACTIVE');
   const candidateDirectory = path.join(runDir, 'candidate');
-  const staged = runner.verifyStagedCandidateIndexes({ runId: STAGE04_RUN_ID, candidateDirectory,
-    reviewDirectory: runDir });
-  fail(staged && staged.stagedFileCount === 151, 'PHASE3_MEDIA_EXECUTION_STAGE04_STAGED_INDEX_INVALID');
+  const { staged } = verifyStage04StagedContext({ runId: STAGE04_RUN_ID, runDir, candidateDirectory,
+    activationRecord: record, runner, fsImpl, verifyStagedValidationContextFn });
   runner.verifyPromotedTree(episodeRoot, record.candidateFiles);
   const ledgerPath = path.join(episodeRoot, '.review', 'phase2.3b-p-activation-request-ledger.jsonl');
   fail(fsImpl.existsSync(ledgerPath) && sha(fsImpl.readFileSync(ledgerPath)) === REQUEST_LEDGER_SHA256,
@@ -430,4 +439,4 @@ module.exports = { OUTER_INDEX_SHA256, CANDIDATE_INDEX_SHA256, B015_APPROVAL_SHA
   REQUEST_LEDGER_SHA256,
   EXPECTED_METHODS, RUN_RE, sha, safeRel, walkFiles, verifyIndex, verifyOuterPackage, verifyApprovalBindings,
   verifyDetachedApprovals, verifyStage04, assertNoPhase3Locks, deriveCensus, makeStagedIndex, createMediaExecution,
-  verifyFilesFromList, copyIndexedTree, assertReviewRootPolicy };
+  verifyStage04StagedContext, verifyFilesFromList, copyIndexedTree, assertReviewRootPolicy };
