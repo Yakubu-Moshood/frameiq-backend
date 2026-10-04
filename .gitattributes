@@ -364,3 +364,5 @@ artifacts/empire-omitted-v3/wells-fargo/phase3-act5-b016-human-approval-20261004
 artifacts/empire-omitted-v3/wells-fargo/phase3-v5-media-census-reconciliation-20261004.v1.json -text
 pipeline-updates/phase3-media-execution.cjs -text
 scripts/phase3-media-execution.cjs -text
+/pipeline-updates/phase3-media-calibration-bundle.cjs -text
+/artifacts/empire-omitted-v3/wells-fargo/phase3-media-execution-calibration-route-bundle-20261004.v1.json -text
