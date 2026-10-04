@@ -13,6 +13,7 @@ const productionMethods = require('../pipeline-updates/production-method-manifes
 const phase3Media = require('../pipeline-updates/phase3-render-media-adapter.cjs');
 const pilotWorkflow = require('../pipeline-updates/phase3-media-pilot.cjs');
 const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
+const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -2323,4 +2324,135 @@ test('pilot-02 CLI permits its isolated animation command but retains run-specif
   assert.equal(pilotWorkflow.parseCli(['--generate-animation', '--pilot-run-id', pilotWorkflow.PILOT02.runId,
     '--expected-execution-authorization-sha256', 'a'.repeat(64)]).mode, '--generate-animation');
   assert.equal(pilotWorkflow.parseCli(['--finalize', '--pilot-run-id', pilotWorkflow.PILOT02.runId]).mode, '--finalize');
+});
+
+const V5_MEDIA_PACKAGE = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+  'phase3-consolidated-act5-production-candidate-20261004-v5');
+const DETACHED_APPROVAL_ROOT = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo');
+const V5_MEDIA_RUN = 'phase3-media-execution-v5-test01';
+
+function makeMediaExecutionFixture(overrides = {}) {
+  const root = tempRoot();
+  const episodeRoot = path.join(root, 'episode'); fs.mkdirSync(path.join(episodeRoot, '.review'), { recursive: true });
+  const runner = mediaExecution.createMediaExecution({
+    packageDirectory: V5_MEDIA_PACKAGE,
+    episodeRoot,
+    reviewRoot: path.join(episodeRoot, '.review', 'phase3-media-execution'),
+    b009ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b009-human-approval-20261004.v1.json'),
+    b016ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b016-human-approval-20261004.v1.json'),
+    verifyStage04Fn: () => ({ record: { status: 'PROMOTED' }, recordBytes: Buffer.from('verified'),
+      recordSha256: mediaExecution.STAGE04_ACTIVATION_SHA256, promotedPathCount: 147,
+      requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 }),
+    assertNoPhase3LocksFn: () => true,
+    activationRunner: { assertNoActivationLocks: () => true, verifyStagedCandidateIndexes: () => ({ stagedIndexSha256: 'a'.repeat(64) }),
+      verifyPromotedTree: () => true },
+    ...overrides,
+  });
+  return { root, runner };
+}
+
+test('v5 package indexes, approvals, source lineage and corrected final-output census reconcile without editing v5', () => {
+  const before = fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json'));
+  const verified = mediaExecution.verifyOuterPackage({ packageDirectory: V5_MEDIA_PACKAGE });
+  assert.equal(verified.outer.count, 194);
+  assert.equal(verified.candidate.count, 174);
+  assert.equal(verified.outer.indexSha256, mediaExecution.OUTER_INDEX_SHA256);
+  assert.equal(verified.candidate.indexSha256, mediaExecution.CANDIDATE_INDEX_SHA256);
+  const census = mediaExecution.deriveCensus(verified.candidateRoot);
+  assert.deepEqual(census.finalOutputCounts, { controlledStills: 34, generatedStills: 8, animationClips: 23 });
+  assert.equal(census.finalOutputTotal, 65);
+  assert.deepEqual(census.intermediateAnimationSourceStills, { required: 23, missing: 23, excludedFromFinalOutputTotal: true });
+  assert.equal(census.resolvedDeterministicGraphics.manifestEntries, 77);
+  assert.equal(census.resolvedDeterministicGraphics.verifiedAssetFiles, 79);
+  assert.equal(census.resolvedDeterministicGraphics.approvedCompiledPngOutputs, 2);
+  assert.equal(census.resolvedEvidenceAssets.approvedEntries, 46);
+  assert.equal(census.resolvedEvidenceAssets.verifiedAssetFiles, 29);
+  assert.deepEqual(census.missingFinalOutputs, { controlledStills: 34, generatedStills: 8,
+    animationClips: 23, animationSourceStills: 23 });
+  assert.equal(census.calibrationBatch.structuralStatus, 'PASS');
+  assert.equal(census.calibrationBatch.executionStatus, 'BLOCKED_PRODUCTION_ROUTE_UNAVAILABLE');
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json'))), verified.outer.index);
+  assert.deepEqual(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json')), before);
+});
+
+test('v5 staging and read-only preflight stage only isolated candidate bytes and report all media blockers', t => {
+  const f = makeMediaExecutionFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const staged = f.runner.stage({ runId: V5_MEDIA_RUN });
+  assert.equal(staged.status, 'PHASE3_MEDIA_CANDIDATE_STAGED');
+  assert.equal(staged.providerRequests, 0);
+  assert.equal(staged.episodeRootWrites, 0);
+  const result = f.runner.preflight({ runId: V5_MEDIA_RUN });
+  assert.equal(result.status, 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_MEDIA_PENDING_ROUTE_BLOCKED');
+  assert.equal(result.stage04.promotedPathCount, 147);
+  assert.equal(result.finalOutputTotal, 65);
+  assert.equal(result.missingFinalOutputs.controlledStills, 34);
+  assert.equal(result.missingFinalOutputs.generatedStills, 8);
+  assert.equal(result.missingFinalOutputs.animationClips, 23);
+  assert.equal(result.missingFinalOutputs.animationSourceStills, 23);
+  assert.equal(result.resolvedDeterministicGraphics.validation, 'PASS');
+  assert.equal(result.resolvedEvidenceAssets.validation, 'PASS');
+  assert.equal(result.providerRequests, 0);
+  assert.equal(result.episodeRootWrites, 0);
+  assert.equal(result.requestLedgerSha256, mediaExecution.REQUEST_LEDGER_SHA256);
+  assert.equal(fs.existsSync(path.join(f.root, 'episode', 'assets')), false);
+  assert.equal(fs.existsSync(path.join(staged.runDirectory, '.stage')), false);
+  assert.equal(fs.existsSync(path.join(staged.runDirectory, 'candidate', 'assets', 'stills')), false);
+  assert.equal(fs.existsSync(path.join(staged.runDirectory, 'candidate', 'assets', 'clips')), false);
+});
+
+test('v5 verifier rejects the earlier v2 candidate and any altered outer or candidate index', () => {
+  assert.throws(() => mediaExecution.verifyOuterPackage({ packageDirectory: path.join(__dirname, '..', 'artifacts',
+    'empire-omitted-v3', 'wells-fargo', 'phase2.3b-p-act3-refresh-candidate-local-20260928-v2') }),
+  /PHASE3_MEDIA_EXECUTION_V5_SOURCE_REQUIRED/);
+  assert.throws(() => mediaExecution.verifyIndex(V5_MEDIA_PACKAGE,
+    path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json'), '0'.repeat(64), 194),
+  /PHASE3_MEDIA_EXECUTION_INDEX_HASH_MISMATCH/);
+  const candidate = path.join(V5_MEDIA_PACKAGE, 'candidate');
+  assert.throws(() => mediaExecution.verifyIndex(candidate,
+    path.join(candidate, 'candidate-package-sha256.json'), '0'.repeat(64), 174),
+  /PHASE3_MEDIA_EXECUTION_INDEX_HASH_MISMATCH/);
+});
+
+test('v5 preflight rejects altered candidate counts, candidate files and revision lineage', t => {
+  const f = makeMediaExecutionFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const staged = f.runner.stage({ runId: V5_MEDIA_RUN });
+  const manifestPath = path.join(staged.runDirectory, 'candidate', 'production-manifest.json');
+  const originalManifest = fs.readFileSync(manifestPath);
+  fs.writeFileSync(manifestPath, Buffer.concat([originalManifest, Buffer.from(' ')]));
+  assert.throws(() => f.runner.preflight({ runId: V5_MEDIA_RUN }), /PHASE3_MEDIA_EXECUTION_INDEXED_FILE_MISMATCH/);
+  fs.writeFileSync(manifestPath, originalManifest);
+  const lineagePath = path.join(staged.runDirectory, 'candidate', 'revision-lineage',
+    'phase3-consolidated-act5-amendment-lineage.v1.json');
+  const originalLineage = fs.readFileSync(lineagePath);
+  fs.writeFileSync(lineagePath, Buffer.concat([originalLineage, Buffer.from(' ')]));
+  assert.throws(() => f.runner.preflight({ runId: V5_MEDIA_RUN }), /PHASE3_MEDIA_EXECUTION_INDEXED_FILE_MISMATCH/);
+  fs.writeFileSync(lineagePath, originalLineage);
+  const stagedIndexPath = path.join(staged.runDirectory, 'staged-candidate-index.json');
+  const index = JSON.parse(fs.readFileSync(stagedIndexPath));
+  index.sourceCandidateIndexSha256 = '0'.repeat(64);
+  fs.writeFileSync(stagedIndexPath, `${JSON.stringify(index, null, 2)}\n`);
+  assert.throws(() => f.runner.preflight({ runId: V5_MEDIA_RUN }), /PHASE3_MEDIA_EXECUTION_STAGED_INDEX_HASH_MISMATCH/);
+});
+
+test('v5 intake rejects altered detached approvals and altered staged approvals', t => {
+  const root = tempRoot(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const source = path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b009-human-approval-20261004.v1.json');
+  const changed = path.join(root, 'approval.json');
+  fs.writeFileSync(changed, Buffer.concat([fs.readFileSync(source), Buffer.from(' ')]));
+  assert.throws(() => mediaExecution.verifyDetachedApprovals({ b009ApprovalPath: changed,
+    b016ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b016-human-approval-20261004.v1.json') }),
+  /PHASE3_MEDIA_EXECUTION_B009_APPROVAL_HASH_MISMATCH/);
+  const f = makeMediaExecutionFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const staged = f.runner.stage({ runId: V5_MEDIA_RUN });
+  const stagedApproval = path.join(staged.runDirectory, 'detached-approvals', 'act5-b016-human-approval-20261004.v1.json');
+  fs.writeFileSync(stagedApproval, Buffer.concat([fs.readFileSync(stagedApproval), Buffer.from(' ')]));
+  assert.throws(() => f.runner.preflight({ runId: V5_MEDIA_RUN }), /PHASE3_MEDIA_EXECUTION_STAGED_APPROVAL_MISMATCH/);
+});
+
+test('v5 staging refuses duplicate runs and leaves no temporary state after validation failure', t => {
+  const f = makeMediaExecutionFixture({ verifyStage04Fn: () => { throw new Error('STAGE04_TEST_BLOCK'); } });
+  t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  assert.throws(() => f.runner.stage({ runId: V5_MEDIA_RUN }), /STAGE04_TEST_BLOCK/);
+  const reviewRoot = path.join(f.root, 'episode', '.review', 'phase3-media-execution');
+  assert.equal(fs.existsSync(reviewRoot), false);
 });

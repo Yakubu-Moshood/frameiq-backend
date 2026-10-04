@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "phase3-v5-media-census-reconciliation/1.0.0",
+  "status": "VERIFIED_DETACHED_RECONCILIATION",
+  "packageId": "phase3-consolidated-act5-production-candidate-20261004-v5",
+  "reconciledAt": "2026-10-04",
+  "bindings": {
+    "outerPackageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "b009AmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009HumanApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b015VisualApprovalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "b016DependencyRecordSha256": "04369fa3829703121309688a6f17766cd35e4f1e99903b185124f7f1fe69f1b4",
+    "b016HumanApprovalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703"
+  },
+  "verifiedIndexes": {
+    "outer": { "fileCount": 194, "sha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4" },
+    "candidate": { "fileCount": 174, "sha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf" }
+  },
+  "authoritativeCensus": {
+    "sourceRecords": [
+      { "path": "candidate/production-manifest.json", "sha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d" },
+      { "path": "candidate/shot-definitions.json", "sha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a" }
+    ],
+    "finalOutputs": {
+      "controlledStills": 34,
+      "generatedStills": 8,
+      "animationClips": 23,
+      "total": 65
+    },
+    "intermediateDependencies": {
+      "animationSourceStills": 23,
+      "includedInFinalOutputTotal": false
+    },
+    "deterministicGraphics": { "manifestRecords": 77, "indexedAssets": 79, "approvedCompiledPngOutputs": 2, "validation": "PASS" },
+    "approvedEvidence": { "entries": 46, "indexedLocalAssets": 29, "validation": "PASS" },
+    "retiredBeatIds": ["ACT3B_B010"]
+  },
+  "staleCountExplanation": {
+    "olderStage04AndCarriedForwardReports": { "controlledStills": 34, "generatedStills": 9, "animationClips": 23, "total": 66 },
+    "staleV5ReportPath": "final-production-readiness-report.v1.json",
+    "staleV5ReportSha256": "322b755455e02cb820fe07922e86f9762d215341ad56848dfe36468984dd51a3",
+    "staleCandidateReportPath": "candidate/candidate-report.json",
+    "staleCandidateReportSha256": "625767c92674118997ff948280e2baeb06a02703d611497104d03abeaea6faa2",
+    "explanation": "These reports carry forward the Stage04 34/9/23 planning count. The indexed v5 production manifest and shot definitions are the current source records and both classify ACT5_B009 as deterministic GRAPHIC_COMPILATION with assetType graphic_compilation. The approved ACT5_B009 amendment and Yakubu Moshood approval bind that conversion. Therefore the v5 final generated-still count is eight and final output total is 65. The 23 animation source stills are intermediate dependencies, not final deliverables.",
+    "supersedingApprovalBindings": {
+      "amendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+      "humanApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+      "lineageSha256": "4803b5ea64554b6a0bac0611d374845b9b3b7598011d7bb5f16e55053815b713"
+    }
+  },
+  "authority": { "providerAuthorization": false, "mediaExecution": false, "rendering": false, "promotion": false }
+}

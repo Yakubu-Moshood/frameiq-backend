@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "empire-omitted-v3-human-editorial-approval/1.0.0",
+  "status": "APPROVED",
+  "approvedBy": "Yakubu Moshood",
+  "approvedAt": "2026-10-04T15:42:57Z",
+  "scope": "ACT5_B009 deterministic graphic specification and exact bound amendment only",
+  "decision": "I approve the ACT5_B009 deterministic graphic specification and the exact amendment bound to SHA-256 f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8. Preserve the ordered 2013–2023 labels and approved visual restrictions. This approval does not authorize provider requests or production execution.",
+  "bindings": {
+    "reviewPackageIndexSha256": "a38e9c540321b9425e8497519d98dac2aad0c359bc5f582260c576defe636617",
+    "amendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "reviewSvgSha256": "a72adf75844089197e1e15bd4c24cb8b008ab922f7e64f4988e795525b4439ab",
+    "reviewPngSha256": "72f523b1fd0084135c2ef03fbccfec67de8621300c17b1b45adf1d0cfc1524ff"
+  },
+  "approvedSpecification": {
+    "canvas": {
+      "width": 1280,
+      "height": 720
+    },
+    "orderedLabels": [
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
+    ],
+    "prohibited": [
+      "title",
+      "subtitle",
+      "axis",
+      "ticks",
+      "annotations",
+      "logos",
+      "branding",
+      "additional readable text",
+      "year-specific editorial emphasis"
+    ],
+    "construction": "DETERMINISTIC_ZERO_PROVIDER"
+  },
+  "authority": {
+    "providerRequests": false,
+    "generationAuthorization": false,
+    "productionExecution": false,
+    "promotion": false,
+    "rendering": false
+  }
+}

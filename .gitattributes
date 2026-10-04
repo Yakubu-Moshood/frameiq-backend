@@ -359,3 +359,8 @@ write-script-writer.js -text
 write-sdxl.js -text
 write-svd.js -text
 write-voice-router.js -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act5-b009-human-approval-20261004.v1.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act5-b016-human-approval-20261004.v1.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-v5-media-census-reconciliation-20261004.v1.json -text
+pipeline-updates/phase3-media-execution.cjs -text
+scripts/phase3-media-execution.cjs -text
