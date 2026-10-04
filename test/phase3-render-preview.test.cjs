@@ -14,6 +14,7 @@ const phase3Media = require('../pipeline-updates/phase3-render-media-adapter.cjs
 const pilotWorkflow = require('../pipeline-updates/phase3-media-pilot.cjs');
 const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
 const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs');
+const calibrationRoutes = require('../pipeline-updates/phase3-media-calibration-bundle.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -2370,9 +2371,92 @@ test('v5 package indexes, approvals, source lineage and corrected final-output c
   assert.deepEqual(census.missingFinalOutputs, { controlledStills: 34, generatedStills: 8,
     animationClips: 23, animationSourceStills: 23 });
   assert.equal(census.calibrationBatch.structuralStatus, 'PASS');
-  assert.equal(census.calibrationBatch.executionStatus, 'BLOCKED_PRODUCTION_ROUTE_UNAVAILABLE');
+  assert.equal(census.calibrationBatch.executionStatus, 'BLOCKED_CALIBRATION_CONTRACT_GAPS');
+  assert.equal(census.calibrationRoutePlan.status, 'PLANNING_ONLY_EXECUTION_BLOCKED');
+  assert.deepEqual(census.calibrationRoutePlan.trust, calibrationRoutes.TRUST);
+  assert.equal(census.calibrationRoutePlan.requests[0].endpoint, 'blackforestlabs/flux-3/text-to-image');
+  assert.equal(census.calibrationRoutePlan.requests[2].endpoint, 'minimax/h3-max/image-to-video');
+  assert.deepEqual(census.calibrationRoutePlan.hardExecutionBlockers.map(item => item.code), [
+    'ACT1_B005_CONTROLLED_SOURCE_UNBOUND', 'ACT1_B005_CONTROLLED_STILL_VISUAL_CONFLICT',
+    'FLUX3_NEGATIVE_PROMPT_UNSUPPORTED', 'H3_MAX_AUDIO_CANNOT_BE_DISABLED',
+  ]);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json'))), verified.outer.index);
   assert.deepEqual(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'package-index.v2.json')), before);
+});
+
+function readCalibrationCandidate() {
+  const candidateRoot = path.join(V5_MEDIA_PACKAGE, 'candidate');
+  return {
+    productionManifest: JSON.parse(fs.readFileSync(path.join(candidateRoot, 'production-manifest.json'), 'utf8')),
+    shotDefinitions: JSON.parse(fs.readFileSync(path.join(candidateRoot, 'shot-definitions.json'), 'utf8')),
+    editPlan: JSON.parse(fs.readFileSync(path.join(candidateRoot, 'edit-plan.json'), 'utf8')),
+  };
+}
+
+test('calibration route plan is pinned to the authorized run, staged indexes, beats and exact approved prompts', () => {
+  const candidate = readCalibrationCandidate();
+  const plan = calibrationRoutes.makeRoutePlan({ candidate });
+  assert.equal(plan.trust.runId, 'phase3-media-execution-v5-20261004-01');
+  assert.equal(plan.trust.stagedIndexSha256, '2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad');
+  assert.deepEqual(plan.permittedBeatIds, ['ACT1_B005', 'ACT1_B006', 'ACT1_B009']);
+  assert.equal(plan.requests[0].prompt, candidate.shotDefinitions.allShots.find(item => item.beatId === 'ACT1_B006').imagePrompt);
+  assert.equal(plan.requests[0].negativePrompt, candidate.shotDefinitions.allShots.find(item => item.beatId === 'ACT1_B006').negativePrompt);
+  assert.throws(() => calibrationRoutes.makeRoutePlan({ candidate, runId: 'phase3-media-execution-v5-other' }),
+    /CALIBRATION_RUN_ID_MISMATCH/);
+  assert.throws(() => calibrationRoutes.makeRoutePlan({ candidate, stagedIndexSha256: '0'.repeat(64) }),
+    /CALIBRATION_STAGED_INDEX_MISMATCH/);
+});
+
+test('calibration plan rejects altered candidate prompts and protects controlled ACT1_B005 from provider use', () => {
+  const candidate = readCalibrationCandidate();
+  candidate.shotDefinitions.allShots.find(item => item.beatId === 'ACT1_B006').imagePrompt += ' altered';
+  assert.throws(() => calibrationRoutes.makeRoutePlan({ candidate }), /CALIBRATION_PROMPT_HASH_MISMATCH:ACT1_B006/);
+  const plan = calibrationRoutes.makeRoutePlan({ candidate: readCalibrationCandidate() });
+  assert.equal(plan.controlledStill.providerAllowed, false);
+  assert.equal(plan.controlledStill.status, 'BLOCKED_CONTRACT_OR_SOURCE');
+  assert.equal(plan.controlledStill.boundSource, null);
+  assert.throws(() => calibrationRoutes.deterministicRequestKey({ beatId: 'ACT1_B005', operation: 'GENERATE_STILL',
+    endpoint: calibrationRoutes.FLUX3_ENDPOINT, parameters: calibrationRoutes.FLUX3, prompt: 'x' }),
+  /CALIBRATION_ENDPOINT_OR_OPERATION_FORBIDDEN/);
+});
+
+test('calibration key derivation rejects endpoint, parameter, fallback and retry drift and binds animation source hash', () => {
+  const candidate = readCalibrationCandidate();
+  const plan = calibrationRoutes.makeRoutePlan({ candidate });
+  const still = plan.requests[0];
+  assert.throws(() => calibrationRoutes.deterministicRequestKey({ ...still, endpoint: 'fal-ai/flux/dev' }),
+    /CALIBRATION_ENDPOINT_OR_OPERATION_FORBIDDEN/);
+  assert.throws(() => calibrationRoutes.deterministicRequestKey({ ...still, parameters: { ...still.parameters, resolution: '2k' } }),
+    /CALIBRATION_STILL_PARAMETERS_MISMATCH/);
+  assert.equal(plan.constraints.retries, 0);
+  assert.deepEqual(plan.constraints.fallback, null);
+  const keyInputs = { beatId: 'ACT1_B009', operation: 'GENERATE_ANIMATION', endpoint: calibrationRoutes.H3_MAX_ENDPOINT,
+    parameters: { duration: 5, resolution: '768P', prompt_expansion_mode: 'disabled', enable_safety_checker: true,
+      image_url: 'data:image/png;base64,YQ==' },
+    prompt: plan.requests[2].prompt, negativePrompt: plan.requests[2].negativePrompt,
+    sourceSha256: 'a'.repeat(64) };
+  const first = calibrationRoutes.deterministicRequestKey(keyInputs);
+  const changedSource = calibrationRoutes.deterministicRequestKey({ ...keyInputs, sourceSha256: 'b'.repeat(64) });
+  assert.notEqual(first, changedSource);
+  assert.throws(() => calibrationRoutes.deterministicRequestKey({ ...keyInputs, beatId: 'ACT2_B001' }),
+    /CALIBRATION_SCOPE_MISMATCH/);
+});
+
+test('calibration plan blocks FLUX negative-prompt loss and H3 generated audio, and grants no execution authority', () => {
+  const plan = calibrationRoutes.makeRoutePlan({ candidate: readCalibrationCandidate() });
+  assert.equal(plan.requests[0].executionStatus, 'BLOCKED_FLUX3_SCHEMA_HAS_NO_NEGATIVE_PROMPT_FIELD');
+  assert.equal(plan.requests[2].executionStatus, 'BLOCKED_H3_MAX_SCHEMA_DOES_NOT_EXPOSE_AUDIO_DISABLE_PARAMETER');
+  assert.equal(plan.requests[2].requestKey, null);
+  assert.equal(plan.requests[2].sourceStill.requiredBeforeKeyDerivation, true);
+  assert.equal(plan.requests[2].derivative.frames, 114);
+  assert.equal(plan.requests[2].derivative.fps, 30);
+  assert.equal(plan.constraints.providerRequestsAuthorized, 0);
+  assert.equal(plan.constraints.executionAuthorization, null);
+  assert.equal(plan.constraints.outputClassification, 'NON_PRODUCTION_DISPOSABLE_PILOT');
+  assert.equal(plan.pricing.providerEnforcedCap, false);
+  assert.equal(plan.pricing.acceptedExposureCeilingUsd, null);
+  assert.equal(plan.rightsAndOwnership.outputOwnership, 'UNRESOLVED');
+  assert.equal(typeof calibrationRoutes.generate, 'undefined');
 });
 
 test('v5 Stage04 verification reuses the backup-bound Phase 3 validation context', () => {

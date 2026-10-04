@@ -10,6 +10,7 @@ const activation = require('./episode-activation.cjs');
 const evidence = require('./evidence-source-validator.cjs');
 const { validateGraphicAssetManifest } = require('./graphic-compiler.cjs');
 const phase3Render = require('../scripts/phase3-render-preview.cjs');
+const calibrationRoutes = require('./phase3-media-calibration-bundle.cjs');
 
 const OUTER_INDEX_SHA256 = 'c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4';
 const CANDIDATE_INDEX_SHA256 = 'a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf';
@@ -231,15 +232,17 @@ function deriveCensus(candidateRoot, { fsImpl = fs } = {}) {
       missingFinals.animationClips.includes(beatId)].some(Boolean),
       animationSourceStillMissing: missingFinals.animationSourceStills.includes(beatId) };
   });
-  const routes = { still: { implementedFalEndpoint: 'fal-ai/flux/dev',
-      otherImplementedModels: ['gpt-image-1', 'stability-ai/sdxl'],
-      requiredApprovedRoute: 'FLUX 3 text-to-image', requiredRouteImplemented: false,
-      availableForProduction: false, clarification: 'fal-ai/flux/dev is not FLUX 3.' },
-    animation: { implementedFalEndpoint: 'fal-ai/kling-video/v1.6/standard/image-to-video',
-      otherImplementedModel: 'christophy/stable-video-diffusion', selectedProductionRoute: null,
-      approvedProductionRoute: false, availableForProduction: false,
-      exclusions: ['Kling 1.6 is not an approved production route', 'FramePack is not an approved production route'] },
-    blockingCondition: 'NO_IMPLEMENTED_AND_APPROVED_STILL_AND_ANIMATION_ROUTE_BUNDLE' };
+  const routePlan = calibrationRoutes.makeRoutePlan({
+    candidate: { productionManifest: manifest, shotDefinitions: shotDefs,
+      editPlan: json(path.join(candidateRoot, 'edit-plan.json'), fsImpl) },
+  });
+  const routes = { still: { falEndpoint: calibrationRoutes.FLUX3_ENDPOINT, model: 'FLUX 3 Image',
+      parameters: calibrationRoutes.FLUX3, officialSchemaVerified: true,
+      availableForProduction: false, blocker: 'FLUX3_NEGATIVE_PROMPT_UNSUPPORTED' },
+    animation: { falEndpoint: calibrationRoutes.H3_MAX_ENDPOINT, model: 'H3 Max Image to Video',
+      parameters: calibrationRoutes.H3_MAX, officialSchemaVerified: true,
+      availableForProduction: false, blocker: 'H3_MAX_AUDIO_CANNOT_BE_DISABLED' },
+    blockingCondition: routePlan.hardExecutionBlockers.map(item => item.code) };
   return { activeShots: shots.length, finalOutputCounts: finalCounts, finalOutputTotal: finalTotal,
     intermediateAnimationSourceStills: { required: 23, missing: counts.animationSourceStills,
       excludedFromFinalOutputTotal: true }, missingFinalOutputs: counts, unresolvedBeatIds: missingFinals,
@@ -248,8 +251,9 @@ function deriveCensus(candidateRoot, { fsImpl = fs } = {}) {
       validation: graphicValidation.status },
     resolvedEvidenceAssets: { approvedEntries: evidenceManifest.entries.length, verifiedAssetFiles: evidenceAssetCount,
       validation: evidenceValidation.status }, productionRouteAvailability: routes,
+    calibrationRoutePlan: routePlan,
     singleCalibrationAuthorizationBlocker: routes.blockingCondition,
-    calibrationBatch: { beats: calibration, structuralStatus: 'PASS', executionStatus: 'BLOCKED_PRODUCTION_ROUTE_UNAVAILABLE' },
+    calibrationBatch: { beats: calibration, structuralStatus: 'PASS', executionStatus: 'BLOCKED_CALIBRATION_CONTRACT_GAPS' },
     candidateStatus: report.status, retiredBeatIds: report.retiredBeatIds,
     providerRequests: 0, episodeRootWrites: 0 };
 }
@@ -360,8 +364,11 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
     fail(status.stage04ActivationRecordSha256 === stage04.recordSha256, 'PHASE3_MEDIA_EXECUTION_STAGE04_BINDING_CHANGED');
     fail(status.requestLedgerSha256 === stage04.requestLedgerSha256, 'PHASE3_MEDIA_EXECUTION_LEDGER_BINDING_CHANGED');
     fail(outer.outer.indexSha256 === stagedIndex.sourceOuterPackageIndexSha256, 'PHASE3_MEDIA_EXECUTION_OUTER_INDEX_CHANGED');
-    return { status: census.calibrationBatch.executionStatus === 'BLOCKED_PRODUCTION_ROUTE_UNAVAILABLE'
-      ? 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_MEDIA_PENDING_ROUTE_BLOCKED' : 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS',
+    const isAuthorizedCalibrationRun = runId === calibrationRoutes.TRUST.runId;
+    if (isAuthorizedCalibrationRun) fail(status.stagedIndexSha256 === calibrationRoutes.TRUST.stagedIndexSha256,
+      'PHASE3_MEDIA_EXECUTION_CALIBRATION_STAGED_INDEX_MISMATCH');
+    return { status: isAuthorizedCalibrationRun ? 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_CALIBRATION_BLOCKED'
+      : 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_MEDIA_PENDING_ROUTE_BLOCKED',
       runId, stagedIndexSha256: status.stagedIndexSha256, ...census, stage04: { status: stage04.record.status,
         activationRecordSha256: stage04.recordSha256, promotedPathCount: stage04.promotedPathCount,
         promotedPathsMatch: true }, requestLedgerSha256: stage04.requestLedgerSha256,

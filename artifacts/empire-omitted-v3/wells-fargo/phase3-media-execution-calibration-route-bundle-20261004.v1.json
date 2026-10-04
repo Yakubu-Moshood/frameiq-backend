@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "phase3-media-execution-calibration-route-bundle/1.0.0",
+  "status": "PROPOSED_ROUTE_BUNDLE_EXECUTION_BLOCKED",
+  "createdAt": "2026-10-04",
+  "authority": {
+    "yakubuApprovalScope": "calibration-only route implementation for ACT1_B005, ACT1_B006 and ACT1_B009",
+    "providerExecutionAuthorized": false,
+    "providerRequestsAuthorized": 0,
+    "full65OutputBatchAuthorized": false,
+    "fallbackModels": [],
+    "automaticRetries": 0
+  },
+  "bindings": {
+    "sourceCommit": "d9941f25061449591b8cb4136f962eb5895642d5",
+    "stagedRunId": "phase3-media-execution-v5-20261004-01",
+    "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad",
+    "outerPackageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "censusReconciliationSha256": "bcdcd8bd29987aba1519d4ee9b958ae1662f93df81e5c1a057e2b721dde8a63b",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "requestLedgerSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf"
+  },
+  "permittedBeatIds": [
+    "ACT1_B005",
+    "ACT1_B006",
+    "ACT1_B009"
+  ],
+  "routeSpecifications": {
+    "still": {
+      "provider": "fal.ai",
+      "model": "FLUX 3 Image",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "officialDocumentation": "https://fal.ai/models/blackforestlabs/flux-3/text-to-image/api",
+      "input": {
+        "resolution": "1k",
+        "aspect_ratio": "16:9",
+        "output_format": "png",
+        "enable_prompt_expansion": false,
+        "imageCount": 1,
+        "imageCountEnforcement": "require exactly one image in the returned images array"
+      },
+      "candidatePromptAndNegativePromptMustRemainExact": true,
+      "schemaBlocker": "The current official input schema does not expose a negative_prompt field. Do not omit, rewrite or silently merge the candidate negative prompt; generation remains blocked until Yakubu approves a compatible exact request contract or a suitable route change."
+    },
+    "animation": {
+      "provider": "fal.ai",
+      "model": "H3 Max Image to Video",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "officialDocumentation": "https://fal.ai/models/minimax/h3-max/image-to-video/api",
+      "input": {
+        "image_url": "the approved ACT1_B009 still only, after its exact local path and SHA-256 are verified",
+        "duration": 5,
+        "resolution": "768P",
+        "prompt_expansion_mode": "disabled",
+        "enable_safety_checker": true,
+        "aspectRatio": "inherited from verified 16:9 source image; API input schema has no separate aspect_ratio field"
+      },
+      "rawProviderOutput": "preserve immutable original and inspect before deriving",
+      "fittedDerivative": {
+        "fps": 30,
+        "frames": 114,
+        "durationSeconds": 3.8,
+        "method": "deterministic trim or end-frame hold only after raw metadata and frame alignment are verified"
+      },
+      "schemaBlocker": "The current official H3 Max schema has no audio-disable parameter; fal describes generated audio as part of the model output. The requested no-generated-audio condition cannot be guaranteed, so execution remains blocked."
+    }
+  },
+  "calibrationRequests": [
+    {
+      "beatId": "ACT1_B005",
+      "operation": "CONTROLLED_STILL",
+      "providerAllowed": false,
+      "sourceStatus": "BLOCKED_NO_BOUND_SOURCE_OR_DETERMINISTIC_BUILD_CONTRACT",
+      "productionManifest": {
+        "productionMethod": "CONTROLLED_STILL",
+        "assetType": "controlled_image",
+        "sourceStatus": "NOT_REQUIRED",
+        "sourceRequirement": null
+      },
+      "shotDefinition": {
+        "visualType": "CLIP",
+        "motionType": "dolly_back"
+      },
+      "conflict": "The indexed shot definition requests a moving CLIP while the production manifest requires a CONTROLLED_STILL. No exact approved local source path/hash or deterministic construction recipe is indexed. Do not convert this beat to provider generation."
+    },
+    {
+      "beatId": "ACT1_B006",
+      "operation": "GENERATE_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "8e5c8aec96e2791082492b5e4334f44552113d91156d33d81b3c8b7e058cebea",
+      "prompt": "Series title card design. Bold institutional typography spelling EMPIRE OMITTED in gold metallic finish against deep black background. Typography suggests financial institution aesthetic repurposed for investigative journalism. Clean negative space. Subtle texture in black background suggesting paper or fabric. No additional graphics or imagery. Centered composition with generous margins.",
+      "negativePrompt": "photographic elements, people, bank imagery, logos, complex graphics, busy backgrounds, multiple colors, decorative elements",
+      "promptSha256": "e1fb18bd4d777cba0f77b47adaacd0da9900251308206985b40d8579e30ef646",
+      "negativePromptSha256": "7b426ad5e100c1f34075846fb63c1125aa4eda272cdd99ac8de9a5470bf24c42",
+      "status": "BLOCKED_FLUX3_SCHEMA_HAS_NO_NEGATIVE_PROMPT_FIELD"
+    },
+    {
+      "beatId": "ACT1_B009",
+      "operation": "GENERATE_ANIMATION_SOURCE_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "81416755ae3844e846336f755352b84699dbeec88415093f7f283e4b3b378d0f",
+      "prompt": "Female bank employee seated at corporate workstation in retail banking environment. Medium skin tone, professional attire, no distinctive identifying features. Face visible in three-quarter profile, expression shifting from routine to subtle concern. Computer monitor visible but screen content abstracted. Hand hovering over keyboard, motion paused. Fluorescent office lighting, neutral corporate interior with cubicle walls. Teller window environment suggested in background blur.",
+      "negativePrompt": "identifiable real person, celebrity likeness, Wells Fargo branding, readable screens, specific documents, company logos, news footage appearance, named individuals",
+      "promptSha256": "5bd66158c9e8823ebfd25233d86cf2f24a0c3af0ce12bde0669a32599251cacf",
+      "negativePromptSha256": "1e07c7c0150f5f29cb5b20bee765e3e8056a4928013cd35771ecefabb078bae9",
+      "status": "BLOCKED_FLUX3_SCHEMA_HAS_NO_NEGATIVE_PROMPT_FIELD"
+    },
+    {
+      "beatId": "ACT1_B009",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": null,
+      "requestKeyStatus": "DEFERRED_UNTIL_SOURCE_STILL_EXISTS",
+      "requestKeyDerivation": "SHA-256 over canonical staged-run, beat, operation, modelId/endpoint, exact API parameters, exact prompt and negative prompt, verified source-still SHA-256, and staged index; no key is derived or reserved before the source still exists and its hash is verified.",
+      "durationSourceSeconds": 3.8000011444091797,
+      "requestedSourceSeconds": 5,
+      "requestedResolution": "768P",
+      "sourceStillBinding": null,
+      "prompt": "Slow dolly forward toward employee. Her eyes move from screen, hand pauses mid-motion above keyboard. Subtle concern registers on face without dramatic expression. Camera movement deliberate, building tension through approach.",
+      "negativePrompt": "identifiable real person, celebrity likeness, Wells Fargo branding, readable screens, specific documents, company logos, news footage appearance, named individuals",
+      "status": "BLOCKED_H3_MAX_AUDIO_CANNOT_BE_DISABLED_AND_SOURCE_STILL_MISSING"
+    }
+  ],
+  "requestAndCost": {
+    "plannedProviderSubmissions": 3,
+    "controlledB005ProviderSubmissions": 0,
+    "stillRequests": 2,
+    "animationRequests": 1,
+    "retryCount": 0,
+    "fallbackCount": 0,
+    "publishedPricesUsd": {
+      "flux3OneKPerImageAtRetrieval": 0.024,
+      "flux3OneKAfterPromotionEnds2026-10-08": 0.048,
+      "h3Max768pPerOutputSecond": 0.08
+    },
+    "estimatedUsd": {
+      "twoFlux3StillsCurrent": 0.048,
+      "fiveSecondH3Source": 0.4,
+      "baseTotalAtRetrieval": 0.448,
+      "modeledHighAfterFluxPromoAndApproximately0_7sH3Overshoot": 0.552
+    },
+    "providerEnforcedSpendingCap": false,
+    "humanAcceptedMaximumExposureUsd": null,
+    "exposureStatus": "NO_HUMAN_ACCEPTED_MAXIMUM_OR_PROVIDER_ENFORCED_CAP"
+  },
+  "rightsAndOwnership": {
+    "commercialUseModelPageLabels": true,
+    "outputOwnershipStatus": "UNRESOLVED",
+    "termsReviewed": "https://fal.ai/legal/terms-of-service",
+    "finding": "The terms reviewed state customer retains ownership of Customer Input and impose rights obligations, but the reviewed provisions do not explicitly assign Output Content ownership. Commercial-use labels do not resolve ownership or third-party rights.",
+    "rightsConclusion": null
+  },
+  "executionControls": {
+    "durableReservationRequiredBeforeEverySubmission": true,
+    "deterministicRequestKeysRequired": true,
+    "oneAuthorizationPerAsset": true,
+    "duplicateKeyRejected": true,
+    "retryCount": 0,
+    "fallbackModels": [],
+    "rawOutputPreserved": true,
+    "isolatedCalibrationDirectoryOnly": true,
+    "outputClassification": "NON_PRODUCTION_DISPOSABLE_PILOT",
+    "productionReadiness": "REJECTED_UNTIL_HUMAN_REVIEW",
+    "promotion": false,
+    "rendering": false,
+    "episodeRootProductionWrites": false
+  },
+  "blockers": [
+    "ACT1_B005 has no candidate-index-bound approved source/build contract and its shot visual type conflicts with CONTROLLED_STILL.",
+    "FLUX 3 API does not expose a separate negative_prompt input required by the exact approved candidate contract.",
+    "H3 Max image-to-video API does not expose an audio-disable input; it cannot guarantee the requested silent output.",
+    "No provider execution authorization, human-accepted exposure ceiling or output-ownership risk acceptance exists."
+  ]
+}
