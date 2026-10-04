@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "graphic-asset-manifest-validation/1.0.0",
+  "status": "PASS",
+  "errors": [],
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "graphicManifestSha256": "4747c3f69e2b7f6881eea1d92d4d669c37e32a945c145e6b016ab919747359f6",
+  "sourceProductionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+  "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+  "entries": 77,
+  "missing": 0,
+  "extra": 0,
+  "duplicate": 0,
+  "hashMismatched": 0,
+  "B015VisualApproval": {
+    "status": "PASS",
+    "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "v4ReviewPackageIndexSha256": "a71ff5bc0176b169ec8b0bb381bed0bd25cb9a2d69785216ca2e69a792c9dc46",
+    "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a"
+  }
+}

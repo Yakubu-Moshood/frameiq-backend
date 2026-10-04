@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "phase3-act5-human-review-package-index/2.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "candidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+  "fileCount": 9,
+  "selfHashExcluded": true,
+  "files": [
+    {
+      "path": "act1-b030-candidate-renewal.v2.json",
+      "bytes": 1258,
+      "sha256": "ceb1de6e56b1a492386f385dc7c7af5a7035fd86ba94e8cfbfa7ff478ecaea2f"
+    },
+    {
+      "path": "ACT5_B009-compiled-review.png",
+      "bytes": 31028,
+      "sha256": "ab696f56009d39dab4feb97e2991700e208cd2685c7880fd9316d9d3e79c6ae9"
+    },
+    {
+      "path": "ACT5_B015-compiled-review.png",
+      "bytes": 49286,
+      "sha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade"
+    },
+    {
+      "path": "act5-b016-source-binding-proposal.v2.json",
+      "bytes": 1283,
+      "sha256": "b8c2f81f982aaf0ece01945dc05695bf3f68920088b8a70413c8ecff2812681f"
+    },
+    {
+      "path": "act5-graphic-contact-sheet.v2.png",
+      "bytes": 97976,
+      "sha256": "4738b1f4b0d5b8b9b7791ca0f373dec009a98eb21e12bfdd608930ca5b6c3d74"
+    },
+    {
+      "path": "act5-graphic-review.v2.pdf",
+      "bytes": 98049,
+      "sha256": "17229e89f9b478f5c8efb317e1a42449cb1b4405114cd93748c3783a905e7860"
+    },
+    {
+      "path": "build-report.v2.json",
+      "bytes": 2074,
+      "sha256": "f1f19f66f2f2515bd9eafb1db68dc473da7ab30f025d3fe8b306990dc2e7bd99"
+    },
+    {
+      "path": "README.v2.md",
+      "bytes": 2729,
+      "sha256": "c2e516176ca4e244ea134d8d9a1207244c5d8d618df4895ef883b0164ad72c12"
+    },
+    {
+      "path": "review-docket.v2.json",
+      "bytes": 3623,
+      "sha256": "5c904b65ad8fbb65a4e08f54e690854eb2ac4ee7ce257b6dceb1132596b8b617"
+    }
+  ]
+}

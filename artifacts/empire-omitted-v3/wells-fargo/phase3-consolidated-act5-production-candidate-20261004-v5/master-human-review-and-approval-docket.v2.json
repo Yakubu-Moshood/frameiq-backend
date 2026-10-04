@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "phase3-consolidated-act5-master-review-docket/2.0.0",
+  "packageId": "phase3-consolidated-act5-production-candidate-20261004-v5",
+  "status": "APPROVED_SCOPE_PENDING_MEDIA_COMPLETION",
+  "parentCandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+  "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+  "approvedDecisions": {
+    "B009": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "B015VisualSpec": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "B015Timing": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "B016Dependency": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "controlledStillClosureCommit": "28390dd3b0854f987f14b6c854c9580b375b6e19",
+    "B015CompiledVisual": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272"
+  },
+  "humanDecisionRequested": [],
+  "B030Renewal": {
+    "approvalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+    "semanticChanges": []
+  },
+  "blockers": [
+    {
+      "code": "UNRESOLVED_STAGE04_MEDIA_CENSUS",
+      "controlledStills": 34,
+      "generatedStills": 9,
+      "animationClips": 23,
+      "total": 66
+    }
+  ],
+  "executionAuthorization": "",
+  "providerAuthorization": "",
+  "rendering": false,
+  "promotion": false,
+  "reviewPackageIndexSha256": "a71ff5bc0176b169ec8b0bb381bed0bd25cb9a2d69785216ca2e69a792c9dc46",
+  "B015OutputApproval": {
+    "status": "APPROVED",
+    "approvalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "svg": {
+      "status": "BOUND_APPROVED_PRODUCTION_GRAPHIC",
+      "path": "assets/graphics/ACT5_B015__g00.svg",
+      "packageRelativePath": "candidate/assets/graphics/ACT5_B015__g00.svg",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "approvedBy": "Yakubu Moshood",
+      "approvalRecordPath": "approvals/act5-b015-compiled-visual-approval.v1.json",
+      "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+      "v4CandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+      "visualSpecificationApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+      "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+    },
+    "png": {
+      "path": "candidate/assets/graphics/ACT5_B015__g00.png",
+      "format": "png",
+      "bytes": 49286,
+      "sha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade"
+    }
+  },
+  "B009Confirmation": {
+    "status": "PASS_APPROVED_DETERMINISTIC_SPEC",
+    "exactLabels": [
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023"
+    ],
+    "providerRequests": 0
+  },
+  "B016": {
+    "status": "SOURCE_BOUND_EXECUTION_BLOCKED_PENDING_B016_MEDIA",
+    "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "approvedSource": {
+      "status": "BOUND_APPROVED_PRODUCTION_GRAPHIC",
+      "path": "assets/graphics/ACT5_B015__g00.svg",
+      "packageRelativePath": "candidate/assets/graphics/ACT5_B015__g00.svg",
+      "format": "svg",
+      "mimeType": "image/svg+xml",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "approvedBy": "Yakubu Moshood",
+      "approvalRecordPath": "approvals/act5-b015-compiled-visual-approval.v1.json",
+      "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+      "v4CandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+      "visualSpecificationApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+      "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+    },
+    "excludedSource": {
+      "path": "assets/graphics/ACT5_B015__g00.svg",
+      "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+      "reason": "Rejected takeaway graphic; never a B016 composition source",
+      "parentCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v1",
+      "parentPackagePath": "../phase3-consolidated-act5-production-candidate-20261004-v3/candidate/assets/graphics/ACT5_B015__g00.svg"
+    },
+    "decision": "COMPOSITION ONLY; no final-media reuse"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "phase3-consolidated-production-candidate-amendment/2.0.0",
+  "amendmentId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "status": "APPROVED_SCOPE_APPLIED_WITH_REMAINING_REVIEW_AND_EXECUTION_BLOCKERS",
+  "parent": {
+    "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v1",
+    "candidateIndexSha256": "af4b943d7d7b77fdf12d900f3e603ffcdd9083684a74a05a6d7d3c2e142c58ea",
+    "indexedFiles": 165
+  },
+  "approvedBindings": {
+    "controlledStillClosureCommit": "28390dd3b0854f987f14b6c854c9580b375b6e19",
+    "b009AmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009ApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b015VisualApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "b015TimingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "b015TimingDocketIndexSha256": "25637237930348da8d31ba1137ec7ca2f9df44de000343ce96dc84b6463f2c88",
+    "b016ApprovalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703"
+  },
+  "changes": {
+    "ACT5_B009": {
+      "compile": "deterministic zero-provider approved graphic",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "assetType": "graphic_compilation",
+      "labels": [
+        "2013",
+        "2014",
+        "2015",
+        "2016",
+        "2017",
+        "2018",
+        "2019",
+        "2020",
+        "2021",
+        "2022",
+        "2023"
+      ],
+      "providerRequests": 0
+    },
+    "ACT5_B015": {
+      "compile": "approved visual specification",
+      "timing": {
+        "startSec": 571.9558705585937,
+        "endSec": 577.515875746582,
+        "durationSec": 5.560005187988281
+      },
+      "humanVisualApproval": "PENDING",
+      "editorialFieldsChanged": []
+    },
+    "ACT1_B030": {
+      "action": "candidate-specific hash-only renewal",
+      "semanticFieldsChanged": []
+    },
+    "ACT5_B016": {
+      "action": "preserve deferred dependency; source remains unbound",
+      "status": "EXECUTION_BLOCKED"
+    },
+    "controlledStill": {
+      "rowCount": 34,
+      "method": "CONTROLLED_STILL",
+      "assetType": "controlled_image"
+    }
+  },
+  "invariants": {
+    "narrationChanged": false,
+    "wordRangesChanged": false,
+    "evidenceChanged": false,
+    "ownershipChanged": false,
+    "unrelatedBeatsChanged": false,
+    "ACT3B_B010Reactivated": false,
+    "providerRequests": 0,
+    "rendering": false,
+    "promotion": false,
+    "episodeRootWrites": 0
+  },
+  "childCandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3"
+}

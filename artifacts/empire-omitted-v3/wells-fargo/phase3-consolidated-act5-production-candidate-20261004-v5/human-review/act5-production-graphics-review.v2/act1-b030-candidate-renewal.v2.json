@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "phase3-act1-b030-consolidated-candidate-renewal/2.0.0",
+  "status": "APPROVED_SCOPE_HASH_ONLY_CANDIDATE_REBIND",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "sourceApprovalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+  "sourceApplicationApprovalSha256": "e4d93e08935ebdf1f84a6e532a2a39a736a261f92cfa338ace7fe84354aa742b",
+  "sourceAssetLineageSha256": "74e3e93449c187a8b22fbb2f96031e83db338c2d81cd69ae272bc0c3934850bf",
+  "beatId": "ACT1_B030",
+  "bindings": {
+    "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+    "timingPolicySha256": "59ced798488f668eb2f1a6a3a1a252e0253045fabe26fcbe154add65e4251dcb"
+  },
+  "preserved": {
+    "startSec": 112.66000366210938,
+    "endSec": 114.013379,
+    "durationSec": 1.3533753378906255,
+    "startWordIndex": 226,
+    "endWordIndex": 229,
+    "narration": "None went to prison.",
+    "productionMethod": "CONTROLLED_STILL",
+    "assetType": "controlled_image",
+    "obligationSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29"
+  },
+  "semanticChanges": []
+}

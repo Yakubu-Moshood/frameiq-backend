@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "phase3-consolidated-candidate-validation/2.0.0",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "status": "PLANNING_READY_MEDIA_EXECUTION_BLOCKED",
+  "passed": {
+    "sourceCandidateIndex": "PASS_165",
+    "controlledStillClosure": "PASS_167",
+    "controlledStillChild": "PASS_162",
+    "B009": "PASS_COMPILED_ZERO_PROVIDER",
+    "B015Timing": "PASS",
+    "B015Compilation": "PASS_APPROVED_VISUAL",
+    "B030Renewal": "PASS_HASH_ONLY_REBIND",
+    "productionManifest": "PASS",
+    "graphicManifest": "PASS",
+    "evidence": "PASS_46_APPROVED_29_ASSETS",
+    "B016": "PASS_APPROVED_COMPOSITION_SOURCE_BOUND_MEDIA_PENDING",
+    "ACT3B_B010": "RETIRED",
+    "B015VisualApproval": "PASS_BOUND_TO_V4_OUTPUTS"
+  },
+  "blockers": [
+    {
+      "code": "UNRESOLVED_STAGE04_MEDIA_CENSUS",
+      "controlledStills": 34,
+      "generatedStills": 9,
+      "animationClips": 23,
+      "total": 66
+    }
+  ],
+  "limits": {
+    "productionEligible": false,
+    "providerRequests": 0,
+    "rendering": false,
+    "promotion": false,
+    "episodeRootWrites": 0
+  }
+}

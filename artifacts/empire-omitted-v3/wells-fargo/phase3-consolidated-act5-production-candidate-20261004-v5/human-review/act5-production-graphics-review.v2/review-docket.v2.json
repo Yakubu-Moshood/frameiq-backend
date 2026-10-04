@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "phase3-consolidated-act5-human-review-docket/2.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_REVIEW",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "parentCandidateIndexSha256": "af4b943d7d7b77fdf12d900f3e603ffcdd9083684a74a05a6d7d3c2e142c58ea",
+  "approvedBindings": {
+    "b009Amendment": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009Approval": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b015VisualSpecApproval": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "b015TimingApproval": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "b015TimingDocketIndex": "25637237930348da8d31ba1137ec7ca2f9df44de000343ce96dc84b6463f2c88",
+    "b016DependencyApproval": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703"
+  },
+  "B009": {
+    "status": "COMPILED_APPROVED_SPEC",
+    "svg": {
+      "path": "candidate/assets/graphics/ACT5_B009__g00.svg",
+      "bytes": 17248,
+      "sha256": "31f10ccbbda1e018f35b6e47fa539a4d28e84621c4be5f6cd069a6de4d834929",
+      "width": 1280,
+      "height": 720
+    },
+    "png": {
+      "path": "candidate/assets/graphics/ACT5_B009__g00.png",
+      "bytes": 31028,
+      "sha256": "ab696f56009d39dab4feb97e2991700e208cd2685c7880fd9316d9d3e79c6ae9",
+      "width": 1280,
+      "height": 720
+    },
+    "exactLabels": [
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023"
+    ],
+    "providerRequests": 0,
+    "layoutRestrictions": "No title/subtitle/axis/ticks/annotations/logos/branding/additional readable text/year emphasis."
+  },
+  "B015": {
+    "status": "COMPILED_PENDING_HUMAN_VISUAL_APPROVAL",
+    "timing": {
+      "startSec": 571.9558705585937,
+      "endSec": 577.515875746582,
+      "durationSec": 5.560005187988281
+    },
+    "svg": {
+      "path": "candidate/assets/graphics/ACT5_B015__g00.svg",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "width": 1920,
+      "height": 1080
+    },
+    "png": {
+      "path": "candidate/assets/graphics/ACT5_B015__g00.png",
+      "bytes": 49286,
+      "sha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade",
+      "width": 1920,
+      "height": 1080
+    },
+    "visualDecision": "",
+    "signature": "",
+    "notes": ""
+  },
+  "B030": {
+    "status": "CANDIDATE_SPECIFIC_HASH_ONLY_REBIND",
+    "approvalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+    "semanticFieldsChanged": false
+  },
+  "B016": {
+    "status": "EXECUTION_BLOCKED_SOURCE_NOT_BOUND",
+    "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "approvedSource": {
+      "path": "",
+      "bytes": null,
+      "sha256": ""
+    },
+    "excludedSource": {
+      "parentCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v1",
+      "path": "candidate/assets/graphics/ACT5_B015__g00.svg",
+      "packagePath": "../phase3-consolidated-act5-production-candidate-20261004-v3/candidate/assets/graphics/ACT5_B015__g00.svg",
+      "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+      "decision": "EXCLUDED_NOT_A_B016_SOURCE"
+    },
+    "decision": "",
+    "signature": ""
+  },
+  "blockers": [
+    "ACT5_B015 human visual approval",
+    "ACT5_B016 exact approved source path/size/hash binding",
+    "66 unresolved Stage04 media outputs"
+  ],
+  "executionAuthorization": "",
+  "providerAuthorization": ""
+}

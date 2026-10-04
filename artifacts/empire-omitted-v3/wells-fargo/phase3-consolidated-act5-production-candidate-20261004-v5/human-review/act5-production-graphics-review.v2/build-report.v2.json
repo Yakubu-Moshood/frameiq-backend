@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "phase3-act5-deterministic-build-report/2.0.0",
+  "status": "PASS_TWO_INDEPENDENT_BUILDS_BYTE_IDENTICAL",
+  "inputs": {
+    "b009AmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009ApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b009SpecSha256": "224adc6e186a18c85fd722b14cb33d993b03d3e8c5cafb5f0883862ff9e695f2",
+    "b009LayoutReferenceSha256": "a72adf75844089197e1e15bd4c24cb8b008ab922f7e64f4988e795525b4439ab",
+    "b009PaletteSourceSha256": "3f7e9921f0feca9abccf5c56a77a32e709a566732429d6b76c3ae3c4d7bbe0a0",
+    "b015SpecSha256": "3acacb5642c058265278d4befbaaa57c3e4d7056076d1cac5faf7c30c230b6e5",
+    "b015VisualApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "b015TimingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "b015LayoutReferenceSha256": "1292f492d448414af0e8aee1cb0feb1efed6af0a4a9aa1df41d1709927839c72",
+    "b015ArialBoldSha256": "e8f4e3baf6cc35fed6fcce3a540e8b39e8f6cda1d22a28f2ec8f526fef7a43f5",
+    "sharpVersion": "0.35.4",
+    "libvipsVersion": "8.18.6"
+  },
+  "outputs": [
+    {
+      "path": "ACT5_B009__g00.svg",
+      "bytes": 17248,
+      "sha256": "31f10ccbbda1e018f35b6e47fa539a4d28e84621c4be5f6cd069a6de4d834929",
+      "independentBuildsIdentical": true
+    },
+    {
+      "path": "ACT5_B009__g00.png",
+      "bytes": 31028,
+      "sha256": "ab696f56009d39dab4feb97e2991700e208cd2685c7880fd9316d9d3e79c6ae9",
+      "independentBuildsIdentical": true
+    },
+    {
+      "path": "ACT5_B015__g00.svg",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "independentBuildsIdentical": true
+    },
+    {
+      "path": "ACT5_B015__g00.png",
+      "bytes": 49286,
+      "sha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade",
+      "independentBuildsIdentical": true
+    }
+  ],
+  "b009RestrictionsPass": true,
+  "b015HumanVisualApprovalPending": true,
+  "providerRequests": 0
+}

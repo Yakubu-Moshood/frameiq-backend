@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "production-method-manifest-validation/1.0.0",
+  "status": "PASS",
+  "errors": [],
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+  "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+  "methodCounts": {
+    "ESSENTIAL_ANIMATION": 23,
+    "CONTROLLED_STILL": 34,
+    "GENERATED_STILL": 8,
+    "EVIDENCE_REFERENCE": 46,
+    "GRAPHIC_COMPILATION": 42
+  },
+  "graphicSummary": {
+    "primaryGraphicAssetShots": 42,
+    "overlayGraphicShots": 28,
+    "graphicBearingBeats": 70,
+    "graphicObjectCount": 77,
+    "multiObjectBeatCount": 4
+  }
+}

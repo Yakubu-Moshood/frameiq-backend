@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "phase3-consolidated-act5-candidate-report/2.0.0",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "status": "PLANNING_READY_MEDIA_EXECUTION_BLOCKED",
+  "indexedFiles": 174,
+  "activeShots": 153,
+  "durationSec": 633.782449,
+  "evidenceEntries": 46,
+  "evidenceAssets": 29,
+  "graphics": 77,
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "validators": {
+    "productionManifest": "PASS",
+    "graphicManifest": "PASS",
+    "evidence": "PASS",
+    "editPlan": "PASS_UNCHANGED",
+    "shotDefinitions": "PASS_UNCHANGED",
+    "revisionLineage": "PASS_APPROVED_SCOPE_WITH_B030_HASH_RENEWAL",
+    "renderReadiness": "BLOCKED_MEDIA_COMPLETION",
+    "B015VisualApproval": "PASS_APPROVED_COMPILED_OUTPUT",
+    "B016CompositionSourceBinding": "PASS_EXACT_APPROVED_SOURCE"
+  },
+  "blockers": [
+    {
+      "code": "UNRESOLVED_STAGE04_MEDIA_CENSUS",
+      "controlledStills": 34,
+      "generatedStills": 9,
+      "animationClips": 23,
+      "total": 66
+    }
+  ],
+  "providerRequests": 0,
+  "episodeRootWrites": 0,
+  "approvals": {
+    "ACT5_B015CompiledVisual": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "ACT5_B016Dependency": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703"
+  },
+  "readiness": {
+    "candidatePlanning": "PASS",
+    "mediaExecution": "BLOCKED",
+    "rendering": false,
+    "promotion": false,
+    "providerRequests": 0,
+    "episodeRootWrites": 0
+  }
+}

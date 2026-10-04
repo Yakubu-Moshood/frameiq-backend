@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "phase3-consolidated-act5-amendment-lineage/2.0.0",
+  "status": "PASS_APPROVED_SCOPE_B015_APPROVED_B016_SOURCE_BOUND_MEDIA_PENDING",
+  "parentCandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+  "approvals": {
+    "controlledStillClosureCommit": "28390dd3b0854f987f14b6c854c9580b375b6e19",
+    "b009AmendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009ApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b015VisualApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "b015TimingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "b015TimingDocketIndexSha256": "25637237930348da8d31ba1137ec7ca2f9df44de000343ce96dc84b6463f2c88",
+    "b016ApprovalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "b015CompiledVisualApproval": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272"
+  },
+  "entries": [
+    {
+      "beatId": "ACT5_B009",
+      "approvalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+      "amendmentSha256": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+      "svgSha256": "31f10ccbbda1e018f35b6e47fa539a4d28e84621c4be5f6cd069a6de4d834929",
+      "pngSha256": "ab696f56009d39dab4feb97e2991700e208cd2685c7880fd9316d9d3e79c6ae9",
+      "providerRequests": 0
+    },
+    {
+      "beatId": "ACT5_B015",
+      "visualApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+      "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+      "startSec": 571.9558705585937,
+      "endSec": 577.515875746582,
+      "durationSec": 5.560005187988281,
+      "compiledSvgSha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "compiledPngSha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade",
+      "visualReview": "PENDING"
+    },
+    {
+      "beatId": "ACT1_B030",
+      "renewalApprovalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+      "semanticFieldsChanged": []
+    },
+    {
+      "beatId": "ACT5_B016",
+      "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+      "finalSourceBound": false
+    },
+    {
+      "beatId": "ACT5_B015_COMPILED_OUTPUT",
+      "approvalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+      "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+      "format": "svg",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "reviewPackageIndexSha256": "a71ff5bc0176b169ec8b0bb381bed0bd25cb9a2d69785216ca2e69a792c9dc46"
+    },
+    {
+      "beatId": "ACT5_B016",
+      "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+      "finalSourceBound": true,
+      "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+      "format": "svg",
+      "bytes": 2279,
+      "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "dependencyUse": "COMPOSITION_ONLY_REFERENCE_FOR_CRACKED_FRAME_DERIVATIVE"
+    }
+  ],
+  "invariants": {
+    "controlledStillRowCount": 34,
+    "method": "CONTROLLED_STILL",
+    "assetType": "controlled_image",
+    "ACT3B_B010": "RETIRED",
+    "unrelatedBeatsChanged": false,
+    "b016FinalSourceBound": true,
+    "act5B015CompiledVisualApprovalBound": true,
+    "priorV4LineageSha256": "09686fbb0898155b3d7e0b47a6bdbfdf1beaa64ddc031f8f8721158fe0be604e"
+  },
+  "childCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "childCandidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf"
+}

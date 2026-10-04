@@ -1,0 +1,485 @@
+{
+  "ledgerVersion": "1.0.0",
+  "revisionId": "phase2.3b-s-approved-factual-correction",
+  "revisionVersion": "2.3B-SV",
+  "lineageRole": "current",
+  "approvalStatus": "APPROVED",
+  "approval": {
+    "status": "APPROVED",
+    "basis": "CTO-approved Phase 2.3B-S factual correction limited to the approved fee-refund attribution, 2013 reporting firstness wording, and three-part 2016 enforcement breakdown."
+  },
+  "parentArtifactSha256": "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+  "resultArtifactSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+  "permittedImmutablePaths": [
+    "ACT3B_B008.graphics",
+    "ACT3B_B008.overlaySpecification",
+    "ACT4_B002.graphics",
+    "ACT4_B002.overlaySpecification",
+    "ACT4_B004.graphics",
+    "ACT4_B004.overlaySpecification"
+  ],
+  "entries": [
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "visualIntent",
+      "beforeValue": "The official settlement figure—the bank's theft quantified.",
+      "afterValue": "Show the bank-attributed refund figure with a clear source label; do not imply every flagged account was proven unauthorized.",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "visual.description",
+      "beforeValue": "Regulatory settlement document showing the $2.6 million fee figure.",
+      "afterValue": "Wells Fargo 3Q16 quarterly supplement supporting the bank’s statement that about $2.6 million in fees tied to accounts flagged by its review were refunded.",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "evidenceRequirement.evidenceType",
+      "beforeValue": "regulatory settlement",
+      "afterValue": "corporate disclosure",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "evidenceRequirement.description",
+      "beforeValue": "CFPB consent order or settlement document showing the $2.6 million fee figure",
+      "afterValue": "Wells Fargo 3Q16 quarterly supplement: the bank says it refunded approximately $2.6 million in fees associated with accounts flagged by its review.",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "evidenceRequirement.citationLabel",
+      "beforeValue": "CFPB Settlement, 2016",
+      "afterValue": "Wells Fargo 3Q16 Quarterly Supplement",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "graphics",
+      "beforeValue": [
+        {
+          "type": "impact_card",
+          "intent": "Land the official theft figure",
+          "text": "$2.6 MILLION IN UNAUTHORIZED FEES"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "impact_card",
+          "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+          "text": "$2.6 MILLION IN FEES REFUNDED"
+        }
+      ],
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "overlaySpecification",
+      "beforeValue": [
+        {
+          "type": "impact_card",
+          "intent": "Land the official theft figure",
+          "text": "$2.6 MILLION IN UNAUTHORIZED FEES"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "impact_card",
+          "intent": "State the bank-attributed fee refund amount without implying all flagged accounts were proven unauthorized.",
+          "text": "$2.6 MILLION IN FEES REFUNDED"
+        }
+      ],
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B008",
+      "beatId": "ACT3B_B008",
+      "fieldPath": "sourceSearchInstruction",
+      "beforeValue": "Locate CFPB consent order or settlement documents from 2016 Wells Fargo enforcement action, specifically pages or sections citing the $2.6 million figure in unauthorized fees collected from customers, verify authenticity through official CFPB database or Federal Register publication",
+      "afterValue": "Locate Wells Fargo’s 2016 third-quarter quarterly supplement filed with the SEC; verify the passage stating the bank refunded approximately $2.6 million in fees tied to accounts flagged by its review. Preserve attribution to Wells Fargo.",
+      "reason": "Approved factual correction for ACT3B_B008; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B009",
+      "beatId": "ACT3B_B009",
+      "fieldPath": "visualIntent",
+      "beforeValue": "The official designation—presented with clinical precision.",
+      "afterValue": "Attribute the review category to Wells Fargo and avoid implying every flagged account was proven unauthorized.",
+      "reason": "Approved factual correction for ACT3B_B009; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B009",
+      "beatId": "ACT3B_B009",
+      "fieldPath": "visual.description",
+      "beforeValue": "The $2.6 million figure isolated on dark background, stark typography.",
+      "afterValue": "Editorial typography identifying accounts flagged by Wells Fargo’s review; no unsupported count or unauthorized-account conclusion.",
+      "reason": "Approved factual correction for ACT3B_B009; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "beatId": "ACT3B_B010",
+      "fieldPath": "storyFunction",
+      "beforeValue": "reveal",
+      "afterValue": "context",
+      "reason": "Approved factual correction for ACT3B_B010; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "beatId": "ACT3B_B010",
+      "fieldPath": "visualIntent",
+      "beforeValue": "The real number remains unknown—official count is the floor.",
+      "afterValue": "Attribute the stated refund figure to Wells Fargo as its own reported figure.",
+      "reason": "Approved factual correction for ACT3B_B010; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "beatId": "ACT3B_B010",
+      "fieldPath": "visual.description",
+      "beforeValue": "Abstract incomplete-data motif with no visible numerals or implied exact total.",
+      "afterValue": "Restrained editorial card identifying the amount as the bank’s own figure, with no extrapolation.",
+      "reason": "Approved factual correction for ACT3B_B010; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "beatId": "ACT3B_B010",
+      "fieldPath": "animationPrompt",
+      "beforeValue": "Still editorial illustration; no generated text or numeric reveal.",
+      "afterValue": "",
+      "reason": "Approved factual correction for ACT3B_B010; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT3B_B010",
+      "beatId": "ACT3B_B010",
+      "fieldPath": "reconstructionSafeguards",
+      "beforeValue": "Abstract editorial illustration only. Do not visually assert an exact or inferred total.",
+      "afterValue": null,
+      "reason": "Approved factual correction for ACT3B_B010; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "beatId": "ACT4_B001",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Newspaper front page emerges from darkness as the breach in corporate secrecy.",
+      "afterValue": "Establish the 2013 Los Angeles Times reporting without claiming it was the first exposure.",
+      "reason": "Approved factual correction for ACT4_B001; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "beatId": "ACT4_B001",
+      "fieldPath": "visual.description",
+      "beforeValue": "Los Angeles Times front page with Wells Fargo investigation headline.",
+      "afterValue": "Authentic Los Angeles Times 2013 coverage relevant to Wells Fargo sales practices; do not imply firstness.",
+      "reason": "Approved factual correction for ACT4_B001; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "beatId": "ACT4_B001",
+      "fieldPath": "evidenceRequirement.description",
+      "beforeValue": "Los Angeles Times 2013 coverage of Wells Fargo unauthorized accounts scandal",
+      "afterValue": "Los Angeles Times 2013 Wells Fargo coverage establishing contemporaneous reporting; do not assert this was the first report.",
+      "reason": "Approved factual correction for ACT4_B001; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B001",
+      "beatId": "ACT4_B001",
+      "fieldPath": "sourceSearchInstruction",
+      "beforeValue": "Locate Los Angeles Times front page or section front from 2013 containing coverage of Wells Fargo unauthorized accounts investigation. Search LA Times archive for Wells Fargo scandal coverage, cross-sell investigation, or unauthorized account opening stories from 2013. Verify masthead authenticity and publication date.",
+      "afterValue": "Locate and verify the original 2013 Los Angeles Times Wells Fargo reporting and publication date. Do not characterize it as the first disclosure or first report.",
+      "reason": "Approved factual correction for ACT4_B001; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Reporter byline and article text establish documented journalism.",
+      "afterValue": "Credit E. Scott Reckard and support the specific reporting described in narration without a firstness claim.",
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "evidenceRequirement.description",
+      "beforeValue": "E. Scott Reckard byline and article documenting pressure, unauthorized accounts, firings",
+      "afterValue": "E. Scott Reckard byline and Los Angeles Times reporting documenting Wells Fargo sales pressure, unauthorized accounts and employee firings.",
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "evidenceRequirement.citationLabel",
+      "beforeValue": "E. Scott Reckard, LA Times",
+      "afterValue": "E. Scott Reckard, Los Angeles Times",
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "graphics",
+      "beforeValue": [
+        {
+          "type": "identity_lower_third",
+          "intent": "Credit the journalist who exposed the scandal.",
+          "text": "E. Scott Reckard | Los Angeles Times"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "identity_lower_third",
+          "intent": "Identify the reporter and publication without a firstness claim.",
+          "text": "E. Scott Reckard | Los Angeles Times"
+        }
+      ],
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "overlaySpecification",
+      "beforeValue": [
+        {
+          "type": "identity_lower_third",
+          "intent": "Credit the journalist who exposed the scandal.",
+          "text": "E. Scott Reckard | Los Angeles Times"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "identity_lower_third",
+          "intent": "Identify the reporter and publication without a firstness claim.",
+          "text": "E. Scott Reckard | Los Angeles Times"
+        }
+      ],
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B002",
+      "beatId": "ACT4_B002",
+      "fieldPath": "sourceSearchInstruction",
+      "beforeValue": "Locate Los Angeles Times article bylined by E. Scott Reckard covering Wells Fargo unauthorized accounts, sales pressure, or employee terminations. Search LA Times archive 2013-2016 for Reckard Wells Fargo investigation pieces. Verify byline spelling and article authenticity.",
+      "afterValue": "Locate the Los Angeles Times article by E. Scott Reckard supporting the narrated reporting; verify byline and article text. Do not claim the article broke or first exposed the story.",
+      "reason": "Approved factual correction for ACT4_B002; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Settlement document with penalty figure delivers institutional admission.",
+      "afterValue": "Show the 2016 $185 million aggregate as three distinct enforcement components, not as one order.",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "visual.description",
+      "beforeValue": "Consent order showing $185 million penalty figure.",
+      "afterValue": "Evidence-led breakdown of the 2016 aggregate: CFPB $100 million, OCC $35 million, and City and County of Los Angeles $50 million.",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "evidenceRequirement.evidenceType",
+      "beforeValue": "consent order",
+      "afterValue": "regulatory and local enforcement actions",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "evidenceRequirement.description",
+      "beforeValue": "2016 Wells Fargo settlement documents showing $185 million penalty",
+      "afterValue": "The $185 million 2016 aggregate comprised a $100 million CFPB penalty, a $35 million OCC penalty, and a $50 million City and County of Los Angeles penalty; present these as separate actions, not one order.",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "evidenceRequirement.citationLabel",
+      "beforeValue": "CFPB Consent Order, 2016",
+      "afterValue": "CFPB, OCC, and City/County of Los Angeles, 2016",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "graphics",
+      "beforeValue": [
+        {
+          "type": "impact_card",
+          "intent": "Land the first major penalty.",
+          "text": "$185 MILLION"
+        },
+        {
+          "type": "date_marker",
+          "intent": "Anchor the settlement year.",
+          "text": "2016"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Break out the CFPB component of the 2016 aggregate.",
+          "text": "CFPB  $100 MILLION"
+        },
+        {
+          "type": "data_graphic",
+          "intent": "Break out the OCC component of the 2016 aggregate.",
+          "text": "OCC  $35 MILLION"
+        },
+        {
+          "type": "data_graphic",
+          "intent": "Break out the City and County of Los Angeles component of the 2016 aggregate.",
+          "text": "CITY & COUNTY OF L.A.  $50 MILLION"
+        },
+        {
+          "type": "impact_card",
+          "intent": "Show the sum of three separate actions.",
+          "text": "$185 MILLION TOTAL"
+        },
+        {
+          "type": "date_marker",
+          "intent": "Anchor the separate actions to 2016.",
+          "text": "2016"
+        }
+      ],
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "overlaySpecification",
+      "beforeValue": [
+        {
+          "type": "impact_card",
+          "intent": "Land the first major penalty.",
+          "text": "$185 MILLION"
+        },
+        {
+          "type": "date_marker",
+          "intent": "Anchor the settlement year.",
+          "text": "2016"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Break out the CFPB component of the 2016 aggregate.",
+          "text": "CFPB  $100 MILLION"
+        },
+        {
+          "type": "data_graphic",
+          "intent": "Break out the OCC component of the 2016 aggregate.",
+          "text": "OCC  $35 MILLION"
+        },
+        {
+          "type": "data_graphic",
+          "intent": "Break out the City and County of Los Angeles component of the 2016 aggregate.",
+          "text": "CITY & COUNTY OF L.A.  $50 MILLION"
+        },
+        {
+          "type": "impact_card",
+          "intent": "Show the sum of three separate actions.",
+          "text": "$185 MILLION TOTAL"
+        },
+        {
+          "type": "date_marker",
+          "intent": "Anchor the separate actions to 2016.",
+          "text": "2016"
+        }
+      ],
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    },
+    {
+      "shotId": "ACT4_B004",
+      "beatId": "ACT4_B004",
+      "fieldPath": "sourceSearchInstruction",
+      "beforeValue": "Locate 2016 CFPB, OCC, or Los Angeles City consent order documents showing Wells Fargo $185 million settlement. Search CFPB enforcement database, OCC enforcement actions, for September 2016 Wells Fargo orders. Verify penalty figure and signatory authenticity.",
+      "afterValue": "Locate and independently verify the CFPB 2016 Wells Fargo enforcement action ($100 million), OCC 2016 Wells Fargo penalty ($35 million), and City and County of Los Angeles 2016 action ($50 million). Present as three distinct actions whose aggregate is $185 million; do not describe the aggregate as a single order.",
+      "reason": "Approved factual correction for ACT4_B004; preserve the stated bank attribution and do not broaden the claim.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    }
+  ],
+  "bindings": [
+    {
+      "fieldPath": "sourceEditPlanSha256",
+      "beforeValue": "819672ecdeb7b91d603962f0ab9e7e0df90e183e80da97481cdbe8b549445c80",
+      "afterValue": "5b9c9fe7d7a1d36d989d7100fa66d3bf6064e2f0ae67796bb3c78a6e0d690736",
+      "reason": "Candidate edit-plan identity binding follows the approved Phase 2.3B-S factual amendments.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-SV"
+    }
+  ]
+}

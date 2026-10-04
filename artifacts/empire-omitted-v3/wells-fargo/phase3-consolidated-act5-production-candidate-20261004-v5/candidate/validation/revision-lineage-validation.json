@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "approvedPlanDifferences": {},
+  "reconstructedParentHashes": [
+    "bd79591ad465ddb927d62d106256b2c37687c6802d1f1c808fe16ce56b1df477",
+    "8f878f023cff679b83dad6c5b4c4a1535ff07cdc397cdf7467a45d2d6396d0cb",
+    "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+    "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+    "315e0133e49fee61f5625601e4c4d434b04e1db6c6ac943809592229980da2a7"
+  ],
+  "counts": {
+    "historical": 120,
+    "amendments": 698
+  },
+  "controlledStillAmendment": {
+    "status": "PASS",
+    "sourceAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+    "applicationApprovalSha256": "e4d93e08935ebdf1f84a6e532a2a39a736a261f92cfa338ace7fe84354aa742b",
+    "renewalApprovalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+    "changedBeatIds": [
+      "ACT1_B005",
+      "ACT1_B011",
+      "ACT1_B012",
+      "ACT1_B013",
+      "ACT1_B015",
+      "ACT1_B020",
+      "ACT1_B022",
+      "ACT1_B030",
+      "ACT2_B002",
+      "ACT2_B003",
+      "ACT2_B009",
+      "ACT2_B011",
+      "ACT2_B012",
+      "ACT2_B013",
+      "ACT2_B015",
+      "ACT2_B020",
+      "ACT2_B021",
+      "ACT2_B024",
+      "ACT2_B025",
+      "ACT3_B006",
+      "ACT3_B007",
+      "ACT3_B010",
+      "ACT3_B013",
+      "ACT3_B020",
+      "ACT3_B026",
+      "ACT3_B027",
+      "ACT3B_B001",
+      "ACT3B_B004",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018",
+      "ACT5_B010",
+      "ACT5_B013"
+    ]
+  }
+}

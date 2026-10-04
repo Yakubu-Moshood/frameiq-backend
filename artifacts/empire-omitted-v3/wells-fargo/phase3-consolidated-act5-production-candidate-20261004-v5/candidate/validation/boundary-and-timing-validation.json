@@ -1,0 +1,319 @@
+{
+  "status": "PASS",
+  "acts": [
+    {
+      "actKey": "act1",
+      "activeBeatCount": 30,
+      "mappedBoundaries": 60,
+      "boundaries": 60,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    },
+    {
+      "actKey": "act2",
+      "activeBeatCount": 26,
+      "mappedBoundaries": 52,
+      "boundaries": 52,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    },
+    {
+      "actKey": "act3",
+      "activeBeatCount": 29,
+      "mappedBoundaries": 58,
+      "boundaries": 58,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    },
+    {
+      "actKey": "act3b",
+      "activeBeatCount": 17,
+      "mappedBoundaries": 34,
+      "boundaries": 34,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    },
+    {
+      "actKey": "act4",
+      "activeBeatCount": 24,
+      "mappedBoundaries": 48,
+      "boundaries": 48,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    },
+    {
+      "actKey": "act5",
+      "activeBeatCount": 27,
+      "mappedBoundaries": 54,
+      "boundaries": 54,
+      "gaps": 0,
+      "overlaps": 0,
+      "ambiguities": 0,
+      "unmapped": 0,
+      "errors": 0,
+      "status": "PASS"
+    }
+  ],
+  "totalRetimedDurationSec": 633.782449,
+  "formalExceptions": [
+    {
+      "exceptionId": "412d660ece8619d4f9ab1685f092126db906188cd506a9e39f9cd897b6ba72ea",
+      "actKey": "act1",
+      "beatId": "ACT1_B030",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 226,
+        "end": 229,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 1.3533753378906255,
+      "approvedDurationSec": 1.3533753378906255,
+      "minimumAllowedDurationSec": 1.3523753378906256,
+      "maximumAllowedDurationSec": 1.3543753378906254,
+      "productionMethod": "CONTROLLED_STILL",
+      "productionObligationsSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4"
+    },
+    {
+      "exceptionId": "32ded58383bb3505fa3261a857ce22d4947c475599290be46ca908d00480bac4",
+      "actKey": "act2",
+      "beatId": "ACT2_B006",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 43,
+        "end": 45,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 1.720001220703125,
+      "approvedDurationSec": 1.720001220703125,
+      "minimumAllowedDurationSec": 1.719001,
+      "maximumAllowedDurationSec": 1.721001,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligationsSha256": "8b02f4eb576f9cf4a2a38f7c82279b3fce120a0bf6c4f64eb67a0d0d7bf5ecc1"
+    },
+    {
+      "exceptionId": "3405a370fdae72404c09f9c35a3d9f6324f0fa84ea4c5d8d262396084b463ffd",
+      "actKey": "act2",
+      "beatId": "ACT2_B023",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 196,
+        "end": 199,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 1.7199935913085938,
+      "approvedDurationSec": 1.7199935913085938,
+      "minimumAllowedDurationSec": 1.7189935913085939,
+      "maximumAllowedDurationSec": 1.7209935913085939,
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligationsSha256": "5c2f06baeeabc677d9d8a98c113ed61cc38b21d073b0689f997c5298e5b77f60"
+    },
+    {
+      "exceptionId": "578481d1492359d6d7fa21857e1b7ec32efcf9bc483ac26aa5a3abb1a33a6a9a",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B008",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 58,
+        "end": 75,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 7.270000457763672,
+      "approvedDurationSec": 7.270000457763672,
+      "minimumAllowedDurationSec": 7.269,
+      "maximumAllowedDurationSec": 7.271,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligationsSha256": "80ce9834259333a8377255a183511401932c637e230b1d0d0db37d5acb4a070a"
+    },
+    {
+      "exceptionId": "f70bbfecd09640dbfd751778a19bfd21d43a17ef7467546cf0208a7be4fec3f0",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B012",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 87,
+        "end": 100,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 6.760002136230469,
+      "approvedDurationSec": 6.760002136230469,
+      "minimumAllowedDurationSec": 6.759002,
+      "maximumAllowedDurationSec": 6.761002,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligationsSha256": "991c17db21fc6f3f8c40c63409c1193645120fc450b57eda553e97264f4d0c4e"
+    },
+    {
+      "exceptionId": "06dd6482e21b82e900b5c687dbe89358d2ffdef83d8c6e935fe3e0d5ce259cc8",
+      "actKey": "act4",
+      "beatId": "ACT4_B022",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 195,
+        "end": 204,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 6.019996643066406,
+      "approvedDurationSec": 6.019996643066406,
+      "minimumAllowedDurationSec": 6.018997,
+      "maximumAllowedDurationSec": 6.020997,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligationsSha256": "88115ceebd4f7f87cee1ecaf536feabca65140caecb01fec20333517f4f154d7"
+    },
+    {
+      "exceptionId": "886d895993d984e0353751e07cba40da3c02317d361f4099b68c79f48ee6a335",
+      "actKey": "act4",
+      "beatId": "ACT4_B024",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 215,
+        "end": 228,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 8.304946662109387,
+      "approvedDurationSec": 8.304946662109387,
+      "minimumAllowedDurationSec": 8.303946662109388,
+      "maximumAllowedDurationSec": 8.305946662109386,
+      "productionMethod": "EVIDENCE_REFERENCE",
+      "productionObligationsSha256": "c72b14e15b90319a4028888d116d2adf03e6518318e1ae13de5cd296d780430c"
+    },
+    {
+      "exceptionId": "a4c3a0f334560025e6cd4922d614d6efc92b71aa4e23f72761a8ed772d40f19e",
+      "actKey": "act5",
+      "beatId": "ACT5_B012",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 116,
+        "end": 127,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 6.099998474121094,
+      "approvedDurationSec": 6.099998474121094,
+      "minimumAllowedDurationSec": 6.098998,
+      "maximumAllowedDurationSec": 6.100998,
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligationsSha256": "6a2f47986f227abf39cb9e1109ffb36af2a39c94479d7e3870c03a302cc24380"
+    },
+    {
+      "exceptionId": "5829401a8c4589f1607b6287255d3199ecca345c9a28da769d91c655809e7b57",
+      "actKey": "act3",
+      "beatId": "ACT3_B004",
+      "status": "VERIFIED",
+      "mappedTranscriptWordRange": {
+        "start": 18,
+        "end": 22,
+        "indexConvention": "zero-based-inclusive-act-local-retained-transcript-word"
+      },
+      "durationSec": 1.640000343322754,
+      "approvedDurationSec": 1.640000343322754,
+      "minimumAllowedDurationSec": 1.639000343322754,
+      "maximumAllowedDurationSec": 1.6410003433227538,
+      "productionMethod": "GENERATED_STILL",
+      "productionObligationsSha256": "7d0945d14c07718f8aa4b33336274b0178a0af5b467a048763ac47a0d90d955f"
+    }
+  ],
+  "editorialIntentMigrations": [
+    {
+      "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act2:ACT2_B026",
+      "actKey": "act2",
+      "beatId": "ACT2_B026",
+      "status": "VERIFIED",
+      "durationSec": 4.662608610351583,
+      "postNarrationHoldSec": 1.2,
+      "intentionalStillness": false,
+      "rhythmIntent": "suspended",
+      "productionMethod": "ESSENTIAL_ANIMATION",
+      "productionObligationsSha256": "a706f6b5dd4a085dafec52cbb654ca6317dfbe5839dbca49a11a46ab66c3bd20"
+    },
+    {
+      "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act3b:ACT3B_B018",
+      "actKey": "act3b",
+      "beatId": "ACT3B_B018",
+      "status": "VERIFIED",
+      "durationSec": 4.568187831054672,
+      "postNarrationHoldSec": 1.5,
+      "intentionalStillness": false,
+      "rhythmIntent": "reflective",
+      "productionMethod": "CONTROLLED_STILL",
+      "productionObligationsSha256": "c1990f3d8b7fab744c4a23cb3874cebe6b57488d56a711470b468e41b62fec66"
+    },
+    {
+      "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B022",
+      "actKey": "act5",
+      "beatId": "ACT5_B022",
+      "status": "VERIFIED",
+      "durationSec": 5.3000030517578125,
+      "postNarrationHoldSec": 0,
+      "intentionalStillness": true,
+      "rhythmIntent": "impact",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligationsSha256": "bdd09ebfbcf234dd567e29386d4e66269893a26e7f53444df6f1d82c760836eb"
+    },
+    {
+      "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B023",
+      "actKey": "act5",
+      "beatId": "ACT5_B023",
+      "status": "VERIFIED",
+      "durationSec": 4.2599945068359375,
+      "postNarrationHoldSec": 1.5,
+      "intentionalStillness": true,
+      "rhythmIntent": "reflective",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligationsSha256": "ac54fae50e322f1f464a1994c979be6dbd1d4983bb9ced78419651039c2cfc70"
+    },
+    {
+      "migrationId": "phase2.3b-p-editorial-intent-migration/1.0.0:act5:ACT5_B027",
+      "actKey": "act5",
+      "beatId": "ACT5_B027",
+      "status": "VERIFIED",
+      "durationSec": 5.526575389648542,
+      "postNarrationHoldSec": 2,
+      "intentionalStillness": false,
+      "rhythmIntent": "reflective",
+      "productionMethod": "GRAPHIC_COMPILATION",
+      "productionObligationsSha256": "5eaaa36861c5b2d1a22b5fadfd4511852839e678fb0d8f9ef0f3815a84f9d1da"
+    }
+  ],
+  "excludedFormalClosures": [
+    {
+      "actKey": "act3",
+      "beatId": "ACT3_B025",
+      "status": "VERIFIED_NON_EXCEPTION",
+      "durationSec": 2.0199966430664062,
+      "intentionalStillness": true,
+      "rhythmIntent": "impact"
+    }
+  ],
+  "errors": [],
+  "childTimingObligationRenewal": {
+    "status": "PASS",
+    "policyPath": "approvals/refreshed-timing-policy.act1-b030-renewal.v1.json",
+    "policySha256": "59ced798488f668eb2f1a6a3a1a252e0253045fabe26fcbe154add65e4251dcb",
+    "approvalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+    "beatId": "ACT1_B030",
+    "oldObligationSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4",
+    "newObligationSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29",
+    "timingAndEditorialFieldsChanged": false,
+    "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+    "candidateShotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "candidateProductionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+  }
+}

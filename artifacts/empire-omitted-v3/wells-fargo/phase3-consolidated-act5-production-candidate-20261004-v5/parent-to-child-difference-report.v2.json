@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-parent-to-child-difference-report/2.0.0",
+  "status": "PASS_APPROVED_SCOPE_ONLY_FINAL_B016_BINDING",
+  "parentCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "childCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "parentCandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+  "childCandidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+  "parentIndexedFileCount": 173,
+  "childIndexedFileCount": 174,
+  "changedIndexedFiles": [
+    "candidate-report.json",
+    "production-dependencies/act5-b016-deferred-b015-source.v1.json",
+    "revision-lineage/phase3-consolidated-act5-amendment-lineage.v1.json",
+    "validation/consolidated-candidate-validation.json",
+    "validation/graphic-asset-manifest-validation.v2.json",
+    "validation/render-readiness.json"
+  ],
+  "addedIndexedFiles": [
+    "approvals/act5-b015-compiled-visual-approval.v1.json"
+  ],
+  "removedIndexedFiles": [],
+  "assertions": {
+    "onlyApprovedFieldsAndOutputs": true,
+    "shotDefinitionsBytesUnchanged": true,
+    "editPlanBytesUnchanged": true,
+    "unrelatedBeatsUnchanged": true,
+    "ACT3B_B010Retired": true,
+    "B015VisualApprovalBound": true,
+    "B016UsesOnlyApprovedV4B015Output": true,
+    "olderRejectedSvgExcluded": true,
+    "B030RenewalStillValid": true
+  }
+}

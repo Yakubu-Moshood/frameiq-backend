@@ -1,0 +1,38 @@
+{
+  "status": "BLOCKED",
+  "errors": [],
+  "evidenceEntries": 46,
+  "graphicEntries": 77,
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "activeShots": 153,
+  "evidenceAssets": 29,
+  "blockers": [
+    {
+      "code": "UNRESOLVED_STAGE04_MEDIA_CENSUS",
+      "controlledStills": 34,
+      "generatedStills": 9,
+      "animationClips": 23,
+      "total": 66
+    }
+  ],
+  "productionEligible": false,
+  "providerRequests": 0,
+  "candidatePlanning": "PASS",
+  "mediaExecution": "BLOCKED",
+  "B015VisualApprovalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+  "B016CompositionSource": {
+    "status": "BOUND_APPROVED_PRODUCTION_GRAPHIC",
+    "path": "assets/graphics/ACT5_B015__g00.svg",
+    "packageRelativePath": "candidate/assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "mimeType": "image/svg+xml",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+    "approvedBy": "Yakubu Moshood",
+    "approvalRecordPath": "approvals/act5-b015-compiled-visual-approval.v1.json",
+    "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "v4CandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+    "visualSpecificationApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+  }
+}

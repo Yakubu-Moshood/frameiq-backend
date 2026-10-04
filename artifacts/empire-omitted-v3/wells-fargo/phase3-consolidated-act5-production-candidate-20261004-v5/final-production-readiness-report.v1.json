@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "phase3-final-production-readiness/1.0.0",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+  "outerParentPackageIndexSha256": "6b73d0400affb6050e1fb69aaf865bad0b52f958d136d9a5053405a75e4b7ef9",
+  "readiness": {
+    "candidateAndPlanning": {
+      "status": "PASS",
+      "productionManifestValidation": "PASS",
+      "graphicManifestValidation": "PASS",
+      "evidence": "46 approved entries/29 assets PASS",
+      "graphics": "77 entries PASS",
+      "durationSec": 633.782449,
+      "activeShots": 153,
+      "retiredBeatIds": [
+        "ACT3B_B010"
+      ],
+      "controlledStillRows": 34,
+      "act1B030Renewal": "PASS_HASH_ONLY_REBIND"
+    },
+    "mediaExecution": {
+      "status": "BLOCKED",
+      "requiredOutputs": 66,
+      "controlledStills": 34,
+      "generatedStills": 9,
+      "animationClips": 23,
+      "providerRequestsMade": 0,
+      "episodeRootWrites": 0
+    },
+    "renderingAndPromotion": {
+      "status": "NOT_AUTHORIZED",
+      "rendering": false,
+      "promotion": false
+    }
+  },
+  "ACT5_B009": {
+    "status": "APPROVED_COMPILED_DETERMINISTIC_ZERO_PROVIDER",
+    "labels": [
+      "2013",
+      "2014",
+      "2015",
+      "2016",
+      "2017",
+      "2018",
+      "2019",
+      "2020",
+      "2021",
+      "2022",
+      "2023"
+    ]
+  },
+  "ACT5_B015": {
+    "status": "APPROVED_COMPILED_OUTPUT",
+    "approvalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+    "timing": {
+      "startSec": 571.9558705585937,
+      "endSec": 577.515875746582,
+      "durationSec": 5.560005187988281
+    }
+  },
+  "ACT5_B016": {
+    "status": "APPROVED_COMPOSITION_SOURCE_BOUND_EXECUTION_BLOCKED",
+    "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+    "dependencyApprovalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "sourceUse": "COMPOSITION_ONLY_REFERENCE_FOR_CRACKED_FRAME_DERIVATIVE",
+    "productionOutputCreated": false
+  },
+  "remainingMediaOutputs": {
+    "controlledStillBeatCount": 34,
+    "generatedStillOutputCount": 9,
+    "animationClipCount": 23,
+    "total": 66
+  },
+  "B030": {
+    "renewalStatus": "PASS_HASH_ONLY_REBIND",
+    "renewalApprovalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+    "productionMethod": "CONTROLLED_STILL",
+    "assetType": "controlled_image",
+    "semanticChanges": []
+  },
+  "limits": {
+    "providerRequests": 0,
+    "productionGeneration": false,
+    "episodeRootWrites": 0,
+    "rendering": false,
+    "promotion": false
+  }
+}

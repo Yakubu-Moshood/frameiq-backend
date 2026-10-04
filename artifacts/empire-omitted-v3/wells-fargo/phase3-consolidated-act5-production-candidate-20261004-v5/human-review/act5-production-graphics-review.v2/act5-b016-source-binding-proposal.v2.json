@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "phase3-act5-b016-source-binding-proposal/2.0.0",
+  "status": "PROPOSED_UNSIGNED_EXECUTION_BLOCKED",
+  "beatId": "ACT5_B016",
+  "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+  "dependsOnBeatId": "ACT5_B015",
+  "use": "composition-only reference for cracked-frame derivative",
+  "source": {
+    "path": "",
+    "bytes": null,
+    "sha256": "",
+    "status": "NOT_BOUND_PENDING_B015_VISUAL_APPROVAL"
+  },
+  "compiledCandidateOption": {
+    "path": "candidate/assets/graphics/ACT5_B015__g00.svg",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+    "status": "NOT_APPROVED_FOR_B016_USE"
+  },
+  "excludedSource": {
+    "parentCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v1",
+    "path": "candidate/assets/graphics/ACT5_B015__g00.svg",
+    "packagePath": "../phase3-consolidated-act5-production-candidate-20261004-v3/candidate/assets/graphics/ACT5_B015__g00.svg",
+    "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+    "reason": "rejected takeaway graphic; exact historical source in immutable v3 parent; never a B016 composition source"
+  },
+  "crossBeatReuse": "NOT_AUTHORIZED",
+  "decision": "",
+  "signature": ""
+}
