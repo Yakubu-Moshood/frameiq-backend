@@ -26,9 +26,94 @@ const REQUEST_LEDGER_SHA256 = 'c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d
 const RUN_RE = /^phase3-media-execution-v5-[A-Za-z0-9][A-Za-z0-9_-]{0,40}$/u;
 const EXPECTED_METHODS = Object.freeze({ CONTROLLED_STILL: 34, GENERATED_STILL: 8, ESSENTIAL_ANIMATION: 23 });
 const ACT_ORDER = Object.freeze(['act1', 'act2', 'act3', 'act3b', 'act4', 'act5']);
+const CALIBRATION_AUTHORIZATION_SCHEMA = 'phase3-media-calibration-execution-authorization/1.0.0';
+const CALIBRATION_LEDGER_SCHEMA = 'phase3-media-calibration-request-ledger/1.0.0';
+const CALIBRATION_RESULT_SCHEMA = 'phase3-media-calibration-generation-result/1.0.0';
+const CALIBRATION_RECEIPT_SCHEMA = 'phase3-media-calibration-generation-receipt/1.0.0';
+const CALIBRATION_RUN_ID = 'phase3-media-execution-v5-20261004-01';
+const CALIBRATION_BEAT_ID = 'ACT1_B006';
+const CALIBRATION_OPERATION = 'GENERATE_STILL';
+const CALIBRATION_ENDPOINT = 'blackforestlabs/flux-3/text-to-image';
+const CALIBRATION_REQUEST_KEY = 'c05d73bed54a10ddd74e79c7b8d4f8c493ad1e6b601a723dd1a733ebbe950fd9';
+const CALIBRATION_POSITIVE_PROMPT_SHA256 = 'e1fb18bd4d777cba0f77b47adaacd0da9900251308206985b40d8579e30ef646';
+const CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256 = '7b426ad5e100c1f34075846fb63c1125aa4eda272cdd99ac8de9a5470bf24c42';
+const CALIBRATION_SERIALIZED_PROMPT_SHA256 = '1dbe49da404a881bb3763465ecac7d5997a8780e469e55727809805a3096a28e';
+const CALIBRATION_ASSET_CLASS = 'NON_PRODUCTION_DISPOSABLE_CALIBRATION';
+const CALIBRATION_OWNERSHIP_DISPOSITION = 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_CALIBRATION_ONLY';
+const CALIBRATION_MAX_EXPOSURE_USD = 0.05;
+const CALIBRATION_AUTHORIZATION_STATEMENT = `Yakubu Moshood authorizes exactly one non-production disposable calibration submission for ${CALIBRATION_BEAT_ID} ${CALIBRATION_OPERATION} on run ${CALIBRATION_RUN_ID} using ${CALIBRATION_ENDPOINT} and request key ${CALIBRATION_REQUEST_KEY}; maximum human-accepted exposure is USD 0.05 and is not provider-enforced. No retries, fallback, other beats, other operations, production use, rendering, promotion, or episode-root writes are authorized.`;
+const CALIBRATION_FILES = Object.freeze({
+  authorization: 'ACT1_B006/execution-authorization.v1.json',
+  ledger: 'ACT1_B006/calibration-request-ledger.jsonl',
+  lock: 'ACT1_B006/calibration.lock',
+  output: 'ACT1_B006/ACT1_B006-calibration.png',
+  receipt: 'ACT1_B006/generation-receipt.v1.json',
+  result: 'ACT1_B006/generation-result.v1.json',
+});
+const MAX_CALIBRATION_IMAGE_BYTES = 32 * 1024 * 1024;
 
 function fail(ok, code) { if (!ok) throw new Error(code); }
 function sha(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
+function errorCode(error) {
+  const code = String(error?.message || error).split(':')[0];
+  return /^[A-Z][A-Z0-9_]{2,100}$/u.test(code) ? code : 'PHASE3_CALIBRATION_OPERATION_FAILED';
+}
+function canonicalValue(value) {
+  if (Array.isArray(value)) return value.map(canonicalValue);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort()
+    .map(key => [key, canonicalValue(value[key])]));
+  return value;
+}
+function canonicalJson(value) { return JSON.stringify(canonicalValue(value)); }
+function exactKeys(value, keys, code) {
+  fail(value && typeof value === 'object' && !Array.isArray(value)
+    && JSON.stringify(Object.keys(value).sort()) === JSON.stringify([...keys].sort()), code);
+}
+function strictRealFile(file, fsImpl = fs, code = 'PHASE3_CALIBRATION_FILE_INVALID') {
+  fail(fsImpl.existsSync(file), code);
+  const stat = fsImpl.lstatSync(file);
+  fail(stat.isFile() && !stat.isSymbolicLink(), code);
+  return stat;
+}
+function calibrationPath(runDir, relative) {
+  const resolved = path.resolve(runDir, ...relative.split('/'));
+  fail(resolved.startsWith(`${path.resolve(runDir)}${path.sep}`), 'PHASE3_CALIBRATION_PATH_INVALID');
+  return resolved;
+}
+function writeJsonAtomicExclusive(file, value, fsImpl = fs) {
+  fail(!fsImpl.existsSync(file), 'PHASE3_CALIBRATION_OUTPUT_ALREADY_EXISTS');
+  const temp = `${file}.tmp-${crypto.randomBytes(8).toString('hex')}`;
+  try {
+    fsImpl.writeFileSync(temp, `${JSON.stringify(value, null, 2)}\n`, { flag: 'wx' });
+    const fd = fsImpl.openSync(temp, 'r+');
+    try { fsImpl.fsyncSync(fd); } finally { fsImpl.closeSync(fd); }
+    fsImpl.renameSync(temp, file);
+  } catch (error) {
+    try { if (fsImpl.existsSync(temp)) fsImpl.unlinkSync(temp); } catch (_) {}
+    throw error;
+  }
+}
+function writeBytesAtomicExclusive(file, bytes, fsImpl = fs) {
+  fail(!fsImpl.existsSync(file), 'PHASE3_CALIBRATION_OUTPUT_ALREADY_EXISTS');
+  const temp = `${file}.tmp-${crypto.randomBytes(8).toString('hex')}`;
+  try {
+    fsImpl.writeFileSync(temp, bytes, { flag: 'wx' });
+    const fd = fsImpl.openSync(temp, 'r+');
+    try { fsImpl.fsyncSync(fd); } finally { fsImpl.closeSync(fd); }
+    fsImpl.renameSync(temp, file);
+  } catch (error) {
+    try { if (fsImpl.existsSync(temp)) fsImpl.unlinkSync(temp); } catch (_) {}
+    throw error;
+  }
+}
+function pngInfo(bytes) {
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  fail(Buffer.isBuffer(bytes) && bytes.length >= 24 && bytes.subarray(0, 8).equals(signature)
+    && bytes.toString('ascii', 12, 16) === 'IHDR', 'PHASE3_CALIBRATION_OUTPUT_NOT_PNG');
+  const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
+  fail(width > 0 && height > 0, 'PHASE3_CALIBRATION_PNG_DIMENSIONS_INVALID');
+  return { format: 'PNG', mimeType: 'image/png', width, height };
+}
 function json(file, fsImpl = fs) {
   try { return JSON.parse(fsImpl.readFileSync(file, 'utf8')); }
   catch (error) { throw new Error(`PHASE3_MEDIA_EXECUTION_JSON_INVALID:${path.basename(file)}:${error.message}`); }
@@ -274,9 +359,219 @@ function makeStagedIndex(candidateRoot, { runId, outerIndexSha256, candidateInde
     sourceOuterPackageIndexSha256: outerIndexSha256, sourceCandidateIndexSha256: candidateIndexSha256,
     fileCount: files.length, files };
 }
+function calibrationRuntimeHashes({ executionModulePath = __filename,
+  cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'), fsImpl = fs } = {}) {
+  strictRealFile(executionModulePath, fsImpl, 'PHASE3_CALIBRATION_EXECUTION_MODULE_MISSING');
+  strictRealFile(cliPath, fsImpl, 'PHASE3_CALIBRATION_CLI_MISSING');
+  return { executionModuleSha256: sha(fsImpl.readFileSync(executionModulePath)),
+    cliSha256: sha(fsImpl.readFileSync(cliPath)) };
+}
+function makeCalibrationAuthorizationTemplate({ executionModuleSha256, cliSha256, authorizedAt } = {}) {
+  fail(/^[a-f0-9]{64}$/u.test(executionModuleSha256 || '') && /^[a-f0-9]{64}$/u.test(cliSha256 || ''),
+    'PHASE3_CALIBRATION_DEPLOYED_HASHES_REQUIRED');
+  fail(typeof authorizedAt === 'string' && Number.isFinite(new Date(authorizedAt).getTime())
+    && new Date(authorizedAt).toISOString() === authorizedAt, 'PHASE3_CALIBRATION_AUTHORIZED_AT_INVALID');
+  return {
+    schemaVersion: CALIBRATION_AUTHORIZATION_SCHEMA,
+    status: 'AUTHORIZED_FOR_SINGLE_CALIBRATION_STILL_EXECUTION',
+    approvedBy: 'Yakubu Moshood',
+    authorizedAt,
+    authorizationStatement: CALIBRATION_AUTHORIZATION_STATEMENT,
+    bindings: {
+      runId: CALIBRATION_RUN_ID,
+      stagedIndexSha256: calibrationRoutes.TRUST.stagedIndexSha256,
+      candidateIndexSha256: CANDIDATE_INDEX_SHA256,
+      outerIndexSha256: OUTER_INDEX_SHA256,
+      routeResolutionApprovalSha256: calibrationRoutes.ROUTE_APPROVAL_SHA256,
+      deployedExecutionModuleSha256: executionModuleSha256,
+      deployedCliSha256: cliSha256,
+      beatId: CALIBRATION_BEAT_ID,
+      operation: CALIBRATION_OPERATION,
+      endpoint: CALIBRATION_ENDPOINT,
+      requestKey: CALIBRATION_REQUEST_KEY,
+      positivePromptSha256: CALIBRATION_POSITIVE_PROMPT_SHA256,
+      negativeInstructionsSha256: CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256,
+      serializedPromptSha256: CALIBRATION_SERIALIZED_PROMPT_SHA256,
+    },
+    requestLimits: {
+      resolution: '1k', aspectRatio: '16:9', outputFormat: 'PNG', numberOfImages: 1,
+      promptExpansionEnabled: false, maximumProviderSubmissions: 1, retries: 0, fallbackEnabled: false,
+    },
+    exposure: {
+      maximumHumanAcceptedUsd: CALIBRATION_MAX_EXPOSURE_USD,
+      providerEnforced: false,
+      acknowledgement: 'The USD 0.05 maximum is human-accepted and is not provider-enforced.',
+    },
+    classification: {
+      assetClass: CALIBRATION_ASSET_CLASS,
+      ownershipDisposition: CALIBRATION_OWNERSHIP_DISPOSITION,
+    },
+    denials: {
+      allOtherBeatsDenied: true, allOtherOperationsDenied: true, productionUseDenied: true,
+      renderingDenied: true, promotionDenied: true, episodeRootWritesDenied: true,
+    },
+  };
+}
+function validateCalibrationAuthorizationRecord(record, { runtimeHashes } = {}) {
+  exactKeys(record, ['schemaVersion', 'status', 'approvedBy', 'authorizedAt', 'authorizationStatement',
+    'bindings', 'requestLimits', 'exposure', 'classification', 'denials'],
+  'PHASE3_CALIBRATION_AUTHORIZATION_FIELDS_INVALID');
+  fail(record.schemaVersion === CALIBRATION_AUTHORIZATION_SCHEMA
+    && record.status === 'AUTHORIZED_FOR_SINGLE_CALIBRATION_STILL_EXECUTION'
+    && record.approvedBy === 'Yakubu Moshood'
+    && record.authorizationStatement === CALIBRATION_AUTHORIZATION_STATEMENT,
+  'PHASE3_CALIBRATION_AUTHORIZATION_IDENTITY_INVALID');
+  fail(typeof record.authorizedAt === 'string' && Number.isFinite(new Date(record.authorizedAt).getTime())
+    && new Date(record.authorizedAt).toISOString() === record.authorizedAt,
+  'PHASE3_CALIBRATION_AUTHORIZED_AT_INVALID');
+  exactKeys(record.bindings, ['runId', 'stagedIndexSha256', 'candidateIndexSha256', 'outerIndexSha256',
+    'routeResolutionApprovalSha256', 'deployedExecutionModuleSha256', 'deployedCliSha256', 'beatId',
+    'operation', 'endpoint', 'requestKey', 'positivePromptSha256', 'negativeInstructionsSha256',
+    'serializedPromptSha256'], 'PHASE3_CALIBRATION_AUTHORIZATION_BINDING_FIELDS_INVALID');
+  const expectedBindings = makeCalibrationAuthorizationTemplate({ ...runtimeHashes,
+    authorizedAt: record.authorizedAt }).bindings;
+  fail(canonicalJson(record.bindings) === canonicalJson(expectedBindings),
+    'PHASE3_CALIBRATION_AUTHORIZATION_BINDING_MISMATCH');
+  exactKeys(record.requestLimits, ['resolution', 'aspectRatio', 'outputFormat', 'numberOfImages',
+    'promptExpansionEnabled', 'maximumProviderSubmissions', 'retries', 'fallbackEnabled'],
+  'PHASE3_CALIBRATION_AUTHORIZATION_LIMIT_FIELDS_INVALID');
+  fail(canonicalJson(record.requestLimits) === canonicalJson({ resolution: '1k', aspectRatio: '16:9',
+    outputFormat: 'PNG', numberOfImages: 1, promptExpansionEnabled: false,
+    maximumProviderSubmissions: 1, retries: 0, fallbackEnabled: false }),
+  'PHASE3_CALIBRATION_AUTHORIZATION_LIMITS_INVALID');
+  exactKeys(record.exposure, ['maximumHumanAcceptedUsd', 'providerEnforced', 'acknowledgement'],
+    'PHASE3_CALIBRATION_AUTHORIZATION_EXPOSURE_FIELDS_INVALID');
+  fail(record.exposure.maximumHumanAcceptedUsd === CALIBRATION_MAX_EXPOSURE_USD
+    && record.exposure.providerEnforced === false
+    && record.exposure.acknowledgement === 'The USD 0.05 maximum is human-accepted and is not provider-enforced.',
+  'PHASE3_CALIBRATION_AUTHORIZATION_EXPOSURE_INVALID');
+  exactKeys(record.classification, ['assetClass', 'ownershipDisposition'],
+    'PHASE3_CALIBRATION_AUTHORIZATION_CLASSIFICATION_FIELDS_INVALID');
+  fail(record.classification.assetClass === CALIBRATION_ASSET_CLASS
+    && record.classification.ownershipDisposition === CALIBRATION_OWNERSHIP_DISPOSITION,
+  'PHASE3_CALIBRATION_AUTHORIZATION_CLASSIFICATION_INVALID');
+  exactKeys(record.denials, ['allOtherBeatsDenied', 'allOtherOperationsDenied', 'productionUseDenied',
+    'renderingDenied', 'promotionDenied', 'episodeRootWritesDenied'],
+  'PHASE3_CALIBRATION_AUTHORIZATION_DENIAL_FIELDS_INVALID');
+  fail(Object.values(record.denials).every(value => value === true),
+    'PHASE3_CALIBRATION_AUTHORIZATION_DENIALS_INVALID');
+  return true;
+}
+function loadCalibrationAuthorization({ runDir, expectedSha256, runtimeHashes, fsImpl = fs } = {}) {
+  fail(/^[a-f0-9]{64}$/u.test(expectedSha256 || ''), 'PHASE3_CALIBRATION_EXPECTED_AUTHORIZATION_HASH_REQUIRED');
+  const file = calibrationPath(runDir, CALIBRATION_FILES.authorization);
+  strictRealFile(file, fsImpl, 'PHASE3_CALIBRATION_EXECUTION_AUTHORIZATION_MISSING');
+  const bytes = fsImpl.readFileSync(file);
+  fail(sha(bytes) === expectedSha256, 'PHASE3_CALIBRATION_EXECUTION_AUTHORIZATION_HASH_MISMATCH');
+  let record;
+  try { record = JSON.parse(bytes.toString('utf8')); }
+  catch { throw new Error('PHASE3_CALIBRATION_EXECUTION_AUTHORIZATION_JSON_INVALID'); }
+  validateCalibrationAuthorizationRecord(record, { runtimeHashes });
+  return { file, bytes, sha256: sha(bytes), record };
+}
+function readCalibrationLedger(file, fsImpl = fs) {
+  if (!fsImpl.existsSync(file)) return [];
+  strictRealFile(file, fsImpl, 'PHASE3_CALIBRATION_LEDGER_INVALID');
+  const raw = fsImpl.readFileSync(file, 'utf8');
+  if (!raw) return [];
+  let previousEntrySha256 = null;
+  const records = raw.split(/\r?\n/u).filter(Boolean).map((line, index) => {
+    let record;
+    try { record = JSON.parse(line); }
+    catch { throw new Error(`PHASE3_CALIBRATION_LEDGER_JSON_INVALID:${index + 1}`); }
+    const supplied = record.entrySha256, base = { ...record };
+    delete base.entrySha256;
+    fail(record.previousEntrySha256 === previousEntrySha256
+      && supplied === sha(Buffer.from(canonicalJson(base), 'utf8')),
+    `PHASE3_CALIBRATION_LEDGER_CHAIN_INVALID:${index + 1}`);
+    previousEntrySha256 = supplied;
+    return record;
+  });
+  const reservations = records.filter(item => item.recordType === 'SUBMISSION_RESERVED');
+  fail(reservations.length <= 1 && new Set(reservations.map(item => item.requestKey)).size === reservations.length,
+    'PHASE3_CALIBRATION_LEDGER_SUBMISSION_LIMIT_OR_DUPLICATE');
+  fail(records.filter(item => item.recordType === 'SUBMISSION_RESULT').length <= 1,
+    'PHASE3_CALIBRATION_LEDGER_RESULT_LIMIT_INVALID');
+  return records;
+}
+function appendCalibrationLedgerRecord(file, baseRecord, fsImpl = fs) {
+  if (fsImpl.existsSync(file)) strictRealFile(file, fsImpl, 'PHASE3_CALIBRATION_LEDGER_INVALID');
+  const records = readCalibrationLedger(file, fsImpl);
+  const previousEntrySha256 = records.length ? records[records.length - 1].entrySha256 : null;
+  const base = { ...baseRecord, previousEntrySha256 };
+  const record = { ...base, entrySha256: sha(Buffer.from(canonicalJson(base), 'utf8')) };
+  fsImpl.appendFileSync(file, `${JSON.stringify(record)}\n`, { flag: 'a' });
+  const fd = fsImpl.openSync(file, 'a');
+  try { fsImpl.fsyncSync(fd); } finally { fsImpl.closeSync(fd); }
+  return record;
+}
+function acquireCalibrationLock(runDir, fsImpl = fs) {
+  const file = calibrationPath(runDir, CALIBRATION_FILES.lock);
+  fail(!fsImpl.existsSync(file), 'PHASE3_CALIBRATION_LOCK_EXISTS');
+  let fd = null, created = false;
+  try {
+    fd = fsImpl.openSync(file, 'wx', 0o600); created = true;
+    fsImpl.writeSync(fd, `${process.pid}\n`);
+    fsImpl.fsyncSync(fd);
+    fsImpl.closeSync(fd); fd = null;
+    return file;
+  } catch (error) {
+    if (fd !== null) { try { fsImpl.closeSync(fd); } catch (_) {} }
+    if (created) { try { fsImpl.unlinkSync(file); } catch (_) {} }
+    if (error?.code === 'EEXIST') throw new Error('PHASE3_CALIBRATION_LOCK_EXISTS');
+    throw error;
+  }
+}
+async function downloadCalibrationImage(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch { throw new Error('PHASE3_CALIBRATION_DOWNLOAD_URL_INVALID'); }
+  fail(parsed.protocol === 'https:' && !parsed.username && !parsed.password,
+    'PHASE3_CALIBRATION_DOWNLOAD_URL_INVALID');
+  const allowed = parsed.hostname === 'fal.media' || parsed.hostname.endsWith('.fal.media')
+    || parsed.hostname === 'storage.googleapis.com' || parsed.hostname.endsWith('.googleusercontent.com');
+  fail(allowed, 'PHASE3_CALIBRATION_DOWNLOAD_HOST_FORBIDDEN');
+  const response = await fetch(parsed, { redirect: 'error' });
+  fail(response.ok, 'PHASE3_CALIBRATION_DOWNLOAD_FAILED');
+  const declared = Number(response.headers.get('content-length') || 0);
+  fail(!declared || declared <= MAX_CALIBRATION_IMAGE_BYTES, 'PHASE3_CALIBRATION_DOWNLOAD_TOO_LARGE');
+  const bytes = Buffer.from(await response.arrayBuffer());
+  fail(bytes.length > 0 && bytes.length <= MAX_CALIBRATION_IMAGE_BYTES,
+    'PHASE3_CALIBRATION_DOWNLOAD_SIZE_INVALID');
+  return { bytes, contentType: response.headers.get('content-type') || '' };
+}
+function jsonSafeMetadata(value) {
+  try { return value === undefined ? null : JSON.parse(JSON.stringify(value)); }
+  catch { throw new Error('PHASE3_CALIBRATION_PROVIDER_METADATA_INVALID'); }
+}
+function createFalCalibrationProvider({ falModuleLoader = () => require('@fal-ai/client'),
+  credentialResolver = () => process.env.FAL_KEY } = {}) {
+  return {
+    generateStill: async ({ endpoint, input }) => {
+      fail(endpoint === CALIBRATION_ENDPOINT, 'PHASE3_CALIBRATION_PROVIDER_ENDPOINT_FORBIDDEN');
+      const credentials = credentialResolver();
+      fail(Boolean(credentials), 'PHASE3_CALIBRATION_PROVIDER_CREDENTIAL_MISSING');
+      const { fal } = falModuleLoader();
+      fal.config({ credentials, retry: { maxRetries: 0, retryableStatusCodes: [] } });
+      const raw = await fal.subscribe(endpoint, { input, logs: false });
+      const images = raw?.data?.images;
+      fail(Array.isArray(images) && images.length === 1, 'PHASE3_CALIBRATION_PROVIDER_RESPONSE_INVALID');
+      fail(typeof images[0]?.url === 'string' && images[0].url.length > 0,
+        'PHASE3_CALIBRATION_PROVIDER_IMAGE_URL_MISSING');
+      const actualCharge = raw?.data?.actual_cost_usd;
+      return { url: images[0].url, contentType: images[0].content_type || null, imageCount: images.length,
+        providerRequestId: typeof raw?.request_id === 'string' ? raw.request_id
+          : typeof raw?.data?.request_id === 'string' ? raw.data.request_id : null,
+        actualChargeUsd: Number.isFinite(actualCharge) ? actualCharge : null,
+        rawProviderResponseMetadata: jsonSafeMetadata(raw) };
+    },
+  };
+}
 function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImpl = fs, activationRunner = activation,
   b009ApprovalPath, b016ApprovalPath, verifyStage04Fn = verifyStage04,
-  assertNoPhase3LocksFn = assertNoPhase3Locks } = {}) {
+  assertNoPhase3LocksFn = assertNoPhase3Locks, provider = createFalCalibrationProvider(),
+  downloader = downloadCalibrationImage, now = () => new Date().toISOString(),
+  executionModulePath = __filename, cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'),
+  testHooks = {} } = {}) {
   function stage({ runId }) {
     fail(RUN_RE.test(runId || ''), 'PHASE3_MEDIA_EXECUTION_RUN_ID_INVALID');
     const verified = verifyOuterPackage({ packageDirectory, fsImpl });
@@ -328,7 +623,7 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
         stage04PromotedPaths: stage04.promotedPathCount, providerRequests: 0, episodeRootWrites: 0 };
     } catch (error) { try { if (fsImpl.existsSync(tempDir)) fsImpl.rmSync(tempDir, { recursive: true, force: true }); } catch (_) {} throw error; }
   }
-  function preflight({ runId }) {
+  function verifyStagedState({ runId, allowedAdditionalRunFiles = [] }) {
     fail(RUN_RE.test(runId || ''), 'PHASE3_MEDIA_EXECUTION_RUN_ID_INVALID');
     assertReviewRootPolicy({ episodeRoot, reviewRoot, fsImpl, allowMissingRunRoot: false });
     const runDir = path.join(reviewRoot, runId), candidateRoot = path.join(runDir, 'candidate');
@@ -361,7 +656,8 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
     const expectedRunFiles = ['run-status.json', 'staged-candidate-index.json',
       'detached-approvals/act5-b009-human-approval-20261004.v1.json',
       'detached-approvals/act5-b016-human-approval-20261004.v1.json',
-      ...walkFiles(candidateRoot, fsImpl).map(item => `candidate/${item}`)].sort();
+      ...walkFiles(candidateRoot, fsImpl).map(item => `candidate/${item}`),
+      ...allowedAdditionalRunFiles].sort();
     fail(JSON.stringify(walkFiles(runDir, fsImpl).sort()) === JSON.stringify(expectedRunFiles),
       'PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE');
     const census = deriveCensus(candidateRoot, { fsImpl });
@@ -382,7 +678,330 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
         promotedPathsMatch: true }, requestLedgerSha256: stage04.requestLedgerSha256,
       providerRequests: 0, episodeRootWrites: 0 };
   }
-  return { stage, preflight };
+  function preflight({ runId }) { return verifyStagedState({ runId }); }
+  function assertCalibrationScope({ runId, beatId, operation = CALIBRATION_OPERATION } = {}) {
+    fail(runId === CALIBRATION_RUN_ID, 'PHASE3_CALIBRATION_RUN_FORBIDDEN');
+    fail(beatId === CALIBRATION_BEAT_ID, 'PHASE3_CALIBRATION_BEAT_FORBIDDEN');
+    fail(operation === CALIBRATION_OPERATION, 'PHASE3_CALIBRATION_OPERATION_FORBIDDEN');
+  }
+  function runDirectory(runId) {
+    const runDir = path.join(reviewRoot, runId);
+    fail(fsImpl.existsSync(runDir) && fsImpl.lstatSync(runDir).isDirectory()
+      && !fsImpl.lstatSync(runDir).isSymbolicLink(), 'PHASE3_MEDIA_EXECUTION_STAGED_RUN_MISSING');
+    return runDir;
+  }
+  function calibrationRequestFromBaseline(baseline) {
+    const request = baseline.calibrationRoutePlan?.requests?.find(item => item.beatId === CALIBRATION_BEAT_ID
+      && item.operation === CALIBRATION_OPERATION);
+    fail(request?.endpoint === CALIBRATION_ENDPOINT && request.requestKey === CALIBRATION_REQUEST_KEY,
+      'PHASE3_CALIBRATION_REQUEST_BINDING_MISMATCH');
+    fail(request.positivePromptSha256 === CALIBRATION_POSITIVE_PROMPT_SHA256
+      && request.negativeInstructionsSha256 === CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256
+      && request.submittedPromptSha256 === CALIBRATION_SERIALIZED_PROMPT_SHA256
+      && sha(Buffer.from(request.positivePrompt, 'utf8')) === CALIBRATION_POSITIVE_PROMPT_SHA256
+      && sha(Buffer.from(request.negativeInstructions, 'utf8')) === CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256
+      && sha(Buffer.from(request.submittedPrompt, 'utf8')) === CALIBRATION_SERIALIZED_PROMPT_SHA256,
+    'PHASE3_CALIBRATION_PROMPT_BINDING_MISMATCH');
+    fail(canonicalJson(request.parameters) === canonicalJson({ resolution: '1k', aspect_ratio: '16:9',
+      output_format: 'png', enable_prompt_expansion: false }) && request.exactlyOneImage === true,
+    'PHASE3_CALIBRATION_REQUEST_PARAMETERS_INVALID');
+    return request;
+  }
+  function recognizedCalibrationFiles(runDir, { includeTemporary = false } = {}) {
+    const present = Object.values(CALIBRATION_FILES).filter(relative => fsImpl.existsSync(calibrationPath(runDir, relative)));
+    const beatDir = calibrationPath(runDir, CALIBRATION_BEAT_ID);
+    if (includeTemporary && fsImpl.existsSync(beatDir)) {
+      const stat = fsImpl.lstatSync(beatDir);
+      fail(stat.isDirectory() && !stat.isSymbolicLink(), 'PHASE3_CALIBRATION_DIRECTORY_INVALID');
+      for (const name of fsImpl.readdirSync(beatDir)) {
+        const relative = `${CALIBRATION_BEAT_ID}/${name}`;
+        if (name.includes('.tmp-') && !present.includes(relative)) present.push(relative);
+      }
+    }
+    return present.sort();
+  }
+  function makeTerminalResult(base) {
+    const withoutBinding = { schemaVersion: CALIBRATION_RESULT_SCHEMA, ...base };
+    return { ...withoutBinding, resultBindingSha256: sha(Buffer.from(canonicalJson(withoutBinding), 'utf8')) };
+  }
+  function makeGenerationReceipt(base) {
+    const withoutBinding = { schemaVersion: CALIBRATION_RECEIPT_SCHEMA, ...base };
+    return { ...withoutBinding, receiptBindingSha256: sha(Buffer.from(canonicalJson(withoutBinding), 'utf8')) };
+  }
+  function verifySelfBinding(record, bindingField, code) {
+    const supplied = record?.[bindingField], base = { ...record };
+    delete base[bindingField];
+    fail(/^[a-f0-9]{64}$/u.test(supplied || '')
+      && supplied === sha(Buffer.from(canonicalJson(base), 'utf8')), code);
+  }
+  async function generateCalibrationStill({ runId, beatId, expectedAuthorizationSha256,
+    operation = CALIBRATION_OPERATION } = {}) {
+    assertCalibrationScope({ runId, beatId, operation });
+    fail(/^[a-f0-9]{64}$/u.test(expectedAuthorizationSha256 || ''),
+      'PHASE3_CALIBRATION_EXPECTED_AUTHORIZATION_HASH_REQUIRED');
+    const runDir = runDirectory(runId), authorizationPath = calibrationPath(runDir, CALIBRATION_FILES.authorization);
+    strictRealFile(authorizationPath, fsImpl, 'PHASE3_CALIBRATION_EXECUTION_AUTHORIZATION_MISSING');
+    const beatDir = calibrationPath(runDir, CALIBRATION_BEAT_ID);
+    fail(fsImpl.existsSync(beatDir) && fsImpl.lstatSync(beatDir).isDirectory()
+      && !fsImpl.lstatSync(beatDir).isSymbolicLink(), 'PHASE3_CALIBRATION_DIRECTORY_INVALID');
+    const initialAllowed = recognizedCalibrationFiles(runDir);
+    const initialBaseline = verifyStagedState({ runId, allowedAdditionalRunFiles: initialAllowed });
+    calibrationRequestFromBaseline(initialBaseline);
+    const lock = acquireCalibrationLock(runDir, fsImpl);
+    const ledgerPath = calibrationPath(runDir, CALIBRATION_FILES.ledger);
+    const outputPath = calibrationPath(runDir, CALIBRATION_FILES.output);
+    const receiptPath = calibrationPath(runDir, CALIBRATION_FILES.receipt);
+    const resultPath = calibrationPath(runDir, CALIBRATION_FILES.result);
+    let reservation = null, providerMetadata = null, providerRequestId = null, actualChargeUsd = null;
+    try {
+      const runtimeHashes = calibrationRuntimeHashes({ executionModulePath, cliPath, fsImpl });
+      const authorization = loadCalibrationAuthorization({ runDir, expectedSha256: expectedAuthorizationSha256,
+        runtimeHashes, fsImpl });
+      const baseline = verifyStagedState({ runId,
+        allowedAdditionalRunFiles: recognizedCalibrationFiles(runDir) });
+      const request = calibrationRequestFromBaseline(baseline);
+      if (fsImpl.existsSync(ledgerPath)) {
+        const existingLedger = readCalibrationLedger(ledgerPath, fsImpl);
+        fail(!existingLedger.some(item => item.recordType === 'SUBMISSION_RESERVED'),
+          'PHASE3_CALIBRATION_REQUEST_ALREADY_CONSUMED');
+      }
+      fail(!fsImpl.existsSync(resultPath), 'PHASE3_CALIBRATION_TERMINAL_RESULT_EXISTS');
+      fail(!fsImpl.existsSync(outputPath) && !fsImpl.existsSync(receiptPath),
+        'PHASE3_CALIBRATION_OUTPUT_ALREADY_EXISTS');
+      fail(canonicalJson(recognizedCalibrationFiles(runDir)) === canonicalJson([
+        CALIBRATION_FILES.authorization, CALIBRATION_FILES.lock].sort()),
+      'PHASE3_CALIBRATION_RUN_ALREADY_USED');
+      fail(!fsImpl.existsSync(ledgerPath) && !fsImpl.existsSync(resultPath) && !fsImpl.existsSync(outputPath)
+        && !fsImpl.existsSync(receiptPath), 'PHASE3_CALIBRATION_REQUEST_ALREADY_CONSUMED');
+      reservation = appendCalibrationLedgerRecord(ledgerPath, {
+        schemaVersion: CALIBRATION_LEDGER_SCHEMA,
+        recordType: 'SUBMISSION_RESERVED',
+        sequence: 1,
+        runId,
+        beatId,
+        operation: CALIBRATION_OPERATION,
+        provider: 'fal.ai',
+        endpoint: CALIBRATION_ENDPOINT,
+        requestKey: CALIBRATION_REQUEST_KEY,
+        authorizationSha256: authorization.sha256,
+        stagedIndexSha256: baseline.stagedIndexSha256,
+        candidateIndexSha256: CANDIDATE_INDEX_SHA256,
+        outerIndexSha256: OUTER_INDEX_SHA256,
+        routeResolutionApprovalSha256: calibrationRoutes.ROUTE_APPROVAL_SHA256,
+        deployedExecutionModuleSha256: runtimeHashes.executionModuleSha256,
+        deployedCliSha256: runtimeHashes.cliSha256,
+        positivePromptSha256: CALIBRATION_POSITIVE_PROMPT_SHA256,
+        negativeInstructionsSha256: CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256,
+        serializedPromptSha256: CALIBRATION_SERIALIZED_PROMPT_SHA256,
+        parameters: { resolution: '1k', aspect_ratio: '16:9', output_format: 'png', num_images: 1,
+          enable_prompt_expansion: false },
+        retryAllowed: false,
+        fallbackAllowed: false,
+        assetClass: CALIBRATION_ASSET_CLASS,
+        reservedAt: now(),
+      }, fsImpl);
+      if (typeof testHooks.afterReservation === 'function') await testHooks.afterReservation({ reservation, runDir });
+      fail(provider && typeof provider.generateStill === 'function', 'PHASE3_CALIBRATION_PROVIDER_ADAPTER_MISSING');
+      const providerResult = await provider.generateStill({ endpoint: CALIBRATION_ENDPOINT,
+        input: { prompt: request.submittedPrompt, resolution: '1k', aspect_ratio: '16:9', output_format: 'png',
+          num_images: 1, enable_prompt_expansion: false }, retries: 0, fallback: false });
+      fail(providerResult && providerResult.imageCount === 1, 'PHASE3_CALIBRATION_PROVIDER_RESPONSE_INVALID');
+      fail(typeof providerResult.url === 'string' && providerResult.url.length > 0,
+        'PHASE3_CALIBRATION_PROVIDER_IMAGE_URL_MISSING');
+      providerRequestId = typeof providerResult.providerRequestId === 'string' && providerResult.providerRequestId
+        ? providerResult.providerRequestId : null;
+      actualChargeUsd = Number.isFinite(providerResult.actualChargeUsd) ? providerResult.actualChargeUsd : null;
+      fail(actualChargeUsd === null || (actualChargeUsd >= 0 && actualChargeUsd <= CALIBRATION_MAX_EXPOSURE_USD),
+        'PHASE3_CALIBRATION_ACTUAL_CHARGE_EXCEEDS_ACCEPTED_EXPOSURE');
+      providerMetadata = jsonSafeMetadata(providerResult.rawProviderResponseMetadata);
+      const downloaded = await downloader(providerResult.url, { runDir, beatId, requestKey: CALIBRATION_REQUEST_KEY });
+      const imageBytes = Buffer.from(downloaded?.bytes || []);
+      fail(imageBytes.length > 0 && imageBytes.length <= MAX_CALIBRATION_IMAGE_BYTES,
+        'PHASE3_CALIBRATION_OUTPUT_SIZE_INVALID');
+      const contentType = String(downloaded?.contentType || '').split(';')[0].trim().toLowerCase();
+      fail(!contentType || contentType === 'image/png', 'PHASE3_CALIBRATION_OUTPUT_CONTENT_TYPE_INVALID');
+      const media = pngInfo(imageBytes), outputSha256 = sha(imageBytes);
+      writeBytesAtomicExclusive(outputPath, imageBytes, fsImpl);
+      if (typeof testHooks.afterOutputWrite === 'function') await testHooks.afterOutputWrite({ outputPath, runDir });
+      const persistedBytes = fsImpl.readFileSync(outputPath);
+      fail(persistedBytes.length === imageBytes.length && sha(persistedBytes) === outputSha256,
+        'PHASE3_CALIBRATION_OUTPUT_HASH_MISMATCH');
+      const receipt = makeGenerationReceipt({
+        status: 'GENERATED_PENDING_HUMAN_REVIEW',
+        assetClass: CALIBRATION_ASSET_CLASS,
+        ownershipDisposition: CALIBRATION_OWNERSHIP_DISPOSITION,
+        runId, beatId, operation: CALIBRATION_OPERATION, endpoint: CALIBRATION_ENDPOINT,
+        requestKey: CALIBRATION_REQUEST_KEY,
+        authorizationSha256: authorization.sha256,
+        reservationEntrySha256: reservation.entrySha256,
+        bindings: { stagedIndexSha256: baseline.stagedIndexSha256, candidateIndexSha256: CANDIDATE_INDEX_SHA256,
+          outerIndexSha256: OUTER_INDEX_SHA256, routeResolutionApprovalSha256: calibrationRoutes.ROUTE_APPROVAL_SHA256,
+          deployedExecutionModuleSha256: runtimeHashes.executionModuleSha256,
+          deployedCliSha256: runtimeHashes.cliSha256,
+          positivePromptSha256: CALIBRATION_POSITIVE_PROMPT_SHA256,
+          negativeInstructionsSha256: CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256,
+          serializedPromptSha256: CALIBRATION_SERIALIZED_PROMPT_SHA256 },
+        provider: { name: 'fal.ai', requestId: providerRequestId, actualChargeUsd,
+          rawResponseMetadata: providerMetadata },
+        output: { path: CALIBRATION_FILES.output, bytes: persistedBytes.length, sha256: outputSha256, ...media },
+        restrictions: { productionUse: false, rendering: false, promotion: false, episodeRootWrites: false },
+        completedAt: now(),
+      });
+      writeJsonAtomicExclusive(receiptPath, receipt, fsImpl);
+      const resultRecord = appendCalibrationLedgerRecord(ledgerPath, {
+        schemaVersion: CALIBRATION_LEDGER_SCHEMA, recordType: 'SUBMISSION_RESULT', requestKey: CALIBRATION_REQUEST_KEY,
+        status: 'SUCCEEDED', providerRequestId, actualChargeUsd, outputSha256,
+        receiptSha256: sha(fsImpl.readFileSync(receiptPath)), errorCode: null, recordedAt: now(),
+      }, fsImpl);
+      const terminal = makeTerminalResult({ status: 'SUCCEEDED_PENDING_HUMAN_REVIEW', assetClass: CALIBRATION_ASSET_CLASS,
+        runId, beatId, operation: CALIBRATION_OPERATION, requestKey: CALIBRATION_REQUEST_KEY,
+        authorizationSha256: authorization.sha256, reservationEntrySha256: reservation.entrySha256,
+        resultEntrySha256: resultRecord.entrySha256, ledgerSha256: sha(fsImpl.readFileSync(ledgerPath)),
+        output: receipt.output, receiptSha256: sha(fsImpl.readFileSync(receiptPath)), providerRequestId,
+        actualChargeUsd, rawProviderResponseMetadata: providerMetadata, errorCode: null, recordedAt: now() });
+      writeJsonAtomicExclusive(resultPath, terminal, fsImpl);
+      verifyStagedState({ runId, allowedAdditionalRunFiles: recognizedCalibrationFiles(runDir) });
+      return { status: 'CALIBRATION_STILL_GENERATED_PENDING_HUMAN_REVIEW', runId, beatId,
+        requestKey: CALIBRATION_REQUEST_KEY, output: receipt.output,
+        receipt: { path: CALIBRATION_FILES.receipt, sha256: sha(fsImpl.readFileSync(receiptPath)) },
+        ledger: { path: CALIBRATION_FILES.ledger, sha256: sha(fsImpl.readFileSync(ledgerPath)) },
+        providerRequestId, actualChargeUsd, providerSubmissions: 1, retries: 0, fallback: false,
+        productionUse: false, rendering: false, promotion: false, episodeRootWrites: false };
+    } catch (error) {
+      if (reservation) {
+        try {
+          const records = readCalibrationLedger(ledgerPath, fsImpl);
+          if (!records.some(item => item.recordType === 'SUBMISSION_RESULT')) appendCalibrationLedgerRecord(ledgerPath, {
+            schemaVersion: CALIBRATION_LEDGER_SCHEMA, recordType: 'SUBMISSION_RESULT',
+            requestKey: CALIBRATION_REQUEST_KEY, status: 'FAILED', providerRequestId, actualChargeUsd,
+            outputSha256: fsImpl.existsSync(outputPath) ? sha(fsImpl.readFileSync(outputPath)) : null,
+            receiptSha256: fsImpl.existsSync(receiptPath) ? sha(fsImpl.readFileSync(receiptPath)) : null,
+            errorCode: errorCode(error), recordedAt: now(),
+          }, fsImpl);
+          if (!fsImpl.existsSync(resultPath)) {
+            const finalRecords = readCalibrationLedger(ledgerPath, fsImpl);
+            const resultRecord = finalRecords.find(item => item.recordType === 'SUBMISSION_RESULT');
+            const terminal = makeTerminalResult({ status: 'FAILED_REQUEST_KEY_PERMANENTLY_CONSUMED',
+              assetClass: CALIBRATION_ASSET_CLASS, runId, beatId, operation: CALIBRATION_OPERATION,
+              requestKey: CALIBRATION_REQUEST_KEY, authorizationSha256: expectedAuthorizationSha256,
+              reservationEntrySha256: reservation.entrySha256, resultEntrySha256: resultRecord?.entrySha256 || null,
+              ledgerSha256: sha(fsImpl.readFileSync(ledgerPath)),
+              output: fsImpl.existsSync(outputPath) ? { path: CALIBRATION_FILES.output,
+                bytes: fsImpl.readFileSync(outputPath).length, sha256: sha(fsImpl.readFileSync(outputPath)) } : null,
+              receiptSha256: fsImpl.existsSync(receiptPath) ? sha(fsImpl.readFileSync(receiptPath)) : null,
+              providerRequestId, actualChargeUsd, rawProviderResponseMetadata: providerMetadata,
+              errorCode: errorCode(error), recordedAt: now() });
+            writeJsonAtomicExclusive(resultPath, terminal, fsImpl);
+          }
+        } catch (_) {}
+      }
+      throw error;
+    } finally {
+      try { if (fsImpl.existsSync(lock)) fsImpl.unlinkSync(lock); } catch (_) {}
+    }
+  }
+  function calibrationStatus({ runId, beatId } = {}) {
+    assertCalibrationScope({ runId, beatId });
+    const runDir = runDirectory(runId), present = recognizedCalibrationFiles(runDir, { includeTemporary: true });
+    const baseline = verifyStagedState({ runId, allowedAdditionalRunFiles: present });
+    const runtimeHashes = calibrationRuntimeHashes({ executionModulePath, cliPath, fsImpl });
+    const file = relative => calibrationPath(runDir, relative);
+    const authorizationPresent = fsImpl.existsSync(file(CALIBRATION_FILES.authorization));
+    let authorizationSha256 = null, executionAuthorized = false, authorizationError = null;
+    if (authorizationPresent) {
+      try {
+        const bytes = fsImpl.readFileSync(file(CALIBRATION_FILES.authorization));
+        authorizationSha256 = sha(bytes);
+        loadCalibrationAuthorization({ runDir, expectedSha256: authorizationSha256, runtimeHashes, fsImpl });
+        executionAuthorized = true;
+      } catch (error) { authorizationError = errorCode(error); }
+    }
+    const ledgerPresent = fsImpl.existsSync(file(CALIBRATION_FILES.ledger));
+    const ledger = ledgerPresent ? readCalibrationLedger(file(CALIBRATION_FILES.ledger), fsImpl) : [];
+    const reservation = ledger.find(item => item.recordType === 'SUBMISSION_RESERVED') || null;
+    const ledgerResult = ledger.find(item => item.recordType === 'SUBMISSION_RESULT') || null;
+    const resultPresent = fsImpl.existsSync(file(CALIBRATION_FILES.result));
+    const terminalResult = resultPresent ? json(file(CALIBRATION_FILES.result), fsImpl) : null;
+    if (terminalResult) verifySelfBinding(terminalResult, 'resultBindingSha256',
+      'PHASE3_CALIBRATION_TERMINAL_RESULT_BINDING_INVALID');
+    const outputPresent = fsImpl.existsSync(file(CALIBRATION_FILES.output));
+    const outputBytes = outputPresent ? fsImpl.readFileSync(file(CALIBRATION_FILES.output)) : null;
+    const receiptPresent = fsImpl.existsSync(file(CALIBRATION_FILES.receipt));
+    const receiptBytes = receiptPresent ? fsImpl.readFileSync(file(CALIBRATION_FILES.receipt)) : null;
+    const lockPresent = fsImpl.existsSync(file(CALIBRATION_FILES.lock));
+    const temporaryFiles = present.filter(item => path.posix.basename(item).includes('.tmp-'));
+    const safeToInvoke = executionAuthorized && !reservation && !ledgerResult && !terminalResult
+      && !outputPresent && !receiptPresent && !lockPresent && temporaryFiles.length === 0;
+    let status = 'EXECUTION_READY_UNAUTHORIZED';
+    if (executionAuthorized && safeToInvoke) status = 'EXECUTION_AUTHORIZED_SAFE_TO_INVOKE';
+    if (reservation && !terminalResult) status = 'REQUEST_RESERVED_NOT_RETRYABLE';
+    if (terminalResult?.status === 'SUCCEEDED_PENDING_HUMAN_REVIEW') status = 'GENERATED_PENDING_HUMAN_REVIEW';
+    if (terminalResult?.status === 'FAILED_REQUEST_KEY_PERMANENTLY_CONSUMED') status = terminalResult.status;
+    return { schemaVersion: 'phase3-media-calibration-status/1.0.0', status, runId, beatId,
+      stagedIndexSha256: baseline.stagedIndexSha256,
+      authorization: { present: authorizationPresent, sha256: authorizationSha256,
+        executionAuthorized, validationError: authorizationError,
+        path: CALIBRATION_FILES.authorization },
+      requestSafeToInvoke: safeToInvoke,
+      reservationState: reservation ? 'RESERVED' : 'ABSENT',
+      terminalResultState: terminalResult?.status || 'ABSENT',
+      requestKeyConsumed: Boolean(reservation),
+      ledger: { present: ledgerPresent, path: ledgerPresent ? CALIBRATION_FILES.ledger : null,
+        sha256: ledgerPresent ? sha(fsImpl.readFileSync(file(CALIBRATION_FILES.ledger))) : null,
+        resultStatus: ledgerResult?.status || null },
+      lock: { present: lockPresent, path: lockPresent ? CALIBRATION_FILES.lock : null },
+      output: { present: outputPresent, path: outputPresent ? CALIBRATION_FILES.output : null,
+        bytes: outputBytes?.length || null, sha256: outputBytes ? sha(outputBytes) : null },
+      receipt: { present: receiptPresent, path: receiptPresent ? CALIBRATION_FILES.receipt : null,
+        sha256: receiptBytes ? sha(receiptBytes) : null },
+      temporaryFiles: { present: temporaryFiles.length > 0, paths: temporaryFiles },
+      providerSubmissions: reservation ? 1 : 0, retries: 0, fallback: false,
+      assetClass: CALIBRATION_ASSET_CLASS, productionUse: false, rendering: false,
+      promotion: false, episodeRootWrites: false };
+  }
+  function inspectCalibrationStill({ runId, beatId } = {}) {
+    const status = calibrationStatus({ runId, beatId });
+    fail(status.status === 'GENERATED_PENDING_HUMAN_REVIEW'
+      && !status.lock.present && !status.temporaryFiles.present,
+    'PHASE3_CALIBRATION_SUCCESSFUL_GENERATION_REQUIRED');
+    const runDir = runDirectory(runId), file = relative => calibrationPath(runDir, relative);
+    const ledger = readCalibrationLedger(file(CALIBRATION_FILES.ledger), fsImpl);
+    const reservation = ledger.find(item => item.recordType === 'SUBMISSION_RESERVED');
+    const resultRecord = ledger.find(item => item.recordType === 'SUBMISSION_RESULT');
+    fail(ledger.length === 2 && reservation?.requestKey === CALIBRATION_REQUEST_KEY
+      && resultRecord?.requestKey === CALIBRATION_REQUEST_KEY && resultRecord.status === 'SUCCEEDED',
+    'PHASE3_CALIBRATION_LEDGER_SUCCESS_BINDING_INVALID');
+    const terminal = json(file(CALIBRATION_FILES.result), fsImpl);
+    verifySelfBinding(terminal, 'resultBindingSha256', 'PHASE3_CALIBRATION_TERMINAL_RESULT_BINDING_INVALID');
+    const receiptBytes = fsImpl.readFileSync(file(CALIBRATION_FILES.receipt));
+    const receipt = JSON.parse(receiptBytes.toString('utf8'));
+    verifySelfBinding(receipt, 'receiptBindingSha256', 'PHASE3_CALIBRATION_RECEIPT_BINDING_INVALID');
+    const outputBytes = fsImpl.readFileSync(file(CALIBRATION_FILES.output)), media = pngInfo(outputBytes);
+    const outputSha256 = sha(outputBytes);
+    fail(receipt.status === 'GENERATED_PENDING_HUMAN_REVIEW'
+      && receipt.assetClass === CALIBRATION_ASSET_CLASS && receipt.runId === runId && receipt.beatId === beatId
+      && receipt.operation === CALIBRATION_OPERATION && receipt.endpoint === CALIBRATION_ENDPOINT
+      && receipt.requestKey === CALIBRATION_REQUEST_KEY
+      && receipt.authorizationSha256 === reservation.authorizationSha256
+      && receipt.reservationEntrySha256 === reservation.entrySha256
+      && receipt.output.path === CALIBRATION_FILES.output && receipt.output.bytes === outputBytes.length
+      && receipt.output.sha256 === outputSha256 && receipt.output.format === media.format
+      && receipt.output.width === media.width && receipt.output.height === media.height
+      && terminal.output?.sha256 === outputSha256 && terminal.receiptSha256 === sha(receiptBytes)
+      && terminal.ledgerSha256 === sha(fsImpl.readFileSync(file(CALIBRATION_FILES.ledger)))
+      && resultRecord.outputSha256 === outputSha256 && resultRecord.receiptSha256 === sha(receiptBytes),
+    'PHASE3_CALIBRATION_OUTPUT_RECEIPT_OR_LEDGER_MISMATCH');
+    return { schemaVersion: 'phase3-media-calibration-inspection/1.0.0',
+      status: 'INSPECTED_PENDING_HUMAN_REVIEW', runId, beatId,
+      assetClass: CALIBRATION_ASSET_CLASS, output: { path: CALIBRATION_FILES.output,
+        bytes: outputBytes.length, sha256: outputSha256, ...media },
+      receipt: { path: CALIBRATION_FILES.receipt, sha256: sha(receiptBytes) },
+      ledger: { path: CALIBRATION_FILES.ledger,
+        sha256: sha(fsImpl.readFileSync(file(CALIBRATION_FILES.ledger))) },
+      reviewerDecision: null, approved: false, promoted: false, productionUse: false,
+      rendering: false, episodeRootWrites: false, filesCreatedOrModified: 0 };
+  }
+  return { stage, preflight, generateCalibrationStill, calibrationStatus, inspectCalibrationStill };
 }
 function copyIndexedTree(sourceRoot, targetRoot, files, fsImpl) {
   for (const item of files) {
@@ -451,7 +1070,15 @@ function assertReviewRootPolicy({ episodeRoot, reviewRoot, fsImpl = fs, allowMis
 
 module.exports = { OUTER_INDEX_SHA256, CANDIDATE_INDEX_SHA256, B015_APPROVAL_SHA256, B016_DEPENDENCY_SHA256,
   B009_AMENDMENT_SHA256, B009_APPROVAL_SHA256, B016_APPROVAL_SHA256, STAGE04_RUN_ID, STAGE04_ACTIVATION_SHA256,
-  REQUEST_LEDGER_SHA256,
+  REQUEST_LEDGER_SHA256, CALIBRATION_AUTHORIZATION_SCHEMA, CALIBRATION_LEDGER_SCHEMA,
+  CALIBRATION_RESULT_SCHEMA, CALIBRATION_RECEIPT_SCHEMA, CALIBRATION_RUN_ID, CALIBRATION_BEAT_ID,
+  CALIBRATION_OPERATION, CALIBRATION_ENDPOINT, CALIBRATION_REQUEST_KEY, CALIBRATION_POSITIVE_PROMPT_SHA256,
+  CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256, CALIBRATION_SERIALIZED_PROMPT_SHA256,
+  CALIBRATION_ASSET_CLASS, CALIBRATION_OWNERSHIP_DISPOSITION, CALIBRATION_MAX_EXPOSURE_USD,
+  CALIBRATION_AUTHORIZATION_STATEMENT, CALIBRATION_FILES,
   EXPECTED_METHODS, RUN_RE, sha, safeRel, walkFiles, verifyIndex, verifyOuterPackage, verifyApprovalBindings,
   verifyDetachedApprovals, verifyStage04, assertNoPhase3Locks, deriveCensus, makeStagedIndex, createMediaExecution,
-  verifyStage04StagedContext, verifyFilesFromList, copyIndexedTree, assertReviewRootPolicy };
+  verifyStage04StagedContext, verifyFilesFromList, copyIndexedTree, assertReviewRootPolicy,
+  calibrationRuntimeHashes, makeCalibrationAuthorizationTemplate, validateCalibrationAuthorizationRecord,
+  loadCalibrationAuthorization, readCalibrationLedger, appendCalibrationLedgerRecord, acquireCalibrationLock,
+  downloadCalibrationImage, createFalCalibrationProvider, pngInfo, errorCode };

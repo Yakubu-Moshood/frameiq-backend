@@ -15,26 +15,56 @@ const RUNNER = mediaExecution.createMediaExecution({ packageDirectory: PACKAGE_D
 
 function parseArgs(args) {
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) return { help: true };
-  if (args.length !== 3 || !['--stage-v5', '--preflight'].includes(args[0]) || args[1] !== '--run-id') {
-    throw new Error('PHASE3_MEDIA_EXECUTION_USAGE: node /app/scripts/phase3-media-execution.cjs --stage-v5|--preflight --run-id <phase3-media-execution-v5-...>');
+  if (args.length === 3 && ['--stage-v5', '--preflight'].includes(args[0]) && args[1] === '--run-id') {
+    if (!mediaExecution.RUN_RE.test(args[2])) throw new Error('PHASE3_MEDIA_EXECUTION_RUN_ID_INVALID');
+    return { mode: args[0] === '--stage-v5' ? 'stage' : 'preflight', runId: args[2] };
   }
-  if (!mediaExecution.RUN_RE.test(args[2])) throw new Error('PHASE3_MEDIA_EXECUTION_RUN_ID_INVALID');
-  return { mode: args[0] === '--stage-v5' ? 'stage' : 'preflight', runId: args[2] };
+  const modes = ['--generate-calibration-still', '--calibration-status', '--inspect-calibration-still']
+    .filter(flag => args.includes(flag));
+  if (modes.length !== 1 || args[0] !== modes[0]) throw new Error('PHASE3_MEDIA_EXECUTION_USAGE');
+  const allowed = new Set([modes[0], '--phase3-run-id', '--beat-id',
+    ...(modes[0] === '--generate-calibration-still' ? ['--expected-execution-authorization-sha256'] : [])]);
+  const values = {};
+  for (let index = 1; index < args.length; index += 2) {
+    const flag = args[index], value = args[index + 1];
+    if (!allowed.has(flag) || typeof value !== 'string' || value.startsWith('--') || values[flag] !== undefined)
+      throw new Error('PHASE3_MEDIA_EXECUTION_USAGE');
+    values[flag] = value;
+  }
+  if (values['--phase3-run-id'] !== mediaExecution.CALIBRATION_RUN_ID)
+    throw new Error('PHASE3_CALIBRATION_RUN_FORBIDDEN');
+  if (values['--beat-id'] !== mediaExecution.CALIBRATION_BEAT_ID)
+    throw new Error('PHASE3_CALIBRATION_BEAT_FORBIDDEN');
+  if (modes[0] === '--generate-calibration-still'
+    && !/^[a-f0-9]{64}$/u.test(values['--expected-execution-authorization-sha256'] || ''))
+    throw new Error('PHASE3_CALIBRATION_EXPECTED_AUTHORIZATION_HASH_REQUIRED');
+  const expectedLength = modes[0] === '--generate-calibration-still' ? 7 : 5;
+  if (args.length !== expectedLength) throw new Error('PHASE3_MEDIA_EXECUTION_USAGE');
+  return { mode: modes[0].slice(2), runId: values['--phase3-run-id'], beatId: values['--beat-id'],
+    expectedAuthorizationSha256: values['--expected-execution-authorization-sha256'] || null };
 }
-function main(args = process.argv.slice(2), runner = RUNNER) {
+async function main(args = process.argv.slice(2), runner = RUNNER) {
   const options = parseArgs(args);
   if (options.help) {
-    process.stdout.write('Usage: node /app/scripts/phase3-media-execution.cjs --stage-v5|--preflight --run-id <phase3-media-execution-v5-...>\n');
+    process.stdout.write('Usage:\n'
+      + '  node /app/scripts/phase3-media-execution.cjs --stage-v5|--preflight --run-id <phase3-media-execution-v5-...>\n'
+      + '  node /app/scripts/phase3-media-execution.cjs --generate-calibration-still --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B006 --expected-execution-authorization-sha256 <sha256>\n'
+      + '  node /app/scripts/phase3-media-execution.cjs --calibration-status --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B006\n'
+      + '  node /app/scripts/phase3-media-execution.cjs --inspect-calibration-still --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B006\n');
     return null;
   }
-  const result = options.mode === 'stage' ? runner.stage(options) : runner.preflight(options);
+  let result;
+  if (options.mode === 'stage') result = runner.stage(options);
+  else if (options.mode === 'preflight') result = runner.preflight(options);
+  else if (options.mode === 'generate-calibration-still') result = await runner.generateCalibrationStill(options);
+  else if (options.mode === 'calibration-status') result = runner.calibrationStatus(options);
+  else result = runner.inspectCalibrationStill(options);
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   return result;
 }
 
 if (require.main === module) {
-  try { main(); }
-  catch (error) { process.stderr.write(`PHASE3_MEDIA_EXECUTION_FAILED:${error.message}\n`); process.exitCode = 1; }
+  main().catch(error => { process.stderr.write(`PHASE3_MEDIA_EXECUTION_FAILED:${error.message}\n`); process.exitCode = 1; });
 }
 
 module.exports = { PACKAGE_DIRECTORY, ARTIFACT_ROOT, REVIEW_ROOT, parseArgs, main };

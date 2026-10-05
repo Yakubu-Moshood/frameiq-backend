@@ -15,6 +15,7 @@ const pilotWorkflow = require('../pipeline-updates/phase3-media-pilot.cjs');
 const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
 const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs');
 const calibrationRoutes = require('../pipeline-updates/phase3-media-calibration-bundle.cjs');
+const mediaExecutionCli = require('../scripts/phase3-media-execution.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -2683,4 +2684,356 @@ test('v5 staging refuses duplicate runs and leaves no temporary state after vali
   assert.throws(() => f.runner.stage({ runId: V5_MEDIA_RUN }), /STAGE04_TEST_BLOCK/);
   const reviewRoot = path.join(f.root, 'episode', '.review', 'phase3-media-execution');
   assert.equal(fs.existsSync(reviewRoot), false);
+});
+
+function makeCalibrationExecutionFixture(t, options = {}) {
+  const root = tempRoot();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const episodeRoot = path.join(root, 'episode');
+  fs.mkdirSync(path.join(episodeRoot, '.review'), { recursive: true });
+  const stage04Sentinel = path.join(episodeRoot, '.review', 'stage04-request-ledger-baseline.jsonl');
+  fs.writeFileSync(stage04Sentinel, 'stage04 unchanged sentinel\n');
+  const state = { providerCalls: 0, downloadCalls: 0,
+    requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 };
+  const provider = options.provider || { generateStill: async request => {
+    state.providerCalls += 1;
+    state.providerRequest = request;
+    return { url: 'https://unit-test.fal.media/output.png', contentType: 'image/png', imageCount: 1,
+      providerRequestId: 'mock-request-001', actualChargeUsd: 0.024,
+      rawProviderResponseMetadata: { request_id: 'mock-request-001', data: { actual_cost_usd: 0.024,
+        images: [{ url: 'https://unit-test.fal.media/output.png', content_type: 'image/png' }] } } };
+  } };
+  const downloader = options.downloader || (async () => {
+    state.downloadCalls += 1;
+    return { bytes: pilotPng(1280, 720), contentType: 'image/png' };
+  });
+  const runner = mediaExecution.createMediaExecution({ packageDirectory: V5_MEDIA_PACKAGE, episodeRoot,
+    reviewRoot: path.join(episodeRoot, '.review', 'phase3-media-execution'),
+    b009ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b009-human-approval-20261004.v1.json'),
+    b016ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act5-b016-human-approval-20261004.v1.json'),
+    verifyStage04Fn: () => ({ record: { status: 'PROMOTED' }, recordBytes: Buffer.from('verified'),
+      recordSha256: mediaExecution.STAGE04_ACTIVATION_SHA256, promotedPathCount: 147,
+      requestLedgerSha256: state.requestLedgerSha256 }),
+    assertNoPhase3LocksFn: () => true,
+    activationRunner: { assertNoActivationLocks: () => true,
+      verifyPromotedTree: () => true },
+    provider, downloader, now: () => '2026-10-05T12:00:00.000Z', testHooks: options.testHooks || {},
+  });
+  const staged = runner.stage({ runId: mediaExecution.CALIBRATION_RUN_ID });
+  let authorization = null, authorizationSha256 = null;
+  if (options.authorization !== false) {
+    const beatDir = path.join(staged.runDirectory, mediaExecution.CALIBRATION_BEAT_ID);
+    fs.mkdirSync(beatDir);
+    const hashes = mediaExecution.calibrationRuntimeHashes();
+    authorization = mediaExecution.makeCalibrationAuthorizationTemplate({ ...hashes,
+      authorizedAt: '2026-10-05T11:59:00.000Z' });
+    if (options.authorizationMutator) options.authorizationMutator(authorization);
+    const bytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
+    fs.writeFileSync(path.join(staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.authorization.split('/')), bytes);
+    authorizationSha256 = sha(bytes);
+  }
+  return { root, episodeRoot, stage04Sentinel, stage04SentinelSha256: sha(fs.readFileSync(stage04Sentinel)),
+    state, runner, staged, authorization, authorizationSha256 };
+}
+
+function calibrationGenerateOptions(f, overrides = {}) {
+  return { runId: mediaExecution.CALIBRATION_RUN_ID, beatId: mediaExecution.CALIBRATION_BEAT_ID,
+    expectedAuthorizationSha256: f.authorizationSha256, ...overrides };
+}
+
+test('ACT1_B006 detached execution authorization schema rejects every scope, prompt, limit and production-authority drift', () => {
+  const runtimeHashes = { executionModuleSha256: 'a'.repeat(64), cliSha256: 'b'.repeat(64) };
+  const valid = () => mediaExecution.makeCalibrationAuthorizationTemplate({ ...runtimeHashes,
+    authorizedAt: '2026-10-05T11:59:00.000Z' });
+  assert.equal(mediaExecution.validateCalibrationAuthorizationRecord(valid(), { runtimeHashes }), true);
+  const cases = [
+    ['wrong run', record => { record.bindings.runId = 'phase3-media-execution-v5-other'; }],
+    ['wrong beat', record => { record.bindings.beatId = 'ACT1_B009'; }],
+    ['wrong operation', record => { record.bindings.operation = 'GENERATE_ANIMATION'; }],
+    ['wrong endpoint', record => { record.bindings.endpoint = 'fal-ai/flux/dev'; }],
+    ['positive prompt hash', record => { record.bindings.positivePromptSha256 = '0'.repeat(64); }],
+    ['negative prompt hash', record => { record.bindings.negativeInstructionsSha256 = '0'.repeat(64); }],
+    ['serialized prompt hash', record => { record.bindings.serializedPromptSha256 = '0'.repeat(64); }],
+    ['prompt expansion', record => { record.requestLimits.promptExpansionEnabled = true; }],
+    ['more than one image', record => { record.requestLimits.numberOfImages = 2; }],
+    ['more than one submission', record => { record.requestLimits.maximumProviderSubmissions = 2; }],
+    ['retries enabled', record => { record.requestLimits.retries = 1; }],
+    ['fallback enabled', record => { record.requestLimits.fallbackEnabled = true; }],
+    ['exposure above USD 0.05', record => { record.exposure.maximumHumanAcceptedUsd = 0.051; }],
+    ['provider-enforced false acknowledgement removed', record => { record.exposure.providerEnforced = true; }],
+    ['production use granted', record => { record.denials.productionUseDenied = false; }],
+    ['rendering granted', record => { record.denials.renderingDenied = false; }],
+    ['promotion granted', record => { record.denials.promotionDenied = false; }],
+    ['episode-root write granted', record => { record.denials.episodeRootWritesDenied = false; }],
+    ['other beats granted', record => { record.denials.allOtherBeatsDenied = false; }],
+    ['other operations granted', record => { record.denials.allOtherOperationsDenied = false; }],
+  ];
+  for (const [label, mutate] of cases) {
+    const record = valid(); mutate(record);
+    assert.throws(() => mediaExecution.validateCalibrationAuthorizationRecord(record, { runtimeHashes }),
+      /PHASE3_CALIBRATION_AUTHORIZATION_/, label);
+  }
+});
+
+test('ACT1_B006 fal adapter disables SDK retries and accepts exactly one returned image without a real request', async () => {
+  let configured = null, subscriptions = 0;
+  const fal = { config: value => { configured = value; }, subscribe: async (endpoint, options) => {
+    subscriptions += 1;
+    assert.equal(endpoint, mediaExecution.CALIBRATION_ENDPOINT);
+    assert.equal(options.logs, false);
+    return { request_id: 'mock-sdk-request', data: { images: [{ url: 'https://mock.fal.media/one.png',
+      content_type: 'image/png' }] } };
+  } };
+  const provider = mediaExecution.createFalCalibrationProvider({ falModuleLoader: () => ({ fal }),
+    credentialResolver: () => 'mock-credential-never-sent' });
+  const result = await provider.generateStill({ endpoint: mediaExecution.CALIBRATION_ENDPOINT,
+    input: { prompt: 'mock' } });
+  assert.deepEqual(configured.retry, { maxRetries: 0, retryableStatusCodes: [] });
+  assert.equal(subscriptions, 1);
+  assert.equal(result.imageCount, 1);
+  assert.equal(result.providerRequestId, 'mock-sdk-request');
+  assert.equal(result.actualChargeUsd, null);
+  assert.equal(result.rawProviderResponseMetadata.request_id, 'mock-sdk-request');
+});
+
+test('generation fails closed for missing, omitted, wrong-hash and altered detached authorization without provider use', async t => {
+  const missing = makeCalibrationExecutionFixture(t, { authorization: false });
+  await assert.rejects(() => missing.runner.generateCalibrationStill({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID }), /EXPECTED_AUTHORIZATION_HASH_REQUIRED/);
+  await assert.rejects(() => missing.runner.generateCalibrationStill({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID, expectedAuthorizationSha256: 'a'.repeat(64) }),
+  /EXECUTION_AUTHORIZATION_MISSING/);
+  assert.equal(missing.state.providerCalls, 0);
+  assert.equal(fs.existsSync(path.join(missing.staged.runDirectory, mediaExecution.CALIBRATION_BEAT_ID)), false);
+  const wrong = makeCalibrationExecutionFixture(t);
+  await assert.rejects(() => wrong.runner.generateCalibrationStill(calibrationGenerateOptions(wrong,
+    { expectedAuthorizationSha256: '0'.repeat(64) })), /EXECUTION_AUTHORIZATION_HASH_MISMATCH/);
+  assert.equal(wrong.state.providerCalls, 0);
+  const altered = makeCalibrationExecutionFixture(t, { authorizationMutator: record => {
+    record.bindings.serializedPromptSha256 = '0'.repeat(64);
+  } });
+  await assert.rejects(() => altered.runner.generateCalibrationStill(calibrationGenerateOptions(altered)),
+    /AUTHORIZATION_BINDING_MISMATCH/);
+  assert.equal(altered.state.providerCalls, 0);
+});
+
+test('CLI supports only ACT1_B006 GENERATE_STILL and rejects ACT1_B005, ACT1_B009 and other operations', () => {
+  const common = ['--phase3-run-id', mediaExecution.CALIBRATION_RUN_ID, '--beat-id'];
+  assert.equal(mediaExecutionCli.parseArgs(['--calibration-status', ...common, 'ACT1_B006']).mode,
+    'calibration-status');
+  assert.equal(mediaExecutionCli.parseArgs(['--inspect-calibration-still', ...common, 'ACT1_B006']).mode,
+    'inspect-calibration-still');
+  assert.equal(mediaExecutionCli.parseArgs(['--generate-calibration-still', ...common, 'ACT1_B006',
+    '--expected-execution-authorization-sha256', 'a'.repeat(64)]).mode, 'generate-calibration-still');
+  assert.throws(() => mediaExecutionCli.parseArgs(['--calibration-status', ...common, 'ACT1_B005']),
+    /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
+  assert.throws(() => mediaExecutionCli.parseArgs(['--calibration-status', ...common, 'ACT1_B009']),
+    /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
+  assert.throws(() => mediaExecutionCli.parseArgs(['--generate-calibration-still', ...common, 'ACT1_B006',
+    '--operation', 'GENERATE_ANIMATION', '--expected-execution-authorization-sha256', 'a'.repeat(64)]),
+  /PHASE3_MEDIA_EXECUTION_USAGE/);
+});
+
+test('generation rejects unknown run files, changed staged input and changed Stage04 ledger baseline before provider submission', async t => {
+  const unknown = makeCalibrationExecutionFixture(t);
+  fs.writeFileSync(path.join(unknown.staged.runDirectory, mediaExecution.CALIBRATION_BEAT_ID, 'unknown.txt'), 'unknown');
+  await assert.rejects(() => unknown.runner.generateCalibrationStill(calibrationGenerateOptions(unknown)),
+    /PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE/);
+  assert.equal(unknown.state.providerCalls, 0);
+  const changed = makeCalibrationExecutionFixture(t);
+  fs.appendFileSync(path.join(changed.staged.runDirectory, 'candidate', 'shot-definitions.json'), ' ');
+  await assert.rejects(() => changed.runner.generateCalibrationStill(calibrationGenerateOptions(changed)),
+    /PHASE3_MEDIA_EXECUTION_INDEXED_FILE_MISMATCH/);
+  assert.equal(changed.state.providerCalls, 0);
+  const stage04 = makeCalibrationExecutionFixture(t);
+  stage04.state.requestLedgerSha256 = '0'.repeat(64);
+  await assert.rejects(() => stage04.runner.generateCalibrationStill(calibrationGenerateOptions(stage04)),
+    /PHASE3_MEDIA_EXECUTION_LEDGER_BINDING_CHANGED/);
+  assert.equal(stage04.state.providerCalls, 0);
+});
+
+test('atomic lock collision, existing reservation, existing terminal result and duplicate request key are permanently rejected', async t => {
+  const locked = makeCalibrationExecutionFixture(t);
+  fs.writeFileSync(path.join(locked.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.lock.split('/')), 'other\n');
+  await assert.rejects(() => locked.runner.generateCalibrationStill(calibrationGenerateOptions(locked)),
+    /PHASE3_CALIBRATION_LOCK_EXISTS/);
+  assert.equal(locked.state.providerCalls, 0);
+  const reserved = makeCalibrationExecutionFixture(t);
+  mediaExecution.appendCalibrationLedgerRecord(path.join(reserved.staged.runDirectory,
+    ...mediaExecution.CALIBRATION_FILES.ledger.split('/')), {
+    schemaVersion: mediaExecution.CALIBRATION_LEDGER_SCHEMA, recordType: 'SUBMISSION_RESERVED',
+    requestKey: mediaExecution.CALIBRATION_REQUEST_KEY, previous: 'test' });
+  await assert.rejects(() => reserved.runner.generateCalibrationStill(calibrationGenerateOptions(reserved)),
+    /PHASE3_CALIBRATION_REQUEST_ALREADY_CONSUMED/);
+  const terminal = makeCalibrationExecutionFixture(t);
+  fs.writeFileSync(path.join(terminal.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.result.split('/')), '{}\n');
+  await assert.rejects(() => terminal.runner.generateCalibrationStill(calibrationGenerateOptions(terminal)),
+    /PHASE3_CALIBRATION_TERMINAL_RESULT_EXISTS/);
+  const duplicate = makeCalibrationExecutionFixture(t, { provider: { generateStill: async () => {
+    duplicate.state.providerCalls += 1; throw new Error('MOCK_PROVIDER_FAILURE');
+  } } });
+  await assert.rejects(() => duplicate.runner.generateCalibrationStill(calibrationGenerateOptions(duplicate)),
+    /MOCK_PROVIDER_FAILURE/);
+  await assert.rejects(() => duplicate.runner.generateCalibrationStill(calibrationGenerateOptions(duplicate)),
+    /PHASE3_CALIBRATION_REQUEST_ALREADY_CONSUMED/);
+  assert.equal(duplicate.state.providerCalls, 1);
+});
+
+test('failure before provider submission writes a durable reservation and terminal failure and releases the lock', async t => {
+  const f = makeCalibrationExecutionFixture(t, { testHooks: { afterReservation: () => {
+    throw new Error('MOCK_PRE_PROVIDER_FAILURE');
+  } } });
+  await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+    /MOCK_PRE_PROVIDER_FAILURE/);
+  const ledgerPath = path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.ledger.split('/'));
+  const records = mediaExecution.readCalibrationLedger(ledgerPath);
+  assert.equal(records.filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(records.find(row => row.recordType === 'SUBMISSION_RESULT').status, 'FAILED');
+  assert.equal(f.state.providerCalls, 0);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.result.split('/'))), true);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.lock.split('/'))), false);
+});
+
+test('failure after reservation is terminal, records provider failure and releases the lock', async t => {
+  const state = { calls: 0 };
+  const f = makeCalibrationExecutionFixture(t, { provider: { generateStill: async () => {
+    state.calls += 1; throw new Error('MOCK_PROVIDER_TRANSPORT_FAILURE');
+  } } });
+  await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+    /MOCK_PROVIDER_TRANSPORT_FAILURE/);
+  assert.equal(state.calls, 1);
+  const result = JSON.parse(fs.readFileSync(path.join(f.staged.runDirectory,
+    ...mediaExecution.CALIBRATION_FILES.result.split('/'))));
+  assert.equal(result.status, 'FAILED_REQUEST_KEY_PERMANENTLY_CONSUMED');
+  assert.equal(result.errorCode, 'MOCK_PROVIDER_TRANSPORT_FAILURE');
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.lock.split('/'))), false);
+});
+
+test('malformed provider response and missing image URL consume one request without downloading', async t => {
+  for (const [label, provider] of [
+    ['malformed', { generateStill: async () => null }],
+    ['missing-url', { generateStill: async () => ({ imageCount: 1, url: '', rawProviderResponseMetadata: {} }) }],
+  ]) {
+    const f = makeCalibrationExecutionFixture(t, { provider });
+    await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+      /PHASE3_CALIBRATION_PROVIDER_(RESPONSE_INVALID|IMAGE_URL_MISSING)/, label);
+    assert.equal(f.state.downloadCalls, 0, label);
+    assert.equal(mediaExecution.readCalibrationLedger(path.join(f.staged.runDirectory,
+      ...mediaExecution.CALIBRATION_FILES.ledger.split('/')))
+      .filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1, label);
+  }
+});
+
+test('non-PNG provider output is terminal and never leaves a generated output or lock', async t => {
+  const f = makeCalibrationExecutionFixture(t, { downloader: async () => {
+    f.state.downloadCalls += 1; return { bytes: Buffer.from('not png'), contentType: 'image/png' };
+  } });
+  await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+    /PHASE3_CALIBRATION_OUTPUT_NOT_PNG/);
+  assert.equal(f.state.downloadCalls, 1);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.output.split('/'))), false);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.lock.split('/'))), false);
+});
+
+test('output hash mismatch after atomic write is terminal and cannot be resubmitted', async t => {
+  const f = makeCalibrationExecutionFixture(t, { testHooks: { afterOutputWrite: ({ outputPath }) => {
+    fs.appendFileSync(outputPath, Buffer.from([0]));
+  } } });
+  await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+    /PHASE3_CALIBRATION_OUTPUT_HASH_MISMATCH/);
+  assert.equal(f.state.providerCalls, 1);
+  await assert.rejects(() => f.runner.generateCalibrationStill(calibrationGenerateOptions(f)),
+    /PHASE3_CALIBRATION_REQUEST_ALREADY_CONSUMED/);
+  assert.equal(f.state.providerCalls, 1);
+});
+
+test('mocked ACT1_B006 success submits and downloads exactly once and writes hash-bound durable records only in review isolation', async t => {
+  const f = makeCalibrationExecutionFixture(t);
+  const sourceCandidateBefore = sha(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'candidate', 'candidate-package-sha256.json')));
+  const stagedCandidateBefore = sha(fs.readFileSync(path.join(f.staged.runDirectory, 'candidate', 'candidate-package-sha256.json')));
+  const result = await f.runner.generateCalibrationStill(calibrationGenerateOptions(f));
+  assert.equal(result.status, 'CALIBRATION_STILL_GENERATED_PENDING_HUMAN_REVIEW');
+  assert.equal(f.state.providerCalls, 1);
+  assert.equal(f.state.downloadCalls, 1);
+  assert.deepEqual(f.state.providerRequest.input, { prompt: readCalibrationCandidate().shotDefinitions.allShots
+    .find(item => item.beatId === 'ACT1_B006').imagePrompt + calibrationRoutes.FLUX_NEGATIVE_PROMPT_DELIMITER
+      + readCalibrationCandidate().shotDefinitions.allShots.find(item => item.beatId === 'ACT1_B006').negativePrompt,
+  resolution: '1k', aspect_ratio: '16:9', output_format: 'png', num_images: 1, enable_prompt_expansion: false });
+  assert.equal(f.state.providerRequest.retries, 0);
+  assert.equal(f.state.providerRequest.fallback, false);
+  const ledgerPath = path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.ledger.split('/'));
+  const ledger = mediaExecution.readCalibrationLedger(ledgerPath);
+  assert.deepEqual(ledger.map(row => row.recordType), ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+  assert.equal(ledger[1].status, 'SUCCEEDED');
+  const receiptPath = path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.receipt.split('/'));
+  const receipt = JSON.parse(fs.readFileSync(receiptPath));
+  assert.equal(receipt.provider.requestId, 'mock-request-001');
+  assert.equal(receipt.provider.actualChargeUsd, 0.024);
+  assert.equal(receipt.provider.rawResponseMetadata.request_id, 'mock-request-001');
+  assert.equal(receipt.assetClass, mediaExecution.CALIBRATION_ASSET_CLASS);
+  assert.equal(receipt.restrictions.episodeRootWrites, false);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.lock.split('/'))), false);
+  assert.equal(sha(fs.readFileSync(f.stage04Sentinel)), f.stage04SentinelSha256);
+  assert.equal(sha(fs.readFileSync(path.join(V5_MEDIA_PACKAGE, 'candidate', 'candidate-package-sha256.json'))), sourceCandidateBefore);
+  assert.equal(sha(fs.readFileSync(path.join(f.staged.runDirectory, 'candidate', 'candidate-package-sha256.json'))), stagedCandidateBefore);
+  assert.equal(fs.existsSync(path.join(f.episodeRoot, 'assets')), false);
+  assert.equal(fs.existsSync(path.join(f.episodeRoot, 'render-output')), false);
+});
+
+test('status is read-only and reports pristine unauthorized, authorized-ready, consumed and successful states', async t => {
+  const pristine = makeCalibrationExecutionFixture(t, { authorization: false });
+  const before = mediaExecution.walkFiles(pristine.staged.runDirectory);
+  const first = pristine.runner.calibrationStatus({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID });
+  assert.equal(first.status, 'EXECUTION_READY_UNAUTHORIZED');
+  assert.equal(first.authorization.present, false);
+  assert.equal(first.requestSafeToInvoke, false);
+  assert.deepEqual(mediaExecution.walkFiles(pristine.staged.runDirectory), before);
+  const ready = makeCalibrationExecutionFixture(t);
+  const readyBefore = mediaExecution.walkFiles(ready.staged.runDirectory);
+  const authorized = ready.runner.calibrationStatus({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID });
+  assert.equal(authorized.status, 'EXECUTION_AUTHORIZED_SAFE_TO_INVOKE');
+  assert.equal(authorized.authorization.sha256, ready.authorizationSha256);
+  assert.equal(authorized.requestSafeToInvoke, true);
+  assert.deepEqual(mediaExecution.walkFiles(ready.staged.runDirectory), readyBefore);
+  await ready.runner.generateCalibrationStill(calibrationGenerateOptions(ready));
+  const completedBefore = mediaExecution.walkFiles(ready.staged.runDirectory);
+  const completed = ready.runner.calibrationStatus({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID });
+  assert.equal(completed.status, 'GENERATED_PENDING_HUMAN_REVIEW');
+  assert.equal(completed.requestKeyConsumed, true);
+  assert.equal(completed.output.present, true);
+  assert.equal(completed.receipt.present, true);
+  assert.equal(completed.temporaryFiles.present, false);
+  assert.deepEqual(mediaExecution.walkFiles(ready.staged.runDirectory), completedBefore);
+});
+
+test('inspection verifies PNG, receipt and ledger but creates no approval, promotion or file mutation', async t => {
+  const f = makeCalibrationExecutionFixture(t);
+  await f.runner.generateCalibrationStill(calibrationGenerateOptions(f));
+  const beforeFiles = mediaExecution.walkFiles(f.staged.runDirectory);
+  const beforeHashes = Object.fromEntries(beforeFiles.map(relative => [relative,
+    sha(fs.readFileSync(path.join(f.staged.runDirectory, ...relative.split('/'))))]));
+  const inspected = f.runner.inspectCalibrationStill({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID });
+  assert.equal(inspected.status, 'INSPECTED_PENDING_HUMAN_REVIEW');
+  assert.equal(inspected.approved, false);
+  assert.equal(inspected.promoted, false);
+  assert.equal(inspected.reviewerDecision, null);
+  assert.equal(inspected.filesCreatedOrModified, 0);
+  assert.deepEqual(mediaExecution.walkFiles(f.staged.runDirectory), beforeFiles);
+  for (const [relative, expected] of Object.entries(beforeHashes))
+    assert.equal(sha(fs.readFileSync(path.join(f.staged.runDirectory, ...relative.split('/')))), expected);
+  assert.equal(fs.existsSync(path.join(f.staged.runDirectory, mediaExecution.CALIBRATION_BEAT_ID,
+    'approval.json')), false);
+  assert.equal(fs.existsSync(path.join(f.episodeRoot, 'assets')), false);
+});
+
+test('inspection rejects a successful receipt whose PNG bytes no longer match', async t => {
+  const f = makeCalibrationExecutionFixture(t);
+  await f.runner.generateCalibrationStill(calibrationGenerateOptions(f));
+  fs.appendFileSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.output.split('/')), Buffer.from([0]));
+  assert.throws(() => f.runner.inspectCalibrationStill({ runId: mediaExecution.CALIBRATION_RUN_ID,
+    beatId: mediaExecution.CALIBRATION_BEAT_ID }), /PHASE3_CALIBRATION_OUTPUT_RECEIPT_OR_LEDGER_MISMATCH/);
 });
