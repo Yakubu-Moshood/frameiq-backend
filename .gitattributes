@@ -31,6 +31,9 @@ artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v2/
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-proposal-20261002-v2-human-approval.v1.json -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-20261003-v1-human-approval.v1.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b006-calibration-human-approval-20261005.v1.json -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b009-request-key-reconciliation-20261005.v1.json -text
+pipeline-updates/phase3-media-calibration-source-still.cjs -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-pilot02-animation-review-20261003-v1/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-approval-20261003.v1.json -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-policy-20261003-v1/** -text
