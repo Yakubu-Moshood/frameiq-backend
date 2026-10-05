@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "phase3-media-calibration-route-resolution-approval/1.0.0",
+  "status": "APPROVED_FOR_CALIBRATION_ROUTE_IMPLEMENTATION_ONLY",
+  "approvedBy": "Yakubu Moshood",
+  "approvedAt": "2026-10-05",
+  "providerExecutionAuthorized": false,
+  "providerRequestsAuthorized": 0,
+  "bindings": {
+    "sourceCommit": "857f31a887a4e43821e0a2a982707cbf5d5743a1",
+    "stagedRunId": "phase3-media-execution-v5-20261004-01",
+    "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad",
+    "originalRoutePlanSha256": "6981bda36cd4e9dda4da5b701fb23b2f705e1fd5bb04fcca30157160bac85b42",
+    "outerPackageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "censusReconciliationSha256": "bcdcd8bd29987aba1519d4ee9b958ae1662f93df81e5c1a057e2b721dde8a63b",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d"
+  },
+  "permittedBeatIds": ["ACT1_B005", "ACT1_B006", "ACT1_B009"],
+  "routeResolutions": {
+    "still": {
+      "provider": "fal.ai",
+      "model": "FLUX 3 Image",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "approvedOperations": ["ACT1_B006/GENERATE_STILL", "ACT1_B009/GENERATE_ANIMATION_SOURCE_STILL"],
+      "parameters": {"resolution": "1k", "aspect_ratio": "16:9", "output_format": "png", "enable_prompt_expansion": false},
+      "serialization": {
+        "positivePrompt": "candidate bytes preserved exactly",
+        "delimiter": "\n\nSTRICT EXCLUSIONS — DO NOT INCLUDE:\n",
+        "negativeInstructions": "candidate bytes preserved exactly",
+        "submittedPrompt": "positive prompt + fixed delimiter + negative instructions",
+        "separateNegativePromptField": false,
+        "hashAllThreeValues": true,
+        "rejectRewriteExpansionSummarizationOrOmission": true
+      },
+      "publishedPricing": {"retrievedAt": "2026-10-05", "currentUsdPerImage": 0.024,
+        "afterPromotionUsdPerImage": 0.048, "promotionEnds": "2026-10-08"},
+      "documentation": "https://fal.ai/models/blackforestlabs/flux-3/text-to-image/api"
+    },
+    "animation": {
+      "provider": "fal.ai",
+      "model": "H3 Max Image to Video",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "approvedOperation": "ACT1_B009/GENERATE_ANIMATION",
+      "parameters": {"duration": 5, "resolution": "768P", "prompt_expansion_mode": "disabled",
+        "enable_safety_checker": true, "sourceImageAspectRatio": "16:9 inherited from approved source still",
+        "target_audio_url": "MUST_NOT_BE_SENT"},
+      "rawProviderOutput": {"preserveByteForByte": true, "inspectAllStreams": true,
+        "classification": "NON_PRODUCTION_DISPOSABLE_CALIBRATION_EVIDENCE", "productionReady": false},
+      "derivative": {"videoOnly": true, "removeEveryAudioStream": true, "fps": 30, "frames": 114,
+        "preserveRawSeparately": true, "recordFfmpegCommandAndInputOutputHashes": true,
+        "verifyWithFfprobe": true, "failIfAnyAudioStreamRemains": true},
+      "publishedPricing": {"retrievedAt": "2026-10-05", "displayedPromotionalUsdPer768pSecond": 0.02,
+        "promotionEnded": "2026-09-14", "conservativePostPromotionUsdPer768pSecond": 0.08},
+      "documentation": "https://fal.ai/models/minimax/h3-max/image-to-video/api"
+    }
+  },
+  "sequence": [
+    {"order": 1, "beatId": "ACT1_B006", "operation": "GENERATE_STILL", "requiresHumanReviewBeforeNext": true},
+    {"order": 2, "beatId": "ACT1_B009", "operation": "GENERATE_ANIMATION_SOURCE_STILL", "requiresPriorApprovalOf": "ACT1_B006", "requiresHumanReviewBeforeNext": true},
+    {"order": 3, "beatId": "ACT1_B009", "operation": "GENERATE_ANIMATION", "requiresPriorApprovalOf": "ACT1_B009 source still", "requestKeyProvisionalUntilApprovedSourceHash": true}
+  ],
+  "act1B005": {"productionMethod": "CONTROLLED_STILL", "providerPermitted": false,
+    "editorialShotFieldsMustRemainUnchanged": true, "status": "DEFERRED_PENDING_SEPARATELY_REVIEWED_HASH_BOUND_LOCAL_SOURCE_OR_DETERMINISTIC_RECIPE",
+    "doesNotBlockCalibrationOf": ["ACT1_B006", "ACT1_B009"]},
+  "exposure": {
+    "plannedSubmissionsMaximum": 3,
+    "automaticRetries": 0,
+    "fallbacks": [],
+    "duplicates": false,
+    "humanAcceptedMaximumUsd": 0.6,
+    "providerEnforced": false,
+    "providerEnforcedSpendingCap": false
+  },
+  "ownership": {
+    "disposition": "UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_CALIBRATION_ONLY",
+    "noOwnershipConclusionFromCommercialUseLabel": true,
+    "productionUse": false,
+    "candidateReconstruction": false,
+    "promotion": false,
+    "rendering": false,
+    "episodeRootWrites": false
+  },
+  "authorization": {"executionAuthorizationCreated": false,
+    "providerExecutionAuthorityGranted": false,
+    "full65OutputBatchAuthorized": false,
+    "calibrationOutputClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION"}
+}

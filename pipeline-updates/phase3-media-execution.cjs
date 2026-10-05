@@ -232,17 +232,24 @@ function deriveCensus(candidateRoot, { fsImpl = fs } = {}) {
       missingFinals.animationClips.includes(beatId)].some(Boolean),
       animationSourceStillMissing: missingFinals.animationSourceStills.includes(beatId) };
   });
+  const routeApproval = calibrationRoutes.readRouteApproval({ fsImpl });
   const routePlan = calibrationRoutes.makeRoutePlan({
     candidate: { productionManifest: manifest, shotDefinitions: shotDefs,
       editPlan: json(path.join(candidateRoot, 'edit-plan.json'), fsImpl) },
+    approval: routeApproval,
   });
   const routes = { still: { falEndpoint: calibrationRoutes.FLUX3_ENDPOINT, model: 'FLUX 3 Image',
       parameters: calibrationRoutes.FLUX3, officialSchemaVerified: true,
-      availableForProduction: false, blocker: 'FLUX3_NEGATIVE_PROMPT_UNSUPPORTED' },
+      availableForCalibration: true, promptSerialization: calibrationRoutes.FLUX_NEGATIVE_PROMPT_DELIMITER,
+      productionUse: false },
     animation: { falEndpoint: calibrationRoutes.H3_MAX_ENDPOINT, model: 'H3 Max Image to Video',
-      parameters: calibrationRoutes.H3_MAX, officialSchemaVerified: true,
-      availableForProduction: false, blocker: 'H3_MAX_AUDIO_CANNOT_BE_DISABLED' },
-    blockingCondition: routePlan.hardExecutionBlockers.map(item => item.code) };
+      parameters: calibrationRoutes.H3_MAX, officialSchemaVerified: true, availableForCalibration: true,
+      targetAudioUrlSent: false, rawMayContainNativeAudio: true, derivativeMustStripAllAudio: true,
+      productionUse: false },
+    routeApprovalSha256: routeApproval.sha256,
+    executionAuthorized: false,
+    blockingCondition: routePlan.hardExecutionBlockers.filter(item => item.code !== 'ACT1_B005_DEFERRED_DOES_NOT_BLOCK_CALIBRATION')
+      .map(item => item.code) };
   return { activeShots: shots.length, finalOutputCounts: finalCounts, finalOutputTotal: finalTotal,
     intermediateAnimationSourceStills: { required: 23, missing: counts.animationSourceStills,
       excludedFromFinalOutputTotal: true }, missingFinalOutputs: counts, unresolvedBeatIds: missingFinals,
@@ -253,7 +260,8 @@ function deriveCensus(candidateRoot, { fsImpl = fs } = {}) {
       validation: evidenceValidation.status }, productionRouteAvailability: routes,
     calibrationRoutePlan: routePlan,
     singleCalibrationAuthorizationBlocker: routes.blockingCondition,
-    calibrationBatch: { beats: calibration, structuralStatus: 'PASS', executionStatus: 'BLOCKED_CALIBRATION_CONTRACT_GAPS' },
+    calibrationBatch: { beats: calibration, structuralStatus: 'PASS', executionStatus: 'READY_FOR_SEQUENTIAL_SINGLE_REQUEST_AUTHORIZATIONS',
+      providerRequestsAuthorized: 0, deferredBeatIds: ['ACT1_B005'] },
     candidateStatus: report.status, retiredBeatIds: report.retiredBeatIds,
     providerRequests: 0, episodeRootWrites: 0 };
 }
@@ -367,7 +375,7 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
     const isAuthorizedCalibrationRun = runId === calibrationRoutes.TRUST.runId;
     if (isAuthorizedCalibrationRun) fail(status.stagedIndexSha256 === calibrationRoutes.TRUST.stagedIndexSha256,
       'PHASE3_MEDIA_EXECUTION_CALIBRATION_STAGED_INDEX_MISMATCH');
-    return { status: isAuthorizedCalibrationRun ? 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_CALIBRATION_BLOCKED'
+    return { status: isAuthorizedCalibrationRun ? 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_CALIBRATION_READY_EXECUTION_UNAUTHORIZED'
       : 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_MEDIA_PENDING_ROUTE_BLOCKED',
       runId, stagedIndexSha256: status.stagedIndexSha256, ...census, stage04: { status: stage04.record.status,
         activationRecordSha256: stage04.recordSha256, promotedPathCount: stage04.promotedPathCount,
