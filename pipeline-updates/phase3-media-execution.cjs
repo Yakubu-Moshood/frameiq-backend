@@ -50,6 +50,15 @@ const CALIBRATION_FILES = Object.freeze({
   receipt: 'ACT1_B006/generation-receipt.v1.json',
   result: 'ACT1_B006/generation-result.v1.json',
 });
+const CALIBRATION_SOURCE_STILL_FILES = Object.freeze({
+  authorization: 'ACT1_B009/source-still-execution-authorization.v1.json',
+  ledger: 'ACT1_B009/source-still-request-ledger.jsonl',
+  lock: 'ACT1_B009/source-still.lock',
+  output: 'ACT1_B009/ACT1_B009-source-still.png',
+  receipt: 'ACT1_B009/source-still-generation-receipt.v1.json',
+  result: 'ACT1_B009/source-still-generation-result.v1.json',
+  failure: 'ACT1_B009/source-still-failure-receipt.v1.json',
+});
 const MAX_CALIBRATION_IMAGE_BYTES = 32 * 1024 * 1024;
 
 function fail(ok, code) { if (!ok) throw new Error(code); }
@@ -678,7 +687,12 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
         promotedPathsMatch: true }, requestLedgerSha256: stage04.requestLedgerSha256,
       providerRequests: 0, episodeRootWrites: 0 };
   }
-  function preflight({ runId }) { return verifyStagedState({ runId }); }
+  function preflight({ runId, includeSourceStillCalibration = false } = {}) {
+    const runDir = path.join(reviewRoot, runId);
+    const allowedAdditionalRunFiles = fsImpl.existsSync(runDir)
+      ? recognizedCalibrationFiles(runDir, { includeTemporary: true, includeSourceStill: includeSourceStillCalibration }) : [];
+    return verifyStagedState({ runId, allowedAdditionalRunFiles });
+  }
   function assertCalibrationScope({ runId, beatId, operation = CALIBRATION_OPERATION } = {}) {
     fail(runId === CALIBRATION_RUN_ID, 'PHASE3_CALIBRATION_RUN_FORBIDDEN');
     fail(beatId === CALIBRATION_BEAT_ID, 'PHASE3_CALIBRATION_BEAT_FORBIDDEN');
@@ -707,14 +721,16 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
     'PHASE3_CALIBRATION_REQUEST_PARAMETERS_INVALID');
     return request;
   }
-  function recognizedCalibrationFiles(runDir, { includeTemporary = false } = {}) {
-    const present = Object.values(CALIBRATION_FILES).filter(relative => fsImpl.existsSync(calibrationPath(runDir, relative)));
-    const beatDir = calibrationPath(runDir, CALIBRATION_BEAT_ID);
-    if (includeTemporary && fsImpl.existsSync(beatDir)) {
+  function recognizedCalibrationFiles(runDir, { includeTemporary = false, includeSourceStill = false } = {}) {
+    const present = [...Object.values(CALIBRATION_FILES), ...(includeSourceStill ? Object.values(CALIBRATION_SOURCE_STILL_FILES) : [])]
+      .filter(relative => fsImpl.existsSync(calibrationPath(runDir, relative)));
+    if (includeTemporary) for (const beatId of includeSourceStill ? [CALIBRATION_BEAT_ID, 'ACT1_B009'] : [CALIBRATION_BEAT_ID]) {
+      const beatDir = calibrationPath(runDir, beatId);
+      if (!fsImpl.existsSync(beatDir)) continue;
       const stat = fsImpl.lstatSync(beatDir);
       fail(stat.isDirectory() && !stat.isSymbolicLink(), 'PHASE3_CALIBRATION_DIRECTORY_INVALID');
       for (const name of fsImpl.readdirSync(beatDir)) {
-        const relative = `${CALIBRATION_BEAT_ID}/${name}`;
+        const relative = `${beatId}/${name}`;
         if (name.includes('.tmp-') && !present.includes(relative)) present.push(relative);
       }
     }
@@ -1075,7 +1091,7 @@ module.exports = { OUTER_INDEX_SHA256, CANDIDATE_INDEX_SHA256, B015_APPROVAL_SHA
   CALIBRATION_OPERATION, CALIBRATION_ENDPOINT, CALIBRATION_REQUEST_KEY, CALIBRATION_POSITIVE_PROMPT_SHA256,
   CALIBRATION_NEGATIVE_INSTRUCTIONS_SHA256, CALIBRATION_SERIALIZED_PROMPT_SHA256,
   CALIBRATION_ASSET_CLASS, CALIBRATION_OWNERSHIP_DISPOSITION, CALIBRATION_MAX_EXPOSURE_USD,
-  CALIBRATION_AUTHORIZATION_STATEMENT, CALIBRATION_FILES,
+  CALIBRATION_AUTHORIZATION_STATEMENT, CALIBRATION_FILES, CALIBRATION_SOURCE_STILL_FILES,
   EXPECTED_METHODS, RUN_RE, sha, safeRel, walkFiles, verifyIndex, verifyOuterPackage, verifyApprovalBindings,
   verifyDetachedApprovals, verifyStage04, assertNoPhase3Locks, deriveCensus, makeStagedIndex, createMediaExecution,
   verifyStage04StagedContext, verifyFilesFromList, copyIndexedTree, assertReviewRootPolicy,

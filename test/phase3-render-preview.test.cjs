@@ -15,6 +15,7 @@ const pilotWorkflow = require('../pipeline-updates/phase3-media-pilot.cjs');
 const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
 const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs');
 const calibrationRoutes = require('../pipeline-updates/phase3-media-calibration-bundle.cjs');
+const b009SourceStill = require('../pipeline-updates/phase3-media-calibration-source-still.cjs');
 const mediaExecutionCli = require('../scripts/phase3-media-execution.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
@@ -3036,4 +3037,201 @@ test('inspection rejects a successful receipt whose PNG bytes no longer match', 
   fs.appendFileSync(path.join(f.staged.runDirectory, ...mediaExecution.CALIBRATION_FILES.output.split('/')), Buffer.from([0]));
   assert.throws(() => f.runner.inspectCalibrationStill({ runId: mediaExecution.CALIBRATION_RUN_ID,
     beatId: mediaExecution.CALIBRATION_BEAT_ID }), /PHASE3_CALIBRATION_OUTPUT_RECEIPT_OR_LEDGER_MISMATCH/);
+});
+
+function makeB009SourceStillFixture(t, options = {}) {
+  const f = makeMediaExecutionFixture();
+  t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const staged = f.runner.stage({ runId: b009SourceStill.RUN_ID });
+  const reviewRoot = path.join(f.root, 'episode', '.review', 'phase3-media-execution');
+  const state = { providerCalls: 0, downloadCalls: 0, requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 };
+  const workflow = b009SourceStill.createB009SourceStillWorkflow({ stagedRunner: f.runner,
+    episodeRoot: path.join(f.root, 'episode'), reviewRoot,
+    b006ApprovalPath: path.join(DETACHED_APPROVAL_ROOT,
+      'phase3-act1-b006-calibration-human-approval-20261005.v1.json'),
+    verifyB006StateFn: options.verifyB006StateFn || (() => true),
+    reconciliationPath: options.reconciliationPath,
+    routeBundlePath: options.routeBundlePath,
+    provider: options.provider || { generateStill: async request => {
+      state.providerCalls += 1; state.providerRequest = request;
+      return { url: 'https://unit-test.fal.media/b009.png', imageCount: 1,
+        providerRequestId: 'b009-test-request', actualChargeUsd: 0.024 };
+    } },
+    downloader: options.downloader || (async () => {
+      state.downloadCalls += 1; return { bytes: pilotPng(1360, 768), contentType: 'image/png' };
+    }), now: () => '2026-10-05T16:00:00.000Z', testHooks: options.testHooks || {} });
+  const runDir = staged.runDirectory;
+  const beatDir = path.join(runDir, b009SourceStill.BEAT_ID);
+  function authorize(mutator) {
+    fs.mkdirSync(beatDir, { recursive: false });
+    const moduleBytes = fs.readFileSync(require.resolve('../pipeline-updates/phase3-media-calibration-source-still.cjs'));
+    const executionModuleBytes = fs.readFileSync(require.resolve('../pipeline-updates/phase3-media-execution.cjs'));
+    const cliBytes = fs.readFileSync(require.resolve('../scripts/phase3-media-execution.cjs'));
+    const record = workflow.makeAuthTemplate({ moduleSha256: sha(moduleBytes),
+      executionModuleSha256: sha(executionModuleBytes), cliSha256: sha(cliBytes),
+      authorizedAt: '2026-10-05T15:59:00.000Z' });
+    if (mutator) mutator(record);
+    const bytes = Buffer.from(`${JSON.stringify(record, null, 2)}\n`);
+    fs.writeFileSync(path.join(beatDir, path.basename(b009SourceStill.FILES.authorization)), bytes, { flag: 'wx' });
+    return { record, bytes, sha256: sha(bytes) };
+  }
+  return { ...f, episodeRoot: path.join(f.root, 'episode'), staged, reviewRoot, runDir, beatDir, workflow, state, authorize };
+}
+
+test('B009 stale route-bundle request key is reproducibly reconciled from exact v5 candidate inputs', t => {
+  const f = makeB009SourceStillFixture(t);
+  const routeBytesBefore = fs.readFileSync(path.join(DETACHED_APPROVAL_ROOT,
+    'phase3-media-execution-calibration-route-bundle-20261004.v1.json'));
+  const result = f.workflow.assertBindings();
+  assert.equal(result.request.requestKey, 'f10feb2552874270ce4af7705e5648e4beede07faedfa2a72072ba6633afdd02');
+  assert.equal(result.request.requestKey, b009SourceStill.REQUEST_KEY);
+  assert.equal(result.request.endpoint, 'blackforestlabs/flux-3/text-to-image');
+  assert.equal(result.request.serializationDelimiter, calibrationRoutes.FLUX_NEGATIVE_PROMPT_DELIMITER);
+  assert.equal(result.reconciliationSha256, b009SourceStill.RECONCILIATION_SHA256);
+  assert.equal(sha(routeBytesBefore), b009SourceStill.ROUTE_BUNDLE_SHA256);
+  assert.deepEqual(fs.readFileSync(path.join(DETACHED_APPROVAL_ROOT,
+    'phase3-media-execution-calibration-route-bundle-20261004.v1.json')), routeBytesBefore);
+});
+
+test('B006 approval records truthful in-memory inspection provenance and exact media bindings', () => {
+  const file = path.join(DETACHED_APPROVAL_ROOT, 'phase3-act1-b006-calibration-human-approval-20261005.v1.json');
+  const bytes = fs.readFileSync(file), record = JSON.parse(bytes.toString('utf8'));
+  assert.equal(sha(bytes), 'd00ce391df1822468eb7fe2d07f85fc6404c483e1a79105c9e50aaa875c1dcd1');
+  assert.equal(record.status, 'APPROVED_FOR_CALIBRATION_VALIDATION_ONLY');
+  assert.equal(record.output.bytes, 1445712);
+  assert.equal(record.output.sha256, '5315292eecda643f19472224474cb011c70b4e7a3e104899ca6542b21ef1fe36');
+  assert.equal(record.inspection.mechanism, 'runner-returned read-only inspection plus human visual review');
+  assert.equal(record.inspection.persistedRunnerInspectionArtifact, null);
+  assert.equal(record.inspection.inspectionArtifactSha256, null);
+  assert.equal(record.inspection.originalMediaByteVerification, 'PASS');
+  assert.equal(record.restrictions.act1B009Authority, false);
+});
+
+test('B009 read-only status and preflight bind exact candidate without creating run files or locks', t => {
+  const f = makeB009SourceStillFixture(t);
+  const before = mediaExecution.walkFiles(f.runDir);
+  const result = f.workflow.preflight();
+  assert.equal(result.status, 'EXECUTION_READY_UNAUTHORIZED');
+  assert.equal(result.requestKey, b009SourceStill.REQUEST_KEY);
+  assert.equal(result.sourceStillRequest.authorization.present, false);
+  assert.equal(result.sourceStillRequest.providerRequests, 0);
+  assert.equal(result.maximumProviderSubmissions, 1);
+  assert.equal(result.humanApprovalRequiredBeforeAnimation, true);
+  assert.equal(result.episodeRootWrites, 0);
+  assert.deepEqual(mediaExecution.walkFiles(f.runDir), before);
+  assert.equal(fs.existsSync(f.beatDir), false);
+});
+
+test('B009 source-still authorization is one-request only and rejects changed or stale bindings before writes', t => {
+  const valid = makeB009SourceStillFixture(t); const auth = valid.authorize();
+  assert.equal(valid.workflow.status().status, 'EXECUTION_AUTHORIZED_SAFE_TO_INVOKE');
+  assert.equal(valid.workflow.status().authorization.sha256, auth.sha256);
+  assert.equal(valid.workflow.preflight().status, 'EXECUTION_AUTHORIZED_NOT_EXECUTED');
+  assert.throws(() => valid.runner.preflight({ runId: b009SourceStill.RUN_ID }),
+    /PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE/);
+  assert.equal(valid.state.providerCalls, 0);
+  const altered = makeB009SourceStillFixture(t); altered.authorize(record => { record.request.retries = 1; });
+  assert.equal(altered.workflow.status().authorization.valid, false);
+  assert.equal(altered.state.providerCalls, 0);
+  const badReconciliation = makeB009SourceStillFixture(t);
+  const copy = path.join(badReconciliation.root, 'reconciliation.json');
+  const original = fs.readFileSync(path.join(DETACHED_APPROVAL_ROOT,
+    'phase3-act1-b009-request-key-reconciliation-20261005.v1.json'));
+  fs.writeFileSync(copy, Buffer.concat([original, Buffer.from(' ')]));
+  assert.throws(() => b009SourceStill.createB009SourceStillWorkflow({ stagedRunner: badReconciliation.runner,
+    episodeRoot: path.join(badReconciliation.root, 'episode'), reviewRoot: badReconciliation.reviewRoot,
+    b006ApprovalPath: path.join(DETACHED_APPROVAL_ROOT, 'phase3-act1-b006-calibration-human-approval-20261005.v1.json'),
+    verifyB006StateFn: () => true, reconciliationPath: copy }).status(),
+  /PHASE3_B009_REQUEST_RECONCILIATION_HASH_MISMATCH/);
+});
+
+test('B009 generation reserves once, invokes one image request, inspects exact PNG and keeps outputs non-production', async t => {
+  const f = makeB009SourceStillFixture(t); const auth = f.authorize();
+  const generated = await f.workflow.generate({ expectedAuthorizationSha256: auth.sha256 });
+  assert.equal(generated.status, 'GENERATED_PENDING_HUMAN_REVIEW');
+  assert.equal(generated.requestKey, b009SourceStill.REQUEST_KEY);
+  assert.equal(f.state.providerCalls, 1); assert.equal(f.state.downloadCalls, 1);
+  assert.equal(f.state.providerRequest.endpoint, calibrationRoutes.FLUX3_ENDPOINT);
+  assert.deepEqual(f.state.providerRequest.input, {
+    prompt: f.workflow.assertBindings().request.submittedPrompt,
+    resolution: '1k', aspect_ratio: '16:9', output_format: 'png', num_images: 1, enable_prompt_expansion: false,
+  });
+  assert.equal(f.state.providerRequest.retries, 0); assert.equal(f.state.providerRequest.fallback, false);
+  const inspected = f.workflow.inspect();
+  assert.equal(inspected.status, 'INSPECTED_PENDING_HUMAN_REVIEW');
+  assert.equal(inspected.output.format, 'PNG'); assert.equal(inspected.output.width, 1360);
+  assert.equal(inspected.output.height, 768); assert.equal(inspected.approved, false);
+  const ledger = mediaExecution.readCalibrationLedger(path.join(f.beatDir,
+    path.basename(b009SourceStill.FILES.ledger)));
+  assert.deepEqual(ledger.map(item => item.recordType), ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+  assert.equal(ledger[1].status, 'SUCCEEDED'); assert.equal(ledger[1].retryCount, 0);
+  assert.equal(ledger[1].fallbackUsed, false);
+  assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009SourceStill.FILES.lock))), false);
+  assert.equal(fs.existsSync(path.join(f.episodeRoot, 'assets')), false);
+  assert.equal(fs.existsSync(path.join(f.episodeRoot, 'render-output')), false);
+  assert.equal(inspected.assetClass, 'NON_PRODUCTION_DISPOSABLE_CALIBRATION');
+  assert.equal(inspected.productionReadiness, 'REJECTED');
+  assert.equal(inspected.requiresHumanApprovalBeforeAnimation, true);
+});
+
+test('B009 failure after reservation is permanent, releases lock, and leaves animation blocked', async t => {
+  const f = makeB009SourceStillFixture(t, { testHooks: { afterReservation: async () => {
+    throw new Error('TEST_STOP_AFTER_RESERVATION');
+  } } });
+  const auth = f.authorize();
+  await assert.rejects(() => f.workflow.generate({ expectedAuthorizationSha256: auth.sha256 }), /TEST_STOP_AFTER_RESERVATION/);
+  assert.equal(f.state.providerCalls, 0);
+  const status = f.workflow.status();
+  assert.equal(status.status, 'FAILED_REQUEST_KEY_PERMANENTLY_CONSUMED');
+  assert.equal(status.requestKeyConsumed, true); assert.equal(status.animationAuthorized, false);
+  assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009SourceStill.FILES.lock))), false);
+  assert.throws(() => f.workflow.preflight(), /PHASE3_B009_NOT_READY/);
+  assert.deepEqual(mediaExecution.readCalibrationLedger(path.join(f.beatDir,
+    path.basename(b009SourceStill.FILES.ledger))).map(item => item.recordType), ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+});
+
+test('B009 pre-reservation failure is validated, consumed for retry purposes, and never reaches the provider', async t => {
+  const f = makeB009SourceStillFixture(t, { testHooks: { beforeReservation: async () => {
+    throw new Error('TEST_STOP_BEFORE_RESERVATION');
+  } } });
+  const auth = f.authorize();
+  await assert.rejects(() => f.workflow.generate({ expectedAuthorizationSha256: auth.sha256 }), /TEST_STOP_BEFORE_RESERVATION/);
+  assert.equal(f.state.providerCalls, 0);
+  const status = f.workflow.status();
+  assert.equal(status.status, 'FAILED_BEFORE_RESERVATION_NOT_RETRYABLE');
+  assert.equal(status.failureReceipt.failureStage, 'BEFORE_RESERVATION');
+  assert.equal(status.reservationState, 'ABSENT');
+  assert.equal(status.requestKeyConsumed, false);
+  await assert.rejects(() => f.workflow.generate({ expectedAuthorizationSha256: auth.sha256 }), /PHASE3_B009_RUN_ALREADY_USED/);
+  assert.equal(f.state.providerCalls, 0);
+  assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009SourceStill.FILES.lock))), false);
+});
+
+test('B009 altered failure receipts and malformed result ledgers fail closed', async t => {
+  const f = makeB009SourceStillFixture(t, { testHooks: { beforeReservation: async () => {
+    throw new Error('TEST_FAILURE_RECEIPT');
+  } } });
+  const auth = f.authorize();
+  await assert.rejects(() => f.workflow.generate({ expectedAuthorizationSha256: auth.sha256 }));
+  const failurePath = path.join(f.beatDir, path.basename(b009SourceStill.FILES.failure));
+  fs.appendFileSync(failurePath, ' ');
+  assert.throws(() => f.workflow.status(), /PHASE3_B009_FAILURE_RECEIPT_INVALID/);
+  const extra = makeB009SourceStillFixture(t);
+  extra.authorize();
+  const ledgerPath = path.join(extra.beatDir, path.basename(b009SourceStill.FILES.ledger));
+  fs.writeFileSync(ledgerPath, '{"schemaVersion":"x"}\n');
+  assert.throws(() => extra.workflow.status(), /PHASE3_CALIBRATION_LEDGER_CHAIN_INVALID|PHASE3_B009_LEDGER_INVALID/);
+});
+
+test('B009 rejects unknown files, alternate run/beat CLI scope, and any existing reservation', t => {
+  const f = makeB009SourceStillFixture(t);
+  const auth = f.authorize();
+  fs.writeFileSync(path.join(f.beatDir, 'unexpected.json'), '{}\n');
+  assert.throws(() => f.workflow.status(), /PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE/);
+  assert.throws(() => mediaExecutionCli.parseArgs(['--generate-calibration-source-still', '--phase3-run-id',
+    b009SourceStill.RUN_ID, '--beat-id', 'ACT1_B006', '--expected-execution-authorization-sha256', auth.sha256]),
+  /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
+  assert.throws(() => mediaExecutionCli.parseArgs(['--generate-calibration-source-still', '--phase3-run-id',
+    'phase3-media-execution-v5-other', '--beat-id', b009SourceStill.BEAT_ID,
+    '--expected-execution-authorization-sha256', auth.sha256]), /PHASE3_CALIBRATION_RUN_FORBIDDEN/);
 });

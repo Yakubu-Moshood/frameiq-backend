@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "phase3-calibration-request-key-reconciliation/1.0.0",
+  "status": "RECONCILED_PLANNING_BINDING_ONLY",
+  "reconciledAt": "2026-10-05T15:02:22.000Z",
+  "approvedBy": "Yakubu Moshood",
+  "approvalScope": "documented correction of the stale ACT1_B009 source-still request-key field only",
+  "bindings": {
+    "runId": "phase3-media-execution-v5-20261004-01",
+    "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "outerPackageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "routeBundlePath": "artifacts/empire-omitted-v3/wells-fargo/phase3-media-execution-calibration-route-bundle-20261004.v1.json",
+    "routeBundleSha256": "6981bda36cd4e9dda4da5b701fb23b2f705e1fd5bb04fcca30157160bac85b42",
+    "routeResolutionApprovalSha256": "bfa8c0d00c8dbb81d4516a663b1ce3c5ef22cd199fed4f95a545468bc3676b14"
+  },
+  "staleRequestKey": "81416755ae3844e846336f755352b84699dbeec88415093f7f283e4b3b378d0f",
+  "authoritativeRequestKey": "f10feb2552874270ce4af7705e5648e4beede07faedfa2a72072ba6633afdd02",
+  "derivation": {
+    "algorithm": "lowercase hex SHA-256 of UTF-8 JSON.stringify(canonicalObject), where canonicalObject recursively sorts every object's keys and preserves array order",
+    "schemaVersion": "phase3-calibration-request-key/2.0.0",
+    "canonicalInput": {
+      "runId": "phase3-media-execution-v5-20261004-01",
+      "beatId": "ACT1_B009",
+      "operation": "GENERATE_ANIMATION_SOURCE_STILL",
+      "modelId": "blackforestlabs/flux-3/text-to-image",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "positivePrompt": "Female bank employee seated at corporate workstation in retail banking environment. Medium skin tone, professional attire, no distinctive identifying features. Face visible in three-quarter profile, expression shifting from routine to subtle concern. Computer monitor visible but screen content abstracted. Hand hovering over keyboard, motion paused. Fluorescent office lighting, neutral corporate interior with cubicle walls. Teller window environment suggested in background blur.",
+      "negativeInstructions": "identifiable real person, celebrity likeness, Wells Fargo branding, readable screens, specific documents, company logos, news footage appearance, named individuals",
+      "serializationDelimiter": "\n\nSTRICT EXCLUSIONS — DO NOT INCLUDE:\n",
+      "submittedPrompt": "Female bank employee seated at corporate workstation in retail banking environment. Medium skin tone, professional attire, no distinctive identifying features. Face visible in three-quarter profile, expression shifting from routine to subtle concern. Computer monitor visible but screen content abstracted. Hand hovering over keyboard, motion paused. Fluorescent office lighting, neutral corporate interior with cubicle walls. Teller window environment suggested in background blur.\n\nSTRICT EXCLUSIONS — DO NOT INCLUDE:\nidentifiable real person, celebrity likeness, Wells Fargo branding, readable screens, specific documents, company logos, news footage appearance, named individuals",
+      "parameters": {
+        "resolution": "1k",
+        "aspect_ratio": "16:9",
+        "output_format": "png",
+        "enable_prompt_expansion": false
+      },
+      "sourceSha256": null,
+      "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad"
+    },
+    "recomputedPositivePromptSha256": "5bd66158c9e8823ebfd25233d86cf2f24a0c3af0ce12bde0669a32599251cacf",
+    "recomputedNegativeInstructionsSha256": "1e07c7c0150f5f29cb5b20bee765e3e8056a4928013cd35771ecefabb078bae9",
+    "recomputedSerializedPromptSha256": "f00a4f9bbc2b9ce77976d0bf0bd0aa6a61f2bd34a2684660ff48048948c506a7",
+    "reproducedRequestKey": "f10feb2552874270ce4af7705e5648e4beede07faedfa2a72072ba6633afdd02"
+  },
+  "stalenessExplanation": "The route-bundle key does not reproduce from the exact prompt fields in the hash-verified v5 candidate under the committed phase3-calibration-request-key/2.0.0 canonical serialization. The committed route implementation independently recomputes the authoritative key from those inputs. This reconciliation changes only the detached planning binding; the indexed route bundle and approved prompts remain unchanged.",
+  "unchanged": {
+    "promptBytes": true,
+    "endpoint": true,
+    "creativeInstructions": true,
+    "priceAssumptions": true,
+    "providerExecutionAuthorityGranted": false,
+    "providerRequestsAuthorized": 0
+  }
+}

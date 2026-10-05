@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "phase3-calibration-human-approval/1.0.0",
+  "status": "APPROVED_FOR_CALIBRATION_VALIDATION_ONLY",
+  "approvedBy": "Yakubu Moshood",
+  "approvedAt": "2026-10-05T15:02:22.000Z",
+  "runId": "phase3-media-execution-v5-20261004-01",
+  "beatId": "ACT1_B006",
+  "operation": "GENERATE_STILL",
+  "requestKey": "c05d73bed54a10ddd74e79c7b8d4f8c493ad1e6b601a723dd1a733ebbe950fd9",
+  "bindings": {
+    "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "outerIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "routeResolutionApprovalSha256": "bfa8c0d00c8dbb81d4516a663b1ce3c5ef22cd199fed4f95a545468bc3676b14",
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04LedgerBaselineSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "executionAuthorizationSha256": "b08ebd11da1018aafa388bf54e173655938453e50fc10bece4091a40c87abcc3",
+    "generationReceiptSha256": "730f1df08b948727c4c7950f8e0a70d51935d8ff69fdd72e5f7f3fce376175fd",
+    "calibrationLedgerSha256": "f4ef26ce9b91d7976aecaa0e0a84014ae6d59a9726ce59f391ba8f63d1f417c1"
+  },
+  "output": {
+    "runRelativePath": "ACT1_B006/ACT1_B006-calibration.png",
+    "reviewCopyPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b006-calibration-review-20261005-v1/ACT1_B006-calibration.png",
+    "bytes": 1445712,
+    "sha256": "5315292eecda643f19472224474cb011c70b4e7a3e104899ca6542b21ef1fe36",
+    "format": "PNG",
+    "width": 1360,
+    "height": 768
+  },
+  "inspection": {
+    "mechanism": "runner-returned read-only inspection plus human visual review",
+    "persistedRunnerInspectionArtifact": null,
+    "inspectionStatusObserved": "INSPECTED_PENDING_HUMAN_REVIEW",
+    "originalMediaByteVerification": "PASS",
+    "inspectionArtifactSha256": null
+  },
+  "decision": "I approve the ACT1_B006 calibration still for calibration validation only. It remains NON_PRODUCTION_DISPOSABLE_CALIBRATION and is not authorized for production use, rendering, promotion, or episode-root integration. This approval grants no authority for ACT1_B005, ACT1_B009, or another provider request.",
+  "restrictions": {
+    "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION",
+    "productionUse": false,
+    "rendering": false,
+    "promotion": false,
+    "episodeRootIntegration": false,
+    "additionalProviderRequest": false,
+    "act1B005Authority": false,
+    "act1B009Authority": false
+  }
+}
