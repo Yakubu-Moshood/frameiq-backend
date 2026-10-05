@@ -687,11 +687,46 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
         promotedPathsMatch: true }, requestLedgerSha256: stage04.requestLedgerSha256,
       providerRequests: 0, episodeRootWrites: 0 };
   }
-  function preflight({ runId, includeSourceStillCalibration = false } = {}) {
+  function preflight({ runId, includeSourceStillCalibration = false, completedSourceStillVerification = null } = {}) {
     const runDir = path.join(reviewRoot, runId);
     const allowedAdditionalRunFiles = fsImpl.existsSync(runDir)
       ? recognizedCalibrationFiles(runDir, { includeTemporary: true, includeSourceStill: includeSourceStillCalibration }) : [];
-    return verifyStagedState({ runId, allowedAdditionalRunFiles });
+    if (completedSourceStillVerification !== null) {
+      const proof = completedSourceStillVerification;
+      const expectedFiles = Object.values(CALIBRATION_SOURCE_STILL_FILES)
+        .filter(relative => !relative.endsWith('/source-still.lock') && !relative.endsWith('/source-still-failure-receipt.v1.json'))
+        .sort();
+      fail(runId === CALIBRATION_RUN_ID
+        && proof?.schemaVersion === 'phase3-act1-b009-completed-source-still-verification/1.0.0'
+        && proof.status === 'COMPLETED_SOURCE_STILL_APPROVED_FOR_ANIMATION_INPUT_ONLY'
+        && proof.runId === CALIBRATION_RUN_ID && proof.beatId === 'ACT1_B009'
+        && proof.requestKey === 'f10feb2552874270ce4af7705e5648e4beede07faedfa2a72072ba6633afdd02'
+        && proof.approvalSha256 === '8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c'
+        && proof.authorizationSha256 === '0b3b6ca57f7a8895a97bc5a67501704cbbf74a437c7053d99b0882499b5a3599'
+        && proof.receiptSha256 === '95b75386224f14b213750667cd4715705e28428f5d868d545cfe7c0036294285'
+        && proof.ledgerSha256 === 'f59d219075a2e94476f94b74dd444517980599ad50be499e6c682838ee6c7823'
+        && proof.outputSha256 === '0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc'
+        && proof.historicalRuntimeHashes?.moduleSha256 === 'c3356b2db07b0d2a954a88ebc188e2eb20cdef4a17f4b9c6e5f8c6ec168ee439'
+        && proof.historicalRuntimeHashes?.executionModuleSha256 === '206fa77609e681e18dd62708208a2dc47eebbcc9d666c46bb8d231b02f2dc79e'
+        && proof.historicalRuntimeHashes?.cliSha256 === '15f206469da1ba11f50c8b1596688cb123ae3b5c8f2b8ea21ceb0fba35e42c86'
+        && JSON.stringify(proof.allowedRunFiles) === JSON.stringify(expectedFiles),
+      'PHASE3_MEDIA_EXECUTION_COMPLETED_SOURCE_STILL_PROOF_INVALID');
+      allowedAdditionalRunFiles.push(...proof.allowedRunFiles);
+    }
+    const result = verifyStagedState({ runId, allowedAdditionalRunFiles });
+    if (completedSourceStillVerification) result.completedSourceStill = {
+      status: completedSourceStillVerification.status,
+      beatId: completedSourceStillVerification.beatId,
+      requestKey: completedSourceStillVerification.requestKey,
+      authorizationSha256: completedSourceStillVerification.authorizationSha256,
+      receiptSha256: completedSourceStillVerification.receiptSha256,
+      ledgerSha256: completedSourceStillVerification.ledgerSha256,
+      outputSha256: completedSourceStillVerification.outputSha256,
+      approvalSha256: completedSourceStillVerification.approvalSha256,
+      historicalRuntimeHashes: completedSourceStillVerification.historicalRuntimeHashes,
+      productionReadiness: 'REJECTED',
+    };
+    return result;
   }
   function assertCalibrationScope({ runId, beatId, operation = CALIBRATION_OPERATION } = {}) {
     fail(runId === CALIBRATION_RUN_ID, 'PHASE3_CALIBRATION_RUN_FORBIDDEN');

@@ -3045,14 +3045,19 @@ function makeB009SourceStillFixture(t, options = {}) {
   t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
   const staged = f.runner.stage({ runId: b009SourceStill.RUN_ID });
   const reviewRoot = path.join(f.root, 'episode', '.review', 'phase3-media-execution');
+  const approvalPath = typeof options.approvalPath === 'function' ? options.approvalPath(f.root)
+    : options.approvalPath || path.join(DETACHED_APPROVAL_ROOT,
+      'phase3-act1-b009-source-still-human-approval-20261005.v2.json');
   const state = { providerCalls: 0, downloadCalls: 0, requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 };
   const workflow = b009SourceStill.createB009SourceStillWorkflow({ stagedRunner: f.runner,
     episodeRoot: path.join(f.root, 'episode'), reviewRoot,
+    approvalPath,
     b006ApprovalPath: path.join(DETACHED_APPROVAL_ROOT,
       'phase3-act1-b006-calibration-human-approval-20261005.v1.json'),
     verifyB006StateFn: options.verifyB006StateFn || (() => true),
     reconciliationPath: options.reconciliationPath,
     routeBundlePath: options.routeBundlePath,
+    completedStateVerifier: options.completedStateVerifier || null,
     provider: options.provider || { generateStill: async request => {
       state.providerCalls += 1; state.providerRequest = request;
       return { url: 'https://unit-test.fal.media/b009.png', imageCount: 1,
@@ -3076,8 +3081,126 @@ function makeB009SourceStillFixture(t, options = {}) {
     fs.writeFileSync(path.join(beatDir, path.basename(b009SourceStill.FILES.authorization)), bytes, { flag: 'wx' });
     return { record, bytes, sha256: sha(bytes) };
   }
-  return { ...f, episodeRoot: path.join(f.root, 'episode'), staged, reviewRoot, runDir, beatDir, workflow, state, authorize };
+  return { ...f, episodeRoot: path.join(f.root, 'episode'), staged, reviewRoot, runDir, beatDir, workflow, state, authorize, approvalPath };
 }
+
+async function makeCompletedB009VerificationFixture(t) {
+  let expected = null;
+  const f = makeB009SourceStillFixture(t, { approvalPath: root => path.join(root, 'detached-source-still-approval.json'),
+    completedStateVerifier: options => b009SourceStill.verifyCompletedSourceStillStateForTest({ ...options, expected }) }), authorization = f.authorize();
+  await f.workflow.generate({ expectedAuthorizationSha256: authorization.sha256 });
+  const bytesAt = key => fs.readFileSync(path.join(f.beatDir, path.basename(b009SourceStill.FILES[key])));
+  const authorizationBytes = bytesAt('authorization'), receiptBytes = bytesAt('receipt');
+  const ledgerBytes = bytesAt('ledger'), outputBytes = bytesAt('output');
+  const authRecord = JSON.parse(authorizationBytes.toString('utf8'));
+  const receipt = JSON.parse(receiptBytes.toString('utf8'));
+  const result = JSON.parse(bytesAt('result').toString('utf8'));
+  const ledgerSha256 = sha(ledgerBytes), outputSha256 = sha(outputBytes);
+  const approvalPath = f.approvalPath;
+  const approval = JSON.parse(fs.readFileSync(path.join(DETACHED_APPROVAL_ROOT,
+    'phase3-act1-b009-source-still-human-approval-20261005.v2.json'), 'utf8'));
+  Object.assign(approval.bindings, {
+    sourceStillAuthorizationSha256: sha(authorizationBytes), sourceStillReceiptSha256: sha(receiptBytes),
+    sourceStillLedgerSha256: ledgerSha256, sourceStillSha256: outputSha256, sourceStillBytes: outputBytes.length,
+    sourceStillWidth: 1360, sourceStillHeight: 768,
+    deployedSourceStillWorkflowSha256: authRecord.bindings.deployedSourceStillWorkflowSha256,
+    deployedMediaExecutionModuleSha256: authRecord.bindings.deployedMediaExecutionModuleSha256,
+    deployedCliSha256: authRecord.bindings.deployedCliSha256,
+  });
+  const approvalBytes = Buffer.from(`${JSON.stringify(approval, null, 2)}\n`);
+  fs.writeFileSync(approvalPath, approvalBytes, { flag: 'wx' });
+  expected = {
+    runId: b009SourceStill.RUN_ID, beatId: b009SourceStill.BEAT_ID, operation: b009SourceStill.OPERATION,
+    requestKey: b009SourceStill.REQUEST_KEY, approvalSha256: sha(approvalBytes),
+    authorizationSha256: sha(authorizationBytes), receiptSha256: sha(receiptBytes), ledgerSha256,
+    outputSha256, outputBytes: outputBytes.length, width: 1360, height: 768,
+    stagedIndexSha256: calibrationRoutes.TRUST.stagedIndexSha256,
+    candidateIndexSha256: calibrationRoutes.TRUST.candidateIndexSha256,
+    outerIndexSha256: calibrationRoutes.TRUST.outerIndexSha256,
+    routeBundleSha256: b009SourceStill.ROUTE_BUNDLE_SHA256,
+    routeResolutionApprovalSha256: calibrationRoutes.ROUTE_APPROVAL_SHA256,
+    reconciliationSha256: b009SourceStill.RECONCILIATION_SHA256,
+    stage04ActivationRecordSha256: 'f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d',
+    stage04LedgerBaselineSha256: mediaExecution.REQUEST_LEDGER_SHA256,
+    assetClass: b009SourceStill.CLASSIFICATION,
+  };
+  const proof = b009SourceStill.verifyCompletedSourceStillStateForTest({ runDir: f.runDir, approvalPath, expected });
+  assert.equal(f.workflow.status().status, 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY');
+  const completedPreflight = f.workflow.preflight();
+  assert.equal(completedPreflight.status, 'COMPLETED_APPROVED_NOT_AUTHORIZED_FOR_PRODUCTION');
+  assert.equal(completedPreflight.animationExecutionAuthority, false);
+  return { ...f, expected, proof, approvalPath, hashes: { approval: sha(approvalBytes), authorization: sha(authorizationBytes),
+    receipt: sha(receiptBytes), ledger: ledgerSha256, output: outputSha256 }, receipt, result, authRecord };
+}
+
+test('completed B009 verifier accepts only the exact human-approved historical source-still state', async t => {
+  const f = await makeCompletedB009VerificationFixture(t);
+  assert.equal(f.proof.status, 'COMPLETED_SOURCE_STILL_APPROVED_FOR_ANIMATION_INPUT_ONLY');
+  assert.equal(f.proof.historicalRuntimeHashes.cliSha256, f.authRecord.bindings.deployedCliSha256);
+  assert.equal(f.proof.historicalRuntimeHashes.cliSha256, JSON.parse(fs.readFileSync(f.approvalPath, 'utf8'))
+    .bindings.deployedCliSha256);
+  const pinnedHumanApproval = JSON.parse(fs.readFileSync(path.join(DETACHED_APPROVAL_ROOT,
+    'phase3-act1-b009-source-still-human-approval-20261005.v2.json'), 'utf8'));
+  assert.equal(pinnedHumanApproval.bindings.deployedCliSha256,
+    '15f206469da1ba11f50c8b1596688cb123ae3b5c8f2b8ea21ceb0fba35e42c86');
+  assert.notEqual(pinnedHumanApproval.bindings.deployedCliSha256,
+    sha(fs.readFileSync(require.resolve('../scripts/phase3-media-execution.cjs'))),
+  'the real approved source-still runtime predates the current CLI');
+  assert.deepEqual(f.proof.allowedRunFiles, Object.values(b009SourceStill.FILES)
+    .filter(relative => ['authorization', 'ledger', 'output', 'receipt', 'result'].some(key => b009SourceStill.FILES[key] === relative)).sort());
+  const check = () => b009SourceStill.verifyCompletedSourceStillStateForTest({ runDir: f.runDir,
+    approvalPath: f.approvalPath, expected: f.expected });
+  const files = [
+    [b009SourceStill.FILES.authorization, 'authorization'], [b009SourceStill.FILES.receipt, 'receipt'],
+    [b009SourceStill.FILES.result, 'result'], [b009SourceStill.FILES.output, 'output'],
+    [b009SourceStill.FILES.ledger, 'ledger'],
+  ];
+  for (const [relative] of files) {
+    const target = path.join(f.runDir, ...relative.split('/')), original = fs.readFileSync(target);
+    fs.appendFileSync(target, Buffer.from(' '));
+    assert.throws(check, /PHASE3_B009_COMPLETED_(HASH|RECEIPT|RESULT|LEDGER|OUTPUT|HISTORICAL)_/, relative);
+    fs.writeFileSync(target, original);
+  }
+  const approvalBytes = fs.readFileSync(f.approvalPath);
+  fs.appendFileSync(f.approvalPath, Buffer.from(' '));
+  assert.throws(check, /PHASE3_B009_COMPLETED_APPROVAL_HASH_MISMATCH/);
+  fs.writeFileSync(f.approvalPath, approvalBytes);
+  fs.writeFileSync(path.join(f.beatDir, 'unknown.json'), '{}\n');
+  assert.throws(check, /PHASE3_B009_COMPLETED_FILE_SET_INVALID/);
+});
+
+test('overall preflight admits only the verified completed B009 file set and remains read-only', async t => {
+  const f = await makeCompletedB009VerificationFixture(t);
+  const proof = { ...f.proof, approvalSha256: '8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c',
+    authorizationSha256: '0b3b6ca57f7a8895a97bc5a67501704cbbf74a437c7053d99b0882499b5a3599',
+    receiptSha256: '95b75386224f14b213750667cd4715705e28428f5d868d545cfe7c0036294285',
+    ledgerSha256: 'f59d219075a2e94476f94b74dd444517980599ad50be499e6c682838ee6c7823',
+    outputSha256: '0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc',
+    historicalRuntimeHashes: { moduleSha256: 'c3356b2db07b0d2a954a88ebc188e2eb20cdef4a17f4b9c6e5f8c6ec168ee439',
+      executionModuleSha256: '206fa77609e681e18dd62708208a2dc47eebbcc9d666c46bb8d231b02f2dc79e',
+      cliSha256: '15f206469da1ba11f50c8b1596688cb123ae3b5c8f2b8ea21ceb0fba35e42c86' } };
+  const before = mediaExecution.walkFiles(f.runDir).map(relative => [relative,
+    sha(fs.readFileSync(path.join(f.runDir, ...relative.split('/'))))]);
+  assert.throws(() => f.runner.preflight({ runId: b009SourceStill.RUN_ID }), /PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE/);
+  const priorWrite = process.stdout.write;
+  process.stdout.write = () => true;
+  let result;
+  try { result = await mediaExecutionCli.main(['--preflight', '--run-id', b009SourceStill.RUN_ID], f.runner,
+    { verifyCompletedState: () => proof }); }
+  finally { process.stdout.write = priorWrite; }
+  assert.equal(result.runId, b009SourceStill.RUN_ID);
+  assert.equal(result.stage04.status, 'PROMOTED');
+  assert.equal(result.completedSourceStill.status, 'COMPLETED_SOURCE_STILL_APPROVED_FOR_ANIMATION_INPUT_ONLY');
+  assert.equal(result.completedSourceStill.productionReadiness, 'REJECTED');
+  assert.equal(result.providerRequests, 0);
+  assert.deepEqual(mediaExecution.walkFiles(f.runDir).map(relative => [relative,
+    sha(fs.readFileSync(path.join(f.runDir, ...relative.split('/'))))]), before);
+  const providerCallsBefore = f.state.providerCalls;
+  fs.writeFileSync(path.join(f.beatDir, 'unknown-extra.json'), '{}\n');
+  assert.throws(() => f.runner.preflight({ runId: b009SourceStill.RUN_ID,
+    completedSourceStillVerification: proof }), /PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE/);
+  assert.equal(f.state.providerCalls, providerCallsBefore);
+});
 
 test('B009 stale route-bundle request key is reproducibly reconciled from exact v5 candidate inputs', t => {
   const f = makeB009SourceStillFixture(t);
@@ -3346,6 +3469,9 @@ test('B009 animation authorization is one exact ANIMATION_ONLY request and prese
   assert.equal(auth.bindings.sourceStillSha256, b009Animation.SOURCE_STILL_SHA256);
   assert.equal(b009Animation.validateAnimationAuthorization(auth, 'd'.repeat(64),
     { requestKey, runtimeHashes }), true);
+  assert.throws(() => b009Animation.validateAnimationAuthorization(auth, 'd'.repeat(64),
+    { requestKey, runtimeHashes: { ...runtimeHashes, cliSha256: 'e'.repeat(64) } }),
+  /AUTHORIZATION_BINDING_INVALID/, 'animation readiness remains pinned to the current deployed CLI');
   assert.throws(() => b009Animation.validateAnimationAuthorization({ ...auth, scope: 'STILL_ONLY' }, 'd'.repeat(64),
     { requestKey, runtimeHashes }), /AUTHORIZATION_BINDING_INVALID/);
   assert.throws(() => b009Animation.validateAnimationAuthorization({ ...auth, maxProviderSubmissions: 2 }, 'd'.repeat(64),

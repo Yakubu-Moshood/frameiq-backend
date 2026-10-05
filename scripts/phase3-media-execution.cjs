@@ -57,7 +57,7 @@ function parseArgs(args) {
   return { mode: modes[0].slice(2), runId: values['--phase3-run-id'], beatId: values['--beat-id'],
     expectedAuthorizationSha256: values['--expected-execution-authorization-sha256'] || null };
 }
-async function main(args = process.argv.slice(2), runner = RUNNER) {
+async function main(args = process.argv.slice(2), runner = RUNNER, sourceStillWorkflow = B009_SOURCE_STILL) {
   const options = parseArgs(args);
   if (options.help) {
     process.stdout.write('Usage:\n'
@@ -77,7 +77,11 @@ async function main(args = process.argv.slice(2), runner = RUNNER) {
   }
   let result;
   if (options.mode === 'stage') result = runner.stage(options);
-  else if (options.mode === 'preflight') result = runner.preflight(options);
+  else if (options.mode === 'preflight') {
+    const completedSourceStillVerification = options.runId === b009SourceStill.RUN_ID
+      ? sourceStillWorkflow.verifyCompletedState() : null;
+    result = runner.preflight({ ...options, completedSourceStillVerification });
+  }
   else if (options.mode === 'generate-calibration-still') result = await runner.generateCalibrationStill(options);
   else if (options.mode === 'calibration-source-still-status') result = B009_SOURCE_STILL.status();
   else if (options.mode === 'preflight-calibration-source-still') result = B009_SOURCE_STILL.preflight();

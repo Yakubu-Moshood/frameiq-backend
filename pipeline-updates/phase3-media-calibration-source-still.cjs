@@ -30,6 +30,9 @@ const OWNERSHIP = 'UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_CALIBRATION_ONLY';
 const MAX_EXPOSURE_USD = 0.60;
 const EXPECTED_CHARGE_USD = 0.024;
 const MAX_BYTES = 32 * 1024 * 1024;
+const SOURCE_STILL_APPROVAL_SHA256 = '8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c';
+const SOURCE_STILL_APPROVAL_PATH = path.resolve(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+  'phase3-act1-b009-source-still-human-approval-20261005.v2.json');
 
 function fail(ok, code) { if (!ok) throw new Error(code); }
 function sha(bytes) { return crypto.createHash('sha256').update(bytes).digest('hex'); }
@@ -89,6 +92,163 @@ function verifyB006CompletedState({ approvalSha256, authorizationSha256, imageSh
     && terminal?.recordType === 'SUBMISSION_RESULT' && terminal?.status === 'SUCCEEDED'
     && terminal?.requestKey === mediaExecution.CALIBRATION_REQUEST_KEY;
 }
+
+function verifyCompletedSourceStillStateInternal({ runDir, approvalPath = SOURCE_STILL_APPROVAL_PATH,
+  fsImpl = fs, expected = null } = {}) {
+  const trust = expected || {
+    runId: RUN_ID, beatId: BEAT_ID, operation: OPERATION, requestKey: REQUEST_KEY,
+    approvalSha256: SOURCE_STILL_APPROVAL_SHA256,
+    authorizationSha256: '0b3b6ca57f7a8895a97bc5a67501704cbbf74a437c7053d99b0882499b5a3599',
+    receiptSha256: '95b75386224f14b213750667cd4715705e28428f5d868d545cfe7c0036294285',
+    ledgerSha256: 'f59d219075a2e94476f94b74dd444517980599ad50be499e6c682838ee6c7823',
+    outputSha256: '0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc',
+    outputBytes: 1324401, width: 1360, height: 768,
+    stagedIndexSha256: routes.TRUST.stagedIndexSha256,
+    candidateIndexSha256: routes.TRUST.candidateIndexSha256,
+    outerIndexSha256: routes.TRUST.outerIndexSha256,
+    routeBundleSha256: ROUTE_BUNDLE_SHA256,
+    routeResolutionApprovalSha256: routes.ROUTE_APPROVAL_SHA256,
+    reconciliationSha256: RECONCILIATION_SHA256,
+    stage04ActivationRecordSha256: 'f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d',
+    stage04LedgerBaselineSha256: mediaExecution.REQUEST_LEDGER_SHA256,
+    assetClass: CLASSIFICATION,
+  };
+  const failState = code => { throw new Error(code); };
+  if (typeof runDir !== 'string' || !fsImpl.existsSync(runDir)) failState('PHASE3_B009_COMPLETED_RUN_MISSING');
+  const runStat = fsImpl.lstatSync(runDir);
+  if (!runStat.isDirectory() || runStat.isSymbolicLink()) failState('PHASE3_B009_COMPLETED_RUN_INVALID');
+  const beatDir = path.join(runDir, trust.beatId);
+  const beatStat = fsImpl.lstatSync(beatDir);
+  if (!beatStat.isDirectory() || beatStat.isSymbolicLink()) failState('PHASE3_B009_COMPLETED_BEAT_DIRECTORY_INVALID');
+  const expectedNames = ['authorization', 'ledger', 'output', 'receipt', 'result'].map(key =>
+    path.posix.basename(FILES[key])).sort();
+  const actualNames = fsImpl.readdirSync(beatDir).sort();
+  if (canonicalJson(actualNames) !== canonicalJson(expectedNames)) failState('PHASE3_B009_COMPLETED_FILE_SET_INVALID');
+  for (const name of actualNames) {
+    const stat = fsImpl.lstatSync(path.join(beatDir, name));
+    if (!stat.isFile() || stat.isSymbolicLink()) failState('PHASE3_B009_COMPLETED_FILE_TYPE_INVALID');
+  }
+  const read = key => fsImpl.readFileSync(path.join(beatDir, path.posix.basename(FILES[key])));
+  const approvalStat = fsImpl.lstatSync(approvalPath), approvalBytes = fsImpl.readFileSync(approvalPath);
+  if (!approvalStat.isFile() || approvalStat.isSymbolicLink() || sha(approvalBytes) !== trust.approvalSha256)
+    failState('PHASE3_B009_COMPLETED_APPROVAL_HASH_MISMATCH');
+  const approval = JSON.parse(approvalBytes.toString('utf8'));
+  const binding = approval.bindings || {};
+  if (approval.schemaVersion !== 'phase3-act1-b009-source-still-human-approval/1.0.0'
+    || approval.status !== 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY'
+    || approval.approvedBy !== 'Yakubu Moshood' || approval.runId !== trust.runId
+    || approval.beatId !== trust.beatId || approval.operation !== trust.operation
+    || approval.requestKey !== trust.requestKey || binding.sourceStillAuthorizationSha256 !== trust.authorizationSha256
+    || binding.sourceStillReceiptSha256 !== trust.receiptSha256 || binding.sourceStillLedgerSha256 !== trust.ledgerSha256
+    || binding.sourceStillSha256 !== trust.outputSha256 || binding.sourceStillBytes !== trust.outputBytes
+    || binding.sourceStillFormat !== 'PNG' || binding.sourceStillWidth !== trust.width
+    || binding.sourceStillHeight !== trust.height || binding.sourceStillAssetClass !== trust.assetClass
+    || binding.sourceStillProductionReadiness !== 'REJECTED'
+    || binding.stagedIndexSha256 !== trust.stagedIndexSha256
+    || binding.candidateIndexSha256 !== trust.candidateIndexSha256
+    || binding.outerIndexSha256 !== trust.outerIndexSha256
+    || binding.routeBundleSha256 !== trust.routeBundleSha256
+    || binding.routeResolutionApprovalSha256 !== trust.routeResolutionApprovalSha256
+    || binding.requestKeyReconciliationSha256 !== trust.reconciliationSha256
+    || binding.stage04ActivationRecordSha256 !== trust.stage04ActivationRecordSha256
+    || binding.stage04LedgerBaselineSha256 !== trust.stage04LedgerBaselineSha256
+    || approval.inspection?.persistedInspectionArtifact !== 'NONE'
+    || approval.inspection?.inspectionArtifactSha256 !== null
+    || approval.inspection?.observedStatus !== 'INSPECTED_PENDING_HUMAN_REVIEW'
+    || approval.inspection?.humanDecision !== approval.status
+    || approval.inspection?.originalMediaByteVerification !== 'PASS'
+    || approval.restrictions?.animationExecutionAuthorized !== false
+    || approval.restrictions?.providerRequestsAuthorized !== 0
+    || approval.restrictions?.productionUse !== false || approval.restrictions?.rendering !== false
+    || approval.restrictions?.promotion !== false || approval.restrictions?.candidateReconstruction !== false
+    || approval.restrictions?.stage04Modification !== false || approval.restrictions?.episodeRootWrites !== false
+    || approval.restrictions?.retry !== false || approval.restrictions?.fallback !== false
+    || approval.restrictions?.additionalStillRequest !== false || approval.restrictions?.otherBeats !== false)
+    failState('PHASE3_B009_COMPLETED_APPROVAL_BINDING_INVALID');
+
+  const authorizationBytes = read('authorization'), receiptBytes = read('receipt'), resultBytes = read('result');
+  const outputBytes = read('output'), ledgerBytes = read('ledger');
+  if (sha(authorizationBytes) !== trust.authorizationSha256 || sha(receiptBytes) !== trust.receiptSha256
+    || sha(ledgerBytes) !== trust.ledgerSha256 || sha(outputBytes) !== trust.outputSha256
+    || outputBytes.length !== trust.outputBytes) failState('PHASE3_B009_COMPLETED_HASH_MISMATCH');
+  const authorization = JSON.parse(authorizationBytes.toString('utf8'));
+  const historicalRuntimeHashes = {
+    moduleSha256: binding.deployedSourceStillWorkflowSha256,
+    executionModuleSha256: binding.deployedMediaExecutionModuleSha256,
+    cliSha256: binding.deployedCliSha256,
+  };
+  if (![historicalRuntimeHashes.moduleSha256, historicalRuntimeHashes.executionModuleSha256,
+    historicalRuntimeHashes.cliSha256].every(value => /^[a-f0-9]{64}$/u.test(value || ''))
+    || authorization.bindings?.deployedSourceStillWorkflowSha256 !== historicalRuntimeHashes.moduleSha256
+    || authorization.bindings?.deployedMediaExecutionModuleSha256 !== historicalRuntimeHashes.executionModuleSha256
+    || authorization.bindings?.deployedCliSha256 !== historicalRuntimeHashes.cliSha256)
+    failState('PHASE3_B009_COMPLETED_HISTORICAL_RUNTIME_BINDING_INVALID');
+  validateAuth(authorization, historicalRuntimeHashes);
+  const receipt = JSON.parse(receiptBytes.toString('utf8'));
+  const result = JSON.parse(resultBytes.toString('utf8'));
+  if (!resultBytes.equals(Buffer.from(`${JSON.stringify(result, null, 2)}\n`, 'utf8')))
+    failState('PHASE3_B009_COMPLETED_RESULT_BINDING_INVALID');
+  const verifySelfBound = (record, field, code) => {
+    const body = { ...record }, supplied = body[field]; delete body[field];
+    if (supplied !== sha(Buffer.from(canonicalJson(body), 'utf8'))) failState(code);
+  };
+  verifySelfBound(receipt, 'receiptBindingSha256', 'PHASE3_B009_COMPLETED_RECEIPT_BINDING_INVALID');
+  verifySelfBound(result, 'resultBindingSha256', 'PHASE3_B009_COMPLETED_RESULT_BINDING_INVALID');
+  if (receipt.schemaVersion !== 'phase3-media-calibration-source-still-receipt/1.0.0'
+    || receipt.status !== 'GENERATED_PENDING_HUMAN_REVIEW' || receipt.runId !== trust.runId
+    || receipt.beatId !== trust.beatId || receipt.operation !== trust.operation || receipt.requestKey !== trust.requestKey
+    || receipt.authorizationSha256 !== trust.authorizationSha256 || receipt.assetClass !== trust.assetClass
+    || receipt.ownershipDisposition !== OWNERSHIP || receipt.provider?.name !== 'fal.ai'
+    || typeof receipt.completedAt !== 'string' || !Number.isFinite(Date.parse(receipt.completedAt))
+    || new Date(receipt.completedAt).toISOString() !== receipt.completedAt
+    || receipt.output?.path !== FILES.output || receipt.output?.bytes !== trust.outputBytes
+    || receipt.output?.sha256 !== trust.outputSha256 || receipt.output?.format !== 'PNG'
+    || receipt.output?.width !== trust.width || receipt.output?.height !== trust.height
+    || receipt.bindings?.stagedIndexSha256 !== trust.stagedIndexSha256
+    || receipt.bindings?.candidateIndexSha256 !== trust.candidateIndexSha256
+    || receipt.bindings?.outerIndexSha256 !== trust.outerIndexSha256
+    || receipt.bindings?.routeResolutionApprovalSha256 !== trust.routeResolutionApprovalSha256
+    || receipt.bindings?.requestKeyReconciliationSha256 !== trust.reconciliationSha256
+    || receipt.retries !== 0 || receipt.fallback !== false || receipt.productionUse !== false
+    || receipt.rendering !== false || receipt.promotion !== false || receipt.episodeRootWrites !== false)
+    failState('PHASE3_B009_COMPLETED_RECEIPT_BINDING_INVALID');
+  const records = mediaExecution.readCalibrationLedger(path.join(beatDir, path.posix.basename(FILES.ledger)), fsImpl);
+  if (records.length !== 2) failState('PHASE3_B009_COMPLETED_LEDGER_INVALID');
+  const [reservation, terminal] = records;
+  if (reservation.recordType !== 'SUBMISSION_RESERVED' || reservation.sequence !== 1
+    || reservation.runId !== trust.runId || reservation.beatId !== trust.beatId
+    || reservation.operation !== trust.operation || reservation.endpoint !== routes.FLUX3_ENDPOINT
+    || reservation.requestKey !== trust.requestKey
+    || reservation.authorizationSha256 !== trust.authorizationSha256 || reservation.retryAllowed !== false
+    || reservation.fallbackAllowed !== false || terminal.recordType !== 'SUBMISSION_RESULT'
+    || terminal.requestKey !== trust.requestKey || terminal.status !== 'SUCCEEDED'
+    || terminal.retryCount !== 0 || terminal.fallbackUsed !== false || terminal.outputSha256 !== trust.outputSha256
+    || terminal.receiptSha256 !== trust.receiptSha256 || result.status !== 'SUCCEEDED'
+    || terminal.providerRequestId !== receipt.provider.requestId || terminal.actualChargeUsd !== receipt.provider.actualChargeUsd
+    || receipt.reservationEntrySha256 !== reservation.entrySha256
+    || result.runId !== trust.runId || result.beatId !== trust.beatId || result.requestKey !== trust.requestKey
+    || result.authorizationSha256 !== trust.authorizationSha256 || result.receiptSha256 !== trust.receiptSha256
+    || result.reservationEntrySha256 !== reservation.entrySha256 || result.resultEntrySha256 !== terminal.entrySha256
+    || result.output?.sha256 !== trust.outputSha256 || result.ledgerSha256 !== trust.ledgerSha256
+    || result.providerRequestId !== receipt.provider.requestId || result.actualChargeUsd !== receipt.provider.actualChargeUsd
+    || result.assetClass !== trust.assetClass)
+    failState('PHASE3_B009_COMPLETED_LEDGER_INVALID');
+  const image = pngInfo(outputBytes);
+  if (image.width !== trust.width || image.height !== trust.height || fsImpl.existsSync(path.join(beatDir, path.posix.basename(FILES.lock))))
+    failState('PHASE3_B009_COMPLETED_OUTPUT_INVALID');
+  const allowedRunFiles = Object.values(FILES).filter(relative => ['authorization', 'ledger', 'output', 'receipt', 'result'].some(key => FILES[key] === relative)).sort();
+  return { schemaVersion: 'phase3-act1-b009-completed-source-still-verification/1.0.0',
+    status: 'COMPLETED_SOURCE_STILL_APPROVED_FOR_ANIMATION_INPUT_ONLY', runId: trust.runId,
+    beatId: trust.beatId, requestKey: trust.requestKey, authorizationSha256: trust.authorizationSha256,
+    receiptSha256: trust.receiptSha256, ledgerSha256: trust.ledgerSha256, outputSha256: trust.outputSha256,
+    approvalSha256: trust.approvalSha256, historicalRuntimeHashes, allowedRunFiles };
+}
+function verifyCompletedSourceStillState(options = {}) {
+  return verifyCompletedSourceStillStateInternal({ ...options, expected: null });
+}
+function verifyCompletedSourceStillStateForTest(options = {}) {
+  return verifyCompletedSourceStillStateInternal(options);
+}
 function atomicExclusive(file, bytes, fsImpl = fs) {
   fail(!fsImpl.existsSync(file), 'PHASE3_B009_OUTPUT_ALREADY_EXISTS');
   const temp = `${file}.tmp-${crypto.randomBytes(8).toString('hex')}`;
@@ -147,6 +307,7 @@ function validateAuth(record, { moduleSha256, executionModuleSha256, cliSha256 }
   return true;
 }
 function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, b006ApprovalPath,
+  approvalPath = SOURCE_STILL_APPROVAL_PATH,
   reconciliationPath = path.resolve(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
     'phase3-act1-b009-request-key-reconciliation-20261005.v1.json'),
   routeBundlePath = path.resolve(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
@@ -154,7 +315,8 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
   modulePath = __filename, cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'),
   executionModulePath = path.resolve(__dirname, 'phase3-media-execution.cjs'),
   fsImpl = fs, provider = mediaExecution.createFalCalibrationProvider(), verifyB006StateFn = null,
-  downloader = mediaExecution.downloadCalibrationImage, now = () => new Date().toISOString(), testHooks = {} } = {}) {
+  completedStateVerifier = null, downloader = mediaExecution.downloadCalibrationImage,
+  now = () => new Date().toISOString(), testHooks = {} } = {}) {
   const runDir = path.resolve(reviewRoot, RUN_ID);
   const beatDir = path.resolve(runDir, BEAT_ID);
   const within = target => path.resolve(target).startsWith(`${beatDir}${path.sep}`);
@@ -337,6 +499,25 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
       catch (error) { authError = String(error.message); }
     }
     const lock = present('lock'), output = present('output'), receipt = present('receipt'), result = present('result');
+    if (terminal?.status === 'SUCCEEDED' && output && receipt && result
+      && fsImpl.existsSync(approvalPath)
+      && (completedStateVerifier || sha(fsImpl.readFileSync(file('output'))) === '0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc')) {
+      const completed = (completedStateVerifier || verifyCompletedSourceStillState)({ runDir, approvalPath, fsImpl });
+      return { schemaVersion: 'phase3-act1-b009-source-still-status/1.0.0',
+        status: 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY', generationStatus: 'GENERATED_PENDING_HUMAN_REVIEW',
+        runId: RUN_ID, beatId: BEAT_ID, operation: OPERATION, requestKey: REQUEST_KEY,
+        requestReconciliationSha256: bound.reconciliationSha256,
+        authorization: { present: true, sha256: completed.authorizationSha256, valid: true,
+          validationMode: 'HISTORICAL_COMPLETED_REQUEST', executionAuthority: false },
+        reservationState: 'RESERVED', resultState: 'SUCCEEDED', requestKeyConsumed: true,
+        lockPresent: false, output: { present: true, bytes: completed.outputBytes,
+          sha256: completed.outputSha256 }, receipt: { present: true, sha256: completed.receiptSha256 },
+        approval: { present: true, sha256: completed.approvalSha256, decision: 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY' },
+        failureReceiptPresent: false, failureReceipt: null, providerRequests: 1, retries: 0, fallback: false,
+        assetClass: CLASSIFICATION, productionReadiness: 'REJECTED', humanApprovalRequiredBeforeAnimation: false,
+        animationAuthorized: false, productionUse: false, rendering: false, promotion: false,
+        episodeRootWrites: false, historicalRuntimeHashes: completed.historicalRuntimeHashes };
+    }
     let failureRecord = null;
     if (present('failure')) {
       const failurePath = file('failure'), failureStat = fsImpl.lstatSync(failurePath);
@@ -402,6 +583,12 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
   }
   function preflight() {
     const current = status();
+    if (current.status === 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY')
+      return { schemaVersion: 'phase3-act1-b009-source-still-preflight/1.0.0',
+        status: 'COMPLETED_APPROVED_NOT_AUTHORIZED_FOR_PRODUCTION', runId: RUN_ID, beatId: BEAT_ID,
+        operation: OPERATION, requestKey: REQUEST_KEY, sourceStillRequest: current,
+        authorizationRequired: false, animationExecutionAuthority: false, providerRequests: 0,
+        episodeRootWrites: 0, assetClass: CLASSIFICATION, productionReadiness: 'REJECTED' };
     fail((!current.authorization.present || current.authorization.valid)
       && ['EXECUTION_READY_UNAUTHORIZED', 'EXECUTION_AUTHORIZED_SAFE_TO_INVOKE'].includes(current.status),
       'PHASE3_B009_NOT_READY');
@@ -533,7 +720,9 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
   }
   function inspect() {
     const current = status();
-    fail(current.status === 'GENERATED_PENDING_HUMAN_REVIEW' && !current.lockPresent,
+    const humanApproved = current.status === 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY';
+    fail(['GENERATED_PENDING_HUMAN_REVIEW', 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY'].includes(current.status)
+      && !current.lockPresent,
       'PHASE3_B009_SUCCESSFUL_OUTPUT_REQUIRED');
     const outputBytes = fsImpl.readFileSync(file('output')), outputInfo = pngInfo(outputBytes);
     const receiptBytes = fsImpl.readFileSync(file('receipt')), receipt = JSON.parse(receiptBytes.toString('utf8'));
@@ -566,10 +755,14 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
       status: 'INSPECTED_PENDING_HUMAN_REVIEW', runId: RUN_ID, beatId: BEAT_ID, requestKey: REQUEST_KEY,
       output: { path: FILES.output, bytes: outputBytes.length, sha256: sha(outputBytes), ...outputInfo },
       receiptSha256: sha(receiptBytes), ledgerSha256: sha(fsImpl.readFileSync(file('ledger'))),
-      approved: false, requiresHumanApprovalBeforeAnimation: true, assetClass: CLASSIFICATION,
+      approved: humanApproved, requiresHumanApprovalBeforeAnimation: !humanApproved, assetClass: CLASSIFICATION,
       productionReadiness: 'REJECTED', providerRequests: 0, episodeRootWrites: 0 };
   }
-  return { status, preflight, generate, inspect, assertBindings, makeAuthTemplate,
+  function verifyCompletedState() {
+    assertBindings();
+    return (completedStateVerifier || verifyCompletedSourceStillState)({ runDir, approvalPath, fsImpl });
+  }
+  return { status, preflight, generate, inspect, assertBindings, verifyCompletedState, makeAuthTemplate,
     validateAuthorization: (record, hashes) => validateAuth(record, hashes), constants: { RUN_ID, BEAT_ID, OPERATION,
       REQUEST_KEY, FILES, RECONCILIATION_SHA256, B006_APPROVAL_SHA256, ROUTE_BUNDLE_SHA256 } };
 }
@@ -577,4 +770,5 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
 module.exports = { RUN_ID, BEAT_ID, OPERATION, REQUEST_KEY, RECONCILIATION_SHA256, B006_APPROVAL_SHA256,
   ROUTE_BUNDLE_SHA256, AUTH_SCHEMA, LEDGER_SCHEMA, FILES, CLASSIFICATION, OWNERSHIP, MAX_EXPOSURE_USD,
   EXPECTED_CHARGE_USD, sha, canonicalJson, makeAuthTemplate, validateAuth,
-  b006ReceiptStatusAccepted, verifyB006CompletedState, createB009SourceStillWorkflow };
+  b006ReceiptStatusAccepted, verifyB006CompletedState, verifyCompletedSourceStillState,
+  verifyCompletedSourceStillStateForTest, createB009SourceStillWorkflow };
