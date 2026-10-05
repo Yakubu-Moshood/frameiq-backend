@@ -581,6 +581,7 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
   downloader = downloadCalibrationImage, now = () => new Date().toISOString(),
   executionModulePath = __filename, cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'),
   testHooks = {} } = {}) {
+  let calibrationAnimationRunFilesVerifier = null;
   function stage({ runId }) {
     fail(RUN_RE.test(runId || ''), 'PHASE3_MEDIA_EXECUTION_RUN_ID_INVALID');
     const verified = verifyOuterPackage({ packageDirectory, fsImpl });
@@ -662,11 +663,16 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
       fail(bytes.length === item.bytes && sha(bytes) === item.sha256,
         `PHASE3_MEDIA_EXECUTION_STAGED_APPROVAL_MISMATCH:${item.path}`);
     }
+    const animationRunFiles = runId === CALIBRATION_RUN_ID && calibrationAnimationRunFilesVerifier
+      ? calibrationAnimationRunFilesVerifier({ runDir, fsImpl }) : [];
+    fail(Array.isArray(animationRunFiles) && animationRunFiles.every(relative => typeof relative === 'string'
+      && relative.startsWith('ACT1_B009/') && !relative.split('/').includes('..')),
+    'PHASE3_MEDIA_EXECUTION_ANIMATION_FILE_ALLOWLIST_INVALID');
     const expectedRunFiles = ['run-status.json', 'staged-candidate-index.json',
       'detached-approvals/act5-b009-human-approval-20261004.v1.json',
       'detached-approvals/act5-b016-human-approval-20261004.v1.json',
       ...walkFiles(candidateRoot, fsImpl).map(item => `candidate/${item}`),
-      ...allowedAdditionalRunFiles].sort();
+      ...allowedAdditionalRunFiles, ...animationRunFiles].sort();
     fail(JSON.stringify(walkFiles(runDir, fsImpl).sort()) === JSON.stringify(expectedRunFiles),
       'PHASE3_MEDIA_EXECUTION_RUN_UNKNOWN_FILE');
     const census = deriveCensus(candidateRoot, { fsImpl });
@@ -1052,7 +1058,12 @@ function createMediaExecution({ packageDirectory, episodeRoot, reviewRoot, fsImp
       reviewerDecision: null, approved: false, promoted: false, productionUse: false,
       rendering: false, episodeRootWrites: false, filesCreatedOrModified: 0 };
   }
-  return { stage, preflight, generateCalibrationStill, calibrationStatus, inspectCalibrationStill };
+  function setCalibrationAnimationRunFilesVerifier(verifier) {
+    fail(typeof verifier === 'function', 'PHASE3_MEDIA_EXECUTION_ANIMATION_VERIFIER_INVALID');
+    calibrationAnimationRunFilesVerifier = verifier;
+  }
+  return { stage, preflight, generateCalibrationStill, calibrationStatus, inspectCalibrationStill,
+    setCalibrationAnimationRunFilesVerifier };
 }
 function copyIndexedTree(sourceRoot, targetRoot, files, fsImpl) {
   for (const item of files) {

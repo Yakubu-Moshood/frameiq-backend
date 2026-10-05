@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "phase3-media-calibration-animation-authorization/1.0.0",
+  "status": "AUTHORIZED_FOR_SINGLE_NONPRODUCTION_CALIBRATION_ANIMATION",
+  "approvedBy": "Yakubu Moshood",
+  "authorizedAt": "2026-10-05T20:52:07.598Z",
+  "scope": "ANIMATION_ONLY",
+  "maxProviderSubmissions": 1,
+  "bindings": {
+    "runId": "phase3-media-execution-v5-20261004-01",
+    "beatId": "ACT1_B009",
+    "operation": "GENERATE_ANIMATION",
+    "endpoint": "minimax/h3-max/image-to-video",
+    "requestKey": "946a3ac047028bf95badf61753f46e340bb27d8a3931c9f675ba210e1d9de3c3",
+    "stagedIndexSha256": "2b9c5f4c65b18d229a7ad158889ec6753811454a410b0b808b6785b8057c92ad",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "outerIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "routeBundleSha256": "6981bda36cd4e9dda4da5b701fb23b2f705e1fd5bb04fcca30157160bac85b42",
+    "routeResolutionApprovalSha256": "bfa8c0d00c8dbb81d4516a663b1ce3c5ef22cd199fed4f95a545468bc3676b14",
+    "b009ReconciliationSha256": "b93dd0f59f74197d7e7e9f7e4be0ef3360890dfdca8550f90101443dddc15207",
+    "b006ApprovalSha256": "d00ce391df1822468eb7fe2d07f85fc6404c483e1a79105c9e50aaa875c1dcd1",
+    "sourceStillAuthorizationSha256": "0b3b6ca57f7a8895a97bc5a67501704cbbf74a437c7053d99b0882499b5a3599",
+    "sourceStillReceiptSha256": "95b75386224f14b213750667cd4715705e28428f5d868d545cfe7c0036294285",
+    "sourceStillLedgerSha256": "f59d219075a2e94476f94b74dd444517980599ad50be499e6c682838ee6c7823",
+    "sourceStillApprovalSha256": "8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c",
+    "sourceStillPath": "ACT1_B009/ACT1_B009-source-still.png",
+    "sourceStillBytes": 1324401,
+    "sourceStillSha256": "0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc",
+    "sourceStillWidth": 1360,
+    "sourceStillHeight": 768,
+    "stage04ActivationRecordSha256": "f60d360c0179c87329d4e6d8be7b39d09da7ccc9d6c2351645fa2d8a4062923d",
+    "stage04LedgerBaselineSha256": "c8b6ad421c378081a6111c51151c4c73a87dadcf2c475194d522e5791407abaf",
+    "animationWorkflowSha256": "6f162ee76c6252df39b2635dc90b32a9f5db326950073c4f3288f5d0812f518b",
+    "executionModuleSha256": "ca69fe0ccd3c84861282ff286bb5e482b262092521e19f4fce86fcc42c132bac",
+    "cliSha256": "c6aa1a70e7ca6424a95d71bf2169803f599c73645b063da128e62b94308f9c29",
+    "promptSha256": "5b76ea425eb891f077866a2bd1fd40b44b1bc3e4d1b0ae3d392dc151b8d1348d",
+    "negativeInstructionsSha256": "1e07c7c0150f5f29cb5b20bee765e3e8056a4928013cd35771ecefabb078bae9"
+  },
+  "request": {
+    "endpoint": "minimax/h3-max/image-to-video",
+    "model": "H3 Max Image to Video",
+    "parameters": {
+      "duration": 5,
+      "resolution": "768P",
+      "prompt_expansion_mode": "disabled",
+      "enable_safety_checker": true
+    },
+    "sourceInput": {
+      "path": "ACT1_B009/ACT1_B009-source-still.png",
+      "sha256": "0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc",
+      "bytes": 1324401
+    },
+    "maximumProviderSubmissions": 1,
+    "retries": 0,
+    "fallback": false,
+    "expectedPublishedChargeUsd": 0.4,
+    "maximumHumanAcceptedExposureUsd": 0.6,
+    "exposureProviderEnforced": false
+  },
+  "classification": {
+    "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION",
+    "ownershipDisposition": "UNRESOLVED_ACCEPTED_FOR_NONPRODUCTION_CALIBRATION_ONLY",
+    "productionReadiness": "REJECTED",
+    "productionUse": false
+  },
+  "denials": {
+    "anotherB009Still": true,
+    "act1B005": true,
+    "act1B006": true,
+    "allOtherBeats": true,
+    "allOtherOperations": true,
+    "productionUse": true,
+    "rendering": true,
+    "promotion": true,
+    "candidateReconstruction": true,
+    "stage04Modification": true,
+    "episodeRootWrites": true,
+    "secondSubmission": true,
+    "retry": true,
+    "fallback": true
+  }
+}

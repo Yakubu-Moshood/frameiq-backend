@@ -372,3 +372,4 @@ scripts/phase3-media-execution.cjs -text
 /pipeline-updates/phase3-media-calibration-bundle.cjs -text
 /artifacts/empire-omitted-v3/wells-fargo/phase3-media-execution-calibration-route-bundle-20261004.v1.json -text
 /artifacts/empire-omitted-v3/wells-fargo/phase3-media-execution-calibration-route-resolution-approval-20261005.v1.json -text
+test/fixtures/phase3-b009-unused-animation-auth-v1.json -text

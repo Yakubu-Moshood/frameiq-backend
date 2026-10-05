@@ -3478,6 +3478,73 @@ test('B009 animation authorization is one exact ANIMATION_ONLY request and prese
     { requestKey, runtimeHashes }), /AUTHORIZATION_BINDING_INVALID/);
 });
 
+test('B009 animation staged-file compatibility accepts only the exact unused v1 audit authorization', t => {
+  const root = tempRoot(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const runDir = path.join(root, b009Animation.RUN_ID), beatDir = path.join(runDir, 'ACT1_B009');
+  fs.mkdirSync(beatDir, { recursive: true });
+  const legacy = fs.readFileSync(path.join(__dirname, 'fixtures', 'phase3-b009-unused-animation-auth-v1.json'));
+  assert.equal(legacy.length, 3860);
+  assert.equal(sha(legacy), b009Animation.LEGACY_AUTHORIZATION.sha256);
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), legacy);
+  assert.deepEqual(b009Animation.verifyStagedRunFiles({ runDir }), [b009Animation.LEGACY_AUTHORIZATION.path]);
+
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), Buffer.concat([legacy, Buffer.from(' ')]));
+  assert.throws(() => b009Animation.verifyStagedRunFiles({ runDir }), /LEGACY_AUTHORIZATION_HASH_MISMATCH/);
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), legacy);
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.ledger)), Buffer.alloc(0));
+  assert.throws(() => b009Animation.verifyStagedRunFiles({ runDir }), /LEGACY_AUTHORIZATION_ALREADY_CONSUMED/);
+  fs.unlinkSync(path.join(beatDir, path.basename(b009Animation.FILES.ledger)));
+  fs.writeFileSync(path.join(beatDir, 'unrecognized.json'), '{}');
+  assert.throws(() => b009Animation.verifyStagedRunFiles({ runDir }), /ANIMATION_UNKNOWN_FILE/);
+});
+
+test('B009 animation staged-file compatibility accepts a strictly bound superseding v2 authorization only', t => {
+  const root = tempRoot(); t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const runDir = path.join(root, b009Animation.RUN_ID), beatDir = path.join(runDir, 'ACT1_B009');
+  fs.mkdirSync(beatDir, { recursive: true });
+  const legacy = fs.readFileSync(path.join(__dirname, 'fixtures', 'phase3-b009-unused-animation-auth-v1.json'));
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), legacy);
+  const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+  const record = b009Animation.makeAuthorizationTemplate({ requestKey: b009Animation.ANIMATION_REQUEST_KEY,
+    runtimeHashes, authorizedAt: '2026-10-06T00:00:00.000Z' });
+  const bytes = Buffer.from(`${JSON.stringify(record, null, 2)}\n`);
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.authorization)), bytes);
+  assert.deepEqual(b009Animation.verifyStagedRunFiles({ runDir, currentRuntimeHashes: runtimeHashes }), [
+    b009Animation.LEGACY_AUTHORIZATION.path, b009Animation.FILES.authorization,
+  ].sort());
+  record.supersedes.sha256 = '0'.repeat(64);
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.authorization)), Buffer.from(`${JSON.stringify(record, null, 2)}\n`));
+  assert.throws(() => b009Animation.verifyStagedRunFiles({ runDir, currentRuntimeHashes: runtimeHashes }),
+    /AUTHORIZATION_BINDING_INVALID/);
+  fs.unlinkSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)));
+  assert.throws(() => b009Animation.verifyStagedRunFiles({ runDir, currentRuntimeHashes: runtimeHashes }),
+    /SUPERSEDED_AUTHORIZATION_REQUIRED/);
+});
+
+test('B009 staged runner admits verified animation audit file in exact v5 run but still rejects unknown paths', t => {
+  const f = makeMediaExecutionFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const staged = f.runner.stage({ runId: b009Animation.RUN_ID });
+  const beatDir = path.join(staged.runDirectory, 'ACT1_B009'); fs.mkdirSync(beatDir);
+  for (const relative of Object.values(mediaExecution.CALIBRATION_SOURCE_STILL_FILES)) {
+    if (relative.endsWith('/source-still.lock') || relative.endsWith('/source-still-failure-receipt.v1.json')) continue;
+    const target = path.join(staged.runDirectory, ...relative.split('/'));
+    fs.writeFileSync(target, Buffer.from(`verified-source-still-fixture:${path.basename(relative)}`));
+  }
+  const legacy = fs.readFileSync(path.join(__dirname, 'fixtures', 'phase3-b009-unused-animation-auth-v1.json'));
+  fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), legacy);
+  f.runner.setCalibrationAnimationRunFilesVerifier(({ runDir, fsImpl }) =>
+    b009Animation.verifyStagedRunFiles({ runDir, fsImpl }));
+  const before = mediaExecution.walkFiles(staged.runDirectory);
+  const result = f.runner.preflight({ runId: b009Animation.RUN_ID, includeSourceStillCalibration: true });
+  assert.equal(result.status, 'PHASE3_MEDIA_EXECUTION_PREFLIGHT_PASS_CALIBRATION_READY_EXECUTION_UNAUTHORIZED');
+  assert.deepEqual(mediaExecution.walkFiles(staged.runDirectory), before);
+  assert.equal(result.providerRequests, 0);
+  assert.equal(result.episodeRootWrites, 0);
+  fs.writeFileSync(path.join(beatDir, 'unknown.json'), '{}');
+  assert.throws(() => f.runner.preflight({ runId: b009Animation.RUN_ID, includeSourceStillCalibration: true }),
+    /PHASE3_B009_ANIMATION_UNKNOWN_FILE/);
+});
+
 test('B009 animation derivative deterministically strips audio and produces exactly 114 30-fps frames in its isolated directory', t => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-b009-animation-fit-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));

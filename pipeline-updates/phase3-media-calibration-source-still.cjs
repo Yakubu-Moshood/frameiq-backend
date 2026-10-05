@@ -122,8 +122,16 @@ function verifyCompletedSourceStillStateInternal({ runDir, approvalPath = SOURCE
   if (!beatStat.isDirectory() || beatStat.isSymbolicLink()) failState('PHASE3_B009_COMPLETED_BEAT_DIRECTORY_INVALID');
   const expectedNames = ['authorization', 'ledger', 'output', 'receipt', 'result'].map(key =>
     path.posix.basename(FILES[key])).sort();
+  const animationAuthorizationPaths = [
+    'ACT1_B009/animation-execution-authorization.v1.json',
+    'ACT1_B009/animation-execution-authorization.v2.json',
+  ];
+  const verifiedAnimationFiles = animationAuthorizationPaths.some(relative =>
+    fsImpl.existsSync(path.join(runDir, ...relative.split('/'))))
+    ? require('./phase3-media-calibration-animation.cjs').verifyStagedRunFiles({ runDir, fsImpl }) : [];
   const actualNames = fsImpl.readdirSync(beatDir).sort();
-  if (canonicalJson(actualNames) !== canonicalJson(expectedNames)) failState('PHASE3_B009_COMPLETED_FILE_SET_INVALID');
+  const completeExpectedNames = [...expectedNames, ...verifiedAnimationFiles.map(relative => path.posix.basename(relative))].sort();
+  if (canonicalJson(actualNames) !== canonicalJson(completeExpectedNames)) failState('PHASE3_B009_COMPLETED_FILE_SET_INVALID');
   for (const name of actualNames) {
     const stat = fsImpl.lstatSync(path.join(beatDir, name));
     if (!stat.isFile() || stat.isSymbolicLink()) failState('PHASE3_B009_COMPLETED_FILE_TYPE_INVALID');
@@ -444,6 +452,15 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
     const st = fsImpl.lstatSync(beatDir);
     fail(st.isDirectory() && !st.isSymbolicLink(), 'PHASE3_B009_DIRECTORY_INVALID');
     const allowed = new Set(Object.values(FILES).map(value => value.slice(`${BEAT_ID}/`.length)));
+    const animationAuthorizationPaths = [
+      'ACT1_B009/animation-execution-authorization.v1.json',
+      'ACT1_B009/animation-execution-authorization.v2.json',
+    ];
+    if (animationAuthorizationPaths.some(relative => fsImpl.existsSync(path.join(runDir, ...relative.split('/'))))) {
+      const animationWorkflow = require('./phase3-media-calibration-animation.cjs');
+      const verifiedAnimationFiles = animationWorkflow.verifyStagedRunFiles({ runDir, fsImpl });
+      for (const relative of verifiedAnimationFiles) allowed.add(path.posix.basename(relative));
+    }
     const actual = fsImpl.readdirSync(beatDir).sort();
     for (const name of actual) {
       fail(allowed.has(name), `PHASE3_B009_UNKNOWN_FILE:${name}`);

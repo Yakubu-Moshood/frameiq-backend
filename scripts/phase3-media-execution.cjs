@@ -20,6 +20,8 @@ const B009_SOURCE_STILL = b009SourceStill.createB009SourceStillWorkflow({ staged
 const B009_ANIMATION = b009Animation.createB009AnimationWorkflow({ sourceStillWorkflow: B009_SOURCE_STILL,
   episodeRoot: activation.ROOT, reviewRoot: REVIEW_ROOT,
   approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH });
+RUNNER.setCalibrationAnimationRunFilesVerifier(({ runDir, fsImpl }) =>
+  B009_ANIMATION.verifyStagedRunFiles({ runDir, fsImpl }));
 
 function parseArgs(args) {
   if (args.length === 1 && ['--help', '-h'].includes(args[0])) return { help: true };

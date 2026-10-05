@@ -42,7 +42,10 @@ const TARGET_FPS = 30;
 const TARGET_FRAMES = 114;
 const TARGET_DURATION_SECONDS = 3.8;
 const SOURCE_FILES = mediaExecution.CALIBRATION_SOURCE_STILL_FILES;
-const FILES = Object.freeze({ authorization: `${BEAT_ID}/animation-execution-authorization.v1.json`,
+const LEGACY_AUTHORIZATION = Object.freeze({ path: `${BEAT_ID}/animation-execution-authorization.v1.json`,
+  sha256: 'f15ae242027a7475c14d6139e89418a16764034656599c40ce576178be85dfd3' });
+const ANIMATION_REQUEST_KEY = '946a3ac047028bf95badf61753f46e340bb27d8a3931c9f675ba210e1d9de3c3';
+const FILES = Object.freeze({ authorization: `${BEAT_ID}/animation-execution-authorization.v2.json`,
   ledger: `${BEAT_ID}/animation-request-ledger.jsonl`, lock: `${BEAT_ID}/animation.lock`,
   raw: `${BEAT_ID}/ACT1_B009-animation-provider-output.bin`,
   derivative: `${BEAT_ID}/ACT1_B009-animation-30fps-114f.mp4`,
@@ -104,6 +107,9 @@ function makeAuthorizationTemplate({ requestKey, runtimeHashes, authorizedAt } =
   return {
     schemaVersion: AUTH_SCHEMA, status: 'AUTHORIZED_FOR_SINGLE_NONPRODUCTION_CALIBRATION_ANIMATION',
     approvedBy: 'Yakubu Moshood', authorizedAt, scope: 'ANIMATION_ONLY', maxProviderSubmissions: 1,
+    supersedes: { path: LEGACY_AUTHORIZATION.path, sha256: LEGACY_AUTHORIZATION.sha256,
+      reason: 'PREFLIGHT_FILE_SET_COMPATIBILITY_REPAIR', oldAuthorizationConsumed: false,
+      oldProviderSubmissions: 0 },
     bindings: { runId: RUN_ID, beatId: BEAT_ID, operation: OPERATION, endpoint: ENDPOINT, requestKey,
       stagedIndexSha256: PACKAGE.stagedIndexSha256, candidateIndexSha256: PACKAGE.candidateIndexSha256,
       outerIndexSha256: PACKAGE.outerIndexSha256, routeBundleSha256: ROUTE_BUNDLE_SHA256,
@@ -139,6 +145,59 @@ function validateAnimationAuthorization(record, expectedSha256, context, recordB
     runtimeHashes: context.runtimeHashes, authorizedAt: record?.authorizedAt });
   fail(canonicalJson(record) === canonicalJson(expected), 'PHASE3_B009_ANIMATION_AUTHORIZATION_BINDING_INVALID');
   return true;
+}
+function verifyStagedRunFiles({ runDir, fsImpl = fs, currentRuntimeHashes = null } = {}) {
+  fail(typeof runDir === 'string' && path.basename(path.resolve(runDir)) === RUN_ID,
+    'PHASE3_B009_ANIMATION_STAGED_RUN_CONTEXT_INVALID');
+  const beatDir = path.join(path.resolve(runDir), BEAT_ID);
+  if (!fsImpl.existsSync(beatDir)) return [];
+  const beatStat = fsImpl.lstatSync(beatDir);
+  fail(beatStat.isDirectory() && !beatStat.isSymbolicLink(), 'PHASE3_B009_ANIMATION_DIRECTORY_INVALID');
+  const legacyPath = path.join(path.resolve(runDir), ...LEGACY_AUTHORIZATION.path.split('/'));
+  const currentPath = path.join(path.resolve(runDir), ...FILES.authorization.split('/'));
+  const legacyPresent = fsImpl.existsSync(legacyPath), currentPresent = fsImpl.existsSync(currentPath);
+  if (!legacyPresent && !currentPresent) return [];
+  const legacyNames = [path.posix.basename(LEGACY_AUTHORIZATION.path)];
+  const animationNames = [...Object.values(FILES).map(relative => path.posix.basename(relative)), ...legacyNames];
+  const sourceNames = Object.values(SOURCE_FILES).map(relative => path.posix.basename(relative));
+  const actualNames = fsImpl.readdirSync(beatDir).sort();
+  fail(actualNames.every(name => sourceNames.includes(name) || animationNames.includes(name)),
+    'PHASE3_B009_ANIMATION_UNKNOWN_FILE');
+  for (const name of actualNames) {
+    const stat = fsImpl.lstatSync(path.join(beatDir, name));
+    fail(stat.isFile() && !stat.isSymbolicLink(), 'PHASE3_B009_ANIMATION_FILE_TYPE_INVALID');
+  }
+  if (legacyPresent) {
+    const bytes = fsImpl.readFileSync(legacyPath);
+    fail(sha(bytes) === LEGACY_AUTHORIZATION.sha256, 'PHASE3_B009_ANIMATION_LEGACY_AUTHORIZATION_HASH_MISMATCH');
+    const record = JSON.parse(bytes.toString('utf8'));
+    fail(record.schemaVersion === AUTH_SCHEMA
+      && record.status === 'AUTHORIZED_FOR_SINGLE_NONPRODUCTION_CALIBRATION_ANIMATION'
+      && record.scope === 'ANIMATION_ONLY' && record.maxProviderSubmissions === 1
+      && record.approvedBy === 'Yakubu Moshood' && record.authorizedAt === '2026-10-05T20:52:07.598Z'
+      && record.bindings?.runId === RUN_ID && record.bindings?.beatId === BEAT_ID
+      && record.bindings?.operation === OPERATION && record.bindings?.requestKey === ANIMATION_REQUEST_KEY
+      && record.request?.maximumProviderSubmissions === 1 && record.request?.retries === 0
+      && record.request?.fallback === false && record.classification?.assetClass === ASSET_CLASS
+      && record.classification?.productionReadiness === 'REJECTED' && record.classification?.productionUse === false,
+    'PHASE3_B009_ANIMATION_LEGACY_AUTHORIZATION_INVALID');
+  }
+  if (currentPresent) {
+    fail(legacyPresent, 'PHASE3_B009_ANIMATION_SUPERSEDED_AUTHORIZATION_REQUIRED');
+    const bytes = fsImpl.readFileSync(currentPath), record = JSON.parse(bytes.toString('utf8'));
+    const hashes = currentRuntimeHashes || {
+      animationWorkflowSha256: sha(fsImpl.readFileSync(__filename)),
+      executionModuleSha256: sha(fsImpl.readFileSync(path.resolve(__dirname, 'phase3-media-execution.cjs'))),
+      cliSha256: sha(fsImpl.readFileSync(path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'))),
+    };
+    validateAnimationAuthorization(record, sha(bytes), { requestKey: ANIMATION_REQUEST_KEY, runtimeHashes: hashes }, bytes);
+  } else {
+    const executionArtifacts = Object.values(FILES).filter(relative => relative !== FILES.authorization)
+      .map(relative => path.posix.basename(relative));
+    fail(!actualNames.some(name => executionArtifacts.includes(name)),
+      'PHASE3_B009_ANIMATION_LEGACY_AUTHORIZATION_ALREADY_CONSUMED');
+  }
+  return actualNames.filter(name => animationNames.includes(name)).map(name => `${BEAT_ID}/${name}`).sort();
 }
 function safeRunPath(runDir, relative) {
   fail(typeof relative === 'string' && !relative.includes('\\') && !relative.split('/').includes('..'),
@@ -312,10 +371,11 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
   }
   function validateFileSet({ allowLock = false } = {}) {
     const expected = [SOURCE_FILES.authorization, SOURCE_FILES.ledger, SOURCE_FILES.output, SOURCE_FILES.receipt,
-      SOURCE_FILES.result, FILES.authorization, FILES.ledger, FILES.raw, FILES.derivative, FILES.receipt,
+      SOURCE_FILES.result, LEGACY_AUTHORIZATION.path, FILES.authorization, FILES.ledger, FILES.raw, FILES.derivative, FILES.receipt,
       FILES.result, FILES.failure, ...(allowLock ? [FILES.lock] : [])].map(item => path.posix.basename(item)).sort();
     const actual = inventory();
-    const required = expected.filter(name => name !== path.posix.basename(FILES.authorization)
+    const required = expected.filter(name => name !== path.posix.basename(LEGACY_AUTHORIZATION.path)
+      && name !== path.posix.basename(FILES.authorization)
       && name !== path.posix.basename(FILES.ledger) && name !== path.posix.basename(FILES.raw)
       && name !== path.posix.basename(FILES.derivative) && name !== path.posix.basename(FILES.receipt)
       && name !== path.posix.basename(FILES.result) && name !== path.posix.basename(FILES.failure)
@@ -330,8 +390,11 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
       requestKey: ctx.requestKey, runtimeHashes: runtimeHashes() });
   }
   function status() {
-    const ctx = inputContext(), actual = validateFileSet({ allowLock: false });
+    const ctx = inputContext();
+    verifyStagedRunFiles({ runDir, fsImpl, currentRuntimeHashes: runtimeHashes() });
+    const actual = validateFileSet({ allowLock: false });
     const authPresent = actual.includes(path.posix.basename(FILES.authorization));
+    const legacyAuthPresent = actual.includes(path.posix.basename(LEGACY_AUTHORIZATION.path));
     let authorization = { present: authPresent, sha256: null, valid: false };
     if (authPresent) {
       const bytes = fsImpl.readFileSync(file('authorization')), record = JSON.parse(bytes.toString('utf8'));
@@ -339,6 +402,10 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
         { requestKey: ctx.requestKey, runtimeHashes: runtimeHashes() }, bytes);
       authorization = { present: true, sha256: hash, valid: true };
     }
+    const legacyAuthorization = { present: legacyAuthPresent,
+      sha256: legacyAuthPresent ? sha(fsImpl.readFileSync(path.join(beatDir, path.posix.basename(LEGACY_AUTHORIZATION.path)))) : null,
+      valid: legacyAuthPresent, auditOnly: legacyAuthPresent, consumed: false,
+      superseded: authPresent };
     const ledger = readLedger(file('ledger'), fsImpl), lockPresent = fsImpl.existsSync(file('lock'));
     fail(!lockPresent, 'PHASE3_B009_ANIMATION_LOCK_ACTIVE');
     fail(ledger.length === 0 || ledger.length === 2, 'PHASE3_B009_ANIMATION_LEDGER_INCOMPLETE');
@@ -367,7 +434,8 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
         routeResolutionApprovalSha256: ROUTE_APPROVAL_SHA256, reconciliationSha256: B009_RECONCILIATION_SHA256,
         b006ApprovalSha256: B006_APPROVAL_SHA256, stage04ActivationRecordSha256: STAGE04_ACTIVATION_SHA256,
         stage04LedgerBaselineSha256: STAGE04_LEDGER_SHA256 },
-      authorization, ledgerEntries: ledger.length, reservationCount: ledger.filter(x => x.recordType === 'SUBMISSION_RESERVED').length,
+      authorization, legacyAuthorization, ledgerEntries: ledger.length,
+      reservationCount: ledger.filter(x => x.recordType === 'SUBMISSION_RESERVED').length,
       terminalResultCount: ledger.filter(x => x.recordType === 'SUBMISSION_RESULT').length,
       providerRequests: ledger.filter(x => x.recordType === 'SUBMISSION_RESERVED').length,
       remainingPilotSubmissions: next.remainingSubmissions, maximumPilotSubmissions: 3,
@@ -529,6 +597,8 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
       episodeRootWrites: 0, lockPresent: false };
   }
   return { status, preflight, generate, inspect, inputContext, runtimeHashes,
+    verifyStagedRunFiles: ({ runDir, fsImpl: verifierFs = fsImpl } = {}) =>
+      verifyStagedRunFiles({ runDir, fsImpl: verifierFs, currentRuntimeHashes: runtimeHashes() }),
     makeAuthorizationTemplate: args => makeAuthorizationTemplate({ ...args, requestKey: inputContext().requestKey }),
     validateAuthorization: (record, expectedHash) => validateAnimationAuthorization(record, expectedHash,
       { requestKey: inputContext().requestKey, runtimeHashes: runtimeHashes() }),
@@ -541,6 +611,6 @@ module.exports = { RUN_ID, BEAT_ID, OPERATION, ENDPOINT, MODEL, PACKAGE, SOURCE_
   B009_RECONCILIATION_SHA256, STAGE04_ACTIVATION_SHA256, STAGE04_LEDGER_SHA256, ROUTE_BUNDLE_SHA256,
   ROUTE_APPROVAL_SHA256, AUTH_SCHEMA, LEDGER_SCHEMA, RECEIPT_SCHEMA, RESULT_SCHEMA, FAILURE_SCHEMA,
   ASSET_CLASS, OWNERSHIP, MAX_EXPOSURE_USD, EXPECTED_CHARGE_USD, TARGET_FPS, TARGET_FRAMES,
-  TARGET_DURATION_SECONDS, FILES, sha, canonical, canonicalJson, deriveAnimationRequestKey,
-  makeAuthorizationTemplate, validateAnimationAuthorization, fitSilentDerivative, probeVideo,
+  TARGET_DURATION_SECONDS, FILES, LEGACY_AUTHORIZATION, ANIMATION_REQUEST_KEY, sha, canonical, canonicalJson, deriveAnimationRequestKey,
+  makeAuthorizationTemplate, validateAnimationAuthorization, verifyStagedRunFiles, fitSilentDerivative, probeVideo,
   createFalAnimationProvider, createB009AnimationWorkflow };
