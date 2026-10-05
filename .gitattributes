@@ -34,6 +34,8 @@ artifacts/empire-omitted-v3/wells-fargo/phase3-media-pilot-animation-extension-2
 artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b006-calibration-human-approval-20261005.v1.json -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b009-request-key-reconciliation-20261005.v1.json -text
 pipeline-updates/phase3-media-calibration-source-still.cjs -text
+pipeline-updates/phase3-media-calibration-animation.cjs -text
+artifacts/empire-omitted-v3/wells-fargo/phase3-act1-b009-source-still-human-approval-20261005.v2.json -text whitespace=cr-at-eol
 artifacts/empire-omitted-v3/wells-fargo/phase3-pilot02-animation-review-20261003-v1/** -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-approval-20261003.v1.json -text
 artifacts/empire-omitted-v3/wells-fargo/phase3-act3-b005-production-motion-policy-20261003-v1/** -text

@@ -16,6 +16,7 @@ const v3AssetReadiness = require('../pipeline-updates/v3-asset-readiness.cjs');
 const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs');
 const calibrationRoutes = require('../pipeline-updates/phase3-media-calibration-bundle.cjs');
 const b009SourceStill = require('../pipeline-updates/phase3-media-calibration-source-still.cjs');
+const b009Animation = require('../pipeline-updates/phase3-media-calibration-animation.cjs');
 const mediaExecutionCli = require('../scripts/phase3-media-execution.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
@@ -3282,4 +3283,103 @@ test('B009 rejects unknown files, alternate run/beat CLI scope, and any existing
   assert.throws(() => mediaExecutionCli.parseArgs(['--generate-calibration-source-still', '--phase3-run-id',
     'phase3-media-execution-v5-other', '--beat-id', b009SourceStill.BEAT_ID,
     '--expected-execution-authorization-sha256', auth.sha256]), /PHASE3_CALIBRATION_RUN_FORBIDDEN/);
+});
+
+test('B009 animation lane uses the exact approved route prompts and source-bound deterministic key', () => {
+  const bundle = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+    'phase3-media-execution-calibration-route-bundle-20261004.v1.json'), 'utf8'));
+  const request = bundle.calibrationRequests.find(row => row.beatId === 'ACT1_B009' && row.operation === 'GENERATE_ANIMATION');
+  assert.equal(bundle.bindings.stagedIndexSha256, b009Animation.PACKAGE.stagedIndexSha256);
+  assert.equal(request.endpoint, 'minimax/h3-max/image-to-video');
+  assert.equal(sha(Buffer.from(request.prompt)), '5b76ea425eb891f077866a2bd1fd40b44b1bc3e4d1b0ae3d392dc151b8d1348d');
+  assert.equal(sha(Buffer.from(request.negativePrompt)), '1e07c7c0150f5f29cb5b20bee765e3e8056a4928013cd35771ecefabb078bae9');
+  assert.equal(request.requestedSourceSeconds, 5);
+  assert.equal(request.requestedResolution, '768P');
+  assert.deepEqual(calibrationRoutes.H3_MAX, { duration: 5, resolution: '768P', prompt_expansion_mode: 'disabled', enable_safety_checker: true });
+  const key = b009Animation.deriveAnimationRequestKey({ prompt: request.prompt, negativePrompt: request.negativePrompt });
+  assert.equal(key, '946a3ac047028bf95badf61753f46e340bb27d8a3931c9f675ba210e1d9de3c3');
+  assert.throws(() => b009Animation.deriveAnimationRequestKey({ prompt: request.prompt,
+    negativePrompt: request.negativePrompt, sourceStillApprovalSha256: 'a'.repeat(64) }), /KEY_BINDING_MISMATCH/);
+  assert.throws(() => b009Animation.deriveAnimationRequestKey({ prompt: `${request.prompt} `,
+    negativePrompt: request.negativePrompt }), /PROMPT_HASH_MISMATCH/);
+});
+
+test('ACT1_B009 source-still approval is detached, hash-bound, accurately records the read-only inspection, and grants no execution authority', () => {
+  const approvalPath = b009Animation.SOURCE_STILL_APPROVAL_PATH;
+  const bytes = fs.readFileSync(approvalPath), record = JSON.parse(bytes.toString('utf8'));
+  assert.equal(sha(bytes), b009Animation.SOURCE_STILL_APPROVAL_SHA256);
+  assert.equal(record.status, 'APPROVED_FOR_ANIMATION_CALIBRATION_INPUT_ONLY');
+  assert.equal(record.bindings.sourceStillSha256, b009Animation.SOURCE_STILL_SHA256);
+  assert.equal(record.bindings.sourceStillAuthorizationSha256, b009Animation.SOURCE_STILL_AUTH_SHA256);
+  assert.equal(record.bindings.sourceStillReceiptSha256, b009Animation.SOURCE_STILL_RECEIPT_SHA256);
+  assert.equal(record.bindings.sourceStillLedgerSha256, b009Animation.SOURCE_STILL_LEDGER_SHA256);
+  assert.equal(record.inspection.mechanism, 'runner-returned read-only inspection plus human visual review');
+  assert.equal(record.inspection.persistedInspectionArtifact, 'NONE');
+  assert.equal(record.inspection.inspectionArtifactSha256, null);
+  assert.equal(record.inspection.observedStatus, 'INSPECTED_PENDING_HUMAN_REVIEW');
+  assert.equal(record.restrictions.animationExecutionAuthorized, false);
+  assert.equal(record.restrictions.providerRequestsAuthorized, 0);
+});
+
+test('B009 animation authorization is one exact ANIMATION_ONLY request and preserves non-production denials', () => {
+  const bundle = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+    'phase3-media-execution-calibration-route-bundle-20261004.v1.json'), 'utf8'));
+  const request = bundle.calibrationRequests.find(row => row.beatId === 'ACT1_B009' && row.operation === 'GENERATE_ANIMATION');
+  const requestKey = b009Animation.deriveAnimationRequestKey({ prompt: request.prompt, negativePrompt: request.negativePrompt });
+  const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+  const auth = b009Animation.makeAuthorizationTemplate({ requestKey, runtimeHashes, authorizedAt: '2026-10-06T00:00:00.000Z' });
+  assert.equal(auth.scope, 'ANIMATION_ONLY');
+  assert.equal(auth.maxProviderSubmissions, 1);
+  assert.equal(auth.request.maximumProviderSubmissions, 1);
+  assert.equal(auth.request.retries, 0);
+  assert.equal(auth.request.fallback, false);
+  assert.equal(auth.request.expectedPublishedChargeUsd, 0.4);
+  assert.equal(auth.request.maximumHumanAcceptedExposureUsd, 0.6);
+  assert.equal(auth.request.exposureProviderEnforced, false);
+  assert.equal(auth.classification.assetClass, 'NON_PRODUCTION_DISPOSABLE_CALIBRATION');
+  assert.equal(auth.classification.productionReadiness, 'REJECTED');
+  assert.equal(auth.denials.secondSubmission, true);
+  assert.equal(auth.denials.retry, true);
+  assert.equal(auth.denials.fallback, true);
+  assert.equal(auth.denials.productionUse, true);
+  assert.equal(auth.bindings.sourceStillApprovalSha256, b009Animation.SOURCE_STILL_APPROVAL_SHA256);
+  assert.equal(auth.bindings.sourceStillSha256, b009Animation.SOURCE_STILL_SHA256);
+  assert.equal(b009Animation.validateAnimationAuthorization(auth, 'd'.repeat(64),
+    { requestKey, runtimeHashes }), true);
+  assert.throws(() => b009Animation.validateAnimationAuthorization({ ...auth, scope: 'STILL_ONLY' }, 'd'.repeat(64),
+    { requestKey, runtimeHashes }), /AUTHORIZATION_BINDING_INVALID/);
+  assert.throws(() => b009Animation.validateAnimationAuthorization({ ...auth, maxProviderSubmissions: 2 }, 'd'.repeat(64),
+    { requestKey, runtimeHashes }), /AUTHORIZATION_BINDING_INVALID/);
+});
+
+test('B009 animation derivative deterministically strips audio and produces exactly 114 30-fps frames in its isolated directory', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-b009-animation-fit-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const input = path.join(dir, 'raw.bin'), output = path.join(dir, 'fitted.mp4'); fs.writeFileSync(input, Buffer.from('raw-video'));
+  let ffmpegArgs, probeCalls = 0;
+  const ffprobe = () => (++probeCalls === 1
+    ? { videoStreamCount: 1, audioStreamCount: 1, durationSeconds: 5, video: { fps: 30, frameCount: 150, width: 1280, height: 720 } }
+    : { videoStreamCount: 1, audioStreamCount: 0, durationSeconds: 3.8, video: { fps: 30, frameCount: 114, width: 1280, height: 720 } });
+  const ffmpeg = (_command, args) => { ffmpegArgs = args; fs.writeFileSync(args.at(-1), Buffer.from('fitted-video')); return { status: 0 }; };
+  const result = b009Animation.fitSilentDerivative({ inputPath: input, outputPath: output, ffmpeg, ffprobe });
+  assert.equal(fs.existsSync(output), true);
+  assert.equal(result.metadata.video.frameCount, 114);
+  assert.equal(result.metadata.video.fps, 30);
+  assert.equal(result.metadata.audioStreamCount, 0);
+  assert.equal(ffmpegArgs[ffmpegArgs.indexOf('-an')], '-an');
+  assert.equal(ffmpegArgs[ffmpegArgs.indexOf('-frames:v') + 1], '114');
+  assert.ok(path.resolve(ffmpegArgs.at(-1)).startsWith(`${path.resolve(dir)}${path.sep}`));
+});
+
+test('B009 animation refuses malformed or short raw media before FFmpeg and CLI stays beat/run scoped', () => {
+  let ffmpegCalls = 0;
+  assert.throws(() => b009Animation.fitSilentDerivative({ inputPath: 'raw.bin', outputPath: 'out.mp4',
+    ffprobe: () => ({ videoStreamCount: 1, durationSeconds: 2, video: { fps: 30, frameCount: 60 } }),
+    ffmpeg: () => { ffmpegCalls++; return { status: 0 }; } }), /RAW_VIDEO_NOT_FRAME_ALIGNED/);
+  assert.equal(ffmpegCalls, 0);
+  const args = ['--preflight-calibration-animation', '--phase3-run-id', b009Animation.RUN_ID,
+    '--beat-id', b009Animation.BEAT_ID];
+  assert.equal(mediaExecutionCli.parseArgs(args).mode, 'preflight-calibration-animation');
+  assert.throws(() => mediaExecutionCli.parseArgs(['--preflight-calibration-animation', '--phase3-run-id',
+    b009Animation.RUN_ID, '--beat-id', 'ACT1_B006']), /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
 });
