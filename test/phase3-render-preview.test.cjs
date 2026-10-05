@@ -3107,6 +3107,53 @@ test('B006 approval records truthful in-memory inspection provenance and exact m
   assert.equal(record.restrictions.act1B009Authority, false);
 });
 
+test('B009 accepts the exact hash-pinned historical B006 receipt status only with the complete approved state', () => {
+  const valid = {
+    approvalSha256: b009SourceStill.B006_APPROVAL_SHA256,
+    authorizationSha256: 'b08ebd11da1018aafa388bf54e173655938453e50fc10bece4091a40c87abcc3',
+    imageSha256: '5315292eecda643f19472224474cb011c70b4e7a3e104899ca6542b21ef1fe36',
+    imageBytes: 1445712,
+    receiptSha256: '730f1df08b948727c4c7950f8e0a70d51935d8ff69fdd72e5f7f3fce376175fd',
+    receiptRecord: { schemaVersion: mediaExecution.CALIBRATION_RECEIPT_SCHEMA,
+      status: 'GENERATED_PENDING_HUMAN_REVIEW', runId: b009SourceStill.RUN_ID,
+      beatId: 'ACT1_B006', operation: 'GENERATE_STILL', requestKey: mediaExecution.CALIBRATION_REQUEST_KEY,
+      authorizationSha256: 'b08ebd11da1018aafa388bf54e173655938453e50fc10bece4091a40c87abcc3',
+      assetClass: b009SourceStill.CLASSIFICATION,
+      output: { path: mediaExecution.CALIBRATION_FILES.output, format: 'PNG', width: 1360, height: 768,
+        sha256: '5315292eecda643f19472224474cb011c70b4e7a3e104899ca6542b21ef1fe36', bytes: 1445712 } },
+    ledgerSha256: 'f4ef26ce9b91d7976aecaa0e0a84014ae6d59a9726ce59f391ba8f63d1f417c1',
+    ledgerRecords: [
+      { schemaVersion: mediaExecution.CALIBRATION_LEDGER_SCHEMA, recordType: 'SUBMISSION_RESERVED', sequence: 1,
+        runId: b009SourceStill.RUN_ID, beatId: 'ACT1_B006', operation: 'GENERATE_STILL',
+        requestKey: mediaExecution.CALIBRATION_REQUEST_KEY, retryAllowed: false, fallbackAllowed: false },
+      { schemaVersion: mediaExecution.CALIBRATION_LEDGER_SCHEMA, recordType: 'SUBMISSION_RESULT',
+        status: 'SUCCEEDED', requestKey: mediaExecution.CALIBRATION_REQUEST_KEY },
+    ],
+  };
+  assert.equal(b009SourceStill.verifyB006CompletedState(valid), true);
+  assert.equal(b009SourceStill.b006ReceiptStatusAccepted('CALIBRATION_STILL_GENERATED_PENDING_HUMAN_REVIEW',
+    '0'.repeat(64)), true, 'the previous canonical status remains recognized');
+  assert.equal(b009SourceStill.b006ReceiptStatusAccepted('GENERATED_PENDING_HUMAN_REVIEW', valid.receiptSha256), true);
+  assert.equal(b009SourceStill.b006ReceiptStatusAccepted('GENERATED_PENDING_HUMAN_REVIEW', '0'.repeat(64)), false);
+
+  for (const [label, change] of [
+    ['legacy status with altered receipt hash', value => { value.receiptSha256 = '0'.repeat(64); }],
+    ['altered receipt status', value => { value.receiptRecord.status = 'INSPECTED_PENDING_HUMAN_REVIEW'; }],
+    ['altered image hash', value => { value.imageSha256 = '0'.repeat(64); }],
+    ['altered image binding in receipt', value => { value.receiptRecord.output.sha256 = '0'.repeat(64); }],
+    ['altered authorization hash', value => { value.authorizationSha256 = '0'.repeat(64); }],
+    ['altered ledger hash', value => { value.ledgerSha256 = '0'.repeat(64); }],
+    ['altered approval hash', value => { value.approvalSha256 = '0'.repeat(64); }],
+    ['altered request key', value => { value.receiptRecord.requestKey = '0'.repeat(64); }],
+    ['non-success terminal result', value => { value.ledgerRecords[1].status = 'FAILED'; }],
+    ['extra ledger entry', value => { value.ledgerRecords.push({ recordType: 'SUBMISSION_RESERVED' }); }],
+  ]) {
+    const altered = structuredClone(valid);
+    change(altered);
+    assert.equal(b009SourceStill.verifyB006CompletedState(altered), false, label);
+  }
+});
+
 test('B009 read-only status and preflight bind exact candidate without creating run files or locks', t => {
   const f = makeB009SourceStillFixture(t);
   const before = mediaExecution.walkFiles(f.runDir);
@@ -3118,6 +3165,7 @@ test('B009 read-only status and preflight bind exact candidate without creating 
   assert.equal(result.maximumProviderSubmissions, 1);
   assert.equal(result.humanApprovalRequiredBeforeAnimation, true);
   assert.equal(result.episodeRootWrites, 0);
+  assert.equal(f.state.providerCalls, 0);
   assert.deepEqual(mediaExecution.walkFiles(f.runDir), before);
   assert.equal(fs.existsSync(f.beatDir), false);
 });

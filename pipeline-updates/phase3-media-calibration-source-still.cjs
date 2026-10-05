@@ -14,6 +14,13 @@ const OPERATION = 'GENERATE_ANIMATION_SOURCE_STILL';
 const REQUEST_KEY = 'f10feb2552874270ce4af7705e5648e4beede07faedfa2a72072ba6633afdd02';
 const RECONCILIATION_SHA256 = 'b93dd0f59f74197d7e7e9f7e4be0ef3360890dfdca8550f90101443dddc15207';
 const B006_APPROVAL_SHA256 = 'd00ce391df1822468eb7fe2d07f85fc6404c483e1a79105c9e50aaa875c1dcd1';
+const B006_HISTORICAL_RECEIPT_SHA256 = '730f1df08b948727c4c7950f8e0a70d51935d8ff69fdd72e5f7f3fce376175fd';
+const B006_IMAGE_SHA256 = '5315292eecda643f19472224474cb011c70b4e7a3e104899ca6542b21ef1fe36';
+const B006_AUTHORIZATION_SHA256 = 'b08ebd11da1018aafa388bf54e173655938453e50fc10bece4091a40c87abcc3';
+const B006_LEDGER_SHA256 = 'f4ef26ce9b91d7976aecaa0e0a84014ae6d59a9726ce59f391ba8f63d1f417c1';
+const B006_RECEIPT_STATUS_CANONICAL = 'CALIBRATION_STILL_GENERATED_PENDING_HUMAN_REVIEW';
+const B006_RECEIPT_STATUS_HISTORICAL = 'GENERATED_PENDING_HUMAN_REVIEW';
+const B006_BYTES = 1445712;
 const ROUTE_BUNDLE_SHA256 = '6981bda36cd4e9dda4da5b701fb23b2f705e1fd5bb04fcca30157160bac85b42';
 const AUTH_SCHEMA = 'phase3-media-calibration-source-still-authorization/1.0.0';
 const LEDGER_SCHEMA = 'phase3-media-calibration-source-still-ledger/1.0.0';
@@ -44,6 +51,43 @@ function pngInfo(bytes) {
   const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
   fail(width > 0 && height > 0, 'PHASE3_B009_PNG_DIMENSIONS_INVALID');
   return { format: 'PNG', mimeType: 'image/png', width, height };
+}
+function b006ReceiptStatusAccepted(status, receiptSha256) {
+  return status === B006_RECEIPT_STATUS_CANONICAL
+    || (status === B006_RECEIPT_STATUS_HISTORICAL
+      && receiptSha256 === B006_HISTORICAL_RECEIPT_SHA256);
+}
+function verifyB006CompletedState({ approvalSha256, authorizationSha256, imageSha256, imageBytes,
+  receiptSha256, receiptRecord, ledgerSha256, ledgerRecords } = {}) {
+  const reservation = Array.isArray(ledgerRecords) ? ledgerRecords[0] : null;
+  const terminal = Array.isArray(ledgerRecords) ? ledgerRecords[1] : null;
+  return approvalSha256 === B006_APPROVAL_SHA256
+    && authorizationSha256 === B006_AUTHORIZATION_SHA256
+    && imageSha256 === B006_IMAGE_SHA256 && imageBytes === B006_BYTES
+    && receiptSha256 === B006_HISTORICAL_RECEIPT_SHA256
+    && ledgerSha256 === B006_LEDGER_SHA256
+    && b006ReceiptStatusAccepted(receiptRecord?.status, receiptSha256)
+    && receiptRecord?.schemaVersion === mediaExecution.CALIBRATION_RECEIPT_SCHEMA
+    && receiptRecord?.runId === RUN_ID && receiptRecord?.beatId === 'ACT1_B006'
+    && receiptRecord?.operation === 'GENERATE_STILL'
+    && receiptRecord?.requestKey === mediaExecution.CALIBRATION_REQUEST_KEY
+    && receiptRecord?.authorizationSha256 === B006_AUTHORIZATION_SHA256
+    && receiptRecord?.assetClass === 'NON_PRODUCTION_DISPOSABLE_CALIBRATION'
+    && receiptRecord?.output?.path === mediaExecution.CALIBRATION_FILES.output
+    && receiptRecord?.output?.format === 'PNG'
+    && receiptRecord?.output?.width === 1360 && receiptRecord?.output?.height === 768
+    && receiptRecord?.output?.sha256 === B006_IMAGE_SHA256
+    && receiptRecord?.output?.bytes === B006_BYTES
+    && Array.isArray(ledgerRecords) && ledgerRecords.length === 2
+    && reservation?.schemaVersion === mediaExecution.CALIBRATION_LEDGER_SCHEMA
+    && reservation?.recordType === 'SUBMISSION_RESERVED' && reservation?.sequence === 1
+    && reservation?.runId === RUN_ID && reservation?.beatId === 'ACT1_B006'
+    && reservation?.operation === 'GENERATE_STILL'
+    && reservation?.requestKey === mediaExecution.CALIBRATION_REQUEST_KEY
+    && reservation?.retryAllowed === false && reservation?.fallbackAllowed === false
+    && terminal?.schemaVersion === mediaExecution.CALIBRATION_LEDGER_SCHEMA
+    && terminal?.recordType === 'SUBMISSION_RESULT' && terminal?.status === 'SUCCEEDED'
+    && terminal?.requestKey === mediaExecution.CALIBRATION_REQUEST_KEY;
 }
 function atomicExclusive(file, bytes, fsImpl = fs) {
   fail(!fsImpl.existsSync(file), 'PHASE3_B009_OUTPUT_ALREADY_EXISTS');
@@ -169,17 +213,10 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
         && mediaExecution.pngInfo(b006Output).format === 'PNG', 'PHASE3_B009_B006_LIVE_BINDING_CHANGED');
       const b006LedgerRecords = mediaExecution.readCalibrationLedger(b006File('ledger'), fsImpl);
       const b006ReceiptRecord = JSON.parse(b006Receipt.toString('utf8'));
-      fail(b006LedgerRecords.length === 2 && b006LedgerRecords[0].recordType === 'SUBMISSION_RESERVED'
-        && b006LedgerRecords[0].runId === RUN_ID && b006LedgerRecords[0].beatId === 'ACT1_B006'
-        && b006LedgerRecords[0].operation === 'GENERATE_STILL'
-        && b006LedgerRecords[0].requestKey === mediaExecution.CALIBRATION_REQUEST_KEY
-        && b006LedgerRecords[1].recordType === 'SUBMISSION_RESULT' && b006LedgerRecords[1].status === 'SUCCEEDED'
-        && b006LedgerRecords[1].requestKey === mediaExecution.CALIBRATION_REQUEST_KEY
-        && b006ReceiptRecord.output?.sha256 === approval.output.sha256
-        && b006ReceiptRecord.runId === RUN_ID && b006ReceiptRecord.beatId === 'ACT1_B006'
-        && b006ReceiptRecord.requestKey === mediaExecution.CALIBRATION_REQUEST_KEY
-        && b006ReceiptRecord.status === 'CALIBRATION_STILL_GENERATED_PENDING_HUMAN_REVIEW'
-        && b006ReceiptRecord.assetClass === CLASSIFICATION,
+      fail(verifyB006CompletedState({ approvalSha256: sha(approvalBytes),
+        authorizationSha256: sha(b006Authorization), imageSha256: sha(b006Output), imageBytes: b006Output.length,
+        receiptSha256: sha(b006Receipt), receiptRecord: b006ReceiptRecord,
+        ledgerSha256: sha(b006Ledger), ledgerRecords: b006LedgerRecords }),
       'PHASE3_B009_B006_COMPLETED_STATE_INVALID');
     }
     routes.nextAuthorizationStep({ approvedOutputs: ['ACT1_B006/GENERATE_STILL'], submissions: 1,
@@ -539,4 +576,5 @@ function createB009SourceStillWorkflow({ stagedRunner, reviewRoot, episodeRoot, 
 
 module.exports = { RUN_ID, BEAT_ID, OPERATION, REQUEST_KEY, RECONCILIATION_SHA256, B006_APPROVAL_SHA256,
   ROUTE_BUNDLE_SHA256, AUTH_SCHEMA, LEDGER_SCHEMA, FILES, CLASSIFICATION, OWNERSHIP, MAX_EXPOSURE_USD,
-  EXPECTED_CHARGE_USD, sha, canonicalJson, makeAuthTemplate, validateAuth, createB009SourceStillWorkflow };
+  EXPECTED_CHARGE_USD, sha, canonicalJson, makeAuthTemplate, validateAuth,
+  b006ReceiptStatusAccepted, verifyB006CompletedState, createB009SourceStillWorkflow };
