@@ -3650,7 +3650,7 @@ test('B009 reservation ledger accepts exactly one terminal result for its reserv
 });
 
 test('B009 offline recovery completes only its existing reservation, never invokes a provider, and preserves raw and production state', t => {
-  const makeRecoveryFixture = (alter = null) => {
+  const makeRecoveryFixture = (alter = null, pidProbe = process.kill.bind(process)) => {
     const root = tempRoot(), reviewRoot = path.join(root, '.review'), runDir = path.join(reviewRoot, b009Animation.RUN_ID);
     const beatDir = path.join(runDir, b009Animation.BEAT_ID), episodeRoot = path.join(root, 'episode-root');
     fs.mkdirSync(beatDir, { recursive: true }); fs.mkdirSync(episodeRoot, { recursive: true });
@@ -3663,7 +3663,7 @@ test('B009 offline recovery completes only its existing reservation, never invok
     const routeBundle = JSON.parse(fs.readFileSync(routeBundlePath, 'utf8'));
     const request = { ...routeBundle.calibrationRequests.find(item => item.beatId === b009Animation.BEAT_ID
       && item.operation === b009Animation.OPERATION), parameters: { ...calibrationRoutes.H3_MAX } };
-    const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+    const runtimeHashes = b009Animation.RECOVERY.historicalAuthorizationRuntimeHashes;
     const authorization = b009Animation.makeAuthorizationTemplate({ requestKey: b009Animation.ANIMATION_REQUEST_KEY,
       runtimeHashes, authorizedAt: '2026-10-06T09:00:00.000Z' });
     const authorizationBytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
@@ -3704,8 +3704,10 @@ test('B009 offline recovery completes only its existing reservation, never invok
     const fittedMetadata = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 3.8,
       videoStreamCount: 1, audioStreamCount: 0,
       video: { codec: 'h264', width: 1344, height: 768, fps: 30, avgFps: 30, rFps: 30, frameCount: 114 } };
+    let pidProbeCalls = 0;
     const workflow = b009Animation.createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeRoot,
-      approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH, testHooks: { recoveryBindings }, processScanner: () => [],
+      approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH, testHooks: { recoveryBindings },
+      pidProbe: (pid, signal) => { pidProbeCalls++; return pidProbe(pid, signal); },
       provider: { async generateAnimation() { providerCalls++; throw new Error('PROVIDER_MUST_NOT_BE_CALLED'); } },
       downloader: async () => { downloaderCalls++; throw new Error('DOWNLOAD_MUST_NOT_BE_CALLED'); },
       ffprobe: file => file === rawPath ? sourceMetadata : fittedMetadata,
@@ -3713,7 +3715,8 @@ test('B009 offline recovery completes only its existing reservation, never invok
       ffmpeg: (_command, args) => { ffmpegCalls++; fs.writeFileSync(args.at(-1), Buffer.from('recovered-derivative')); return { status: 0 }; },
       now: () => '2026-10-06T12:00:00.000Z' });
     return { root, beatDir, episodeRoot, rawPath, raw, ledgerPath, ledgerBytes, failureBytes, workflow,
-      providerCalls: () => providerCalls, downloaderCalls: () => downloaderCalls, ffmpegCalls: () => ffmpegCalls };
+      providerCalls: () => providerCalls, downloaderCalls: () => downloaderCalls, ffmpegCalls: () => ffmpegCalls,
+      pidProbeCalls: () => pidProbeCalls };
   };
   const f = makeRecoveryFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
   const beforeEpisode = fs.readdirSync(f.episodeRoot);
@@ -3723,6 +3726,7 @@ test('B009 offline recovery completes only its existing reservation, never invok
   assert.equal(recovered.providerRequestsDuringRecovery, 0);
   assert.equal(recovered.newReservations, 0);
   assert.equal(f.providerCalls(), 0); assert.equal(f.downloaderCalls(), 0); assert.equal(f.ffmpegCalls(), 1);
+  assert.equal(f.pidProbeCalls(), 1, 'PID liveness is checked only for the runner-owned lock');
   assert.deepEqual(fs.readFileSync(f.rawPath), f.raw);
   assert.deepEqual(b009Animation.readLedger(f.ledgerPath, fs).map(row => row.recordType),
     ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
@@ -3740,6 +3744,47 @@ test('B009 offline recovery completes only its existing reservation, never invok
   assert.throws(() => f.workflow.recoverExistingProviderOutput(), /RECOVERY_FILE_SET_INVALID/,
     'a successful recovery cannot be run a second time');
   assert.equal(f.providerCalls(), 0); assert.equal(f.downloaderCalls(), 0);
+  const workflowSource = fs.readFileSync(path.join(__dirname, '..', 'pipeline-updates',
+    'phase3-media-calibration-animation.cjs'), 'utf8');
+  assert.doesNotMatch(workflowSource, /execFileSync\(['"]ps['"]|processTable/u);
+  const lockName = path.basename(b009Animation.FILES.lock);
+  const makeLock = pid => ({ pid, runId: b009Animation.RUN_ID, beatId: b009Animation.BEAT_ID,
+    operation: 'RECOVER_EXISTING_PROVIDER_OUTPUT', requestKey: b009Animation.ANIMATION_REQUEST_KEY,
+    createdAt: '2026-10-06T12:00:00.000Z' });
+  const cases = [
+    ['live runner lock', ({ beatDir }) => fs.writeFileSync(path.join(beatDir, lockName), JSON.stringify(makeLock(process.pid))),
+      () => {}, /RECOVERY_LOCK_ACTIVE/],
+    ['stale lock', ({ beatDir }) => fs.writeFileSync(path.join(beatDir, lockName), JSON.stringify(makeLock(987654321))),
+      () => { throw Object.assign(new Error('stale'), { code: 'ESRCH' }); }, /RECOVERY_STALE_LOCK/],
+    ['inaccessible PID', ({ beatDir }) => fs.writeFileSync(path.join(beatDir, lockName), JSON.stringify(makeLock(12345))),
+      () => { throw Object.assign(new Error('inaccessible'), { code: 'EPERM' }); }, /RECOVERY_LOCK_ACTIVE/],
+      ['malformed lock', ({ beatDir }) => fs.writeFileSync(path.join(beatDir, lockName), JSON.stringify({ pid: 'bad' })),
+      () => assert.fail('malformed lock must not be probed'), /RECOVERY_LOCK_INVALID/],
+  ];
+  for (const [label, writeLock, pidProbe, expected] of cases) {
+    const f = makeRecoveryFixture(writeLock, pidProbe);
+    t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+    assert.throws(() => f.workflow.recoverExistingProviderOutput(), expected, label);
+    assert.equal(f.providerCalls(), 0); assert.equal(f.ffmpegCalls(), 0);
+    assert.equal(fs.readFileSync(f.ledgerPath).equals(f.ledgerBytes), true);
+    assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009Animation.FILES.derivative))), false);
+  }
+});
+
+test('B009 historical authorization uses its recorded runtime hashes while recovery runtime bindings stay current', () => {
+  const historical = b009Animation.RECOVERY.historicalAuthorizationRuntimeHashes;
+  assert.deepEqual(b009Animation.historicalAuthorizationRuntimeHashes({ bindings: { ...historical } }), historical);
+  assert.throws(() => b009Animation.historicalAuthorizationRuntimeHashes({
+    bindings: { ...historical, cliSha256: 'f'.repeat(64) },
+  }), /HISTORICAL_RUNTIME_BINDING_MISMATCH/);
+  const current = { animationWorkflowSha256: 'd'.repeat(64),
+    executionModuleSha256: b009Animation.RECOVERY.currentExecutionModuleSha256,
+    cliSha256: b009Animation.RECOVERY.currentCliSha256 };
+  assert.equal(b009Animation.verifyRecoveryRuntimeBindings(current, current.animationWorkflowSha256), true);
+  assert.throws(() => b009Animation.verifyRecoveryRuntimeBindings({ ...current, cliSha256: 'e'.repeat(64) }),
+    /RECOVERY_RUNTIME_BINDING_MISMATCH/);
+  assert.throws(() => b009Animation.verifyRecoveryRuntimeBindings(current, 'f'.repeat(64)),
+    /RECOVERY_WORKFLOW_SYNC_MISMATCH/);
 });
 
 test('B009 offline recovery rejects altered raw, ledger, failure receipts, extras and VFR without writes or provider access', t => {
@@ -3755,7 +3800,7 @@ test('B009 offline recovery rejects altered raw, ledger, failure receipts, extra
       'phase3-media-execution-calibration-route-bundle-20261004.v1.json'), 'utf8')).calibrationRequests
       .find(item => item.beatId === b009Animation.BEAT_ID && item.operation === b009Animation.OPERATION);
     const request = { ...requestRecord, parameters: { ...calibrationRoutes.H3_MAX } };
-    const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+    const runtimeHashes = b009Animation.RECOVERY.historicalAuthorizationRuntimeHashes;
     const auth = b009Animation.makeAuthorizationTemplate({ requestKey: b009Animation.ANIMATION_REQUEST_KEY,
       runtimeHashes, authorizedAt: '2026-10-06T09:00:00.000Z' });
     const authBytes = Buffer.from(`${JSON.stringify(auth, null, 2)}\n`);
@@ -3791,7 +3836,7 @@ test('B009 offline recovery rejects altered raw, ledger, failure receipts, extra
         fps: 24, avgFps: 24, rFps: 24, frameCount: 124 } };
     const workflow = b009Animation.createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot,
       episodeRoot: path.join(root, 'episode'), approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH,
-      testHooks: { recoveryBindings }, processScanner: () => [],
+      testHooks: { recoveryBindings },
       provider: { generateAnimation: () => { providerCalls++; } }, downloader: () => { providerCalls++; },
       ffprobe: () => result.vfr ? { ...rawMetadata, video: { ...rawMetadata.video, fps: 23, avgFps: 23, rFps: 23 } } : rawMetadata,
       ffprobeFrames: () => Array.from({ length: 124 }, (_, index) => index / 24),

@@ -41,12 +41,20 @@ const EXPECTED_CHARGE_USD = 5 * 0.08;
 const TARGET_FPS = 30;
 const TARGET_FRAMES = 114;
 const TARGET_DURATION_SECONDS = 3.8;
+const HISTORICAL_AUTHORIZATION_RUNTIME_HASHES = Object.freeze({
+  animationWorkflowSha256: '33c34c05ae6b1d79466e8961a5a1a45be27f0ac0b79e5f3a4d6061a46ad28cc0',
+  executionModuleSha256: 'a5c5e0d72f7a0767844aabd67b75c859798cb528e961c05dba8a0025bbbbb73c',
+  cliSha256: 'e0b7ada55610d10f0620460a7a8486f546cacb7a422cc3d2a724e50b1b6c2314',
+});
 const RECOVERY = Object.freeze({
   rawBytes: 6951973,
   rawSha256: '976a45b4230d20638a260d8fc41306951ff308b077a174531257a7534e468c79',
   ledgerSha256: 'fe3e7ab055ed1a2925cfb92f0e9511f87b512b702333afc89fcbfd77b214d024',
   failureSha256: '7dd3b9cb69b866105f18986ae4ee76169779105f881c74645e0631239be69c9c',
   authorizationSha256: 'd8063bff367eac9771e47174295a51450a7ea1e8a7c4c704f1690a5496c95e37',
+  historicalAuthorizationRuntimeHashes: HISTORICAL_AUTHORIZATION_RUNTIME_HASHES,
+  currentExecutionModuleSha256: 'a5c5e0d72f7a0767844aabd67b75c859798cb528e961c05dba8a0025bbbbb73c',
+  currentCliSha256: '8a5c0a1e5ff8fd19fb3d72129002263d5f77561ad3b5fbfc44b4dab203c99f4c',
   sourceFps: 24,
   sourceFrames: 124,
   sourceWidth: 1344,
@@ -81,6 +89,21 @@ function canonical(value) {
   return value;
 }
 function canonicalJson(value) { return JSON.stringify(canonical(value)); }
+function historicalAuthorizationRuntimeHashes(record) {
+  const hashes = { animationWorkflowSha256: record?.bindings?.animationWorkflowSha256,
+    executionModuleSha256: record?.bindings?.executionModuleSha256, cliSha256: record?.bindings?.cliSha256 };
+  fail(canonicalJson(hashes) === canonicalJson(HISTORICAL_AUTHORIZATION_RUNTIME_HASHES),
+    'PHASE3_B009_ANIMATION_HISTORICAL_RUNTIME_BINDING_MISMATCH');
+  return hashes;
+}
+function verifyRecoveryRuntimeBindings(currentRuntimeHashes, synchronizedWorkflowSha256 = null) {
+  fail(currentRuntimeHashes?.executionModuleSha256 === RECOVERY.currentExecutionModuleSha256
+    && currentRuntimeHashes?.cliSha256 === RECOVERY.currentCliSha256,
+  'PHASE3_B009_ANIMATION_RECOVERY_RUNTIME_BINDING_MISMATCH');
+  if (synchronizedWorkflowSha256 !== null) fail(currentRuntimeHashes.animationWorkflowSha256 === synchronizedWorkflowSha256,
+    'PHASE3_B009_ANIMATION_RECOVERY_WORKFLOW_SYNC_MISMATCH');
+  return true;
+}
 function selfBound(schemaVersion, body, field) {
   const unsigned = { schemaVersion, ...body };
   return { ...unsigned, [field]: sha(Buffer.from(canonicalJson(unsigned), 'utf8')) };
@@ -205,11 +228,7 @@ function verifyStagedRunFiles({ runDir, fsImpl = fs, currentRuntimeHashes = null
       && actualNames.includes(path.posix.basename(FILES.raw))
       && actualNames.includes(path.posix.basename(FILES.failure))
       && actualNames.includes(path.posix.basename(FILES.ledger));
-    const hashes = exactRecoveryState ? {
-      animationWorkflowSha256: record.bindings?.animationWorkflowSha256,
-      executionModuleSha256: record.bindings?.executionModuleSha256,
-      cliSha256: record.bindings?.cliSha256,
-    } : currentRuntimeHashes || {
+    const hashes = exactRecoveryState ? historicalAuthorizationRuntimeHashes(record) : currentRuntimeHashes || {
       animationWorkflowSha256: sha(fsImpl.readFileSync(__filename)),
       executionModuleSha256: sha(fsImpl.readFileSync(path.resolve(__dirname, 'phase3-media-execution.cjs'))),
       cliSha256: sha(fsImpl.readFileSync(path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'))),
@@ -304,14 +323,6 @@ function isConstantFrameRate(timestamps, fps, frameCount, tolerance = 0.000002) 
     && timestamps.slice(1).every((value, index) => value > timestamps[index]
       && Math.abs((value - timestamps[index]) - 1 / fps) <= tolerance);
 }
-function processTable() {
-  if (process.platform === 'win32') return [];
-  const text = execFileSync('ps', ['-eo', 'pid=,args='], { encoding: 'utf8', windowsHide: true });
-  return String(text).split(/\r?\n/u).filter(Boolean).map(line => {
-    const match = line.trim().match(/^(\d+)\s+(.+)$/u);
-    return match ? { pid: Number(match[1]), args: match[2] } : null;
-  }).filter(Boolean);
-}
 function fitSilentDerivative({ inputPath, outputPath, ffmpeg = spawnSync, ffprobe = probeVideo, fsImpl = fs,
   recoveryMode = false, frameTimestamps = null }) {
   const source = ffprobe(inputPath);
@@ -386,7 +397,7 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
   cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-media-execution.cjs'), fsImpl = fs,
   provider = createFalAnimationProvider(), downloader = downloadVideo, ffprobe = probeVideo,
   ffprobeFrames = probeFrameTimestamps, ffmpeg = spawnSync, now = () => new Date().toISOString(),
-  processScanner = processTable, testHooks = {} } = {}) {
+  pidProbe = process.kill.bind(process), testHooks = {} } = {}) {
   const recoveryTrust = Object.freeze({ ...RECOVERY, ...(testHooks.recoveryBindings || {}) });
   const runDir = path.resolve(reviewRoot, RUN_ID), beatDir = path.join(runDir, BEAT_ID);
   const file = key => safeRunPath(runDir, FILES[key]);
@@ -459,6 +470,18 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
     return { animationWorkflowSha256: sha(fsImpl.readFileSync(modulePath)),
       executionModuleSha256: sha(fsImpl.readFileSync(executionModulePath)), cliSha256: sha(fsImpl.readFileSync(cliPath)) };
   }
+  function recoveryRuntimeHashes() {
+    const hashes = runtimeHashes();
+    let synchronizedWorkflowSha256 = null;
+    if (path.resolve(modulePath).startsWith(`${path.sep}data${path.sep}pipeline${path.sep}`)) {
+      const appWorkflow = path.join(path.sep, 'app', 'pipeline-updates', path.basename(modulePath));
+      const stat = fsImpl.lstatSync(appWorkflow);
+      fail(stat.isFile() && !stat.isSymbolicLink(), 'PHASE3_B009_ANIMATION_RECOVERY_DEPLOYED_WORKFLOW_MISSING');
+      synchronizedWorkflowSha256 = sha(fsImpl.readFileSync(appWorkflow));
+    }
+    verifyRecoveryRuntimeBindings(hashes, synchronizedWorkflowSha256);
+    return hashes;
+  }
   function inventory() {
     fail(fsImpl.existsSync(beatDir), 'PHASE3_B009_ANIMATION_BEAT_DIRECTORY_MISSING');
     const stat = fsImpl.lstatSync(beatDir); fail(stat.isDirectory() && !stat.isSymbolicLink(), 'PHASE3_B009_ANIMATION_BEAT_DIRECTORY_INVALID');
@@ -495,15 +518,30 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
     'PHASE3_B009_ANIMATION_RECOVERY_FAILURE_RECEIPT_INVALID');
     return receipt;
   }
-  function assertNoRelatedProcesses() {
-    const currentPid = process.pid;
-    const active = processScanner().filter(item => item.pid !== currentPid).some(item => {
-      const args = String(item.args || '');
-      return (args.includes(RUN_ID) && (args.includes('--generate-calibration-animation')
-        || args.includes('--recover-calibration-animation') || args.includes('phase3-media-calibration-animation')))
-        || ((/ffmpeg|ffprobe/iu.test(args)) && args.includes(beatDir));
-    });
-    fail(!active, 'PHASE3_B009_ANIMATION_RECOVERY_PROCESS_ACTIVE');
+  function assertNoRelatedProcesses({ allowOwnedLock = false } = {}) {
+    const lockPath = file('lock');
+    if (!fsImpl.existsSync(lockPath)) return false;
+    const stat = fsImpl.lstatSync(lockPath);
+    fail(stat.isFile() && !stat.isSymbolicLink(), 'PHASE3_B009_ANIMATION_RECOVERY_LOCK_INVALID');
+    let lock;
+    try { lock = readJson(lockPath, fsImpl); }
+    catch { throw new Error('PHASE3_B009_ANIMATION_RECOVERY_LOCK_INVALID'); }
+    fail(Number.isSafeInteger(lock.pid) && lock.pid > 0 && lock.runId === RUN_ID && lock.beatId === BEAT_ID
+      && lock.operation === 'RECOVER_EXISTING_PROVIDER_OUTPUT' && lock.requestKey === ANIMATION_REQUEST_KEY
+      && typeof lock.createdAt === 'string' && Number.isFinite(Date.parse(lock.createdAt))
+      && new Date(lock.createdAt).toISOString() === lock.createdAt,
+    'PHASE3_B009_ANIMATION_RECOVERY_LOCK_INVALID');
+    let live = true;
+    try { pidProbe(lock.pid, 0); }
+    catch (error) {
+      if (error?.code === 'ESRCH') live = false;
+      else if (error?.code === 'EPERM') live = true;
+      else throw error;
+    }
+    fail(live, 'PHASE3_B009_ANIMATION_RECOVERY_STALE_LOCK');
+    fail(allowOwnedLock && lock.pid === process.pid,
+      'PHASE3_B009_ANIMATION_RECOVERY_LOCK_ACTIVE');
+    return true;
   }
   function assertRecoverableState(ctx, { allowLock = false } = {}) {
     fail(ctx.requestKey === ANIMATION_REQUEST_KEY, 'PHASE3_B009_ANIMATION_RECOVERY_REQUEST_KEY_MISMATCH');
@@ -537,9 +575,7 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
     const authorization = JSON.parse(authBytes.toString('utf8'));
     validateAnimationAuthorization(authorization, recoveryTrust.authorizationSha256, {
       requestKey: ANIMATION_REQUEST_KEY,
-      runtimeHashes: { animationWorkflowSha256: authorization.bindings?.animationWorkflowSha256,
-        executionModuleSha256: authorization.bindings?.executionModuleSha256,
-        cliSha256: authorization.bindings?.cliSha256 },
+      runtimeHashes: historicalAuthorizationRuntimeHashes(authorization),
     }, authBytes);
     const ledgerBytes = fsImpl.readFileSync(file('ledger'));
     fail(sha(ledgerBytes) === recoveryTrust.ledgerSha256, 'PHASE3_B009_ANIMATION_RECOVERY_LEDGER_MISMATCH');
@@ -579,8 +615,15 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
     let authorization = { present: authPresent, sha256: null, valid: false };
     if (authPresent) {
       const bytes = fsImpl.readFileSync(file('authorization')), record = JSON.parse(bytes.toString('utf8'));
-      const hash = sha(bytes); validateAnimationAuthorization(record, hash,
-        { requestKey: ctx.requestKey, runtimeHashes: runtimeHashes() }, bytes);
+      const hash = sha(bytes);
+      const exactRecoveryState = hash === recoveryTrust.authorizationSha256
+        && actual.includes(path.posix.basename(FILES.raw))
+        && actual.includes(path.posix.basename(FILES.failure))
+        && actual.includes(path.posix.basename(FILES.ledger));
+      const authorizationHashes = exactRecoveryState
+        ? historicalAuthorizationRuntimeHashes(record) : runtimeHashes();
+      validateAnimationAuthorization(record, hash,
+        { requestKey: ctx.requestKey, runtimeHashes: authorizationHashes }, bytes);
       authorization = { present: true, sha256: hash, valid: true };
     }
     const legacyAuthorization = { present: legacyAuthPresent,
@@ -795,14 +838,17 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
     } finally { try { if (fsImpl.existsSync(lockPath)) fsImpl.unlinkSync(lockPath); } catch (_) {} }
   }
   function recoverExistingProviderOutput() {
+    const recoveryRuntime = recoveryRuntimeHashes();
     const ctx = recoveryContext();
-    assertRecoverableState(ctx);
     assertNoRelatedProcesses();
+    assertRecoverableState(ctx);
     const lockPath = acquireLock(ctx.requestKey, 'RECOVER_EXISTING_PROVIDER_OUTPUT');
     try {
       const lockedContext = recoveryContext();
       const locked = assertRecoverableState(lockedContext, { allowLock: true });
-      assertNoRelatedProcesses();
+      assertNoRelatedProcesses({ allowOwnedLock: true });
+      fail(canonicalJson(recoveryRuntimeHashes()) === canonicalJson(recoveryRuntime),
+        'PHASE3_B009_ANIMATION_RECOVERY_RUNTIME_CHANGED');
       const rawBefore = sha(locked.raw);
       const rawMetadata = ffprobe(file('raw'));
       const frameTimestamps = ffprobeFrames(file('raw'));
@@ -812,6 +858,8 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
       fail(rawAfter.length === recoveryTrust.rawBytes && sha(rawAfter) === rawBefore
         && rawBefore === recoveryTrust.rawSha256, 'PHASE3_B009_ANIMATION_RECOVERY_RAW_CHANGED');
       const derivativeBytes = fsImpl.readFileSync(file('derivative'));
+      fail(canonicalJson(recoveryRuntimeHashes()) === canonicalJson(recoveryRuntime),
+        'PHASE3_B009_ANIMATION_RECOVERY_RUNTIME_CHANGED');
       const ledgerPath = file('ledger'), beforeLedgerBytes = fsImpl.readFileSync(ledgerPath);
       fail(sha(beforeLedgerBytes) === recoveryTrust.ledgerSha256
         && sha(beforeLedgerBytes) === sha(locked.ledgerBytes), 'PHASE3_B009_ANIMATION_RECOVERY_LEDGER_CHANGED');
@@ -899,7 +947,8 @@ module.exports = { RUN_ID, BEAT_ID, OPERATION, ENDPOINT, MODEL, PACKAGE, SOURCE_
   B009_RECONCILIATION_SHA256, STAGE04_ACTIVATION_SHA256, STAGE04_LEDGER_SHA256, ROUTE_BUNDLE_SHA256,
   ROUTE_APPROVAL_SHA256, AUTH_SCHEMA, LEDGER_SCHEMA, RECEIPT_SCHEMA, RESULT_SCHEMA, FAILURE_SCHEMA,
   ASSET_CLASS, OWNERSHIP, MAX_EXPOSURE_USD, EXPECTED_CHARGE_USD, TARGET_FPS, TARGET_FRAMES,
-  TARGET_DURATION_SECONDS, RECOVERY, FILES, LEGACY_AUTHORIZATION, ANIMATION_REQUEST_KEY, sha, canonical, canonicalJson, deriveAnimationRequestKey,
+  TARGET_DURATION_SECONDS, RECOVERY, FILES, LEGACY_AUTHORIZATION, ANIMATION_REQUEST_KEY, sha, canonical, canonicalJson,
+  historicalAuthorizationRuntimeHashes, verifyRecoveryRuntimeBindings, deriveAnimationRequestKey,
   makeAuthorizationTemplate, validateAnimationAuthorization, verifyStagedRunFiles, fitSilentDerivative, probeVideo,
   probeFrameTimestamps, isConstantFrameRate, appendLedger, readLedger,
   createFalAnimationProvider, createB009AnimationWorkflow };
