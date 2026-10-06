@@ -311,11 +311,24 @@ function probeVideo(file, { ffprobePath = 'ffprobe', execFileImpl = execFileSync
       rFps: toFps(video.r_frame_rate), frameCount: Number(video.nb_read_frames || video.nb_frames) } : null,
     audioCodecs: audios.map(s => s.codec_name) };
 }
-function probeFrameTimestamps(file, { ffprobePath = 'ffprobe', execFileImpl = execFileSync } = {}) {
+function probeFrameTimestamps(file, { ffprobePath = 'ffprobe', execFileImpl = execFileSync,
+  expectedFrameCount = null } = {}) {
   const text = execFileImpl(ffprobePath, ['-v', 'error', '-select_streams', 'v:0', '-show_frames',
     '-show_entries', 'frame=best_effort_timestamp_time', '-of', 'csv=p=0', file],
   { encoding: 'utf8', windowsHide: true });
-  return String(text).split(/\r?\n/u).map(line => Number(line.trim())).filter(Number.isFinite);
+  // FFprobe terminates CSV output with a newline. Empty lines are explicitly
+  // ignored; every non-empty line must be a single finite numeric timestamp.
+  const lines = String(text).split(/\r?\n/u).map(line => line.trim()).filter(line => line.length > 0);
+  const timestamps = lines.map(line => {
+    fail(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(line),
+      'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID');
+    const value = Number(line);
+    fail(Number.isFinite(value), 'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID');
+    return value;
+  });
+  if (expectedFrameCount !== null) fail(Number.isSafeInteger(expectedFrameCount) && expectedFrameCount > 0
+    && timestamps.length === expectedFrameCount, 'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_COUNT_INVALID');
+  return timestamps;
 }
 function isConstantFrameRate(timestamps, fps, frameCount, tolerance = 0.000002) {
   return Array.isArray(timestamps) && timestamps.length === frameCount && timestamps.length > 1
@@ -851,7 +864,7 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
         'PHASE3_B009_ANIMATION_RECOVERY_RUNTIME_CHANGED');
       const rawBefore = sha(locked.raw);
       const rawMetadata = ffprobe(file('raw'));
-      const frameTimestamps = ffprobeFrames(file('raw'));
+      const frameTimestamps = ffprobeFrames(file('raw'), { expectedFrameCount: recoveryTrust.sourceFrames });
       const fitted = fitSilentDerivative({ inputPath: file('raw'), outputPath: file('derivative'),
         ffmpeg, ffprobe, fsImpl, recoveryMode: true, frameTimestamps });
       const rawAfter = fsImpl.readFileSync(file('raw'));

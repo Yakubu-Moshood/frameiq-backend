@@ -3608,6 +3608,34 @@ test('B009 offline recovery pins the preserved raw and audit bindings and normal
   assert.equal(b009Animation.RECOVERY.failureSha256, '7dd3b9cb69b866105f18986ae4ee76169779105f881c74645e0631239be69c9c');
 });
 
+test('B009 FFprobe timestamps ignore empty lines, parse strictly, and enforce the bound 124-frame CFR source', () => {
+  const output = Array.from({ length: 124 }, (_, index) => (index / 24).toFixed(6)).join('\n');
+  const parse = text => b009Animation.probeFrameTimestamps('raw.bin', {
+    expectedFrameCount: 124, execFileImpl: () => `${text}\n`,
+  });
+  const timestamps = parse(output);
+  assert.equal(timestamps.length, 124, 'the ordinary trailing newline must not append timestamp zero');
+  assert.equal(b009Animation.isConstantFrameRate(timestamps, 24, 124), true);
+  assert.equal(timestamps[0], 0);
+  assert.equal(timestamps.at(-1), Number((123 / 24).toFixed(6)));
+
+  const internalBlankLines = output.replace('0.500000\n', '0.500000\n\n');
+  assert.equal(parse(internalBlankLines).length, 124,
+    'empty lines are explicitly ignored anywhere; non-empty lines are never discarded');
+  assert.throws(() => parse(output.replace('0.500000', 'not-a-timestamp')),
+    /FRAME_TIMESTAMP_INVALID/);
+  assert.throws(() => parse(output.replace('0.500000', 'Infinity')),
+    /FRAME_TIMESTAMP_INVALID/);
+  assert.throws(() => b009Animation.probeFrameTimestamps('raw.bin', {
+    expectedFrameCount: 124, execFileImpl: () => `${output}\n0.000000\n`,
+  }), /FRAME_TIMESTAMP_COUNT_INVALID/);
+  assert.equal(b009Animation.isConstantFrameRate(timestamps.map((value, index) =>
+    index === 70 ? value - 0.01 : value), 24, 124), false,
+  'non-monotonic or off-cadence timestamps are rejected without sorting or deduplication');
+  assert.equal(b009Animation.isConstantFrameRate([...timestamps, timestamps.at(-1) + 1 / 24], 24, 124), false,
+    'a genuinely extra frame is rejected');
+});
+
 test('B009 offline recovery rejects VFR, truncated and mismatched source metadata before FFmpeg', () => {
   const valid = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5.184,
     videoStreamCount: 1, audioStreamCount: 1,
