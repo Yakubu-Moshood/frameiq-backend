@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "phase3-consolidated-calibration-verdict/1.0.0",
+  "status": "CALIBRATION_LANE_CLOSED",
+  "recordedAt": "2026-10-06T19:39:32.318Z",
+  "bindings": {
+    "act1B006ApprovalSha256": "d00ce391df1822468eb7fe2d07f85fc6404c483e1a79105c9e50aaa875c1dcd1",
+    "act1B009SourceStillApprovalSha256": "8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c",
+    "act1B009AnimationApprovalSha256": "78d7307c739050096aab2f8d723897b651151f93395323677ee3332c91d3f327",
+    "act1B009FinalizationSha256": "b426f68ce487a88c1a0bb783542b330ed6f7b3d0068e3d704a077f0a811b5c9c"
+  },
+  "verdicts": [
+    {
+      "asset": "ACT1_B006_STILL",
+      "calibration": "APPROVED",
+      "production": "REJECTED",
+      "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION"
+    },
+    {
+      "asset": "ACT1_B009_SOURCE_STILL",
+      "calibration": "APPROVED",
+      "production": "REJECTED",
+      "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION"
+    },
+    {
+      "asset": "ACT1_B009_ANIMATION",
+      "calibration": "APPROVED",
+      "production": "REJECTED",
+      "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION"
+    },
+    {
+      "asset": "ACT1_B005",
+      "calibration": "DEFERRED",
+      "production": "REJECTED",
+      "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION"
+    }
+  ],
+  "closure": {
+    "additionalCalibrationRequestsAuthorized": 0,
+    "productionExecutionAuthorized": false,
+    "renderingAuthorized": false,
+    "promotionAuthorized": false,
+    "stage04ModificationAuthorized": false,
+    "calibrationAssetsMayEnterProductionPaths": false
+  },
+  "verdictBindingSha256": "d427d100caf723bda6ecfbcd5472dd9206e7607cd74ecbc2b7a298af40b7ce04"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "phase3-production-batch-cost-and-exposure/1.0.0",
+  "status": "PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED",
+  "pricingBasis": {
+    "retrievedAt": "2026-10-04",
+    "source": "committed calibration route bundle",
+    "flux3OneKPromotionalPerImageUsdThrough2026_10_08": 0.024,
+    "flux3OneKRegularPerImageUsd": 0.048,
+    "h3Max768pPerOutputSecondUsd": 0.08,
+    "h3RequestedSecondsPerClip": 5
+  },
+  "quantities": {
+    "controlledLocalStills": 34,
+    "providerStills": 31,
+    "animationClips": 23,
+    "animationBillableSeconds": 115,
+    "providerSubmissions": 54,
+    "automaticRetries": 0
+  },
+  "estimateUsd": {
+    "promotionalStillSubtotal": 0.744,
+    "regularStillSubtotal": 1.488,
+    "animationSubtotal": 9.2,
+    "promotionalTotal": 9.944,
+    "regularTotal": 10.688
+  },
+  "proposedHumanExposureCeilingUsd": 12,
+  "providerEnforced": false,
+  "ceilingStatus": "PROPOSED_NOT_APPROVED",
+  "executionAuthorizationCreated": false,
+  "exclusions": [
+    "retries",
+    "fallbacks",
+    "reference stills outside the requested 34/8/23/23 package"
+  ]
+}

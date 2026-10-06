@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "phase3-act1-b009-animation-human-validation-approval/1.0.0",
+  "status": "APPROVED_FOR_CALIBRATION_VALIDATION_ONLY",
+  "approvedBy": "Yakubu Moshood",
+  "approvedAt": "2026-10-06T19:39:32.318Z",
+  "approvalRef": "user-approval-act1-b009-recovered-fitted-animation-2026-10-06",
+  "decision": "The recovered ACT1_B009 fitted animation is approved for calibration validation only.",
+  "bindings": {
+    "recoveryCommit": "57e5796ce5b6a77d36b3f75373e78effdb2f94d4",
+    "recoveryDeployment": "7b62db25-d4f2-4cd3-8531-3f8c2edf2949",
+    "animationRequestKey": "946a3ac047028bf95badf61753f46e340bb27d8a3931c9f675ba210e1d9de3c3",
+    "sourceStillSha256": "0a9c9311c20da7dc774b1695f9abe2ea56f648fc0eb2450a8c7f0c4130b9ffdc",
+    "b006ApprovalSha256": "d00ce391df1822468eb7fe2d07f85fc6404c483e1a79105c9e50aaa875c1dcd1",
+    "b009SourceStillApprovalSha256": "8b2c41cff79bac73a89e22d80a953517091acaa98bc110d6447da06e835b548c",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "outerPackageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "censusSha256": "bcdcd8bd29987aba1519d4ee9b958ae1662f93df81e5c1a057e2b721dde8a63b",
+    "rawVideo": {
+      "bytes": 6951973,
+      "sha256": "976a45b4230d20638a260d8fc41306951ff308b077a174531257a7534e468c79"
+    },
+    "fittedDerivative": {
+      "bytes": 922979,
+      "sha256": "5cfc0c6a5b66efe617ac6b4afbb552b255e3897b7bad5071e65ab74af78ae890"
+    },
+    "successReceiptSha256": "1df0f50866fb1f788c297c72c96601c21bfe5354e1c2bb103612caeace998f76",
+    "terminalResultSha256": "8ac4fa94b13d789052543bf5d292810b9acfa68b7cfe852cbfaa1a855127a7b8",
+    "finalAnimationLedgerSha256": "05512a29fe190df56d4bd1ff18b25472585dfa463d847dac1c499a7b5f8ba0cc"
+  },
+  "fittedOutputContract": {
+    "container": "MP4",
+    "codec": "h264",
+    "width": 1344,
+    "height": 768,
+    "fps": 30,
+    "frames": 114,
+    "durationSeconds": 3.8,
+    "audioStreams": 0
+  },
+  "classification": {
+    "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION",
+    "productionReadiness": "REJECTED",
+    "productionUse": false
+  },
+  "restrictions": {
+    "providerRequestsAuthorized": 0,
+    "retriesAuthorized": 0,
+    "fallbacksAuthorized": 0,
+    "renderingAuthorized": false,
+    "promotionAuthorized": false,
+    "candidateReconstructionAuthorized": false,
+    "stage04ModificationAuthorized": false,
+    "episodeRootWritesAuthorized": false,
+    "productionExecutionAuthorized": false
+  },
+  "approvalBindingSha256": "947b8e65f2f5ffb8e4a3d2ac3a2a18e97b74a8805d657859599ccde16e762908"
+}

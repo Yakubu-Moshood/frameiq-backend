@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "phase3-production-batch-output-contracts/1.0.0",
+  "status": "PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED",
+  "contracts": {
+    "CONTROLLED_STILL_PNG_1920X1080": {
+      "finalOrIntermediate": "FINAL",
+      "format": "PNG",
+      "mimeType": "image/png",
+      "width": 1920,
+      "height": 1080,
+      "aspectRatio": "16:9",
+      "alphaAllowed": false,
+      "generatedTextAllowed": false
+    },
+    "FLUX3_PNG_1360X768": {
+      "finalOrIntermediate": "PER_JOB",
+      "format": "PNG",
+      "mimeType": "image/png",
+      "width": 1360,
+      "height": 768,
+      "aspectRatio": "16:9",
+      "imageCount": 1,
+      "generatedTextAllowed": false
+    },
+    "H3_RAW_IMMUTABLE": {
+      "finalOrIntermediate": "INTERMEDIATE",
+      "preserveBytesUnchanged": true,
+      "container": "MP4",
+      "requiredVideoStreams": 1,
+      "maximumAudioStreams": 1,
+      "probeRequired": true,
+      "productionUse": false
+    },
+    "H3_FITTED_30FPS_SILENT": {
+      "finalOrIntermediate": "FINAL",
+      "container": "MP4",
+      "codec": "h264",
+      "width": 1344,
+      "height": 768,
+      "fps": 30,
+      "audioStreams": 0,
+      "frameCount": "PER_BEAT_TARGET_FRAMES",
+      "fitting": "NORMALIZE_TO_30FPS_THEN_EXACT_FRAME_TRIM_OR_APPROVED_FINAL_FRAME_HOLD"
+    }
+  }
+}

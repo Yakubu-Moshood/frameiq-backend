@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-calibration-finalization/1.0.0",
+  "status": "CALIBRATION_ASSET_FINALIZED_PRODUCTION_REJECTED",
+  "finalizedAt": "2026-10-06T19:39:32.318Z",
+  "finalizationMethod": "HASH_BOUND_OFFLINE_RECORD_ONLY",
+  "bindings": {
+    "humanValidationApprovalSha256": "78d7307c739050096aab2f8d723897b651151f93395323677ee3332c91d3f327",
+    "successReceiptSha256": "1df0f50866fb1f788c297c72c96601c21bfe5354e1c2bb103612caeace998f76",
+    "terminalResultSha256": "8ac4fa94b13d789052543bf5d292810b9acfa68b7cfe852cbfaa1a855127a7b8",
+    "finalAnimationLedgerSha256": "05512a29fe190df56d4bd1ff18b25472585dfa463d847dac1c499a7b5f8ba0cc",
+    "rawVideoSha256": "976a45b4230d20638a260d8fc41306951ff308b077a174531257a7534e468c79",
+    "fittedDerivativeSha256": "5cfc0c6a5b66efe617ac6b4afbb552b255e3897b7bad5071e65ab74af78ae890"
+  },
+  "outcome": {
+    "beatId": "ACT1_B009",
+    "calibrationValidation": "APPROVED",
+    "assetClass": "NON_PRODUCTION_DISPOSABLE_CALIBRATION",
+    "productionReadiness": "REJECTED",
+    "providerSubmissions": 1,
+    "retries": 0,
+    "fallbacks": 0
+  },
+  "effects": {
+    "providerRequests": 0,
+    "mediaWrites": 0,
+    "productionPathWrites": 0,
+    "renderRuns": 0,
+    "promotions": 0,
+    "candidateReconstruction": false,
+    "stage04Modification": false
+  },
+  "finalizationBindingSha256": "6aba8695ed1c79c7f37a7ba611c59fcd489dd89837b901a4f8a5f560b1713710"
+}

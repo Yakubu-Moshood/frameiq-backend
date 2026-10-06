@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "phase3-production-batch-planning-package-index/1.0.0",
+  "status": "PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED",
+  "packageId": "phase3-production-batch-planning-20261006-v1",
+  "createdAt": "2026-10-06T19:39:32.318Z",
+  "files": [
+    {
+      "path": "calibration-finalization.v1.json",
+      "bytes": 1401,
+      "sha256": "b426f68ce487a88c1a0bb783542b330ed6f7b3d0068e3d704a077f0a811b5c9c"
+    },
+    {
+      "path": "consolidated-calibration-verdict.v1.json",
+      "bytes": 1677,
+      "sha256": "10cb46db5340754e737a8e4ebdd05679a380f51bef9c0e9c3b9b8944b939423b"
+    },
+    {
+      "path": "cost-and-exposure.v1.json",
+      "bytes": 1088,
+      "sha256": "b3d02476fb2a36b1aaccd9083a34666c98b3141188e15ff1bcb1f287a448bd5d"
+    },
+    {
+      "path": "output-contracts.v1.json",
+      "bytes": 1299,
+      "sha256": "6b03db3dc542e31cf8f8dd66ddf7a9e2cea06c4b702bd5892a98d2cc0a5ebe1e"
+    },
+    {
+      "path": "production-batch-plan.v1.json",
+      "bytes": 109231,
+      "sha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1096,
+      "sha256": "dd4f87abcbc2d3384985cb80cfc170528e54c86e67848e7e2ea7a5c709f3c557"
+    },
+    {
+      "path": "review-gates-and-retry-policy.v1.json",
+      "bytes": 1640,
+      "sha256": "5feb6727c9e57b4ef5bb3167d11af73e7d6b92f7f6ec97028c28ec49ef7f21dc"
+    },
+    {
+      "path": "route-bindings.v1.json",
+      "bytes": 1652,
+      "sha256": "9a98f7da9f4ee7c7702e01b0f0e5b3aa6df94bed3bf07cea1441e656076467ca"
+    }
+  ],
+  "bindings": {
+    "humanValidationApprovalSha256": "78d7307c739050096aab2f8d723897b651151f93395323677ee3332c91d3f327",
+    "finalizationSha256": "b426f68ce487a88c1a0bb783542b330ed6f7b3d0068e3d704a077f0a811b5c9c",
+    "consolidatedVerdictSha256": "10cb46db5340754e737a8e4ebdd05679a380f51bef9c0e9c3b9b8944b939423b"
+  },
+  "counts": {
+    "controlledStills": 34,
+    "generatedStills": 8,
+    "animationClips": 23,
+    "intermediateAnimationSourceStills": 23,
+    "finalOutputs": 65,
+    "totalPlannedAssetsIncludingIntermediates": 88,
+    "externalProviderSubmissions": 54
+  },
+  "estimatedCostUsd": {
+    "promotionalStillSubtotal": 0.744,
+    "regularStillSubtotal": 1.488,
+    "animationSubtotal": 9.2,
+    "promotionalTotal": 9.944,
+    "regularTotal": 10.688
+  },
+  "proposedHumanExposureCeilingUsd": 12,
+  "productionExecutionAuthorization": null,
+  "indexBindingSha256": "a536cef3a3c952cae727681c72b86699caf6673a1771732a089fe727ca44498b"
+}

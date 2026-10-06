@@ -17,6 +17,7 @@ const mediaExecution = require('../pipeline-updates/phase3-media-execution.cjs')
 const calibrationRoutes = require('../pipeline-updates/phase3-media-calibration-bundle.cjs');
 const b009SourceStill = require('../pipeline-updates/phase3-media-calibration-source-still.cjs');
 const b009Animation = require('../pipeline-updates/phase3-media-calibration-animation.cjs');
+const calibrationClosure = require('../pipeline-updates/phase3-calibration-closure.cjs');
 const mediaExecutionCli = require('../scripts/phase3-media-execution.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
@@ -3923,4 +3924,75 @@ test('B009 recovery command remains exact-run scoped and does not accept generat
   assert.throws(() => mediaExecutionCli.parseArgs(['--recover-calibration-animation', '--phase3-run-id',
     b009Animation.RUN_ID, '--beat-id', 'ACT1_B006']), /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
   assert.throws(() => mediaExecutionCli.parseArgs([...command, '--unexpected', 'value']), /PHASE3_MEDIA_EXECUTION_USAGE/);
+});
+
+test('ACT1_B009 detached calibration approval, finalization and consolidated verdict are immutable and production-rejected', () => {
+  const packageRoot = path.join(WELLS, 'phase3-production-batch-planning-20261006-v1');
+  const approvalPath = path.join(WELLS, 'phase3-act1-b009-animation-human-validation-approval-20261006.v1.json');
+  const finalizationPath = path.join(packageRoot, 'calibration-finalization.v1.json');
+  const verdictPath = path.join(packageRoot, 'consolidated-calibration-verdict.v1.json');
+  assert.equal(sha(fs.readFileSync(approvalPath)), '78d7307c739050096aab2f8d723897b651151f93395323677ee3332c91d3f327');
+  assert.equal(sha(fs.readFileSync(finalizationPath)), 'b426f68ce487a88c1a0bb783542b330ed6f7b3d0068e3d704a077f0a811b5c9c');
+  assert.equal(sha(fs.readFileSync(verdictPath)), '10cb46db5340754e737a8e4ebdd05679a380f51bef9c0e9c3b9b8944b939423b');
+  const approval = JSON.parse(fs.readFileSync(approvalPath, 'utf8'));
+  const finalization = JSON.parse(fs.readFileSync(finalizationPath, 'utf8'));
+  const verdict = JSON.parse(fs.readFileSync(verdictPath, 'utf8'));
+  for (const [record, field] of [[approval, 'approvalBindingSha256'], [finalization, 'finalizationBindingSha256'],
+    [verdict, 'verdictBindingSha256']]) {
+    const body = { ...record }; const binding = body[field]; delete body[field];
+    assert.equal(binding, calibrationClosure.hashObject(body));
+  }
+  assert.equal(approval.status, 'APPROVED_FOR_CALIBRATION_VALIDATION_ONLY');
+  assert.equal(approval.bindings.successReceiptSha256, calibrationClosure.EVIDENCE['animation-generation-receipt.v1.json'].sha256);
+  assert.equal(approval.bindings.terminalResultSha256, calibrationClosure.EVIDENCE['animation-generation-result.v1.json'].sha256);
+  assert.equal(approval.bindings.finalAnimationLedgerSha256, calibrationClosure.EVIDENCE['animation-request-ledger.jsonl'].sha256);
+  assert.equal(approval.classification.assetClass, 'NON_PRODUCTION_DISPOSABLE_CALIBRATION');
+  assert.equal(approval.classification.productionReadiness, 'REJECTED');
+  assert.equal(approval.restrictions.productionExecutionAuthorized, false);
+  assert.equal(finalization.effects.providerRequests, 0);
+  assert.equal(finalization.effects.productionPathWrites, 0);
+  assert.equal(verdict.status, 'CALIBRATION_LANE_CLOSED');
+  assert.deepEqual(verdict.verdicts.map(item => [item.asset, item.calibration]), [
+    ['ACT1_B006_STILL', 'APPROVED'], ['ACT1_B009_SOURCE_STILL', 'APPROVED'],
+    ['ACT1_B009_ANIMATION', 'APPROVED'], ['ACT1_B005', 'DEFERRED'],
+  ]);
+  assert.equal(verdict.verdicts.every(item => item.production === 'REJECTED'
+    && item.assetClass === 'NON_PRODUCTION_DISPOSABLE_CALIBRATION'), true);
+});
+
+test('production-batch planning package has exact 34/8/23/23 jobs, unique request keys, review gates and no execution authority', () => {
+  const packageRoot = path.join(WELLS, 'phase3-production-batch-planning-20261006-v1');
+  const indexPath = path.join(packageRoot, 'package-index.v1.json');
+  assert.equal(sha(fs.readFileSync(indexPath)), '9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de');
+  const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+  const indexBody = { ...index }; delete indexBody.indexBindingSha256;
+  assert.equal(index.indexBindingSha256, calibrationClosure.hashObject(indexBody));
+  for (const item of index.files) {
+    const bytes = fs.readFileSync(path.join(packageRoot, item.path));
+    assert.equal(bytes.length, item.bytes, item.path);
+    assert.equal(sha(bytes), item.sha256, item.path);
+  }
+  assert.equal(index.status, 'PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED');
+  assert.deepEqual(index.counts, { controlledStills: 34, generatedStills: 8, animationClips: 23,
+    intermediateAnimationSourceStills: 23, finalOutputs: 65, totalPlannedAssetsIncludingIntermediates: 88,
+    externalProviderSubmissions: 54 });
+  assert.equal(index.productionExecutionAuthorization, null);
+  const plan = JSON.parse(fs.readFileSync(path.join(packageRoot, 'production-batch-plan.v1.json'), 'utf8'));
+  const jobs = [...plan.controlledStills, ...plan.generatedStills, ...plan.animationSourceStills, ...plan.animationClips];
+  assert.equal(jobs.length, 88);
+  assert.equal(new Set(jobs.map(job => job.requestKey)).size, 88);
+  assert.equal(jobs.every(job => /^[a-f0-9]{64}$/u.test(job.requestKey)
+    && /^[a-f0-9]{64}$/u.test(job.promptSha256)
+    && /^[a-f0-9]{64}$/u.test(job.negativePromptSha256)
+    && job.executionAuthorized === false), true);
+  assert.equal(plan.authority.productionExecutionAuthorization, null);
+  assert.equal(plan.authority.providerRequestsAuthorized, 0);
+  const gates = JSON.parse(fs.readFileSync(path.join(packageRoot, 'review-gates-and-retry-policy.v1.json'), 'utf8'));
+  assert.equal(gates.retryPolicy.automaticRetries, 0);
+  assert.deepEqual(gates.retryPolicy.fallbackModels, []);
+  const cost = JSON.parse(fs.readFileSync(path.join(packageRoot, 'cost-and-exposure.v1.json'), 'utf8'));
+  assert.equal(cost.estimateUsd.promotionalTotal, 9.944);
+  assert.equal(cost.estimateUsd.regularTotal, 10.688);
+  assert.equal(cost.proposedHumanExposureCeilingUsd, 12);
+  assert.equal(cost.ceilingStatus, 'PROPOSED_NOT_APPROVED');
 });

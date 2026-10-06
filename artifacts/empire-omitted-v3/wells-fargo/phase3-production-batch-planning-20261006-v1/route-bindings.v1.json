@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "phase3-production-batch-route-bindings/1.0.0",
+  "status": "PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED",
+  "routes": {
+    "LOCAL_CONTROLLED_STILL": {
+      "provider": "LOCAL_HUMAN_CONTROLLED",
+      "externalProviderRequest": false,
+      "input": "approved controlled-still construction brief",
+      "outputContractId": "CONTROLLED_STILL_PNG_1920X1080"
+    },
+    "FLUX3_STILL_1K_16X9": {
+      "provider": "fal.ai",
+      "model": "FLUX 3 Image",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "parameters": {
+        "resolution": "1k",
+        "aspect_ratio": "16:9",
+        "output_format": "png",
+        "enable_prompt_expansion": false,
+        "num_images": 1
+      },
+      "promptExpansion": false,
+      "negativePromptHandling": "HASH_BOUND_REVIEW_CONSTRAINT_NOT_SENT_AS_UNSUPPORTED_FIELD",
+      "outputContractId": "FLUX3_PNG_1360X768"
+    },
+    "H3_MAX_I2V_5S_768P": {
+      "provider": "fal.ai",
+      "model": "H3 Max Image to Video",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "parameters": {
+        "duration": 5,
+        "resolution": "768P",
+        "prompt_expansion_mode": "disabled",
+        "enable_safety_checker": true
+      },
+      "target_audio_url": "NOT_SENT",
+      "negativePromptHandling": "HASH_BOUND_REVIEW_CONSTRAINT_NOT_SENT_AS_UNSUPPORTED_FIELD",
+      "rawOutputContractId": "H3_RAW_IMMUTABLE",
+      "fittedOutputContractId": "H3_FITTED_30FPS_SILENT"
+    }
+  },
+  "authority": {
+    "routeSelectionApprovedForPlanning": true,
+    "productionExecutionAuthorized": false,
+    "providerRequestsAuthorized": 0,
+    "authorizationArtifact": null
+  }
+}

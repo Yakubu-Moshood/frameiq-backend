@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "phase3-production-batch-review-gates-and-retry-policy/1.0.0",
+  "status": "PRODUCTION_BATCH_READY_EXECUTION_UNAUTHORIZED",
+  "globalGates": [
+    "PACKAGE_INDEX_HASH_PASS",
+    "CANDIDATE_BINDINGS_PASS",
+    "DETACHED_PRODUCTION_EXECUTION_AUTHORIZATION_REQUIRED",
+    "AGGREGATE_EXPOSURE_CEILING_APPROVAL_REQUIRED",
+    "NO_CALIBRATION_ASSET_REUSE"
+  ],
+  "perAssetGates": {
+    "controlledStill": [
+      "TECHNICAL_PNG_CONTRACT_PASS",
+      "HUMAN_VISUAL_APPROVAL"
+    ],
+    "generatedStill": [
+      "DURABLE_REQUEST_RESERVATION",
+      "EXACT_REQUEST_KEY_MATCH",
+      "TECHNICAL_PNG_CONTRACT_PASS",
+      "NEGATIVE_INSTRUCTION_VISUAL_REVIEW",
+      "HUMAN_VISUAL_APPROVAL"
+    ],
+    "animationSourceStill": [
+      "DURABLE_REQUEST_RESERVATION",
+      "EXACT_REQUEST_KEY_MATCH",
+      "TECHNICAL_PNG_CONTRACT_PASS",
+      "NEGATIVE_INSTRUCTION_VISUAL_REVIEW",
+      "HUMAN_SOURCE_STILL_APPROVAL_BEFORE_ANIMATION"
+    ],
+    "animationClip": [
+      "APPROVED_SOURCE_STILL_HASH_REQUIRED",
+      "SEPARATE_ANIMATION_AUTHORIZATION_REQUIRED",
+      "DURABLE_REQUEST_RESERVATION",
+      "RAW_OUTPUT_IMMUTABLY_PRESERVED",
+      "RAW_MEDIA_PROBE_PASS",
+      "FITTED_OUTPUT_CONTRACT_PASS",
+      "HUMAN_MOTION_APPROVAL"
+    ]
+  },
+  "retryPolicy": {
+    "automaticRetries": 0,
+    "providerSdkRetries": 0,
+    "fallbackModels": [],
+    "duplicateRequestKeysRejected": true,
+    "failedReservedKeyDisposition": "CONSUMED_TERMINAL",
+    "retryRequires": [
+      "NEW_HUMAN_APPROVAL",
+      "NEW_REQUEST_KEY",
+      "RENEWED_COST_EXPOSURE_ACCOUNTING"
+    ],
+    "batchFailureMode": "STOP_AFFECTED_DEPENDENCY_CHAIN"
+  }
+}
