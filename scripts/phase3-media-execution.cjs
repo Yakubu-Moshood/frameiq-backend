@@ -33,7 +33,7 @@ function parseArgs(args) {
     '--calibration-source-still-status', '--preflight-calibration-source-still',
     '--generate-calibration-source-still', '--inspect-calibration-source-still',
     '--calibration-animation-status', '--preflight-calibration-animation',
-    '--generate-calibration-animation', '--inspect-calibration-animation']
+    '--generate-calibration-animation', '--inspect-calibration-animation', '--recover-calibration-animation']
     .filter(flag => args.includes(flag));
   if (modes.length !== 1 || args[0] !== modes[0]) throw new Error('PHASE3_MEDIA_EXECUTION_USAGE');
   const allowed = new Set([modes[0], '--phase3-run-id', '--beat-id',
@@ -74,7 +74,8 @@ async function main(args = process.argv.slice(2), runner = RUNNER, sourceStillWo
       + '  node /app/scripts/phase3-media-execution.cjs --calibration-animation-status --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009\n'
       + '  node /app/scripts/phase3-media-execution.cjs --preflight-calibration-animation --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009\n'
       + '  node /app/scripts/phase3-media-execution.cjs --generate-calibration-animation --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009 --expected-execution-authorization-sha256 <sha256>\n'
-      + '  node /app/scripts/phase3-media-execution.cjs --inspect-calibration-animation --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009\n');
+      + '  node /app/scripts/phase3-media-execution.cjs --inspect-calibration-animation --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009\n'
+      + '  node /app/scripts/phase3-media-execution.cjs --recover-calibration-animation --phase3-run-id phase3-media-execution-v5-20261004-01 --beat-id ACT1_B009\n');
     return null;
   }
   let result;
@@ -94,6 +95,7 @@ async function main(args = process.argv.slice(2), runner = RUNNER, sourceStillWo
   else if (options.mode === 'preflight-calibration-animation') result = B009_ANIMATION.preflight();
   else if (options.mode === 'generate-calibration-animation')
     result = await B009_ANIMATION.generate({ expectedAuthorizationSha256: options.expectedAuthorizationSha256 });
+  else if (options.mode === 'recover-calibration-animation') result = B009_ANIMATION.recoverExistingProviderOutput();
   else if (options.mode === 'inspect-calibration-animation') result = B009_ANIMATION.inspect();
   else if (options.mode === 'calibration-status') result = runner.calibrationStatus(options);
   else result = runner.inspectCalibrationStill(options);

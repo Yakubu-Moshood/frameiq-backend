@@ -3576,3 +3576,254 @@ test('B009 animation refuses malformed or short raw media before FFmpeg and CLI 
   assert.throws(() => mediaExecutionCli.parseArgs(['--preflight-calibration-animation', '--phase3-run-id',
     b009Animation.RUN_ID, '--beat-id', 'ACT1_B006']), /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
 });
+
+test('B009 offline recovery pins the preserved raw and audit bindings and normalizes verified CFR 24 fps to silent 114-frame 30 fps', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-b009-animation-recovery-fit-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const input = path.join(dir, 'ACT1_B009-animation-provider-output.bin');
+  const output = path.join(dir, 'ACT1_B009-animation-30fps-114f.mp4');
+  const raw = Buffer.from('exact-live-binding-is-checked-by-the-supported-recovery-command');
+  fs.writeFileSync(input, raw);
+  const timestamps = Array.from({ length: 124 }, (_, index) => index / 24);
+  const source = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5.184,
+    videoStreamCount: 1, audioStreamCount: 1,
+    video: { codec: 'h264', width: 1344, height: 768, fps: 24, avgFps: 24, rFps: 24, frameCount: 124 } };
+  const fitted = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 3.8,
+    videoStreamCount: 1, audioStreamCount: 0,
+    video: { codec: 'h264', width: 1344, height: 768, fps: 30, avgFps: 30, rFps: 30, frameCount: 114 } };
+  let calls = 0, ffmpegArgs;
+  const result = b009Animation.fitSilentDerivative({ inputPath: input, outputPath: output, recoveryMode: true,
+    frameTimestamps: timestamps, ffprobe: () => (++calls === 1 ? source : fitted),
+    ffmpeg: (_command, args) => { ffmpegArgs = args; fs.writeFileSync(args.at(-1), Buffer.from('fitted')); return { status: 0 }; } });
+  assert.equal(result.metadata.video.fps, 30);
+  assert.equal(result.metadata.video.frameCount, 114);
+  assert.equal(result.metadata.audioStreamCount, 0);
+  assert.equal(ffmpegArgs[ffmpegArgs.indexOf('-vf') + 1], 'fps=30:round=near');
+  assert.equal(ffmpegArgs[ffmpegArgs.indexOf('-an')], '-an');
+  assert.equal(ffmpegArgs[ffmpegArgs.indexOf('-frames:v') + 1], '114');
+  assert.deepEqual(fs.readFileSync(input), raw, 'fitting leaves raw provider bytes untouched');
+  assert.equal(b009Animation.RECOVERY.rawBytes, 6951973);
+  assert.equal(b009Animation.RECOVERY.rawSha256, '976a45b4230d20638a260d8fc41306951ff308b077a174531257a7534e468c79');
+  assert.equal(b009Animation.RECOVERY.ledgerSha256, 'fe3e7ab055ed1a2925cfb92f0e9511f87b512b702333afc89fcbfd77b214d024');
+  assert.equal(b009Animation.RECOVERY.failureSha256, '7dd3b9cb69b866105f18986ae4ee76169779105f881c74645e0631239be69c9c');
+});
+
+test('B009 offline recovery rejects VFR, truncated and mismatched source metadata before FFmpeg', () => {
+  const valid = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5.184,
+    videoStreamCount: 1, audioStreamCount: 1,
+    video: { codec: 'h264', width: 1344, height: 768, fps: 24, avgFps: 24, rFps: 24, frameCount: 124 } };
+  const timestamps = Array.from({ length: 124 }, (_, index) => index / 24);
+  for (const [metadata, frameTimes, code] of [
+    [valid, timestamps.map((value, index) => value + (index === 70 ? 0.01 : 0)), 'RECOVERY_RAW_NOT_VERIFIED_CFR_24'],
+    [{ ...valid, video: { ...valid.video, frameCount: 123 } }, timestamps, 'RECOVERY_RAW_NOT_VERIFIED_CFR_24'],
+    [{ ...valid, video: { ...valid.video, codec: 'vp9' } }, timestamps, 'RECOVERY_RAW_NOT_VERIFIED_CFR_24'],
+  ]) {
+    let ffmpegCalls = 0;
+    assert.throws(() => b009Animation.fitSilentDerivative({ inputPath: 'untrusted.bin', outputPath: 'out.mp4',
+      recoveryMode: true, frameTimestamps: frameTimes, ffprobe: () => metadata,
+      ffmpeg: () => { ffmpegCalls++; return { status: 0 }; } }), new RegExp(code));
+    assert.equal(ffmpegCalls, 0);
+  }
+  assert.equal(b009Animation.isConstantFrameRate(timestamps, 24, 124), true);
+  assert.equal(b009Animation.isConstantFrameRate(timestamps.slice(1), 24, 124), false);
+});
+
+test('B009 reservation ledger accepts exactly one terminal result for its reserved request without reserving again', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'eo-b009-ledger-recovery-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const file = path.join(dir, 'animation-request-ledger.jsonl');
+  const base = { runId: b009Animation.RUN_ID, beatId: b009Animation.BEAT_ID,
+    operation: b009Animation.OPERATION, endpoint: b009Animation.ENDPOINT,
+    requestKey: b009Animation.ANIMATION_REQUEST_KEY, fallbackAllowed: false };
+  b009Animation.appendLedger(file, { ...base, recordType: 'SUBMISSION_RESERVED', sequence: 1,
+    authorizationSha256: b009Animation.RECOVERY.authorizationSha256, retriesAllowed: false,
+    reservedAt: b009Animation.RECOVERY.expectedReservationAt }, fs);
+  assert.equal(b009Animation.readLedger(file, fs).length, 1);
+  b009Animation.appendLedger(file, { ...base, recordType: 'SUBMISSION_RESULT', sequence: 2,
+    status: 'SUCCEEDED', retryCount: 0, fallbackUsed: false, recordedAt: '2026-10-06T10:00:00.000Z' }, fs);
+  assert.deepEqual(b009Animation.readLedger(file, fs).map(row => row.recordType),
+    ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+  assert.throws(() => b009Animation.appendLedger(file, { ...base, recordType: 'SUBMISSION_RESERVED',
+    sequence: 3, retriesAllowed: false }, fs), /REQUEST_ALREADY_CONSUMED/);
+  assert.throws(() => b009Animation.appendLedger(file, { ...base, recordType: 'SUBMISSION_RESULT',
+    sequence: 2, status: 'SUCCEEDED', retryCount: 0, fallbackUsed: false }, fs), /TERMINAL_WITHOUT_RESERVATION/);
+});
+
+test('B009 offline recovery completes only its existing reservation, never invokes a provider, and preserves raw and production state', t => {
+  const makeRecoveryFixture = (alter = null) => {
+    const root = tempRoot(), reviewRoot = path.join(root, '.review'), runDir = path.join(reviewRoot, b009Animation.RUN_ID);
+    const beatDir = path.join(runDir, b009Animation.BEAT_ID), episodeRoot = path.join(root, 'episode-root');
+    fs.mkdirSync(beatDir, { recursive: true }); fs.mkdirSync(episodeRoot, { recursive: true });
+    const sourceNames = ['authorization', 'ledger', 'output', 'receipt', 'result'];
+    for (const key of sourceNames) fs.writeFileSync(path.join(beatDir, path.basename(b009SourceStill.FILES[key])), `source-${key}`);
+    const legacy = fs.readFileSync(path.join(__dirname, 'fixtures', 'phase3-b009-unused-animation-auth-v1.json'));
+    fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)), legacy);
+    const routeBundlePath = path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+      'phase3-media-execution-calibration-route-bundle-20261004.v1.json');
+    const routeBundle = JSON.parse(fs.readFileSync(routeBundlePath, 'utf8'));
+    const request = { ...routeBundle.calibrationRequests.find(item => item.beatId === b009Animation.BEAT_ID
+      && item.operation === b009Animation.OPERATION), parameters: { ...calibrationRoutes.H3_MAX } };
+    const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+    const authorization = b009Animation.makeAuthorizationTemplate({ requestKey: b009Animation.ANIMATION_REQUEST_KEY,
+      runtimeHashes, authorizedAt: '2026-10-06T09:00:00.000Z' });
+    const authorizationBytes = Buffer.from(`${JSON.stringify(authorization, null, 2)}\n`);
+    fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.authorization)), authorizationBytes);
+    const raw = Buffer.from('deterministic synthetic fixture for the pinned CFR recovery contract');
+    const rawPath = path.join(beatDir, path.basename(b009Animation.FILES.raw)); fs.writeFileSync(rawPath, raw);
+    const expectedReservationAt = b009Animation.RECOVERY.expectedReservationAt;
+    const ledgerPath = path.join(beatDir, path.basename(b009Animation.FILES.ledger));
+    b009Animation.appendLedger(ledgerPath, { schemaVersion: b009Animation.LEDGER_SCHEMA,
+      recordType: 'SUBMISSION_RESERVED', sequence: 1, runId: b009Animation.RUN_ID,
+      beatId: b009Animation.BEAT_ID, operation: b009Animation.OPERATION, endpoint: b009Animation.ENDPOINT,
+      requestKey: b009Animation.ANIMATION_REQUEST_KEY, authorizationSha256: sha(authorizationBytes),
+      sourceStillSha256: b009Animation.SOURCE_STILL_SHA256,
+      sourceStillApprovalSha256: b009Animation.SOURCE_STILL_APPROVAL_SHA256,
+      stagedIndexSha256: b009Animation.PACKAGE.stagedIndexSha256,
+      retriesAllowed: false, fallbackAllowed: false, reservedAt: expectedReservationAt }, fs);
+    const ledgerBytes = fs.readFileSync(ledgerPath), ledgerSha256 = sha(ledgerBytes);
+    const failure = { schemaVersion: b009Animation.FAILURE_SCHEMA, status: 'FAILED', runId: b009Animation.RUN_ID,
+      beatId: b009Animation.BEAT_ID, operation: b009Animation.OPERATION,
+      requestKey: b009Animation.ANIMATION_REQUEST_KEY, failureStage: 'AFTER_RESERVATION',
+      reservationCount: 1, providerRequestCount: 1, ledgerSha256,
+      errorCode: 'PHASE3_B009_ANIMATION_RAW_VIDEO_NOT_FRAME_ALIGNED',
+      recordedAt: b009Animation.RECOVERY.expectedFailureAt, retryAllowed: false, fallbackAllowed: false,
+      assetClass: b009Animation.ASSET_CLASS };
+    const failureBytes = Buffer.from(`${JSON.stringify(failure, null, 2)}\n`);
+    fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.failure)), failureBytes);
+    const recoveryBindings = { authorizationSha256: sha(authorizationBytes), rawBytes: raw.length,
+      rawSha256: sha(raw), ledgerSha256, failureSha256: sha(failureBytes), expectedReservationAt,
+      expectedFailureAt: failure.recordedAt };
+    if (alter) alter({ root, beatDir, rawPath, raw, ledgerPath, failurePath: path.join(beatDir,
+      path.basename(b009Animation.FILES.failure)), recoveryBindings, authorizationBytes });
+    let providerCalls = 0, downloaderCalls = 0, ffmpegCalls = 0;
+    const sourceStillWorkflow = { assertBindings() { return { stage04: { status: 'PROMOTED', promotedPathCount: 147,
+      promotedPathsMatch: true }, staged: { calibrationRoutePlan: { requests: [request] } } }; } };
+    const sourceMetadata = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5.184,
+      videoStreamCount: 1, audioStreamCount: 1,
+      video: { codec: 'h264', width: 1344, height: 768, fps: 24, avgFps: 24, rFps: 24, frameCount: 124 } };
+    const fittedMetadata = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 3.8,
+      videoStreamCount: 1, audioStreamCount: 0,
+      video: { codec: 'h264', width: 1344, height: 768, fps: 30, avgFps: 30, rFps: 30, frameCount: 114 } };
+    const workflow = b009Animation.createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeRoot,
+      approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH, testHooks: { recoveryBindings }, processScanner: () => [],
+      provider: { async generateAnimation() { providerCalls++; throw new Error('PROVIDER_MUST_NOT_BE_CALLED'); } },
+      downloader: async () => { downloaderCalls++; throw new Error('DOWNLOAD_MUST_NOT_BE_CALLED'); },
+      ffprobe: file => file === rawPath ? sourceMetadata : fittedMetadata,
+      ffprobeFrames: () => Array.from({ length: 124 }, (_, index) => index / 24),
+      ffmpeg: (_command, args) => { ffmpegCalls++; fs.writeFileSync(args.at(-1), Buffer.from('recovered-derivative')); return { status: 0 }; },
+      now: () => '2026-10-06T12:00:00.000Z' });
+    return { root, beatDir, episodeRoot, rawPath, raw, ledgerPath, ledgerBytes, failureBytes, workflow,
+      providerCalls: () => providerCalls, downloaderCalls: () => downloaderCalls, ffmpegCalls: () => ffmpegCalls };
+  };
+  const f = makeRecoveryFixture(); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+  const beforeEpisode = fs.readdirSync(f.episodeRoot);
+  const recovered = f.workflow.recoverExistingProviderOutput();
+  assert.equal(recovered.status, 'ANIMATION_GENERATED_PENDING_HUMAN_REVIEW');
+  assert.equal(recovered.recovered, true);
+  assert.equal(recovered.providerRequestsDuringRecovery, 0);
+  assert.equal(recovered.newReservations, 0);
+  assert.equal(f.providerCalls(), 0); assert.equal(f.downloaderCalls(), 0); assert.equal(f.ffmpegCalls(), 1);
+  assert.deepEqual(fs.readFileSync(f.rawPath), f.raw);
+  assert.deepEqual(b009Animation.readLedger(f.ledgerPath, fs).map(row => row.recordType),
+    ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+  const records = b009Animation.readLedger(f.ledgerPath, fs);
+  assert.equal(records.filter(row => row.recordType === 'SUBMISSION_RESERVED').length, 1);
+  assert.equal(records.filter(row => row.recordType === 'SUBMISSION_RESULT').length, 1);
+  assert.equal(records[1].status, 'SUCCEEDED'); assert.equal(records[1].providerRequestId, null);
+  assert.equal(records[1].actualChargeUsd, null); assert.equal(records[1].retryCount, 0);
+  assert.equal(records[1].fallbackUsed, false); assert.equal(records[1].providerSubmissionCount, 1);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(f.beatDir, path.basename(b009Animation.FILES.receipt)), 'utf8'))
+    .assetClass, 'NON_PRODUCTION_DISPOSABLE_CALIBRATION');
+  assert.deepEqual(fs.readdirSync(f.episodeRoot), beforeEpisode);
+  assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009Animation.FILES.lock))), false);
+  assert.equal(fs.readdirSync(f.beatDir).some(name => name.includes('.tmp-')), false);
+  assert.throws(() => f.workflow.recoverExistingProviderOutput(), /RECOVERY_FILE_SET_INVALID/,
+    'a successful recovery cannot be run a second time');
+  assert.equal(f.providerCalls(), 0); assert.equal(f.downloaderCalls(), 0);
+});
+
+test('B009 offline recovery rejects altered raw, ledger, failure receipts, extras and VFR without writes or provider access', t => {
+  const makeState = alter => {
+    const root = tempRoot(), reviewRoot = path.join(root, '.review'), beatDir = path.join(reviewRoot,
+      b009Animation.RUN_ID, b009Animation.BEAT_ID);
+    fs.mkdirSync(beatDir, { recursive: true });
+    for (const key of ['authorization', 'ledger', 'output', 'receipt', 'result'])
+      fs.writeFileSync(path.join(beatDir, path.basename(b009SourceStill.FILES[key])), `source-${key}`);
+    fs.copyFileSync(path.join(__dirname, 'fixtures', 'phase3-b009-unused-animation-auth-v1.json'),
+      path.join(beatDir, path.basename(b009Animation.LEGACY_AUTHORIZATION.path)));
+    const requestRecord = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'artifacts', 'empire-omitted-v3', 'wells-fargo',
+      'phase3-media-execution-calibration-route-bundle-20261004.v1.json'), 'utf8')).calibrationRequests
+      .find(item => item.beatId === b009Animation.BEAT_ID && item.operation === b009Animation.OPERATION);
+    const request = { ...requestRecord, parameters: { ...calibrationRoutes.H3_MAX } };
+    const runtimeHashes = { animationWorkflowSha256: 'a'.repeat(64), executionModuleSha256: 'b'.repeat(64), cliSha256: 'c'.repeat(64) };
+    const auth = b009Animation.makeAuthorizationTemplate({ requestKey: b009Animation.ANIMATION_REQUEST_KEY,
+      runtimeHashes, authorizedAt: '2026-10-06T09:00:00.000Z' });
+    const authBytes = Buffer.from(`${JSON.stringify(auth, null, 2)}\n`);
+    fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.authorization)), authBytes);
+    const raw = Buffer.from('recovery fixture');
+    const rawPath = path.join(beatDir, path.basename(b009Animation.FILES.raw)); fs.writeFileSync(rawPath, raw);
+    const ledgerPath = path.join(beatDir, path.basename(b009Animation.FILES.ledger));
+    b009Animation.appendLedger(ledgerPath, { recordType: 'SUBMISSION_RESERVED', sequence: 1,
+      runId: b009Animation.RUN_ID, beatId: b009Animation.BEAT_ID, operation: b009Animation.OPERATION,
+      endpoint: b009Animation.ENDPOINT, requestKey: b009Animation.ANIMATION_REQUEST_KEY,
+      authorizationSha256: sha(authBytes), sourceStillSha256: b009Animation.SOURCE_STILL_SHA256,
+      sourceStillApprovalSha256: b009Animation.SOURCE_STILL_APPROVAL_SHA256,
+      stagedIndexSha256: b009Animation.PACKAGE.stagedIndexSha256, retriesAllowed: false,
+      fallbackAllowed: false, reservedAt: b009Animation.RECOVERY.expectedReservationAt }, fs);
+    const ledgerSha256 = sha(fs.readFileSync(ledgerPath));
+    const failure = { schemaVersion: b009Animation.FAILURE_SCHEMA, status: 'FAILED', runId: b009Animation.RUN_ID,
+      beatId: b009Animation.BEAT_ID, operation: b009Animation.OPERATION,
+      requestKey: b009Animation.ANIMATION_REQUEST_KEY, failureStage: 'AFTER_RESERVATION', reservationCount: 1,
+      providerRequestCount: 1, ledgerSha256, errorCode: 'PHASE3_B009_ANIMATION_RAW_VIDEO_NOT_FRAME_ALIGNED',
+      recordedAt: b009Animation.RECOVERY.expectedFailureAt, retryAllowed: false, fallbackAllowed: false,
+      assetClass: b009Animation.ASSET_CLASS };
+    const failureBytes = Buffer.from(`${JSON.stringify(failure, null, 2)}\n`);
+    fs.writeFileSync(path.join(beatDir, path.basename(b009Animation.FILES.failure)), failureBytes);
+    const recoveryBindings = { authorizationSha256: sha(authBytes), rawBytes: raw.length, rawSha256: sha(raw),
+      ledgerSha256, failureSha256: sha(failureBytes), expectedReservationAt: b009Animation.RECOVERY.expectedReservationAt,
+      expectedFailureAt: failure.recordedAt };
+    const result = alter?.({ root, beatDir, rawPath, ledgerPath, recoveryBindings, failurePath: path.join(beatDir,
+      path.basename(b009Animation.FILES.failure)) }) || {};
+    const sourceStillWorkflow = { assertBindings: () => ({ staged: { calibrationRoutePlan: { requests: [request] } } }) };
+    let providerCalls = 0, ffmpegCalls = 0;
+    const rawMetadata = { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSeconds: 5.184,
+      videoStreamCount: 1, audioStreamCount: 1, video: { codec: 'h264', width: 1344, height: 768,
+        fps: 24, avgFps: 24, rFps: 24, frameCount: 124 } };
+    const workflow = b009Animation.createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot,
+      episodeRoot: path.join(root, 'episode'), approvalPath: b009Animation.SOURCE_STILL_APPROVAL_PATH,
+      testHooks: { recoveryBindings }, processScanner: () => [],
+      provider: { generateAnimation: () => { providerCalls++; } }, downloader: () => { providerCalls++; },
+      ffprobe: () => result.vfr ? { ...rawMetadata, video: { ...rawMetadata.video, fps: 23, avgFps: 23, rFps: 23 } } : rawMetadata,
+      ffprobeFrames: () => Array.from({ length: 124 }, (_, index) => index / 24),
+      ffmpeg: () => { ffmpegCalls++; return { status: 1 }; } });
+    return { root, beatDir, workflow, providerCalls: () => providerCalls, ffmpegCalls: () => ffmpegCalls, result };
+  };
+  const cases = [
+    ['altered raw', ({ rawPath }) => fs.appendFileSync(rawPath, 'x')],
+    ['altered ledger', ({ ledgerPath }) => fs.appendFileSync(ledgerPath, 'altered\n')],
+    ['altered failure receipt', ({ failurePath }) => fs.appendFileSync(failurePath, 'x')],
+    ['unknown file', ({ beatDir }) => fs.writeFileSync(path.join(beatDir, 'unknown.tmp'), 'x')],
+  ];
+  for (const [label, alter] of cases) {
+    const f = makeState(alter); t.after(() => fs.rmSync(f.root, { recursive: true, force: true }));
+    assert.throws(() => f.workflow.recoverExistingProviderOutput(), /RECOVERY_(?:RAW_BINDING_INVALID|LEDGER_MISMATCH|FAILURE_RECEIPT_MISMATCH|FILE_SET_INVALID)/,
+      label);
+    assert.equal(f.providerCalls(), 0); assert.equal(f.ffmpegCalls(), 0);
+    assert.equal(fs.existsSync(path.join(f.beatDir, path.basename(b009Animation.FILES.lock))), false);
+  }
+  const vfr = makeState(({ recoveryBindings }) => { recoveryBindings.rawFps = 23; return { vfr: true }; });
+  t.after(() => fs.rmSync(vfr.root, { recursive: true, force: true }));
+  assert.throws(() => vfr.workflow.recoverExistingProviderOutput(), /RECOVERY_(?:RAW_BINDING_INVALID|RAW_NOT_VERIFIED_CFR_24)/);
+  assert.equal(vfr.providerCalls(), 0); assert.equal(vfr.ffmpegCalls(), 0);
+});
+
+test('B009 recovery command remains exact-run scoped and does not accept generation or arbitrary arguments', () => {
+  const command = ['--recover-calibration-animation', '--phase3-run-id', b009Animation.RUN_ID,
+    '--beat-id', b009Animation.BEAT_ID];
+  assert.equal(mediaExecutionCli.parseArgs(command).mode, 'recover-calibration-animation');
+  assert.throws(() => mediaExecutionCli.parseArgs(['--recover-calibration-animation', '--phase3-run-id',
+    'phase3-media-execution-v5-other', '--beat-id', b009Animation.BEAT_ID]), /PHASE3_CALIBRATION_RUN_FORBIDDEN/);
+  assert.throws(() => mediaExecutionCli.parseArgs(['--recover-calibration-animation', '--phase3-run-id',
+    b009Animation.RUN_ID, '--beat-id', 'ACT1_B006']), /PHASE3_CALIBRATION_BEAT_FORBIDDEN/);
+  assert.throws(() => mediaExecutionCli.parseArgs([...command, '--unexpected', 'value']), /PHASE3_MEDIA_EXECUTION_USAGE/);
+});
