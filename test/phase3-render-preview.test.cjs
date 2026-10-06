@@ -3608,27 +3608,51 @@ test('B009 offline recovery pins the preserved raw and audit bindings and normal
   assert.equal(b009Animation.RECOVERY.failureSha256, '7dd3b9cb69b866105f18986ae4ee76169779105f881c74645e0631239be69c9c');
 });
 
-test('B009 FFprobe timestamps ignore empty lines, parse strictly, and enforce the bound 124-frame CFR source', () => {
-  const output = Array.from({ length: 124 }, (_, index) => (index / 24).toFixed(6)).join('\n');
-  const parse = text => b009Animation.probeFrameTimestamps('raw.bin', {
-    expectedFrameCount: 124, execFileImpl: () => `${text}\n`,
+test('B009 FFprobe JSON timestamps parse the observed SEI-bearing output and enforce the bound 124-frame CFR source', () => {
+  const observedFrames = Array.from({ length: 124 }, (_, index) => ({
+    best_effort_timestamp_time: (index / 24).toFixed(6),
+    ...(index === 0 ? { side_data_list: [{
+      side_data_type: 'H.26[45] User Data Unregistered SEI message',
+    }] } : {}),
+  }));
+  const observedOutput = `${JSON.stringify({ frames: observedFrames }, null, 4)}\n\n  `;
+  let observedArgs;
+  const parse = (frames = observedFrames, { expectedFrameCount = 124, expectedFps = 24 } = {}) =>
+    b009Animation.probeFrameTimestamps('raw.bin', {
+      expectedFrameCount, expectedFps,
+      execFileImpl: (_command, args) => { observedArgs = args; return `${JSON.stringify({ frames })}\n\t`; },
+    });
+  const timestamps = b009Animation.probeFrameTimestamps('raw.bin', {
+    expectedFrameCount: 124, expectedFps: 24,
+    execFileImpl: (_command, args) => { observedArgs = args; return observedOutput; },
   });
-  const timestamps = parse(output);
-  assert.equal(timestamps.length, 124, 'the ordinary trailing newline must not append timestamp zero');
+  assert.deepEqual(observedArgs, ['-v', 'error', '-select_streams', 'v:0', '-show_frames',
+    '-show_entries', 'frame=best_effort_timestamp_time', '-of', 'json', 'raw.bin']);
+  assert.equal(timestamps.length, 124, 'JSON document whitespace must not create an extra timestamp');
   assert.equal(b009Animation.isConstantFrameRate(timestamps, 24, 124), true);
   assert.equal(timestamps[0], 0);
   assert.equal(timestamps.at(-1), Number((123 / 24).toFixed(6)));
+  assert.equal(Object.hasOwn(observedFrames[1], 'pkt_pts_time'), false,
+    'optional timestamp fields may be absent when best_effort_timestamp_time is present');
 
-  const internalBlankLines = output.replace('0.500000\n', '0.500000\n\n');
-  assert.equal(parse(internalBlankLines).length, 124,
-    'empty lines are explicitly ignored anywhere; non-empty lines are never discarded');
-  assert.throws(() => parse(output.replace('0.500000', 'not-a-timestamp')),
-    /FRAME_TIMESTAMP_INVALID/);
-  assert.throws(() => parse(output.replace('0.500000', 'Infinity')),
-    /FRAME_TIMESTAMP_INVALID/);
+  assert.throws(() => parse(observedFrames.map((frame, index) => index === 12
+    ? {} : frame)), /FRAME_TIMESTAMP_INVALID/, 'missing best-effort timestamps are rejected');
+  assert.throws(() => parse(observedFrames.map((frame, index) => index === 12
+    ? { best_effort_timestamp_time: 'not-a-timestamp' } : frame)), /FRAME_TIMESTAMP_INVALID/);
+  assert.throws(() => parse([...observedFrames, { best_effort_timestamp_time: '5.166667' }]),
+    /FRAME_TIMESTAMP_COUNT_INVALID/);
+  assert.throws(() => parse(observedFrames.map((frame, index) => index === 70
+    ? { best_effort_timestamp_time: observedFrames[69].best_effort_timestamp_time } : frame)),
+  /FRAME_TIMESTAMP_CADENCE_INVALID/, 'duplicate timestamps are rejected');
+  assert.throws(() => parse(observedFrames.map((frame, index) => index === 70
+    ? { best_effort_timestamp_time: '2.800000' } : frame)),
+  /FRAME_TIMESTAMP_CADENCE_INVALID/, 'non-monotonic timestamps are rejected');
+  assert.throws(() => parse(observedFrames.map((frame, index) => index === 70
+    ? { best_effort_timestamp_time: (index / 24 + 0.01).toFixed(6) } : frame)),
+  /FRAME_TIMESTAMP_CADENCE_INVALID/, 'materially variable cadence is rejected');
   assert.throws(() => b009Animation.probeFrameTimestamps('raw.bin', {
-    expectedFrameCount: 124, execFileImpl: () => `${output}\n0.000000\n`,
-  }), /FRAME_TIMESTAMP_COUNT_INVALID/);
+    expectedFrameCount: 124, expectedFps: 24, execFileImpl: () => '{not-json}',
+  }), /FRAME_TIMESTAMP_INVALID/);
   assert.equal(b009Animation.isConstantFrameRate(timestamps.map((value, index) =>
     index === 70 ? value - 0.01 : value), 24, 124), false,
   'non-monotonic or off-cadence timestamps are rejected without sorting or deduplication');

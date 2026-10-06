@@ -41,6 +41,7 @@ const EXPECTED_CHARGE_USD = 5 * 0.08;
 const TARGET_FPS = 30;
 const TARGET_FRAMES = 114;
 const TARGET_DURATION_SECONDS = 3.8;
+const SOURCE_FRAME_CADENCE_TOLERANCE_SECONDS = 0.000002;
 const HISTORICAL_AUTHORIZATION_RUNTIME_HASHES = Object.freeze({
   animationWorkflowSha256: '33c34c05ae6b1d79466e8961a5a1a45be27f0ac0b79e5f3a4d6061a46ad28cc0',
   executionModuleSha256: 'a5c5e0d72f7a0767844aabd67b75c859798cb528e961c05dba8a0025bbbbb73c',
@@ -312,25 +313,35 @@ function probeVideo(file, { ffprobePath = 'ffprobe', execFileImpl = execFileSync
     audioCodecs: audios.map(s => s.codec_name) };
 }
 function probeFrameTimestamps(file, { ffprobePath = 'ffprobe', execFileImpl = execFileSync,
-  expectedFrameCount = null } = {}) {
+  expectedFrameCount = null, expectedFps = null,
+  cadenceTolerance = SOURCE_FRAME_CADENCE_TOLERANCE_SECONDS } = {}) {
   const text = execFileImpl(ffprobePath, ['-v', 'error', '-select_streams', 'v:0', '-show_frames',
-    '-show_entries', 'frame=best_effort_timestamp_time', '-of', 'csv=p=0', file],
+    '-show_entries', 'frame=best_effort_timestamp_time', '-of', 'json', file],
   { encoding: 'utf8', windowsHide: true });
-  // FFprobe terminates CSV output with a newline. Empty lines are explicitly
-  // ignored; every non-empty line must be a single finite numeric timestamp.
-  const lines = String(text).split(/\r?\n/u).map(line => line.trim()).filter(line => line.length > 0);
-  const timestamps = lines.map(line => {
-    fail(/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(line),
+  let record;
+  try { record = JSON.parse(String(text)); }
+  catch { throw new Error('PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID'); }
+  fail(record && !Array.isArray(record) && Array.isArray(record.frames),
+    'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID');
+  const timestamps = record.frames.map(frame => {
+    const raw = frame?.best_effort_timestamp_time;
+    const serialized = typeof raw === 'number' ? String(raw) : raw;
+    fail(typeof serialized === 'string'
+      && /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/u.test(serialized),
       'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID');
-    const value = Number(line);
+    const value = Number(serialized);
     fail(Number.isFinite(value), 'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_INVALID');
     return value;
   });
   if (expectedFrameCount !== null) fail(Number.isSafeInteger(expectedFrameCount) && expectedFrameCount > 0
     && timestamps.length === expectedFrameCount, 'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_COUNT_INVALID');
+  if (expectedFps !== null) fail(Number.isFinite(expectedFps) && expectedFps > 0
+    && Number.isFinite(cadenceTolerance) && cadenceTolerance >= 0
+    && isConstantFrameRate(timestamps, expectedFps, expectedFrameCount ?? timestamps.length, cadenceTolerance),
+  'PHASE3_B009_ANIMATION_FRAME_TIMESTAMP_CADENCE_INVALID');
   return timestamps;
 }
-function isConstantFrameRate(timestamps, fps, frameCount, tolerance = 0.000002) {
+function isConstantFrameRate(timestamps, fps, frameCount, tolerance = SOURCE_FRAME_CADENCE_TOLERANCE_SECONDS) {
   return Array.isArray(timestamps) && timestamps.length === frameCount && timestamps.length > 1
     && timestamps.every(Number.isFinite)
     && timestamps.slice(1).every((value, index) => value > timestamps[index]
@@ -864,7 +875,8 @@ function createB009AnimationWorkflow({ sourceStillWorkflow, reviewRoot, episodeR
         'PHASE3_B009_ANIMATION_RECOVERY_RUNTIME_CHANGED');
       const rawBefore = sha(locked.raw);
       const rawMetadata = ffprobe(file('raw'));
-      const frameTimestamps = ffprobeFrames(file('raw'), { expectedFrameCount: recoveryTrust.sourceFrames });
+      const frameTimestamps = ffprobeFrames(file('raw'), { expectedFrameCount: recoveryTrust.sourceFrames,
+        expectedFps: recoveryTrust.sourceFps, cadenceTolerance: SOURCE_FRAME_CADENCE_TOLERANCE_SECONDS });
       const fitted = fitSilentDerivative({ inputPath: file('raw'), outputPath: file('derivative'),
         ffmpeg, ffprobe, fsImpl, recoveryMode: true, frameTimestamps });
       const rawAfter = fsImpl.readFileSync(file('raw'));
@@ -960,7 +972,8 @@ module.exports = { RUN_ID, BEAT_ID, OPERATION, ENDPOINT, MODEL, PACKAGE, SOURCE_
   B009_RECONCILIATION_SHA256, STAGE04_ACTIVATION_SHA256, STAGE04_LEDGER_SHA256, ROUTE_BUNDLE_SHA256,
   ROUTE_APPROVAL_SHA256, AUTH_SCHEMA, LEDGER_SCHEMA, RECEIPT_SCHEMA, RESULT_SCHEMA, FAILURE_SCHEMA,
   ASSET_CLASS, OWNERSHIP, MAX_EXPOSURE_USD, EXPECTED_CHARGE_USD, TARGET_FPS, TARGET_FRAMES,
-  TARGET_DURATION_SECONDS, RECOVERY, FILES, LEGACY_AUTHORIZATION, ANIMATION_REQUEST_KEY, sha, canonical, canonicalJson,
+  TARGET_DURATION_SECONDS, SOURCE_FRAME_CADENCE_TOLERANCE_SECONDS, RECOVERY, FILES, LEGACY_AUTHORIZATION,
+  ANIMATION_REQUEST_KEY, sha, canonical, canonicalJson,
   historicalAuthorizationRuntimeHashes, verifyRecoveryRuntimeBindings, deriveAnimationRequestKey,
   makeAuthorizationTemplate, validateAnimationAuthorization, verifyStagedRunFiles, fitSilentDerivative, probeVideo,
   probeFrameTimestamps, isConstantFrameRate, appendLedger, readLedger,
