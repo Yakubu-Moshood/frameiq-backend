@@ -19,6 +19,8 @@ const b009SourceStill = require('../pipeline-updates/phase3-media-calibration-so
 const b009Animation = require('../pipeline-updates/phase3-media-calibration-animation.cjs');
 const calibrationClosure = require('../pipeline-updates/phase3-calibration-closure.cjs');
 const mediaExecutionCli = require('../scripts/phase3-media-execution.cjs');
+const productionBatch = require('../pipeline-updates/phase3-production-batch.cjs');
+const productionBatchCli = require('../scripts/phase3-production-batch.cjs');
 
 const PHASE2_RUN = 'phase2-3b-p-act3-refresh-20260928-stage04';
 const PHASE3_RUN = 'phase3-preview-test01';
@@ -3995,4 +3997,204 @@ test('production-batch planning package has exact 34/8/23/23 jobs, unique reques
   assert.equal(cost.estimateUsd.regularTotal, 10.688);
   assert.equal(cost.proposedHumanExposureCeilingUsd, 12);
   assert.equal(cost.ceilingStatus, 'PROPOSED_NOT_APPROVED');
+});
+
+function productionBatchFixture(overrides = {}) {
+  const root = tempRoot(), episodeRoot = path.join(root, 'episode');
+  fs.mkdirSync(path.join(episodeRoot, '.review'), { recursive: true });
+  const workRoot = overrides.workRoot || path.join(episodeRoot, '.review', 'phase3-production-batch-v1');
+  const packageDirectory = path.join(WELLS, 'phase3-production-batch-planning-20261006-v1');
+  const candidatePackageDirectory = path.join(WELLS, 'phase3-consolidated-act5-production-candidate-20261004-v5');
+  const stillBytes = fs.readFileSync(PILOT02_STILL_FIXTURE);
+  let stillCalls = 0, animationCalls = 0;
+  const provider = overrides.provider || {
+    async generateStill() { stillCalls++; return { url: 'https://fal.media/production-still.png',
+      providerRequestId: `still-${stillCalls}`, actualChargeUsd: 0.048, metadata: {} }; },
+    async generateAnimation() { animationCalls++; return { url: 'https://fal.media/production-animation.mp4',
+      providerRequestId: `animation-${animationCalls}`, actualChargeUsd: 0.4, metadata: {} }; },
+  };
+  const ffprobe = file => file.includes('raw-provider-output')
+    ? { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSec: 5, videoStreams: 1, audioStreams: 1,
+      video: { codec: 'h264', width: 1344, height: 768, fps: 24, frames: 120 } }
+    : { container: 'mov,mp4,m4a,3gp,3g2,mj2', durationSec: 3.8, videoStreams: 1, audioStreams: 0,
+      video: { codec: 'h264', width: 1344, height: 768, fps: 30, frames: 114 } };
+  const workflow = productionBatch.createProductionBatchWorkflow({ packageDirectory,
+    candidatePackageDirectory, artifactRoot: WELLS, episodeRoot, workRoot,
+    verifyStage04Fn: () => ({ record: { status: 'PROMOTED' },
+      recordSha256: mediaExecution.STAGE04_ACTIVATION_SHA256, promotedPathCount: 147,
+      requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 }),
+    provider, downloader: overrides.downloader || (async url => ({ bytes: url.endsWith('.mp4')
+      ? Buffer.from('raw-production-animation') : stillBytes, contentType: url.endsWith('.mp4')
+        ? 'video/mp4' : 'image/png' })), ffprobe,
+    ffmpeg: (_command, args) => { fs.writeFileSync(args.at(-1), Buffer.from('fitted-production-animation'));
+      return { status: 0 }; }, now: () => '2026-10-06T23:30:00.000Z',
+    pidProbe: overrides.pidProbe || process.kill.bind(process), testHooks: overrides.testHooks || {} });
+  const authorization = workflow.makeAuthorizationTemplate({ requestKeys: [...productionBatch.FIRST_BATCH_KEYS],
+    authorizedAt: '2026-10-06T23:20:00.000Z' });
+  const authorizationFile = path.join(root, 'first-batch-authorization.json');
+  fs.writeFileSync(authorizationFile, `${JSON.stringify(authorization, null, 2)}\n`);
+  return { root, episodeRoot, workRoot, workflow, authorizationFile,
+    authorizationSha256: sha(fs.readFileSync(authorizationFile)), stillCalls: () => stillCalls,
+    animationCalls: () => animationCalls, stillBytes };
+}
+
+function approveProductionOutput(f, requestKey) {
+  const inspection = f.workflow.inspect({ requestKey });
+  const inspectionFile = path.join(f.workRoot, 'requests', requestKey, 'inspection.json');
+  const decision = { schemaVersion: productionBatch.DECISION_SCHEMA, status: 'APPROVED',
+    reviewedBy: 'Yakubu Moshood', requestKey, outputSha256: inspection.output.sha256,
+    inspectionSha256: sha(fs.readFileSync(inspectionFile)), reviewedAt: '2026-10-06T23:40:00.000Z' };
+  const decisionFile = path.join(f.root, `${requestKey}-approval.json`);
+  fs.writeFileSync(decisionFile, `${JSON.stringify(decision, null, 2)}\n`);
+  return f.workflow.approve({ requestKey, decisionFile,
+    expectedDecisionSha256: sha(fs.readFileSync(decisionFile)) });
+}
+
+test('production batch preflight verifies closure, package, candidate, Stage04 and selects the dependency-complete first batch without writes', () => {
+  const f = productionBatchFixture();
+  const before = fs.existsSync(f.workRoot);
+  const result = f.workflow.preflight({ firstBatchOnly: true });
+  assert.equal(before, false);
+  assert.equal(fs.existsSync(f.workRoot), false);
+  assert.equal(result.status, 'PRODUCTION_FIRST_BATCH_READY_EXECUTION_UNAUTHORIZED');
+  assert.deepEqual(result.firstBatch.beatIds, ['ACT1_B006', 'ACT1_B009']);
+  assert.deepEqual(result.selectedRequestKeys, [...productionBatch.FIRST_BATCH_KEYS]);
+  assert.deepEqual(result.firstBatch.requestCounts,
+    { generatedStills: 1, animationSourceStills: 1, animationClips: 1, total: 3 });
+  assert.equal(result.firstBatch.expectedCostUsd, 0.496);
+  assert.equal(result.firstBatch.maximumExposureUsd, 0.5);
+  assert.equal(result.providerRequestsAuthorized, 0);
+  assert.match(result.exactAuthorizationStatement, /ACT1_B006 generated still request key 8601e214/u);
+  assert.match(result.exactAuthorizationStatement, /only after that source still is inspected and approved/u);
+});
+
+test('production executor reserves before one FLUX submission, validates output and prevents duplicate key use', async () => {
+  const f = productionBatchFixture();
+  const requestKey = productionBatch.FIRST_BATCH_KEYS[0];
+  const result = await f.workflow.generate({ requestKey, authorizationFile: f.authorizationFile,
+    expectedAuthorizationSha256: f.authorizationSha256 });
+  assert.equal(result.status, 'GENERATED_PENDING_INSPECTION');
+  assert.equal(result.output.width, 1360);
+  assert.equal(result.output.height, 768);
+  assert.equal(f.stillCalls(), 1);
+  const ledger = productionBatch.readLedger(f.workRoot);
+  assert.deepEqual(ledger.map(row => row.recordType), ['SUBMISSION_RESERVED', 'SUBMISSION_RESULT']);
+  assert.equal(ledger[0].requestKey, requestKey);
+  assert.equal(ledger[1].status, 'SUCCEEDED_PENDING_INSPECTION');
+  await assert.rejects(() => f.workflow.generate({ requestKey, authorizationFile: f.authorizationFile,
+    expectedAuthorizationSha256: f.authorizationSha256 }), /PHASE3_PRODUCTION_REQUEST_KEY_ALREADY_CONSUMED/);
+  assert.equal(f.stillCalls(), 1);
+  assert.equal(approveProductionOutput(f, requestKey).status, 'APPROVED');
+});
+
+test('production animation enforces approved source, preserves raw output and creates exact silent fitted derivative', async () => {
+  const f = productionBatchFixture(), sourceKey = productionBatch.FIRST_BATCH_KEYS[1];
+  const animationKey = productionBatch.FIRST_BATCH_KEYS[2];
+  await assert.rejects(() => f.workflow.generate({ requestKey: animationKey,
+    authorizationFile: f.authorizationFile, expectedAuthorizationSha256: f.authorizationSha256 }),
+  /PHASE3_PRODUCTION_APPROVED_SOURCE_REQUIRED/);
+  assert.equal(f.animationCalls(), 0);
+  await f.workflow.generate({ requestKey: sourceKey, authorizationFile: f.authorizationFile,
+    expectedAuthorizationSha256: f.authorizationSha256 });
+  approveProductionOutput(f, sourceKey);
+  const animation = await f.workflow.generate({ requestKey: animationKey,
+    authorizationFile: f.authorizationFile, expectedAuthorizationSha256: f.authorizationSha256 });
+  assert.equal(animation.status, 'GENERATED_PENDING_INSPECTION');
+  assert.equal(animation.output.video.frames, 114);
+  assert.equal(animation.output.audioStreams, 0);
+  assert.equal(f.animationCalls(), 1);
+  const dir = path.join(f.workRoot, 'requests', animationKey);
+  assert.equal(fs.readFileSync(path.join(dir, 'raw-provider-output.mp4'), 'utf8'), 'raw-production-animation');
+  assert.equal(fs.readFileSync(path.join(dir, 'fitted-output.mp4'), 'utf8'), 'fitted-production-animation');
+  fs.appendFileSync(path.join(dir, 'raw-provider-output.mp4'), '-tampered');
+  assert.throws(() => f.workflow.inspect({ requestKey: animationKey }),
+    /PHASE3_PRODUCTION_RECEIPT_OUTPUT_MISMATCH/);
+});
+
+test('malformed provider output consumes the request key with no retry or fallback', async () => {
+  const f = productionBatchFixture({ downloader: async () => ({ bytes: pilotPng(1280, 720), contentType: 'image/png' }) });
+  const requestKey = productionBatch.FIRST_BATCH_KEYS[0];
+  await assert.rejects(() => f.workflow.generate({ requestKey, authorizationFile: f.authorizationFile,
+    expectedAuthorizationSha256: f.authorizationSha256 }), /PHASE3_PRODUCTION_PNG_CONTRACT_INVALID/);
+  assert.equal(f.stillCalls(), 1);
+  const ledger = productionBatch.readLedger(f.workRoot);
+  assert.equal(ledger.at(-1).status, 'FAILED_REQUEST_KEY_CONSUMED');
+  await assert.rejects(() => f.workflow.generate({ requestKey, authorizationFile: f.authorizationFile,
+    expectedAuthorizationSha256: f.authorizationSha256 }), /PHASE3_PRODUCTION_REQUEST_KEY_ALREADY_CONSUMED/);
+  assert.equal(f.stillCalls(), 1);
+});
+
+test('recovery terminalizes an interrupted reservation without another provider submission', async () => {
+  const f = productionBatchFixture(), requestKey = productionBatch.FIRST_BATCH_KEYS[0];
+  productionBatch.appendLedger(f.workRoot, { recordType: 'SUBMISSION_RESERVED', requestKey,
+    beatId: 'ACT1_B006', requestType: 'GENERATED_STILL', routeId: 'FLUX3_STILL_1K_16X9',
+    externalProviderRequest: true, maximumCostUsd: 0.048, authorizationSha256: f.authorizationSha256,
+    retriesAllowed: 0, fallbackAllowed: false, reservedAt: '2026-10-06T23:30:00.000Z' });
+  const result = await f.workflow.recover({ requestKey });
+  assert.equal(result.status, 'INTERRUPTED_UNKNOWN_PROVIDER_RESULT_REQUEST_KEY_CONSUMED');
+  assert.equal(result.providerSubmissionsDuringRecovery, 0);
+  assert.equal(f.stillCalls(), 0);
+  assert.equal(productionBatch.readLedger(f.workRoot).at(-1).recordType, 'SUBMISSION_RESULT');
+});
+
+test('recovery resumes a durably recorded provider response after stale lock and temp cleanup without resubmission', async () => {
+  const missingPid = () => { const error = new Error('missing'); error.code = 'ESRCH'; throw error; };
+  const f = productionBatchFixture({ pidProbe: missingPid }), requestKey = productionBatch.FIRST_BATCH_KEYS[0];
+  productionBatch.appendLedger(f.workRoot, { recordType: 'SUBMISSION_RESERVED', requestKey,
+    beatId: 'ACT1_B006', requestType: 'GENERATED_STILL', routeId: 'FLUX3_STILL_1K_16X9',
+    externalProviderRequest: true, maximumCostUsd: 0.048, authorizationSha256: f.authorizationSha256,
+    retriesAllowed: 0, fallbackAllowed: false, reservedAt: '2026-10-06T23:30:00.000Z' });
+  const dir = path.join(f.workRoot, 'requests', requestKey); fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'provider-response.json'), JSON.stringify({
+    url: 'https://fal.media/production-still.png', providerRequestId: 'already-submitted',
+    actualChargeUsd: 0.048, metadata: {} }));
+  fs.writeFileSync(path.join(dir, 'operation.lock'), '99999\n');
+  fs.writeFileSync(path.join(dir, 'output.png.tmp-0123456789abcdef'), 'partial');
+  const result = await f.workflow.recover({ requestKey });
+  assert.equal(result.status, 'RECOVERED_PENDING_INSPECTION');
+  assert.equal(result.providerSubmissionsDuringRecovery, 0);
+  assert.equal(f.stillCalls(), 0);
+  assert.equal(fs.existsSync(path.join(dir, 'operation.lock')), false);
+  assert.equal(fs.existsSync(path.join(dir, 'output.png.tmp-0123456789abcdef')), false);
+  assert.equal(productionBatch.readLedger(f.workRoot).at(-1).status, 'SUCCEEDED_PENDING_INSPECTION');
+});
+
+test('production authorization and aggregate ledger enforce cost ceilings', async () => {
+  const f = productionBatchFixture();
+  assert.throws(() => f.workflow.makeAuthorizationTemplate({ requestKeys: [productionBatch.FIRST_BATCH_KEYS[0]],
+    authorizedAt: '2026-10-06T23:20:00.000Z', maximumExposureUsd: 12.01 }),
+  /PHASE3_PRODUCTION_AUTHORIZATION_EXPOSURE_INVALID/);
+  const tooLow = f.workflow.makeAuthorizationTemplate({ requestKeys: [productionBatch.FIRST_BATCH_KEYS[2]],
+    authorizedAt: '2026-10-06T23:20:00.000Z', maximumExposureUsd: 0.39 });
+  const file = path.join(f.root, 'too-low.json'); fs.writeFileSync(file, `${JSON.stringify(tooLow, null, 2)}\n`);
+  await assert.rejects(() => f.workflow.generate({ requestKey: productionBatch.FIRST_BATCH_KEYS[2],
+    authorizationFile: file, expectedAuthorizationSha256: sha(fs.readFileSync(file)) }),
+  /PHASE3_PRODUCTION_AUTHORIZATION_COST_CEILING_INVALID/);
+  assert.equal(f.animationCalls(), 0);
+});
+
+test('production workflow rejects unknown isolated files, forbidden roots and unresolved ACT1_B005', () => {
+  const f = productionBatchFixture();
+  fs.mkdirSync(f.workRoot, { recursive: true }); fs.writeFileSync(path.join(f.workRoot, 'unknown.bin'), 'x');
+  assert.throws(() => f.workflow.preflight({ firstBatchOnly: true }), /PHASE3_PRODUCTION_UNKNOWN_FILE/);
+  const outside = productionBatchFixture({ workRoot: path.join(tempRoot(), 'outside-review') });
+  assert.throws(() => outside.workflow.preflight(), /PHASE3_PRODUCTION_WORK_ROOT_FORBIDDEN/);
+  const clean = productionBatchFixture();
+  const planning = productionBatch.verifyPlanningPackage({ packageDirectory: path.join(WELLS,
+    'phase3-production-batch-planning-20261006-v1') });
+  const b005 = productionBatch.buildJobs(planning.plan).find(job => job.beatId === 'ACT1_B005');
+  assert.throws(() => clean.workflow.ingestControlled({ requestKey: b005.requestKey,
+    inputFile: PILOT02_STILL_FIXTURE, authorizationFile: clean.authorizationFile,
+    expectedAuthorizationSha256: clean.authorizationSha256 }),
+  /PHASE3_PRODUCTION_ACT1_B005_DEFERRED_CONTRACT_UNRESOLVED/);
+});
+
+test('production batch CLI exposes only status, preflight, generation, inspection, decisions and recovery', () => {
+  assert.equal(productionBatchCli.parseArgs(['--status']).mode, 'status');
+  assert.deepEqual(productionBatchCli.parseArgs(['--preflight', '--first-batch']),
+    { mode: 'preflight', firstBatchOnly: true });
+  assert.equal(productionBatchCli.parseArgs(['--recover', '--request-key', productionBatch.FIRST_BATCH_KEYS[0]]).mode,
+    'recover');
+  assert.throws(() => productionBatchCli.parseArgs(['--create-authorization']), /PHASE3_PRODUCTION_BATCH_USAGE/);
+  assert.doesNotMatch(productionBatchCli.help(), /promote|render/u);
 });
