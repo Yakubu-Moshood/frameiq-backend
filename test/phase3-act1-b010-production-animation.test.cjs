@@ -65,12 +65,12 @@ function fixture(t, overrides = {}) {
     providerRequestId: null, providerResponsePresent: false, outputPresent: false,
     retries: 0, fallback: false, replacementSubmissionsAuthorizedByLineage: 0 };
   write(path.join(replacementDirectory, 'replacement-failure-lineage.v1.json'), json(lineage));
-  production.appendLedger(workRoot, { recordType: 'SUBMISSION_RESERVED', requestKey: replacementKey,
+  const sourceReservation = production.appendLedger(workRoot, { recordType: 'SUBMISSION_RESERVED', requestKey: replacementKey,
     beatId: replacement.beatId, requestType: replacement.type, routeId: replacement.routeId,
     externalProviderRequest: true, maximumCostUsd: replacement.maximumCostUsd,
     authorizationSha256: 'c'.repeat(64), packageIndexSha256: production.PACKAGE_INDEX_SHA256,
     retriesAllowed: 0, fallbackAllowed: false, reservedAt: '2026-10-20T10:02:00.000Z' });
-  production.appendLedger(workRoot, { recordType: 'SUBMISSION_RESULT', requestKey: replacementKey,
+  const sourceResult = production.appendLedger(workRoot, { recordType: 'SUBMISSION_RESULT', requestKey: replacementKey,
     beatId: replacement.beatId, requestType: replacement.type, status: 'SUCCEEDED_PENDING_INSPECTION',
     retryCount: 0, fallbackUsed: false, outputSha256: 'd'.repeat(64), rawOutputSha256: 'e'.repeat(64),
     receiptSha256: 'f'.repeat(64), providerRequestId: 'replacement-provider-id', actualChargeUsd: 0.048,
@@ -79,7 +79,13 @@ function fixture(t, overrides = {}) {
   const derivative = png(1360, 768, 'approved-deterministic-derivative');
   const receipt = json({ status: 'GENERATED_PENDING_INSPECTION', requestKey: replacementKey });
   const inspection = json({ status: 'INSPECTION_PASS_PENDING_HUMAN_DECISION', requestKey: replacementKey });
-  const terminal = json({ status: 'SUCCEEDED_PENDING_INSPECTION', requestKey: replacementKey });
+  const terminal = json({ schemaVersion: 'phase3-production-request-result/1.0.0',
+    status: sourceResult.status, requestKey: replacementKey,
+    reservationEntrySha256: sourceReservation.entrySha256, resultEntrySha256: sourceResult.entrySha256,
+    outputSha256: sourceResult.outputSha256, rawOutputSha256: sourceResult.rawOutputSha256,
+    receiptSha256: sourceResult.receiptSha256, providerRequestId: sourceResult.providerRequestId,
+    actualChargeUsd: sourceResult.actualChargeUsd, errorCode: sourceResult.errorCode,
+    recordedAt: '2026-10-20T10:03:00.001Z' });
   write(path.join(replacementDirectory, 'raw-provider-output.png'), original);
   write(path.join(replacementDirectory, 'receipt.json'), receipt);
   write(path.join(replacementDirectory, 'inspection.json'), inspection);
@@ -93,7 +99,7 @@ function fixture(t, overrides = {}) {
     width: 1360, height: 768, recipeSha256: hash(recipe), humanApprovalSha256: hash(approval),
     providerOriginalSha256: hash(original), replacementRequestKey: replacementKey,
     sourceReceiptSha256: hash(receipt), sourceInspectionSha256: hash(inspection),
-    sourceTerminalResultSha256: hash(terminal),
+    sourceTerminalResultSha256: sourceResult.entrySha256, sourceTerminalRecordSha256: hash(terminal),
     installationLedgerSha256: hash(fs.readFileSync(path.join(workRoot, 'request-ledger.jsonl'))),
     packageIndexSha256: production.PACKAGE_INDEX_SHA256,
     animationRequestKey: production.ACT1_B010_ANIMATION_REQUEST_KEY };
@@ -134,6 +140,9 @@ function authorize(f) {
 
 test('ACT1_B010 installs the exact approved derivative atomically with immutable original lineage', t => {
   const f = fixture(t), result = install(f);
+  assert.notEqual(f.animationTrust.sourceTerminalResultSha256,
+    f.animationTrust.sourceTerminalRecordSha256,
+    'the historical ledger result hash is not the terminal record byte hash');
   assert.equal(result.status, 'ACT1_B010_APPROVED_DERIVATIVE_INSTALLED');
   assert.equal(result.providerSubmissions, 0);
   assert.equal(result.ledgerWrites, 0);
@@ -158,6 +167,9 @@ test('ACT1_B010 rejects derivative, recipe, approval, original and lineage tampe
   const original = fixture(t); fs.appendFileSync(path.join(original.workRoot, 'requests',
     original.animationTrust.replacementRequestKey, 'raw-provider-output.png'), 'x');
   assert.throws(() => install(original), /ACT1_B010_PROVIDER_ORIGINAL_INVALID/);
+  const terminal = fixture(t); fs.appendFileSync(path.join(terminal.workRoot, 'requests',
+    terminal.animationTrust.replacementRequestKey, 'terminal-result.json'), ' ');
+  assert.throws(() => install(terminal), /ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID/);
   const lineage = fixture(t); install(lineage);
   const lineageFile = path.join(lineage.workRoot, 'requests', production.ACT1_B010_ANIMATION_REQUEST_KEY,
     'approved-source-install', 'lineage.json');

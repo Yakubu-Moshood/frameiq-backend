@@ -46,6 +46,7 @@ const ACT1_B010_ANIMATION_TRUST = Object.freeze({
   sourceReceiptSha256: '0addb4a214fcd4a51afb1a3f62c0217578f1db2405b5db176c5ca7ea7c1e6548',
   sourceInspectionSha256: '3b745f091b897665d164c9cb92ed618616efa6c0fc201fc2147a63d763127570',
   sourceTerminalResultSha256: '0ce3f2dd286b08ff817f2f7cc4309edf0d0fe5686d40b7dfb0c3dc8cc45d5db7',
+  sourceTerminalRecordSha256: '3e10189beaebced1a71d35efea587b3cf07eecf744a09a48bd0d85ce26efccdb',
   installationLedgerSha256: 'e34c315ec8c6299149ee742c712e7ab3fde7c4e9e6a393262f019b8549809881',
   packageIndexSha256: PACKAGE_INDEX_SHA256, animationRequestKey: ACT1_B010_ANIMATION_REQUEST_KEY,
 });
@@ -495,6 +496,27 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(record && typeof record === 'object' && !Array.isArray(record), code);
     return { bytes, record, sha256: expectedSha256 };
   }
+  function verifyAct1B010SourceTerminal(replacementDirectory) {
+    const code = 'PHASE3_PRODUCTION_ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID';
+    const terminal = exactJsonFile(path.join(replacementDirectory, 'terminal-result.json'),
+      act1B010AnimationTrust.sourceTerminalRecordSha256, code);
+    const related = readLedger(workRoot, fsImpl).filter(row =>
+      row.requestKey === act1B010AnimationTrust.replacementRequestKey);
+    const reservation = related.find(row => row.recordType === 'SUBMISSION_RESERVED');
+    const result = related.find(row => row.recordType === 'SUBMISSION_RESULT');
+    fail(related.length === 2 && reservation && result
+      && result.entrySha256 === act1B010AnimationTrust.sourceTerminalResultSha256, code);
+    const expected = { schemaVersion: 'phase3-production-request-result/1.0.0', status: result.status,
+      requestKey: result.requestKey, reservationEntrySha256: reservation.entrySha256,
+      resultEntrySha256: result.entrySha256, outputSha256: result.outputSha256,
+      rawOutputSha256: result.rawOutputSha256, receiptSha256: result.receiptSha256,
+      providerRequestId: result.providerRequestId, actualChargeUsd: result.actualChargeUsd,
+      errorCode: result.errorCode, recordedAt: terminal.record?.recordedAt };
+    fail(typeof terminal.record?.recordedAt === 'string'
+      && new Date(terminal.record.recordedAt).toISOString() === terminal.record.recordedAt
+      && canonicalJson(terminal.record) === canonicalJson(expected), code);
+    return terminal;
+  }
   function verifyInstalledAct1B010Source(state = authoritative()) {
     const job = act1B010AnimationJob(state), directory = act1B010InstallDirectory();
     fail(fsImpl.existsSync(directory), 'PHASE3_PRODUCTION_ACT1_B010_APPROVED_SOURCE_NOT_INSTALLED');
@@ -516,14 +538,12 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(sha(fsImpl.readFileSync(providerOriginal)) === act1B010AnimationTrust.providerOriginalSha256,
       'PHASE3_PRODUCTION_ACT1_B010_PROVIDER_ORIGINAL_INVALID');
     const sourceRecords = { receipt: path.join(replacementDirectory, 'receipt.json'),
-      inspection: path.join(replacementDirectory, 'inspection.json'),
-      terminalResult: path.join(replacementDirectory, 'terminal-result.json') };
+      inspection: path.join(replacementDirectory, 'inspection.json') };
     exactJsonFile(sourceRecords.receipt, act1B010AnimationTrust.sourceReceiptSha256,
       'PHASE3_PRODUCTION_ACT1_B010_SOURCE_RECEIPT_INVALID');
     exactJsonFile(sourceRecords.inspection, act1B010AnimationTrust.sourceInspectionSha256,
       'PHASE3_PRODUCTION_ACT1_B010_SOURCE_INSPECTION_INVALID');
-    exactJsonFile(sourceRecords.terminalResult, act1B010AnimationTrust.sourceTerminalResultSha256,
-      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID');
+    verifyAct1B010SourceTerminal(replacementDirectory);
     const lineageBytes = fsImpl.readFileSync(files.lineage), lineage = JSON.parse(lineageBytes.toString('utf8'));
     const expected = { schemaVersion: ACT1_B010_SOURCE_INSTALL_SCHEMA,
       status: 'APPROVED_DETERMINISTIC_DERIVATIVE_INSTALLED', beatId: 'ACT1_B010',
@@ -562,9 +582,7 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
       'PHASE3_PRODUCTION_ACT1_B010_SOURCE_RECEIPT_INVALID');
     exactJsonFile(path.join(replacementDirectory, 'inspection.json'), act1B010AnimationTrust.sourceInspectionSha256,
       'PHASE3_PRODUCTION_ACT1_B010_SOURCE_INSPECTION_INVALID');
-    exactJsonFile(path.join(replacementDirectory, 'terminal-result.json'),
-      act1B010AnimationTrust.sourceTerminalResultSha256,
-      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID');
+    verifyAct1B010SourceTerminal(replacementDirectory);
     realFile(inputFile, fsImpl, 'PHASE3_PRODUCTION_ACT1_B010_DERIVATIVE_INVALID');
     const derivative = fsImpl.readFileSync(inputFile), info = pngInfo(derivative);
     fail(derivative.length === act1B010AnimationTrust.approvedDerivativeBytes
