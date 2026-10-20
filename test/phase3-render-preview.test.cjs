@@ -4189,12 +4189,92 @@ test('production workflow rejects unknown isolated files, forbidden roots and un
   /PHASE3_PRODUCTION_ACT1_B005_DEFERRED_CONTRACT_UNRESOLVED/);
 });
 
+test('ACT1_B010 failed source-still request is preserved and exactly one hash-bound replacement submission is allowed', async () => {
+  const failedProvider = { async generateStill() { throw new Error('Gateway Timeout'); },
+    async generateAnimation() { throw new Error('unexpected'); } };
+  const f = productionBatchFixture({ provider: failedProvider });
+  const planning = productionBatch.verifyPlanningPackage({ packageDirectory: path.join(WELLS,
+    'phase3-production-batch-planning-20261006-v1') });
+  const failedJob = productionBatch.buildJobs(planning.plan).find(job => job.requestKey
+    === productionBatch.ACT1_B010_FAILED_REQUEST_KEY);
+  assert.equal(failedJob.beatId, 'ACT1_B010');
+  const originalAuth = f.workflow.makeAuthorizationTemplate({ requestKeys: [failedJob.requestKey],
+    authorizedAt: '2026-10-06T23:20:00.000Z', maximumExposureUsd: 0.5 });
+  const originalAuthFile = path.join(f.root, 'act1-b010-original-auth.json');
+  fs.writeFileSync(originalAuthFile, `${JSON.stringify(originalAuth, null, 2)}\n`);
+  await assert.rejects(() => f.workflow.generate({ requestKey: failedJob.requestKey,
+    authorizationFile: originalAuthFile, expectedAuthorizationSha256: sha(fs.readFileSync(originalAuthFile)) }),
+  /Gateway Timeout/);
+  const ledgerBytes = fs.readFileSync(path.join(f.workRoot, 'request-ledger.jsonl'));
+  const rows = productionBatch.readLedger(f.workRoot);
+  const failedRows = rows.filter(row => row.requestKey === failedJob.requestKey);
+  const terminalPath = path.join(f.workRoot, 'requests', failedJob.requestKey, 'terminal-result.json');
+  if (!fs.existsSync(terminalPath)) fs.writeFileSync(terminalPath, `${JSON.stringify({
+    schemaVersion: 'phase3-production-terminal-result/1.0.0', status: 'FAILED_REQUEST_KEY_CONSUMED',
+    requestKey: failedJob.requestKey, resultEntrySha256: failedRows[1].entrySha256 }, null, 2)}\n`);
+  const trust = { failedRequestKey: failedJob.requestKey,
+    animationRequestKey: productionBatch.ACT1_B010_ANIMATION_REQUEST_KEY,
+    manifestBindingSha256: '4'.repeat(64), batchExposureUsd: 0.5,
+    failure: { ledgerSha256: sha(ledgerBytes), authorizationSha256: sha(fs.readFileSync(originalAuthFile)),
+      reservationEntrySha256: failedRows[0].entrySha256, resultEntrySha256: failedRows[1].entrySha256,
+      terminalRecordSha256: sha(fs.readFileSync(terminalPath)) } };
+  let calls = 0;
+  const replacement = productionBatch.createProductionBatchWorkflow({ packageDirectory: path.join(WELLS,
+    'phase3-production-batch-planning-20261006-v1'), candidatePackageDirectory: path.join(WELLS,
+    'phase3-consolidated-act5-production-candidate-20261004-v5'), artifactRoot: WELLS,
+    episodeRoot: f.episodeRoot, workRoot: f.workRoot, replacementTrust: trust,
+    verifyStage04Fn: () => ({ record: { status: 'PROMOTED' },
+      recordSha256: mediaExecution.STAGE04_ACTIVATION_SHA256, promotedPathCount: 147,
+      requestLedgerSha256: mediaExecution.REQUEST_LEDGER_SHA256 }),
+    provider: { async generateStill() { calls++; throw new Error('replacement-provider-test-stop'); },
+    async generateAnimation() { throw new Error('unexpected'); } },
+    downloader: async () => ({ bytes: f.stillBytes, contentType: 'image/png' }),
+    now: () => '2026-10-20T12:00:00.000Z' });
+  const replacementKey = productionBatch.deriveAct1B010ReplacementKey(failedJob, trust);
+  const lineagePath = path.join(f.workRoot, 'requests', replacementKey, 'replacement-failure-lineage.v1.json');
+  fs.mkdirSync(path.dirname(lineagePath), { recursive: true });
+  fs.writeFileSync(lineagePath, `${JSON.stringify({ schemaVersion: productionBatch.REPLACEMENT_LINEAGE_SCHEMA,
+    status: 'FAILED_REQUEST_PRESERVED_REPLACEMENT_AUTHORIZABLE', beatId: 'ACT1_B010',
+    failedRequestKey: failedJob.requestKey, replacementRequestKey: replacementKey,
+    animationRequestKey: productionBatch.ACT1_B010_ANIMATION_REQUEST_KEY,
+    manifestBindingSha256: trust.manifestBindingSha256,
+    packageIndexSha256: productionBatch.PACKAGE_INDEX_SHA256, failure: trust.failure,
+    providerRequestId: null, providerResponsePresent: false, outputPresent: false,
+    retries: 0, fallback: false, replacementSubmissionsAuthorizedByLineage: 0 }, null, 2)}\n`);
+  const lineage = { replacementRequestKey: replacementKey };
+  assert.match(lineage.replacementRequestKey, /^[a-f0-9]{64}$/u);
+  assert.notEqual(lineage.replacementRequestKey, failedJob.requestKey);
+  assert.equal(replacement.preflightReplacement().status, 'ACT1_B010_REPLACEMENT_READY_UNAUTHORIZED');
+  const authRecord = replacement.makeReplacementAuthorizationTemplate({ authorizedAt: '2026-10-20T11:59:00.000Z' });
+  const authPath = path.join(f.root, 'replacement-auth.json');
+  fs.writeFileSync(authPath, `${JSON.stringify(authRecord, null, 2)}\n`);
+  const auth = { path: authPath, sha256: sha(fs.readFileSync(authPath)) };
+  assert.equal(replacement.preflightReplacement({ authorizationFile: auth.path,
+    expectedAuthorizationSha256: auth.sha256 }).status,
+  'ACT1_B010_REPLACEMENT_EXECUTION_AUTHORIZED_NOT_EXECUTED');
+  await assert.rejects(() => replacement.generate({ requestKey: lineage.replacementRequestKey,
+    authorizationFile: auth.path, expectedAuthorizationSha256: auth.sha256 }),
+  /replacement-provider-test-stop/);
+  assert.equal(calls, 1);
+  const finalRows = productionBatch.readLedger(f.workRoot);
+  assert.equal(finalRows.filter(row => row.requestKey === failedJob.requestKey).length, 2);
+  assert.equal(finalRows.filter(row => row.requestKey === lineage.replacementRequestKey).length, 2);
+  await assert.rejects(() => replacement.generate({ requestKey: lineage.replacementRequestKey,
+    authorizationFile: auth.path, expectedAuthorizationSha256: auth.sha256 }),
+  /PHASE3_PRODUCTION_REQUEST_KEY_ALREADY_CONSUMED/);
+  assert.equal(calls, 1);
+});
+
 test('production batch CLI exposes only status, preflight, generation, inspection, decisions and recovery', () => {
   assert.equal(productionBatchCli.parseArgs(['--status']).mode, 'status');
   assert.deepEqual(productionBatchCli.parseArgs(['--preflight', '--first-batch']),
     { mode: 'preflight', firstBatchOnly: true });
   assert.equal(productionBatchCli.parseArgs(['--recover', '--request-key', productionBatch.FIRST_BATCH_KEYS[0]]).mode,
     'recover');
+  assert.equal(productionBatchCli.parseArgs(['--prepare-replacement', '--failed-request-key',
+    productionBatch.ACT1_B010_FAILED_REQUEST_KEY]).mode, 'prepare-replacement');
+  assert.equal(productionBatchCli.parseArgs(['--preflight-replacement', '--failed-request-key',
+    productionBatch.ACT1_B010_FAILED_REQUEST_KEY]).mode, 'preflight-replacement');
   assert.throws(() => productionBatchCli.parseArgs(['--create-authorization']), /PHASE3_PRODUCTION_BATCH_USAGE/);
   assert.doesNotMatch(productionBatchCli.help(), /promote|render/u);
 });

@@ -28,6 +28,25 @@ function parseArgs(args) {
   if (args[0] === '--status' && args.length === 1) return { mode: 'status' };
   if (args[0] === '--preflight' && (args.length === 1 || (args.length === 2 && args[1] === '--first-batch')))
     return { mode: 'preflight', firstBatchOnly: args.length === 2 };
+  if (args[0] === '--prepare-replacement' && args.length === 3 && args[1] === '--failed-request-key'
+    && args[2] === production.ACT1_B010_FAILED_REQUEST_KEY)
+    return { mode: 'prepare-replacement' };
+  if (args[0] === '--create-replacement-authorization') {
+    const values = pairs(args, new Set(['--failed-request-key', '--authorized-at']));
+    if (args.length !== 5 || values['--failed-request-key'] !== production.ACT1_B010_FAILED_REQUEST_KEY
+      || typeof values['--authorized-at'] !== 'string') throw new Error('PHASE3_PRODUCTION_BATCH_USAGE');
+    return { mode: 'create-replacement-authorization', authorizedAt: values['--authorized-at'] };
+  }
+  if (args[0] === '--preflight-replacement') {
+    const values = pairs(args, new Set(['--failed-request-key', '--authorization-file',
+      '--expected-authorization-sha256']));
+    if (![3, 7].includes(args.length) || values['--failed-request-key'] !== production.ACT1_B010_FAILED_REQUEST_KEY
+      || (args.length === 7 && (!values['--authorization-file']
+        || !/^[a-f0-9]{64}$/u.test(values['--expected-authorization-sha256'] || ''))))
+      throw new Error('PHASE3_PRODUCTION_BATCH_USAGE');
+    return { mode: 'preflight-replacement', authorizationFile: values['--authorization-file'] || null,
+      expectedAuthorizationSha256: values['--expected-authorization-sha256'] || null };
+  }
   if (['--generate', '--ingest-controlled-still'].includes(args[0])) {
     const ingest = args[0] === '--ingest-controlled-still';
     const values = pairs(args, new Set(['--request-key', '--authorization-file',
@@ -62,6 +81,9 @@ function help() {
   return 'Usage:\n'
     + '  node /app/scripts/phase3-production-batch.cjs --status\n'
     + '  node /app/scripts/phase3-production-batch.cjs --preflight [--first-batch]\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --prepare-replacement --failed-request-key <sha256>\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --create-replacement-authorization --failed-request-key <sha256> --authorized-at <ISO-UTC>\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --preflight-replacement --failed-request-key <sha256> [--authorization-file <path> --expected-authorization-sha256 <sha256>]\n'
     + '  node /app/scripts/phase3-production-batch.cjs --generate --request-key <sha256> --authorization-file <path> --expected-authorization-sha256 <sha256>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --ingest-controlled-still --request-key <sha256> --input-file <png> --authorization-file <path> --expected-authorization-sha256 <sha256>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --inspect|--recover --request-key <sha256>\n'
@@ -73,6 +95,10 @@ async function main(args = process.argv.slice(2), workflow = WORKFLOW) {
   let result;
   if (options.mode === 'status') result = workflow.status();
   else if (options.mode === 'preflight') result = workflow.preflight(options);
+  else if (options.mode === 'prepare-replacement') result = workflow.prepareReplacement();
+  else if (options.mode === 'create-replacement-authorization')
+    result = workflow.createReplacementAuthorization(options);
+  else if (options.mode === 'preflight-replacement') result = workflow.preflightReplacement(options);
   else if (options.mode === 'generate') result = await workflow.generate(options);
   else if (options.mode === 'ingest') result = workflow.ingestControlled(options);
   else if (options.mode === 'inspect') result = workflow.inspect(options);

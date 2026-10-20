@@ -21,6 +21,22 @@ const FIRST_BATCH_MAX_EXPOSURE_USD = 0.5;
 const AUTH_SCHEMA = 'phase3-production-batch-execution-authorization/1.0.0';
 const LEDGER_SCHEMA = 'phase3-production-batch-request-ledger/1.0.0';
 const DECISION_SCHEMA = 'phase3-production-asset-review-decision/1.0.0';
+const REPLACEMENT_LINEAGE_SCHEMA = 'phase3-production-request-replacement-lineage/1.0.0';
+const REPLACEMENT_AUTH_SCHEMA = 'phase3-production-replacement-execution-authorization/1.0.0';
+const ACT1_B010_FAILED_REQUEST_KEY = '355e3613aec94009263d466e45a2860fa6c4e29fdaa4704a608830f1184d9324';
+const ACT1_B010_ANIMATION_REQUEST_KEY = '0322eaeb4273b87aaf8936ce39f603600a4ca5128a9904056d0c60a2112b2af2';
+const ACT1_B010_MANIFEST_BINDING_SHA256 = '44a28edb6a894b70556b2aeaa9c945870ef3f9ff31be3af49318a52c26beac1c';
+const ACT1_B010_FAILURE = Object.freeze({
+  ledgerSha256: '81ef0d18d4a5b3cdf4de4206ad9a0e868d5e3b1320bf3ae4834d870f97c13996',
+  authorizationSha256: '7af6640a37f092d44fe952074811c33e98e591e02cca7cbfac216171d58841e0',
+  reservationEntrySha256: '6bdf22cc6f523e8bd4cff7b5d026675be7e87fafd023ce3e5d466387bb3c2358',
+  resultEntrySha256: '95691cc840e9723e67f20ba53f52c27eff3324ba5f22994133f56d20f226f5ef',
+  terminalRecordSha256: '39535801a6f912ea6717199bdb722361ff2e161b9b13b5211f764d774c54128f',
+});
+const ACT1_B010_BATCH_EXPOSURE_USD = 0.5;
+const DEFAULT_REPLACEMENT_TRUST = Object.freeze({ failedRequestKey: ACT1_B010_FAILED_REQUEST_KEY,
+  animationRequestKey: ACT1_B010_ANIMATION_REQUEST_KEY, manifestBindingSha256: ACT1_B010_MANIFEST_BINDING_SHA256,
+  failure: ACT1_B010_FAILURE, batchExposureUsd: ACT1_B010_BATCH_EXPOSURE_USD });
 const FIRST_BATCH_KEYS = Object.freeze([
   '8601e214c64e07bc6be1eb92ca57811f99d56adff5691ab46fe99002fbd8febd',
   '147e115a24f634da90798986ad673dc7ac1947cbbc90dbc95dd0c44a6e83c31f',
@@ -36,6 +52,16 @@ function canonical(value) {
   return value;
 }
 function canonicalJson(value) { return JSON.stringify(canonical(value)); }
+function replacementKeyBinding(job, trust = DEFAULT_REPLACEMENT_TRUST) {
+  return { schemaVersion: 'phase3-production-replacement-request-key/1.0.0',
+    failedRequestKey: trust.failedRequestKey, beatId: job.beatId, requestType: job.type,
+    routeId: job.routeId, outputContractId: job.outputContractId, promptSha256: job.promptSha256,
+    negativePromptSha256: job.negativePromptSha256, packageIndexSha256: PACKAGE_INDEX_SHA256,
+    manifestBindingSha256: trust.manifestBindingSha256, failure: trust.failure };
+}
+function deriveAct1B010ReplacementKey(job, trust = DEFAULT_REPLACEMENT_TRUST) {
+  return sha(Buffer.from(canonicalJson(replacementKeyBinding(job, trust)), 'utf8'));
+}
 function safeRel(value) {
   return typeof value === 'string' && value.length > 0 && !value.includes('\\') && !value.includes('\0')
     && !path.posix.isAbsolute(value) && value.split('/').every(part => part && part !== '.' && part !== '..');
@@ -350,7 +376,8 @@ function assertKnownWorkFiles(workRoot, jobs, fsImpl = fs) {
   fail(stat.isDirectory() && !stat.isSymbolicLink(), 'PHASE3_PRODUCTION_WORK_ROOT_INVALID');
   const knownNames = new Set(['operation.lock', 'provider-response.json', 'raw-provider-output.png',
     'raw-controlled-input.png', 'raw-provider-output.mp4', 'output.png', 'fitted-output.mp4',
-    'receipt.json', 'terminal-result.json', 'inspection.json', 'decision.json']);
+    'receipt.json', 'terminal-result.json', 'inspection.json', 'decision.json',
+    'replacement-failure-lineage.v1.json', 'replacement-execution-authorization.v1.json']);
   const keys = new Set(jobs.map(job => job.requestKey));
   for (const rel of walk(workRoot, fsImpl)) {
     if (rel === 'request-ledger.jsonl') continue;
@@ -367,7 +394,63 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
   activationRunner, provider = createFalProvider(), downloader = download, ffprobe = probeVideo,
   ffmpeg = spawnSync, now = () => new Date().toISOString(), modulePath = __filename,
   cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-production-batch.cjs'),
-  pidProbe = process.kill.bind(process), testHooks = {} } = {}) {
+  pidProbe = process.kill.bind(process), testHooks = {}, replacementTrust = DEFAULT_REPLACEMENT_TRUST } = {}) {
+  function baseAct1B010Job(jobs) {
+    const job = jobs.find(item => item.requestKey === replacementTrust.failedRequestKey);
+    fail(job?.beatId === 'ACT1_B010' && job.type === 'ANIMATION_SOURCE_STILL',
+      'PHASE3_PRODUCTION_ACT1_B010_PLAN_BINDING_INVALID');
+    return job;
+  }
+  function replacementLineagePath(jobs) {
+    const key = replacementJobFrom(jobs).requestKey;
+    return path.join(requestDirectory(workRoot, key),
+      'replacement-failure-lineage.v1.json');
+  }
+  function replacementJobFrom(jobs) {
+    const original = baseAct1B010Job(jobs), requestKey = deriveAct1B010ReplacementKey(original, replacementTrust);
+    return { ...original, requestKey, replacementForRequestKey: replacementTrust.failedRequestKey,
+      replacementLineageRequired: true };
+  }
+  function verifyFailedAct1B010(jobs, { requireBaselineLedger = false } = {}) {
+    const original = baseAct1B010Job(jobs), ledgerBytes = fsImpl.readFileSync(ledgerPath(workRoot));
+    if (requireBaselineLedger) fail(sha(ledgerBytes) === replacementTrust.failure.ledgerSha256,
+      'PHASE3_PRODUCTION_REPLACEMENT_LEDGER_BASELINE_MISMATCH');
+    const ledger = readLedger(workRoot, fsImpl), related = ledger.filter(row => row.requestKey === original.requestKey);
+    fail(related.length === 2 && related[0].recordType === 'SUBMISSION_RESERVED'
+      && related[0].entrySha256 === replacementTrust.failure.reservationEntrySha256
+      && related[0].authorizationSha256 === replacementTrust.failure.authorizationSha256
+      && related[1].recordType === 'SUBMISSION_RESULT' && related[1].status === 'FAILED_REQUEST_KEY_CONSUMED'
+      && related[1].entrySha256 === replacementTrust.failure.resultEntrySha256
+      && related[1].errorCode === 'Gateway Timeout' && related[1].providerRequestId === null
+      && related[1].actualChargeUsd === null && related[1].outputSha256 === null
+      && related[1].retryCount === 0 && related[1].fallbackUsed === false,
+    'PHASE3_PRODUCTION_REPLACEMENT_FAILURE_STATE_INVALID');
+    const dir = requestDirectory(workRoot, original.requestKey), terminal = path.join(dir, 'terminal-result.json');
+    fail(fsImpl.existsSync(terminal) && sha(fsImpl.readFileSync(terminal)) === replacementTrust.failure.terminalRecordSha256,
+      'PHASE3_PRODUCTION_REPLACEMENT_TERMINAL_RECORD_INVALID');
+    const allowed = new Set(['terminal-result.json']);
+    fail(fsImpl.readdirSync(dir).every(name => allowed.has(name)),
+      'PHASE3_PRODUCTION_REPLACEMENT_DELAYED_OR_UNKNOWN_ARTIFACT');
+    return { original, replacement: replacementJobFrom(jobs), related, terminal };
+  }
+  function verifyReplacementLineage(jobs) {
+    const file = replacementLineagePath(jobs);
+    if (!fsImpl.existsSync(file)) return null;
+    const bytes = fsImpl.readFileSync(file), record = JSON.parse(bytes.toString('utf8'));
+    const state = verifyFailedAct1B010(jobs), expected = {
+      schemaVersion: REPLACEMENT_LINEAGE_SCHEMA, status: 'FAILED_REQUEST_PRESERVED_REPLACEMENT_AUTHORIZABLE',
+      beatId: 'ACT1_B010', failedRequestKey: replacementTrust.failedRequestKey,
+      replacementRequestKey: state.replacement.requestKey,
+      animationRequestKey: replacementTrust.animationRequestKey,
+      manifestBindingSha256: replacementTrust.manifestBindingSha256,
+      packageIndexSha256: PACKAGE_INDEX_SHA256, failure: replacementTrust.failure,
+      providerRequestId: null, providerResponsePresent: false, outputPresent: false,
+      retries: 0, fallback: false, replacementSubmissionsAuthorizedByLineage: 0,
+    };
+    fail(canonicalJson(record) === canonicalJson(expected),
+      'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_INVALID');
+    return { file, record, sha256: sha(bytes), replacement: state.replacement };
+  }
   function authoritative() {
     fail(path.resolve(workRoot) === path.resolve(episodeRoot, '.review', 'phase3-production-batch-v1'),
       'PHASE3_PRODUCTION_WORK_ROOT_FORBIDDEN');
@@ -384,8 +467,10 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(stage04.recordSha256 === mediaExecution.STAGE04_ACTIVATION_SHA256 && stage04.promotedPathCount === 147
       && stage04.requestLedgerSha256 === mediaExecution.REQUEST_LEDGER_SHA256,
     'PHASE3_PRODUCTION_STAGE04_BINDING_INVALID');
-    assertKnownWorkFiles(workRoot, jobs, fsImpl);
-    const byKey = new Map(jobs.map(job => [job.requestKey, job]));
+    const lineage = fsImpl.existsSync(replacementLineagePath(jobs)) ? verifyReplacementLineage(jobs) : null;
+    const effectiveJobs = lineage ? [...jobs, lineage.replacement] : jobs;
+    assertKnownWorkFiles(workRoot, effectiveJobs, fsImpl);
+    const byKey = new Map(effectiveJobs.map(job => [job.requestKey, job]));
     for (const row of readLedger(workRoot, fsImpl)) {
       const job = byKey.get(row.requestKey);
       fail(job, 'PHASE3_PRODUCTION_LEDGER_REQUEST_KEY_UNKNOWN');
@@ -395,10 +480,10 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
         && row.fallbackAllowed === false,
       'PHASE3_PRODUCTION_LEDGER_RESERVATION_INVALID');
     }
-    return { planning, jobs, firstBatch, stage04 };
+    return { planning, jobs, effectiveJobs, firstBatch, stage04, replacementLineage: lineage };
   }
   function jobContext(requestKey) {
-    const state = authoritative(), job = state.jobs.find(item => item.requestKey === requestKey);
+    const state = authoritative(), job = state.effectiveJobs.find(item => item.requestKey === requestKey);
     fail(job, 'PHASE3_PRODUCTION_REQUEST_KEY_UNKNOWN');
     return { ...state, job, dir: requestDirectory(workRoot, requestKey) };
   }
@@ -412,7 +497,7 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
   }
   function status() {
     const state = authoritative(), ledger = readLedger(workRoot, fsImpl);
-    const requests = state.jobs.map(job => {
+    const requests = state.effectiveJobs.map(job => {
       const dir = requestDirectory(workRoot, job.requestKey), reservation = ledger.find(row => row.recordType === 'SUBMISSION_RESERVED'
         && row.requestKey === job.requestKey), result = ledger.find(row => row.recordType === 'SUBMISSION_RESULT'
         && row.requestKey === job.requestKey), decision = decisionFor(job.requestKey);
@@ -428,6 +513,100 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
       providerSubmissions: ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED' && row.externalProviderRequest).length,
       consumedRequestKeys: ledger.filter(row => row.recordType === 'SUBMISSION_RESERVED').map(row => row.requestKey),
       firstBatch: state.firstBatch, requests };
+  }
+  function prepareReplacement() {
+    const state = authoritative();
+    fail(!state.replacementLineage, 'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_ALREADY_EXISTS');
+    const failed = verifyFailedAct1B010(state.jobs, { requireBaselineLedger: true });
+    const record = { schemaVersion: REPLACEMENT_LINEAGE_SCHEMA,
+      status: 'FAILED_REQUEST_PRESERVED_REPLACEMENT_AUTHORIZABLE', beatId: 'ACT1_B010',
+      failedRequestKey: replacementTrust.failedRequestKey, replacementRequestKey: failed.replacement.requestKey,
+      animationRequestKey: replacementTrust.animationRequestKey,
+      manifestBindingSha256: replacementTrust.manifestBindingSha256,
+      packageIndexSha256: PACKAGE_INDEX_SHA256, failure: replacementTrust.failure,
+      providerRequestId: null, providerResponsePresent: false, outputPresent: false,
+      retries: 0, fallback: false, replacementSubmissionsAuthorizedByLineage: 0 };
+    const file = replacementLineagePath(state.jobs); atomicJson(file, record, fsImpl);
+    return { status: 'ACT1_B010_REPLACEMENT_LINEAGE_CREATED', path: file,
+      bytes: fsImpl.statSync(file).size, sha256: sha(fsImpl.readFileSync(file)),
+      failedRequestKey: replacementTrust.failedRequestKey, replacementRequestKey: failed.replacement.requestKey,
+      animationRequestKey: replacementTrust.animationRequestKey, providerSubmissions: 0, ledgerWrites: 0 };
+  }
+  function makeReplacementAuthorizationTemplate({ authorizedAt } = {}) {
+    const state = authoritative(), lineage = state.replacementLineage;
+    fail(lineage, 'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_REQUIRED');
+    fail(typeof authorizedAt === 'string' && new Date(authorizedAt).toISOString() === authorizedAt,
+      'PHASE3_PRODUCTION_AUTHORIZED_AT_INVALID');
+    const runtime = runtimeHashes({ modulePath, cliPath, fsImpl });
+    return { schemaVersion: REPLACEMENT_AUTH_SCHEMA,
+      status: 'AUTHORIZED_FOR_SINGLE_ACT1_B010_REPLACEMENT_SOURCE_STILL', approvedBy: 'Yakubu Moshood',
+      authorizedAt, authorizationStatement: `Yakubu Moshood authorizes exactly one replacement FLUX 3 source-still submission for ACT1_B010 request key ${lineage.replacement.requestKey}. The failed request key ${replacementTrust.failedRequestKey} remains permanently consumed. The complete ACT1_B010 batch exposure ceiling is USD 0.50, inclusive of any unreported failed-request charge, this replacement still, and the later animation; it is not provider-enforced. Zero retries, no fallback, and no animation submission are authorized.`,
+      bindings: { closureCommit: CLOSURE_COMMIT, packageIndexSha256: PACKAGE_INDEX_SHA256,
+        candidateIndexSha256: mediaExecution.CANDIDATE_INDEX_SHA256,
+        outerCandidatePackageIndexSha256: mediaExecution.OUTER_INDEX_SHA256,
+        stage04ActivationRecordSha256: mediaExecution.STAGE04_ACTIVATION_SHA256,
+        failedRequestKey: replacementTrust.failedRequestKey,
+        replacementRequestKey: lineage.replacement.requestKey,
+        animationRequestKey: replacementTrust.animationRequestKey,
+        replacementLineageSha256: lineage.sha256,
+        manifestBindingSha256: replacementTrust.manifestBindingSha256,
+        deployedModuleSha256: runtime.moduleSha256, deployedCliSha256: runtime.cliSha256 },
+      request: { beatId: 'ACT1_B010', operation: 'GENERATE_SOURCE_STILL',
+        routeId: lineage.replacement.routeId, endpoint: 'blackforestlabs/flux-3/text-to-image',
+        promptSha256: lineage.replacement.promptSha256,
+        negativePromptSha256: lineage.replacement.negativePromptSha256,
+        settings: { resolution: '1k', aspect_ratio: '16:9', output_format: 'png',
+          enable_prompt_expansion: false, num_images: 1 } },
+      limits: { maximumProviderSubmissions: 1, maximumHumanAcceptedAct1B010BatchExposureUsd: 0.5,
+        providerEnforced: false, retries: 0, fallback: false, requestKeyReuse: false },
+      denials: { animationSubmission: true, additionalStillSubmission: true, rendering: true,
+        promotion: true, stage04Modification: true, episodeProductionPathWrites: true } };
+  }
+  function validateReplacementAuthorization(record, { expectedSha256, bytes } = {}) {
+    fail(sha(bytes) === expectedSha256, 'PHASE3_PRODUCTION_AUTHORIZATION_HASH_MISMATCH');
+    const expected = makeReplacementAuthorizationTemplate({ authorizedAt: record?.authorizedAt });
+    fail(canonicalJson(record) === canonicalJson(expected),
+      'PHASE3_PRODUCTION_REPLACEMENT_AUTHORIZATION_INVALID');
+    return true;
+  }
+  function createReplacementAuthorization({ authorizedAt } = {}) {
+    const state = authoritative(), lineage = state.replacementLineage;
+    fail(lineage, 'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_REQUIRED');
+    const file = path.join(requestDirectory(workRoot, lineage.replacement.requestKey),
+      'replacement-execution-authorization.v1.json');
+    fail(!fsImpl.existsSync(file), 'PHASE3_PRODUCTION_REPLACEMENT_AUTHORIZATION_ALREADY_EXISTS');
+    const record = makeReplacementAuthorizationTemplate({ authorizedAt });
+    atomicJson(file, record, fsImpl);
+    const bytes = fsImpl.readFileSync(file);
+    validateReplacementAuthorization(record, { expectedSha256: sha(bytes), bytes });
+    return { status: 'ACT1_B010_REPLACEMENT_AUTHORIZATION_CREATED', path: file,
+      bytes: bytes.length, sha256: sha(bytes), replacementRequestKey: lineage.replacement.requestKey,
+      maximumProviderSubmissions: 1, retries: 0, fallback: false, animationAuthorized: false };
+  }
+  function preflightReplacement({ authorizationFile = null, expectedAuthorizationSha256 = null } = {}) {
+    const state = authoritative(), lineage = state.replacementLineage;
+    fail(lineage, 'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_REQUIRED');
+    const ledger = readLedger(workRoot, fsImpl), replacementRows = ledger.filter(row =>
+      row.requestKey === lineage.replacement.requestKey);
+    fail(replacementRows.length === 0, 'PHASE3_PRODUCTION_REPLACEMENT_REQUEST_ALREADY_CONSUMED');
+    let authorization = null;
+    if (authorizationFile || expectedAuthorizationSha256) {
+      fail(authorizationFile && expectedAuthorizationSha256,
+        'PHASE3_PRODUCTION_REPLACEMENT_AUTHORIZATION_REQUIRED');
+      const bytes = fsImpl.readFileSync(authorizationFile), record = JSON.parse(bytes.toString('utf8'));
+      validateReplacementAuthorization(record, { expectedSha256: expectedAuthorizationSha256, bytes });
+      authorization = { path: authorizationFile, sha256: sha(bytes) };
+    }
+    return { schemaVersion: 'phase3-production-replacement-preflight/1.0.0',
+      status: authorization ? 'ACT1_B010_REPLACEMENT_EXECUTION_AUTHORIZED_NOT_EXECUTED'
+        : 'ACT1_B010_REPLACEMENT_READY_UNAUTHORIZED', beatId: 'ACT1_B010',
+      failedRequestKey: replacementTrust.failedRequestKey,
+      replacementRequestKey: lineage.replacement.requestKey,
+      animationRequestKey: replacementTrust.animationRequestKey, lineageSha256: lineage.sha256,
+      authorization, completeBatchExposureUsd: replacementTrust.batchExposureUsd,
+      maximumProviderSubmissions: authorization ? 1 : 0, retries: 0, fallback: false,
+      providerSubmissionsByThisCommand: 0, ledgerWrites: 0, stage04: { status: state.stage04.record.status,
+        activationRecordSha256: state.stage04.recordSha256, promotedPathCount: state.stage04.promotedPathCount } };
   }
   function preflight({ firstBatchOnly = false } = {}) {
     const value = status(), selected = firstBatchOnly ? value.firstBatch.requestKeys : value.requests.map(row => row.requestKey);
@@ -446,6 +625,12 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(/^[a-f0-9]{64}$/u.test(expectedSha256 || ''), 'PHASE3_PRODUCTION_EXPECTED_AUTHORIZATION_HASH_REQUIRED');
     const bytes = fsImpl.readFileSync(file), record = JSON.parse(bytes.toString('utf8'));
     const runtime = runtimeHashes({ modulePath, cliPath, fsImpl });
+    if (record?.schemaVersion === REPLACEMENT_AUTH_SCHEMA) {
+      validateReplacementAuthorization(record, { expectedSha256, bytes });
+      fail(record.bindings.replacementRequestKey === requestKey,
+        'PHASE3_PRODUCTION_REQUEST_NOT_AUTHORIZED');
+      return { record, sha256: sha(bytes) };
+    }
     validateAuthorization(record, { expectedSha256, bytes, runtime });
     fail(record.bindings.requestKeys.includes(requestKey), 'PHASE3_PRODUCTION_REQUEST_NOT_AUTHORIZED');
     const state = authoritative();
@@ -501,9 +686,14 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
   }
   function assertDependencies(job) {
     if (job.type !== 'ANIMATION_CLIP') return null;
-    const sourceDecision = decisionFor(job.sourceStillRequestKey);
+    let sourceKey = job.sourceStillRequestKey;
+    if (job.requestKey === replacementTrust.animationRequestKey) {
+      const lineage = authoritative().replacementLineage;
+      if (lineage) sourceKey = lineage.replacement.requestKey;
+    }
+    const sourceDecision = decisionFor(sourceKey);
     fail(sourceDecision?.record.status === 'APPROVED', 'PHASE3_PRODUCTION_APPROVED_SOURCE_REQUIRED');
-    const sourceOutput = path.join(requestDirectory(workRoot, job.sourceStillRequestKey), 'output.png');
+    const sourceOutput = path.join(requestDirectory(workRoot, sourceKey), 'output.png');
     const source = validateOutput({ type: 'ANIMATION_SOURCE_STILL' }, sourceOutput);
     fail(sourceDecision.record.outputSha256 === source.sha256, 'PHASE3_PRODUCTION_APPROVED_SOURCE_HASH_MISMATCH');
     return { path: sourceOutput, ...source };
@@ -713,7 +903,8 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
         providerSubmissionsDuringRecovery: 0, retryAllowed: false };
     } finally { try { if (fsImpl.existsSync(lock)) fsImpl.unlinkSync(lock); } catch (_) {} }
   }
-  return { status, preflight, generate, ingestControlled, inspect,
+  return { status, preflight, prepareReplacement, preflightReplacement,
+    makeReplacementAuthorizationTemplate, createReplacementAuthorization, generate, ingestControlled, inspect,
     approve: options => recordDecision({ ...options, expectedStatus: 'APPROVED' }),
     reject: options => recordDecision({ ...options, expectedStatus: 'REJECTED' }), recover,
     makeAuthorizationTemplate: args => makeAuthorizationTemplate({ ...args,
@@ -723,7 +914,10 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
 module.exports = { CLOSURE_COMMIT, PACKAGE_INDEX_SHA256, PLAN_SHA256, ANIMATION_APPROVAL_SHA256,
   CALIBRATION_FINALIZATION_SHA256, CALIBRATION_VERDICT_SHA256, B006_APPROVAL_SHA256,
   B009_SOURCE_APPROVAL_SHA256, MAX_TOTAL_EXPOSURE_USD, FIRST_BATCH_MAX_EXPOSURE_USD, FIRST_BATCH_KEYS,
-  AUTH_SCHEMA, LEDGER_SCHEMA, DECISION_SCHEMA, sha, canonicalJson, safeRel, verifyPlanningPackage,
+  AUTH_SCHEMA, LEDGER_SCHEMA, DECISION_SCHEMA, REPLACEMENT_LINEAGE_SCHEMA, REPLACEMENT_AUTH_SCHEMA,
+  ACT1_B010_FAILED_REQUEST_KEY, ACT1_B010_ANIMATION_REQUEST_KEY, ACT1_B010_FAILURE,
+  ACT1_B010_MANIFEST_BINDING_SHA256, ACT1_B010_BATCH_EXPOSURE_USD,
+  sha, canonicalJson, safeRel, verifyPlanningPackage, replacementKeyBinding, deriveAct1B010ReplacementKey,
   buildJobs, selectFirstBatch, firstBatchAuthorizationStatement, genericAuthorizationStatement,
   runtimeHashes, makeAuthorizationTemplate,
   validateAuthorization, pngInfo, probeVideo, fitAnimation, download, createFalProvider, readLedger,
