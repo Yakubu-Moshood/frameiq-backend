@@ -23,6 +23,8 @@ const LEDGER_SCHEMA = 'phase3-production-batch-request-ledger/1.0.0';
 const DECISION_SCHEMA = 'phase3-production-asset-review-decision/1.0.0';
 const REPLACEMENT_LINEAGE_SCHEMA = 'phase3-production-request-replacement-lineage/1.0.0';
 const REPLACEMENT_AUTH_SCHEMA = 'phase3-production-replacement-execution-authorization/1.0.0';
+const ACT1_B010_SOURCE_INSTALL_SCHEMA = 'phase3-act1-b010-approved-source-installation/1.0.0';
+const ACT1_B010_ANIMATION_AUTH_SCHEMA = 'phase3-act1-b010-animation-execution-authorization/1.0.0';
 const ACT1_B010_FAILED_REQUEST_KEY = '355e3613aec94009263d466e45a2860fa6c4e29fdaa4704a608830f1184d9324';
 const ACT1_B010_ANIMATION_REQUEST_KEY = '0322eaeb4273b87aaf8936ce39f603600a4ca5128a9904056d0c60a2112b2af2';
 const ACT1_B010_MANIFEST_BINDING_SHA256 = '44a28edb6a894b70556b2aeaa9c945870ef3f9ff31be3af49318a52c26beac1c';
@@ -34,6 +36,19 @@ const ACT1_B010_FAILURE = Object.freeze({
   terminalRecordSha256: '39535801a6f912ea6717199bdb722361ff2e161b9b13b5211f764d774c54128f',
 });
 const ACT1_B010_BATCH_EXPOSURE_USD = 0.5;
+const ACT1_B010_ANIMATION_TRUST = Object.freeze({
+  approvedDerivativeSha256: 'ed93a4f5d95c10ca2e88b3f848e89457dde439114a1f5ee3e45a149c0b879954',
+  approvedDerivativeBytes: 1194848, width: 1360, height: 768,
+  recipeSha256: '1c5aa711f1916c18e1f8e7203a43c08757bda5b22689510d8f6505bc86d48373',
+  humanApprovalSha256: '93c1addf25751bc7a6fd3b9fc17f52c517fc955431ee0d1ea41332a476dd0ee6',
+  providerOriginalSha256: '4bf9dc7db8658f3ad31c811671b6b77c947ea192992a0f315890345164d15076',
+  replacementRequestKey: 'f0c56cb472b8ee4534fedf53a6ce895484f5f19f2efad655a55baa9db092958e',
+  sourceReceiptSha256: '0addb4a214fcd4a51afb1a3f62c0217578f1db2405b5db176c5ca7ea7c1e6548',
+  sourceInspectionSha256: '3b745f091b897665d164c9cb92ed618616efa6c0fc201fc2147a63d763127570',
+  sourceTerminalResultSha256: '0ce3f2dd286b08ff817f2f7cc4309edf0d0fe5686d40b7dfb0c3dc8cc45d5db7',
+  installationLedgerSha256: 'e34c315ec8c6299149ee742c712e7ab3fde7c4e9e6a393262f019b8549809881',
+  packageIndexSha256: PACKAGE_INDEX_SHA256, animationRequestKey: ACT1_B010_ANIMATION_REQUEST_KEY,
+});
 const DEFAULT_REPLACEMENT_TRUST = Object.freeze({ failedRequestKey: ACT1_B010_FAILED_REQUEST_KEY,
   animationRequestKey: ACT1_B010_ANIMATION_REQUEST_KEY, manifestBindingSha256: ACT1_B010_MANIFEST_BINDING_SHA256,
   failure: ACT1_B010_FAILURE, batchExposureUsd: ACT1_B010_BATCH_EXPOSURE_USD });
@@ -377,15 +392,19 @@ function assertKnownWorkFiles(workRoot, jobs, fsImpl = fs) {
   const knownNames = new Set(['operation.lock', 'provider-response.json', 'raw-provider-output.png',
     'raw-controlled-input.png', 'raw-provider-output.mp4', 'output.png', 'fitted-output.mp4',
     'receipt.json', 'terminal-result.json', 'inspection.json', 'decision.json',
-    'replacement-failure-lineage.v1.json', 'replacement-execution-authorization.v1.json']);
+    'replacement-failure-lineage.v1.json', 'replacement-execution-authorization.v1.json',
+    'animation-execution-authorization.v1.json']);
+  const knownInstallNames = new Set(['approved-source.png', 'recipe.json', 'human-approval.json', 'lineage.json']);
   const keys = new Set(jobs.map(job => job.requestKey));
   for (const rel of walk(workRoot, fsImpl)) {
     if (rel === 'request-ledger.jsonl') continue;
     const parts = rel.split('/');
     const knownTemporary = [...knownNames].some(name => parts[2]?.startsWith(`${name}.tmp-`)
       && /^[a-f0-9]{16}(?:\.mp4)?$/u.test(parts[2].slice(`${name}.tmp-`.length)));
-    fail(parts.length === 3 && parts[0] === 'requests' && keys.has(parts[1])
-      && (knownNames.has(parts[2]) || knownTemporary), `PHASE3_PRODUCTION_UNKNOWN_FILE:${rel}`);
+    const installedSource = parts.length === 4 && parts[0] === 'requests' && keys.has(parts[1])
+      && parts[2] === 'approved-source-install' && knownInstallNames.has(parts[3]);
+    fail(installedSource || (parts.length === 3 && parts[0] === 'requests' && keys.has(parts[1])
+      && (knownNames.has(parts[2]) || knownTemporary)), `PHASE3_PRODUCTION_UNKNOWN_FILE:${rel}`);
   }
   return true;
 }
@@ -394,7 +413,8 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
   activationRunner, provider = createFalProvider(), downloader = download, ffprobe = probeVideo,
   ffmpeg = spawnSync, now = () => new Date().toISOString(), modulePath = __filename,
   cliPath = path.resolve(__dirname, '..', 'scripts', 'phase3-production-batch.cjs'),
-  pidProbe = process.kill.bind(process), testHooks = {}, replacementTrust = DEFAULT_REPLACEMENT_TRUST } = {}) {
+  pidProbe = process.kill.bind(process), testHooks = {}, replacementTrust = DEFAULT_REPLACEMENT_TRUST,
+  act1B010AnimationTrust = ACT1_B010_ANIMATION_TRUST } = {}) {
   function baseAct1B010Job(jobs) {
     const job = jobs.find(item => item.requestKey === replacementTrust.failedRequestKey);
     fail(job?.beatId === 'ACT1_B010' && job.type === 'ANIMATION_SOURCE_STILL',
@@ -450,6 +470,149 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(canonicalJson(record) === canonicalJson(expected),
       'PHASE3_PRODUCTION_REPLACEMENT_LINEAGE_INVALID');
     return { file, record, sha256: sha(bytes), replacement: state.replacement };
+  }
+  function act1B010AnimationJob(state) {
+    const job = state.jobs.find(item => item.requestKey === act1B010AnimationTrust.animationRequestKey);
+    fail(job?.beatId === 'ACT1_B010' && job.type === 'ANIMATION_CLIP'
+      && job.routeId === 'H3_MAX_I2V_5S_768P' && job.outputContractId === 'H3_FITTED_30FPS_SILENT'
+      && job.rawOutputContractId === 'H3_RAW_IMMUTABLE'
+      && Number.isSafeInteger(job.targetFrames) && job.targetFrames > 0
+      && Math.abs(job.frameAccurateDurationSec - job.targetFrames / 30) < 1e-9,
+    'PHASE3_PRODUCTION_ACT1_B010_ANIMATION_PLAN_BINDING_INVALID');
+    fail(state.planning.indexSha256 === act1B010AnimationTrust.packageIndexSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_PACKAGE_BINDING_INVALID');
+    return job;
+  }
+  function act1B010InstallDirectory() {
+    return path.join(requestDirectory(workRoot, act1B010AnimationTrust.animationRequestKey),
+      'approved-source-install');
+  }
+  function exactJsonFile(file, expectedSha256, code) {
+    realFile(file, fsImpl, code);
+    const bytes = fsImpl.readFileSync(file);
+    fail(sha(bytes) === expectedSha256, code);
+    let record; try { record = JSON.parse(bytes.toString('utf8')); } catch { throw new Error(code); }
+    fail(record && typeof record === 'object' && !Array.isArray(record), code);
+    return { bytes, record, sha256: expectedSha256 };
+  }
+  function verifyInstalledAct1B010Source(state = authoritative()) {
+    const job = act1B010AnimationJob(state), directory = act1B010InstallDirectory();
+    fail(fsImpl.existsSync(directory), 'PHASE3_PRODUCTION_ACT1_B010_APPROVED_SOURCE_NOT_INSTALLED');
+    const files = { derivative: path.join(directory, 'approved-source.png'),
+      recipe: path.join(directory, 'recipe.json'), approval: path.join(directory, 'human-approval.json'),
+      lineage: path.join(directory, 'lineage.json') };
+    const derivativeBytes = fsImpl.readFileSync(files.derivative), info = pngInfo(derivativeBytes);
+    fail(derivativeBytes.length === act1B010AnimationTrust.approvedDerivativeBytes
+      && sha(derivativeBytes) === act1B010AnimationTrust.approvedDerivativeSha256
+      && info.width === act1B010AnimationTrust.width && info.height === act1B010AnimationTrust.height,
+    'PHASE3_PRODUCTION_ACT1_B010_DERIVATIVE_INVALID');
+    const recipe = exactJsonFile(files.recipe, act1B010AnimationTrust.recipeSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_RECIPE_INVALID');
+    const approval = exactJsonFile(files.approval, act1B010AnimationTrust.humanApprovalSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_APPROVAL_INVALID');
+    const replacementDirectory = requestDirectory(workRoot, act1B010AnimationTrust.replacementRequestKey);
+    const providerOriginal = path.join(replacementDirectory, 'raw-provider-output.png');
+    realFile(providerOriginal, fsImpl, 'PHASE3_PRODUCTION_ACT1_B010_PROVIDER_ORIGINAL_MISSING');
+    fail(sha(fsImpl.readFileSync(providerOriginal)) === act1B010AnimationTrust.providerOriginalSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_PROVIDER_ORIGINAL_INVALID');
+    const sourceRecords = { receipt: path.join(replacementDirectory, 'receipt.json'),
+      inspection: path.join(replacementDirectory, 'inspection.json'),
+      terminalResult: path.join(replacementDirectory, 'terminal-result.json') };
+    exactJsonFile(sourceRecords.receipt, act1B010AnimationTrust.sourceReceiptSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_RECEIPT_INVALID');
+    exactJsonFile(sourceRecords.inspection, act1B010AnimationTrust.sourceInspectionSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_INSPECTION_INVALID');
+    exactJsonFile(sourceRecords.terminalResult, act1B010AnimationTrust.sourceTerminalResultSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID');
+    const lineageBytes = fsImpl.readFileSync(files.lineage), lineage = JSON.parse(lineageBytes.toString('utf8'));
+    const expected = { schemaVersion: ACT1_B010_SOURCE_INSTALL_SCHEMA,
+      status: 'APPROVED_DETERMINISTIC_DERIVATIVE_INSTALLED', beatId: 'ACT1_B010',
+      animationRequestKey: job.requestKey, packageIndexSha256: state.planning.indexSha256,
+      replacementRequestKey: act1B010AnimationTrust.replacementRequestKey,
+      providerOriginal: { relativePath: `requests/${act1B010AnimationTrust.replacementRequestKey}/raw-provider-output.png`,
+        sha256: act1B010AnimationTrust.providerOriginalSha256 },
+      approvedDerivative: { relativePath: `requests/${job.requestKey}/approved-source-install/approved-source.png`,
+        bytes: act1B010AnimationTrust.approvedDerivativeBytes,
+        sha256: act1B010AnimationTrust.approvedDerivativeSha256,
+        mimeType: 'image/png', width: act1B010AnimationTrust.width, height: act1B010AnimationTrust.height },
+      recipeSha256: act1B010AnimationTrust.recipeSha256,
+      humanApprovalSha256: act1B010AnimationTrust.humanApprovalSha256,
+      sourceReceiptSha256: act1B010AnimationTrust.sourceReceiptSha256,
+      sourceInspectionSha256: act1B010AnimationTrust.sourceInspectionSha256,
+      sourceTerminalResultSha256: act1B010AnimationTrust.sourceTerminalResultSha256,
+      installationLedgerSha256: act1B010AnimationTrust.installationLedgerSha256,
+      transformation: 'DETERMINISTIC_APPROVED_SOURCE_STILL_DERIVATIVE', installedAt: lineage?.installedAt };
+    fail(typeof lineage?.installedAt === 'string' && new Date(lineage.installedAt).toISOString() === lineage.installedAt
+      && canonicalJson(lineage) === canonicalJson(expected),
+    'PHASE3_PRODUCTION_ACT1_B010_SOURCE_LINEAGE_INVALID');
+    return { directory, files, lineage, lineageSha256: sha(lineageBytes), derivative: {
+      path: files.derivative, bytes: derivativeBytes.length, sha256: sha(derivativeBytes), ...info }, recipe, approval };
+  }
+  function installAct1B010ApprovedDerivative({ inputFile, recipeFile, approvalFile } = {}) {
+    const state = authoritative(), job = act1B010AnimationJob(state);
+    fail(state.replacementLineage?.replacement.requestKey === act1B010AnimationTrust.replacementRequestKey,
+      'PHASE3_PRODUCTION_ACT1_B010_REPLACEMENT_LINEAGE_REQUIRED');
+    fail(sha(fsImpl.readFileSync(ledgerPath(workRoot))) === act1B010AnimationTrust.installationLedgerSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_INSTALLATION_LEDGER_INVALID');
+    const replacementDirectory = requestDirectory(workRoot, act1B010AnimationTrust.replacementRequestKey);
+    const original = fsImpl.readFileSync(path.join(replacementDirectory, 'raw-provider-output.png'));
+    fail(sha(original) === act1B010AnimationTrust.providerOriginalSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_PROVIDER_ORIGINAL_INVALID');
+    exactJsonFile(path.join(replacementDirectory, 'receipt.json'), act1B010AnimationTrust.sourceReceiptSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_RECEIPT_INVALID');
+    exactJsonFile(path.join(replacementDirectory, 'inspection.json'), act1B010AnimationTrust.sourceInspectionSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_INSPECTION_INVALID');
+    exactJsonFile(path.join(replacementDirectory, 'terminal-result.json'),
+      act1B010AnimationTrust.sourceTerminalResultSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_SOURCE_TERMINAL_RESULT_INVALID');
+    realFile(inputFile, fsImpl, 'PHASE3_PRODUCTION_ACT1_B010_DERIVATIVE_INVALID');
+    const derivative = fsImpl.readFileSync(inputFile), info = pngInfo(derivative);
+    fail(derivative.length === act1B010AnimationTrust.approvedDerivativeBytes
+      && sha(derivative) === act1B010AnimationTrust.approvedDerivativeSha256
+      && info.width === act1B010AnimationTrust.width && info.height === act1B010AnimationTrust.height,
+    'PHASE3_PRODUCTION_ACT1_B010_DERIVATIVE_INVALID');
+    const recipe = exactJsonFile(recipeFile, act1B010AnimationTrust.recipeSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_RECIPE_INVALID');
+    const approval = exactJsonFile(approvalFile, act1B010AnimationTrust.humanApprovalSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_APPROVAL_INVALID');
+    const directory = act1B010InstallDirectory();
+    fail(!fsImpl.existsSync(directory), 'PHASE3_PRODUCTION_ACT1_B010_APPROVED_SOURCE_ALREADY_INSTALLED');
+    const parent = path.dirname(directory); fsImpl.mkdirSync(parent, { recursive: true });
+    const temporary = `${directory}.tmp-${crypto.randomBytes(8).toString('hex')}`;
+    const names = ['approved-source.png', 'recipe.json', 'human-approval.json', 'lineage.json'];
+    try {
+      fsImpl.mkdirSync(temporary);
+      atomicWrite(path.join(temporary, names[0]), derivative, fsImpl);
+      atomicWrite(path.join(temporary, names[1]), recipe.bytes, fsImpl);
+      atomicWrite(path.join(temporary, names[2]), approval.bytes, fsImpl);
+      atomicJson(path.join(temporary, names[3]), { schemaVersion: ACT1_B010_SOURCE_INSTALL_SCHEMA,
+        status: 'APPROVED_DETERMINISTIC_DERIVATIVE_INSTALLED', beatId: 'ACT1_B010',
+        animationRequestKey: job.requestKey, packageIndexSha256: state.planning.indexSha256,
+        replacementRequestKey: act1B010AnimationTrust.replacementRequestKey,
+        providerOriginal: { relativePath: `requests/${act1B010AnimationTrust.replacementRequestKey}/raw-provider-output.png`,
+          sha256: act1B010AnimationTrust.providerOriginalSha256 },
+        approvedDerivative: { relativePath: `requests/${job.requestKey}/approved-source-install/approved-source.png`,
+          bytes: derivative.length, sha256: sha(derivative), mimeType: 'image/png', width: info.width,
+          height: info.height }, recipeSha256: recipe.sha256, humanApprovalSha256: approval.sha256,
+        sourceReceiptSha256: act1B010AnimationTrust.sourceReceiptSha256,
+        sourceInspectionSha256: act1B010AnimationTrust.sourceInspectionSha256,
+        sourceTerminalResultSha256: act1B010AnimationTrust.sourceTerminalResultSha256,
+        installationLedgerSha256: act1B010AnimationTrust.installationLedgerSha256,
+        transformation: 'DETERMINISTIC_APPROVED_SOURCE_STILL_DERIVATIVE', installedAt: now() }, fsImpl);
+      fsImpl.renameSync(temporary, directory);
+    } catch (error) {
+      try {
+        if (fsImpl.existsSync(temporary)) {
+          for (const name of names) if (fsImpl.existsSync(path.join(temporary, name))) fsImpl.unlinkSync(path.join(temporary, name));
+          fsImpl.rmdirSync(temporary);
+        }
+      } catch (_) {}
+      throw error;
+    }
+    const installed = verifyInstalledAct1B010Source(state);
+    return { status: 'ACT1_B010_APPROVED_DERIVATIVE_INSTALLED', beatId: 'ACT1_B010',
+      animationRequestKey: job.requestKey, providerSubmissions: 0, ledgerWrites: 0,
+      derivative: installed.derivative, lineageSha256: installed.lineageSha256 };
   }
   function authoritative() {
     fail(path.resolve(workRoot) === path.resolve(episodeRoot, '.review', 'phase3-production-batch-v1'),
@@ -608,6 +771,100 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
       providerSubmissionsByThisCommand: 0, ledgerWrites: 0, stage04: { status: state.stage04.record.status,
         activationRecordSha256: state.stage04.recordSha256, promotedPathCount: state.stage04.promotedPathCount } };
   }
+  function makeAct1B010AnimationAuthorizationTemplate({ authorizedAt, runtime = null } = {}) {
+    const state = authoritative(), job = act1B010AnimationJob(state);
+    const installed = verifyInstalledAct1B010Source(state);
+    fail(typeof authorizedAt === 'string' && new Date(authorizedAt).toISOString() === authorizedAt,
+      'PHASE3_PRODUCTION_AUTHORIZED_AT_INVALID');
+    const boundRuntime = runtime || runtimeHashes({ modulePath, cliPath, fsImpl });
+    fail(/^[a-f0-9]{64}$/u.test(boundRuntime?.moduleSha256 || '')
+      && /^[a-f0-9]{64}$/u.test(boundRuntime?.cliSha256 || ''),
+    'PHASE3_PRODUCTION_ACT1_B010_AUTHORIZATION_RUNTIME_INVALID');
+    return { schemaVersion: ACT1_B010_ANIMATION_AUTH_SCHEMA,
+      status: 'AUTHORIZED_FOR_SINGLE_ACT1_B010_ANIMATION_EXECUTION', approvedBy: 'Yakubu Moshood',
+      authorizedAt,
+      authorizationStatement: `Yakubu Moshood authorizes ANIMATION_ONLY for ACT1_B010 request key ${job.requestKey}, using only approved derivative ${installed.derivative.sha256} through H3 Max. Exactly one provider submission is authorized. Maximum human-accepted exposure is USD 0.40 and is not provider-enforced. Zero retries, no fallback, no rendering, no promotion, no candidate reconstruction, no Stage04 modification, and no episode-production-path writes are authorized.`,
+      bindings: { packageIndexSha256: state.planning.indexSha256, planSha256: state.planning.planSha256,
+        replacementRequestKey: act1B010AnimationTrust.replacementRequestKey,
+        animationRequestKey: job.requestKey, approvedDerivativeSha256: installed.derivative.sha256,
+        sourceLineageSha256: installed.lineageSha256, recipeSha256: act1B010AnimationTrust.recipeSha256,
+        humanApprovalSha256: act1B010AnimationTrust.humanApprovalSha256,
+        providerOriginalSha256: act1B010AnimationTrust.providerOriginalSha256,
+        deployedModuleSha256: boundRuntime.moduleSha256, deployedCliSha256: boundRuntime.cliSha256 },
+      request: { beatId: 'ACT1_B010', operation: 'ANIMATION_ONLY', routeId: 'H3_MAX_I2V_5S_768P',
+        endpoint: 'minimax/h3-max/image-to-video', soleInputSha256: installed.derivative.sha256,
+        promptSha256: job.promptSha256, negativePromptSha256: job.negativePromptSha256,
+        outputContractId: job.outputContractId, targetFrames: job.targetFrames,
+        frameRate: 30, exactDurationSec: job.frameAccurateDurationSec },
+      limits: { maximumProviderSubmissions: 1, maximumHumanAcceptedExposureUsd: 0.4,
+        providerEnforced: false, retries: 0, fallback: false, requestKeyReuse: false },
+      denials: { otherBeats: true, otherOperations: true, rendering: true, promotion: true,
+        candidateReconstruction: true, stage04Modification: true, episodeProductionPathWrites: true } };
+  }
+  function validateAct1B010AnimationAuthorization(record, { expectedSha256, bytes,
+    allowHistoricalRuntime = false } = {}) {
+    fail(Buffer.isBuffer(bytes) && sha(bytes) === expectedSha256,
+      'PHASE3_PRODUCTION_AUTHORIZATION_HASH_MISMATCH');
+    const runtime = allowHistoricalRuntime ? { moduleSha256: record?.bindings?.deployedModuleSha256,
+      cliSha256: record?.bindings?.deployedCliSha256 } : null;
+    const expected = makeAct1B010AnimationAuthorizationTemplate({ authorizedAt: record?.authorizedAt, runtime });
+    fail(canonicalJson(record) === canonicalJson(expected),
+      'PHASE3_PRODUCTION_ACT1_B010_ANIMATION_AUTHORIZATION_INVALID');
+    return true;
+  }
+  function act1B010AnimationStatus() {
+    const state = authoritative(), job = act1B010AnimationJob(state);
+    const installed = verifyInstalledAct1B010Source(state), ledger = readLedger(workRoot, fsImpl);
+    const reservation = ledger.find(row => row.recordType === 'SUBMISSION_RESERVED' && row.requestKey === job.requestKey);
+    const result = ledger.find(row => row.recordType === 'SUBMISSION_RESULT' && row.requestKey === job.requestKey);
+    const directory = requestDirectory(workRoot, job.requestKey);
+    const authorizationFile = path.join(directory, 'animation-execution-authorization.v1.json');
+    let historicalAuthorization = null;
+    if (fsImpl.existsSync(authorizationFile)) {
+      const bytes = fsImpl.readFileSync(authorizationFile), record = JSON.parse(bytes.toString('utf8'));
+      const expectedSha256 = reservation?.authorizationSha256 || sha(bytes);
+      validateAct1B010AnimationAuthorization(record, { expectedSha256, bytes, allowHistoricalRuntime: true });
+      historicalAuthorization = { sha256: sha(bytes), runtimeCompatibility: 'RECORDED_RUNTIME_ACCEPTED' };
+    }
+    fail(!reservation || historicalAuthorization?.sha256 === reservation.authorizationSha256,
+      'PHASE3_PRODUCTION_ACT1_B010_HISTORICAL_AUTHORIZATION_MISSING');
+    return { schemaVersion: 'phase3-act1-b010-animation-status/1.0.0', beatId: 'ACT1_B010',
+      status: result?.status || (reservation ? 'RESERVED_RECOVERY_REQUIRED' : 'READY_UNAUTHORIZED'),
+      animationRequestKey: job.requestKey, routeId: job.routeId, approvedDerivative: installed.derivative,
+      sourceLineageSha256: installed.lineageSha256,
+      timing: { targetFrames: job.targetFrames, frameRate: 30, exactDurationSec: job.frameAccurateDurationSec },
+      authorization: historicalAuthorization, consumed: Boolean(reservation), providerSubmissionsByThisCommand: 0,
+      ledgerWrites: 0, stage04: { status: state.stage04.record.status,
+        activationRecordSha256: state.stage04.recordSha256, promotedPathCount: state.stage04.promotedPathCount } };
+  }
+  function preflightAct1B010Animation({ authorizationFile = null, expectedAuthorizationSha256 = null } = {}) {
+    const value = act1B010AnimationStatus();
+    if (value.consumed) {
+      if (authorizationFile || expectedAuthorizationSha256) {
+        fail(authorizationFile && /^[a-f0-9]{64}$/u.test(expectedAuthorizationSha256 || ''),
+          'PHASE3_PRODUCTION_ACT1_B010_ANIMATION_AUTHORIZATION_REQUIRED');
+        const bytes = fsImpl.readFileSync(authorizationFile), record = JSON.parse(bytes.toString('utf8'));
+        validateAct1B010AnimationAuthorization(record, { expectedSha256: expectedAuthorizationSha256,
+          bytes, allowHistoricalRuntime: true });
+        fail(expectedAuthorizationSha256 === value.authorization?.sha256,
+          'PHASE3_PRODUCTION_ACT1_B010_AUTHORIZATION_HISTORY_MISMATCH');
+      }
+      return { ...value, status: value.status === 'SUCCEEDED_PENDING_INSPECTION'
+        ? 'ACT1_B010_ANIMATION_COMPLETED_HISTORICAL_COMPATIBLE' : 'ACT1_B010_ANIMATION_RECOVERY_REQUIRED',
+      providerRequestsAuthorized: 0 };
+    }
+    let authorization = null;
+    if (authorizationFile || expectedAuthorizationSha256) {
+      fail(authorizationFile && /^[a-f0-9]{64}$/u.test(expectedAuthorizationSha256 || ''),
+        'PHASE3_PRODUCTION_ACT1_B010_ANIMATION_AUTHORIZATION_REQUIRED');
+      const bytes = fsImpl.readFileSync(authorizationFile), record = JSON.parse(bytes.toString('utf8'));
+      validateAct1B010AnimationAuthorization(record, { expectedSha256: expectedAuthorizationSha256, bytes });
+      authorization = { sha256: sha(bytes), path: authorizationFile };
+    }
+    return { ...value, status: authorization ? 'ACT1_B010_ANIMATION_AUTHORIZED_NOT_EXECUTED'
+      : 'ACT1_B010_ANIMATION_READY_UNAUTHORIZED', authorization,
+    providerRequestsAuthorized: authorization ? 1 : 0 };
+  }
   function preflight({ firstBatchOnly = false } = {}) {
     const value = status(), selected = firstBatchOnly ? value.firstBatch.requestKeys : value.requests.map(row => row.requestKey);
     const selectedRows = value.requests.filter(row => selected.includes(row.requestKey));
@@ -625,11 +882,17 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(/^[a-f0-9]{64}$/u.test(expectedSha256 || ''), 'PHASE3_PRODUCTION_EXPECTED_AUTHORIZATION_HASH_REQUIRED');
     const bytes = fsImpl.readFileSync(file), record = JSON.parse(bytes.toString('utf8'));
     const runtime = runtimeHashes({ modulePath, cliPath, fsImpl });
+    if (record?.schemaVersion === ACT1_B010_ANIMATION_AUTH_SCHEMA) {
+      fail(requestKey === act1B010AnimationTrust.animationRequestKey,
+        'PHASE3_PRODUCTION_REQUEST_NOT_AUTHORIZED');
+      validateAct1B010AnimationAuthorization(record, { expectedSha256, bytes });
+      return { record, sha256: sha(bytes), bytes };
+    }
     if (record?.schemaVersion === REPLACEMENT_AUTH_SCHEMA) {
       validateReplacementAuthorization(record, { expectedSha256, bytes });
       fail(record.bindings.replacementRequestKey === requestKey,
         'PHASE3_PRODUCTION_REQUEST_NOT_AUTHORIZED');
-      return { record, sha256: sha(bytes) };
+      return { record, sha256: sha(bytes), bytes };
     }
     validateAuthorization(record, { expectedSha256, bytes, runtime });
     fail(record.bindings.requestKeys.includes(requestKey), 'PHASE3_PRODUCTION_REQUEST_NOT_AUTHORIZED');
@@ -640,7 +903,7 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     fail(requiredExposure <= record.limits.maximumHumanAcceptedExposureUsd + 1e-9
       && record.limits.maximumHumanAcceptedExposureUsd <= MAX_TOTAL_EXPOSURE_USD,
     'PHASE3_PRODUCTION_AUTHORIZATION_COST_CEILING_INVALID');
-    return { record, sha256: sha(bytes) };
+    return { record, sha256: sha(bytes), bytes };
   }
   function acquire(dir) {
     fsImpl.mkdirSync(dir, { recursive: true });
@@ -681,11 +944,17 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     const info = ffprobe(file);
     fail(info.videoStreams === 1 && info.audioStreams === 0 && info.video?.codec === 'h264'
       && info.video.width === 1344 && info.video.height === 768 && info.video.fps === 30
-      && info.video.frames === job.targetFrames, 'PHASE3_PRODUCTION_FITTED_VIDEO_INVALID');
+      && info.video.frames === job.targetFrames
+      && Math.abs(info.durationSec - job.targetFrames / 30) < 0.001,
+    'PHASE3_PRODUCTION_FITTED_VIDEO_INVALID');
     return { bytes: bytes.length, sha256: sha(bytes), ...info };
   }
   function assertDependencies(job) {
     if (job.type !== 'ANIMATION_CLIP') return null;
+    if (job.requestKey === act1B010AnimationTrust.animationRequestKey) {
+      const installed = verifyInstalledAct1B010Source();
+      return installed.derivative;
+    }
     let sourceKey = job.sourceStillRequestKey;
     if (job.requestKey === replacementTrust.animationRequestKey) {
       const lineage = authoritative().replacementLineage;
@@ -741,9 +1010,18 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     const ctx = jobContext(requestKey);
     fail(ctx.job.type !== 'CONTROLLED_STILL', 'PHASE3_PRODUCTION_CONTROLLED_STILL_REQUIRES_INGEST');
     const authorization = loadAuthorization(authorizationFile, expectedAuthorizationSha256, requestKey);
+    if (requestKey === act1B010AnimationTrust.animationRequestKey)
+      fail(authorization.record.schemaVersion === ACT1_B010_ANIMATION_AUTH_SCHEMA,
+        'PHASE3_PRODUCTION_ACT1_B010_ANIMATION_AUTHORIZATION_REQUIRED');
     const source = assertDependencies(ctx.job), lock = acquire(ctx.dir);
     let reservation = null, providerResponse = null;
     try {
+      if (ctx.job.requestKey === act1B010AnimationTrust.animationRequestKey) {
+        const preservedAuthorization = path.join(ctx.dir, 'animation-execution-authorization.v1.json');
+        if (fsImpl.existsSync(preservedAuthorization)) fail(sha(fsImpl.readFileSync(preservedAuthorization))
+          === authorization.sha256, 'PHASE3_PRODUCTION_ACT1_B010_AUTHORIZATION_HISTORY_MISMATCH');
+        else atomicWrite(preservedAuthorization, authorization.bytes, fsImpl);
+      }
       reservation = reserve(ctx, authorization, true);
       if (typeof testHooks.afterReservation === 'function') await testHooks.afterReservation({ ctx, reservation });
       if (ctx.job.type === 'ANIMATION_CLIP') {
@@ -904,7 +1182,10 @@ function createProductionBatchWorkflow({ packageDirectory, candidatePackageDirec
     } finally { try { if (fsImpl.existsSync(lock)) fsImpl.unlinkSync(lock); } catch (_) {} }
   }
   return { status, preflight, prepareReplacement, preflightReplacement,
-    makeReplacementAuthorizationTemplate, createReplacementAuthorization, generate, ingestControlled, inspect,
+    makeReplacementAuthorizationTemplate, createReplacementAuthorization,
+    installAct1B010ApprovedDerivative, act1B010AnimationStatus, preflightAct1B010Animation,
+    makeAct1B010AnimationAuthorizationTemplate, validateAct1B010AnimationAuthorization,
+    generate, ingestControlled, inspect,
     approve: options => recordDecision({ ...options, expectedStatus: 'APPROVED' }),
     reject: options => recordDecision({ ...options, expectedStatus: 'REJECTED' }), recover,
     makeAuthorizationTemplate: args => makeAuthorizationTemplate({ ...args,
@@ -915,6 +1196,7 @@ module.exports = { CLOSURE_COMMIT, PACKAGE_INDEX_SHA256, PLAN_SHA256, ANIMATION_
   CALIBRATION_FINALIZATION_SHA256, CALIBRATION_VERDICT_SHA256, B006_APPROVAL_SHA256,
   B009_SOURCE_APPROVAL_SHA256, MAX_TOTAL_EXPOSURE_USD, FIRST_BATCH_MAX_EXPOSURE_USD, FIRST_BATCH_KEYS,
   AUTH_SCHEMA, LEDGER_SCHEMA, DECISION_SCHEMA, REPLACEMENT_LINEAGE_SCHEMA, REPLACEMENT_AUTH_SCHEMA,
+  ACT1_B010_SOURCE_INSTALL_SCHEMA, ACT1_B010_ANIMATION_AUTH_SCHEMA, ACT1_B010_ANIMATION_TRUST,
   ACT1_B010_FAILED_REQUEST_KEY, ACT1_B010_ANIMATION_REQUEST_KEY, ACT1_B010_FAILURE,
   ACT1_B010_MANIFEST_BINDING_SHA256, ACT1_B010_BATCH_EXPOSURE_USD,
   sha, canonicalJson, safeRel, verifyPlanningPackage, replacementKeyBinding, deriveAct1B010ReplacementKey,

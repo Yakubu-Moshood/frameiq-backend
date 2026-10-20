@@ -47,6 +47,36 @@ function parseArgs(args) {
     return { mode: 'preflight-replacement', authorizationFile: values['--authorization-file'] || null,
       expectedAuthorizationSha256: values['--expected-authorization-sha256'] || null };
   }
+  if (args[0] === '--install-act1-b010-approved-derivative') {
+    const values = pairs(args, new Set(['--input-file', '--recipe-file', '--approval-file']));
+    if (args.length !== 7 || !values['--input-file'] || !values['--recipe-file'] || !values['--approval-file'])
+      throw new Error('PHASE3_PRODUCTION_BATCH_USAGE');
+    return { mode: 'install-act1-b010-approved-derivative', inputFile: values['--input-file'],
+      recipeFile: values['--recipe-file'], approvalFile: values['--approval-file'] };
+  }
+  if (args[0] === '--act1-b010-animation-status' && args.length === 1)
+    return { mode: 'act1-b010-animation-status' };
+  if (args[0] === '--preflight-act1-b010-animation') {
+    const values = pairs(args, new Set(['--authorization-file', '--expected-authorization-sha256']));
+    if (![1, 5].includes(args.length) || (args.length === 5 && (!values['--authorization-file']
+      || !/^[a-f0-9]{64}$/u.test(values['--expected-authorization-sha256'] || ''))))
+      throw new Error('PHASE3_PRODUCTION_BATCH_USAGE');
+    return { mode: 'preflight-act1-b010-animation', authorizationFile: values['--authorization-file'] || null,
+      expectedAuthorizationSha256: values['--expected-authorization-sha256'] || null };
+  }
+  if (args[0] === '--generate-act1-b010-animation') {
+    const values = pairs(args, new Set(['--authorization-file', '--expected-authorization-sha256']));
+    if (args.length !== 5 || !values['--authorization-file']
+      || !/^[a-f0-9]{64}$/u.test(values['--expected-authorization-sha256'] || ''))
+      throw new Error('PHASE3_PRODUCTION_BATCH_USAGE');
+    return { mode: 'generate-act1-b010-animation', requestKey: production.ACT1_B010_ANIMATION_REQUEST_KEY,
+      authorizationFile: values['--authorization-file'],
+      expectedAuthorizationSha256: values['--expected-authorization-sha256'] };
+  }
+  if (args[0] === '--inspect-act1-b010-animation' && args.length === 1)
+    return { mode: 'inspect-act1-b010-animation', requestKey: production.ACT1_B010_ANIMATION_REQUEST_KEY };
+  if (args[0] === '--recover-act1-b010-animation' && args.length === 1)
+    return { mode: 'recover-act1-b010-animation', requestKey: production.ACT1_B010_ANIMATION_REQUEST_KEY };
   if (['--generate', '--ingest-controlled-still'].includes(args[0])) {
     const ingest = args[0] === '--ingest-controlled-still';
     const values = pairs(args, new Set(['--request-key', '--authorization-file',
@@ -84,6 +114,12 @@ function help() {
     + '  node /app/scripts/phase3-production-batch.cjs --prepare-replacement --failed-request-key <sha256>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --create-replacement-authorization --failed-request-key <sha256> --authorized-at <ISO-UTC>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --preflight-replacement --failed-request-key <sha256> [--authorization-file <path> --expected-authorization-sha256 <sha256>]\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --install-act1-b010-approved-derivative --input-file <png> --recipe-file <json> --approval-file <json>\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --act1-b010-animation-status\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --preflight-act1-b010-animation [--authorization-file <path> --expected-authorization-sha256 <sha256>]\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --generate-act1-b010-animation --authorization-file <path> --expected-authorization-sha256 <sha256>\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --inspect-act1-b010-animation\n'
+    + '  node /app/scripts/phase3-production-batch.cjs --recover-act1-b010-animation\n'
     + '  node /app/scripts/phase3-production-batch.cjs --generate --request-key <sha256> --authorization-file <path> --expected-authorization-sha256 <sha256>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --ingest-controlled-still --request-key <sha256> --input-file <png> --authorization-file <path> --expected-authorization-sha256 <sha256>\n'
     + '  node /app/scripts/phase3-production-batch.cjs --inspect|--recover --request-key <sha256>\n'
@@ -99,6 +135,14 @@ async function main(args = process.argv.slice(2), workflow = WORKFLOW) {
   else if (options.mode === 'create-replacement-authorization')
     result = workflow.createReplacementAuthorization(options);
   else if (options.mode === 'preflight-replacement') result = workflow.preflightReplacement(options);
+  else if (options.mode === 'install-act1-b010-approved-derivative')
+    result = workflow.installAct1B010ApprovedDerivative(options);
+  else if (options.mode === 'act1-b010-animation-status') result = workflow.act1B010AnimationStatus();
+  else if (options.mode === 'preflight-act1-b010-animation')
+    result = workflow.preflightAct1B010Animation(options);
+  else if (options.mode === 'generate-act1-b010-animation') result = await workflow.generate(options);
+  else if (options.mode === 'inspect-act1-b010-animation') result = workflow.inspect(options);
+  else if (options.mode === 'recover-act1-b010-animation') result = await workflow.recover(options);
   else if (options.mode === 'generate') result = await workflow.generate(options);
   else if (options.mode === 'ingest') result = workflow.ingestControlled(options);
   else if (options.mode === 'inspect') result = workflow.inspect(options);
