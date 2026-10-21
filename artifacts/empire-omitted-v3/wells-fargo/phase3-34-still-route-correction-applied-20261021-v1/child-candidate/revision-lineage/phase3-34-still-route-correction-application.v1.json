@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-application-lineage/1.0.0",
+  "status": "PASS_APPROVED_ROUTE_ONLY_CHILD_APPLICATION_EXECUTION_UNAUTHORIZED",
+  "childCandidateId": "phase3-34-still-route-correction-child-20261021-v1",
+  "parent": {
+    "packageIndexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-act5-production-candidate-20261004-v5/package-index.v2.json",
+    "packageIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "candidateIndexPath": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-act5-production-candidate-20261004-v5/candidate/candidate-package-sha256.json",
+    "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+    "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+  },
+  "approval": {
+    "path": "detached-route-correction-application-approval.v1.json",
+    "sha256": "d61a0a1c8fcc958b246e97d04a61892fbf98d7a5304413dd808c6756056cc977"
+  },
+  "approvedPlanningPackage": {
+    "packageIndexSha256": "5cdee80e0762b7cb559def2e8d888d1b10d457817cb9bb6fdf14296faa6e6036",
+    "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+    "promptContractsSha256": "8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb",
+    "providerBatchManifestSha256s": [
+      "bda967e41208c317e189691606d4763d33e70950af573a0a7d83b3a1bec1401b",
+      "9d057eddd17fb02bb271a759ed1310c0dcf0be0bf3050483a8755d7abb4c07e5",
+      "3de215b309a566be58745bb8bf1f309fe118f4eafbee2fb12b366c08cb709c2a",
+      "5670c11fa945b30966f9254ac4e1d76f842691973ebc1afa3c0b5da964c757d1"
+    ]
+  },
+  "result": {
+    "shotDefinitionsSha256": "721258024a37e225ee65601214103beef0f9a34216cff8fbf5737ac12740cbc2",
+    "productionManifestSha256": "f91e67bbdf5163f0a5ce521564ad9980c2f0a3ce3b2dd16744ca40f2b9c9fa6a",
+    "affectedBeatIds": [
+      "ACT1_B005",
+      "ACT1_B011",
+      "ACT1_B012",
+      "ACT1_B013",
+      "ACT1_B015",
+      "ACT1_B020",
+      "ACT1_B022",
+      "ACT1_B030",
+      "ACT2_B002",
+      "ACT2_B003",
+      "ACT2_B009",
+      "ACT2_B011",
+      "ACT2_B012",
+      "ACT2_B013",
+      "ACT2_B015",
+      "ACT2_B020",
+      "ACT2_B021",
+      "ACT2_B024",
+      "ACT2_B025",
+      "ACT3_B006",
+      "ACT3_B007",
+      "ACT3_B010",
+      "ACT3_B013",
+      "ACT3_B020",
+      "ACT3_B026",
+      "ACT3_B027",
+      "ACT3B_B001",
+      "ACT3B_B004",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018",
+      "ACT5_B010",
+      "ACT5_B013"
+    ],
+    "productionManifestScalarChanges": 68,
+    "shotDefinitionScalarChanges": 68,
+    "changedFieldNames": [
+      "assetType",
+      "productionMethod"
+    ]
+  },
+  "invariants": {
+    "beatIdsUnchanged": true,
+    "narrationUnchanged": true,
+    "timingAndFrameAllocationUnchanged": true,
+    "visualIntentUnchanged": true,
+    "evidenceBindingsUnchanged": true,
+    "ownershipFieldsUnchanged": true,
+    "unrelatedCandidateRecordsUnchanged": true,
+    "completedProductionRecordsUnchanged": [
+      "ACT1_B006",
+      "ACT1_B009",
+      "ACT1_B010"
+    ],
+    "act3bB010Retired": true,
+    "providerSubmissionsAuthorized": 0,
+    "executionAuthorizationsCreated": 0
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "schemaVersion": "phase3-consolidated-approved-amendment-lineage/1.0.0",
+  "status": "PASS_APPROVED_SCOPE_B015_VISUAL_APPROVED_B016_SOURCE_BOUND_MEDIA_PENDING",
+  "parentCandidateIndexSha256": "b4da93d060973e4fee66049a7c7ed44fc159fdeeab4c4e23edd38fcf6306181c",
+  "parentShotDefinitionsSha256": "4528ca5fa99d0e57dd11845cdb9841634d309ce3878129b7218066ed6565d4f9",
+  "parentProductionManifestSha256": "3749817fa36286037d5e5bfaec05b5450e8b586831dc96f69a82a187e3785755",
+  "parentHistoricalRevisionLineageSha256": "74e3e93449c187a8b22fbb2f96031e83db338c2d81cd69ae272bc0c3934850bf",
+  "resultShotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+  "resultProductionManifestSha256": "382f27caf87924e3d77dfc78d8a5ee668210a9a786243de1ccd2af36ef5bfa3b",
+  "approvals": {
+    "b009Amendment": "f6f50f516f89ed9f27724e994e890cde65513747054a40f16360a9dc1eb46ba8",
+    "b009Approval": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f",
+    "b015VisualApproval": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "b015TimingApproval": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909",
+    "b016DependencyApproval": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+    "b015CompiledVisualApproval": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272"
+  },
+  "entries": [
+    {
+      "beatId": "ACT5_B009",
+      "scope": "approved exact amendment; canonical and act mirror",
+      "before": {
+        "assetType": "generated_image",
+        "requiresGraphicCompilation": false,
+        "graphics": null,
+        "overlaySpecification": null,
+        "imagePrompt": "Abstract calendar pages stacked and overlapping, years 2013 through 2023 visible in faded typography, pages showing wear and aging from bottom to top, documentary collage aesthetic, muted colors, sense of accumulated time passing, editorial design style"
+      },
+      "after": {
+        "assetType": "graphic_compilation",
+        "requiresGraphicCompilation": true,
+        "graphics": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "overlaySpecification": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "imagePrompt": null
+      },
+      "productionManifestBefore": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "productionManifestAfter": {
+        "productionMethod": "GRAPHIC_COMPILATION",
+        "assetType": "graphic_compilation",
+        "status": "BLOCKED",
+        "blockerCodes": [
+          "GRAPHIC_ASSET_NOT_CREATED"
+        ],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "PENDING",
+        "primaryGraphicAsset": true,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 1,
+        "graphicObjects": [
+          {
+            "type": "calendar_year_stack",
+            "text": "2013 · 2014 · 2015 · 2016 · 2017 · 2018 · 2019 · 2020 · 2021 · 2022 · 2023",
+            "exactLabels": [
+              "2013",
+              "2014",
+              "2015",
+              "2016",
+              "2017",
+              "2018",
+              "2019",
+              "2020",
+              "2021",
+              "2022",
+              "2023"
+            ],
+            "intent": "Stacked faded calendar pages; no additional dates or event claims."
+          }
+        ],
+        "sourceRequirement": null
+      },
+      "humanApprovalSha256": "6d3e88e24a23777baa38da3325d9fb81f833943fb8b2a8eb6b106b2ce27c516f"
+    },
+    {
+      "beatId": "ACT5_B015",
+      "scope": "acts.act5 timing mirror only",
+      "before": {
+        "startSec": 574.0995934414062,
+        "endSec": 579.2195885585937,
+        "durationSec": 5.1199951171875
+      },
+      "after": {
+        "startSec": 571.9558705585937,
+        "endSec": 577.515875746582,
+        "durationSec": 5.560005187988281
+      },
+      "canonicalShotUnchanged": true,
+      "editPlanUnchanged": true,
+      "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+    },
+    {
+      "beatId": "ACT5_B015_COMPILED_OUTPUT",
+      "approvalSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+      "reviewPackageIndexSha256": "a71ff5bc0176b169ec8b0bb381bed0bd25cb9a2d69785216ca2e69a792c9dc46",
+      "svg": {
+        "path": "assets/graphics/ACT5_B015__g00.svg",
+        "bytes": 2279,
+        "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a"
+      },
+      "png": {
+        "path": "assets/graphics/ACT5_B015__g00.png",
+        "bytes": 49286,
+        "sha256": "3e6434758553f002b824620ec15ec7ed19f9df9c8c8e8b9985d6e6a1c581fade"
+      },
+      "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+    },
+    {
+      "beatId": "ACT5_B016",
+      "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+      "finalSourceBound": true,
+      "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+      "sourceFormat": "svg",
+      "sourceBytes": 2279,
+      "sourceSha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+      "use": "COMPOSITION_ONLY_REFERENCE_FOR_CRACKED_FRAME_DERIVATIVE",
+      "finalMediaReuseAuthorized": false
+    }
+  ],
+  "invariants": {
+    "noOtherBeatChanged": true,
+    "narrationUnchanged": true,
+    "wordRangeUnchanged": true,
+    "visualIntentUnchanged": true,
+    "ownershipUnchanged": true,
+    "evidenceBindingUnchanged": true,
+    "productionMethodOutsideB009Unchanged": true,
+    "B015VisualSpecificationAlreadyMatched": true,
+    "act3bB010Retired": true,
+    "b016FinalSourceUnbound": true,
+    "priorRevisionHistoryBytesPreserved": true,
+    "b016FinalSourceBound": true,
+    "act5B015OutputApprovalBound": true
+  }
+}

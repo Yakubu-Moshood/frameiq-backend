@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "phase3-consolidated-test-report/1.0.0",
+  "status": "PASS_WITH_ONE_PLATFORM_SKIP",
+  "sourceCodeChangedToMakeTestsPass": false,
+  "focusedPhase3": {
+    "files": [
+      "test/phase3-act1-b010-production-animation.test.cjs",
+      "test/phase3-render-preview.test.cjs"
+    ],
+    "execution": "serial with isolated workspace-local TEMP/TMP",
+    "tests": 155,
+    "passed": 154,
+    "failed": 0,
+    "skipped": 1,
+    "skipReason": "Windows junction creation is unavailable in this test environment"
+  },
+  "canonical28": {
+    "fileCount": 28,
+    "excludedFromCanonicalSet": [
+      "test/phase3-act1-b010-production-animation.test.cjs"
+    ],
+    "initialFullRun": {
+      "tests": 647,
+      "passed": 642,
+      "failed": 4,
+      "skipped": 1
+    },
+    "environmentalExceptions": [
+      {
+        "file": "test/deployment-package-portability.test.cjs",
+        "affectedTests": 2,
+        "cause": "sandbox denied temporary .git/index.lock creation",
+        "isolatedRerun": {
+          "permission": "temporary Git write access",
+          "tests": 2,
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "file": "test/shot-definitions.test.cjs",
+        "affectedTests": 2,
+        "cause": "transient Windows EPERM during atomic rename",
+        "isolatedRerun": {
+          "tests": 17,
+          "passed": 17,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "reconciledCaseDisposition": {
+      "tests": 647,
+      "passed": 646,
+      "productFailures": 0,
+      "skipped": 1
+    },
+    "skipReason": "Windows junction creation is unavailable in this test environment"
+  }
+}

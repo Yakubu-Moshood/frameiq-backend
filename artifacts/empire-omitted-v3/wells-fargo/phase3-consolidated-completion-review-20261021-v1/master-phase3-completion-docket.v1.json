@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "phase3-master-completion-docket/1.0.0",
+  "status": "PHASE3_CONSOLIDATED_COMPLETION_PACKAGE_PENDING_HUMAN_APPROVAL",
+  "authoritativeState": {
+    "gitCommit": "316177e7595e2e0874e298352cf77374a2fb9f84",
+    "branch": "codex/phase3-controlled-media-pilot",
+    "completedAndApproved": [
+      "Phase 3 planning and calibration",
+      "ACT1_B006 final still lane",
+      "ACT1_B009 source-still and animation lane",
+      "ACT1_B010 replacement source-still and animation lane"
+    ],
+    "preservedUntrackedPaths": [
+      ".act1-b010-deploy-316177e/",
+      ".act1-b010-deploy-f83ae98/",
+      ".act1-b010-review-316177e/",
+      ".codex-artifacts/",
+      "node_modules/"
+    ]
+  },
+  "remainingCensus": {
+    "finalOutputs": 62,
+    "controlledStills": 34,
+    "generatedFinalStills": 7,
+    "animationClips": 21,
+    "intermediateAnimationSourceStills": 21,
+    "providerSubmissions": 49
+  },
+  "controlledStills": {
+    "constructed": 33,
+    "blocked": 1,
+    "blockedBeatIds": [
+      "ACT1_B005"
+    ],
+    "productionPathsWritten": 0
+  },
+  "providerBatches": [
+    {
+      "path": "provider-batches/generated-final-still-batch.v1.json",
+      "requestCount": 7,
+      "expectedExposureUsd": 0.336,
+      "maximumExposureUsd": 0.336,
+      "sha256": "683fc4ec077beccac7899e47b98022095204307636805ce96c32590820532af7"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-1.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "sha256": "9af181b06c110fa13471abda85b1cefd7458fedbfbee2ce188156af4a15320d9"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-2.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "sha256": "6ff5179f3fd76dcbc27168ba687ca9c6869f036f9b624d82418e3666f647fdb1"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-3.v1.json",
+      "requestCount": 1,
+      "expectedExposureUsd": 0.048,
+      "maximumExposureUsd": 0.048,
+      "sha256": "edbe8cfaa745a00cfe09900501dc1cba85e6c48b28e4bddc70c7f3aabf4009cb"
+    },
+    {
+      "path": "provider-batches/animation-batch-1.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 4,
+      "maximumExposureUsd": 4,
+      "sha256": "53dab22350643af7bf314507a885fa2d2e949b31fe06095835b644f96f552ec1"
+    },
+    {
+      "path": "provider-batches/animation-batch-2.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 4,
+      "maximumExposureUsd": 4,
+      "sha256": "d132ff94cee54f6eca37674f872661fee1cea887ccb877b3d05a1c3dfbf9f777"
+    },
+    {
+      "path": "provider-batches/animation-batch-3.v1.json",
+      "requestCount": 1,
+      "expectedExposureUsd": 0.4,
+      "maximumExposureUsd": 0.4,
+      "sha256": "be3d19aad5d60f99caa7fd7e967cc160e9771baad16a1074aadcab4010a23f62"
+    }
+  ],
+  "exposure": {
+    "expectedUsd": 9.744,
+    "maximumUsd": 9.744,
+    "providerEnforced": false,
+    "retriesIncluded": 0
+  },
+  "approvalsRequired": [
+    "Approve or revise the 33 deterministic controlled-still review outputs.",
+    "Approve the exact ACT1_B005 source-free deterministic corridor amendment, or provide an exact approved source binding instead.",
+    "Approve the seven non-authorizing batch manifests and USD 9.744 maximum human-accepted exposure.",
+    "After each animation-source batch: inspect and explicitly approve each source still with its SHA-256 before any dependent animation authorization.",
+    "After each animation batch: inspect and approve fitted outputs before production installation.",
+    "Separately authorize final render, promotion, and dashboard test only after all media is installed and readiness validation passes."
+  ],
+  "shortestSafeSequence": [
+    "Approve controlled stills and ACT1_B005 contract.",
+    "Install approved controlled stills through a separately authorized production step.",
+    "Authorize and execute generated-final-still batch; inspect and approve.",
+    "Authorize source-still batches 1-3 in order; inspect and hash-approve every output.",
+    "Create fresh animation-only authorizations bound to approved source hashes; execute animation batches 1-3; inspect and approve.",
+    "Run complete asset/readiness validation with 62 final outputs.",
+    "Separately authorize final render.",
+    "Review final master and QA.",
+    "Separately authorize promotion.",
+    "Run dashboard end-to-end test."
+  ],
+  "prohibitions": {
+    "providerCalls": 0,
+    "executionAuthorizationsCreated": 0,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionPathWrites": 0
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "production-method-manifest-validation/1.0.0",
+  "status": "PASS",
+  "errors": [],
+  "candidateId": "phase3-34-still-route-correction-child-20261021-v1",
+  "productionManifestSha256": "f91e67bbdf5163f0a5ce521564ad9980c2f0a3ce3b2dd16744ca40f2b9c9fa6a",
+  "shotDefinitionsSha256": "721258024a37e225ee65601214103beef0f9a34216cff8fbf5737ac12740cbc2",
+  "methodCounts": {
+    "ESSENTIAL_ANIMATION": 23,
+    "GENERATED_STILL": 42,
+    "EVIDENCE_REFERENCE": 46,
+    "GRAPHIC_COMPILATION": 42
+  },
+  "graphicSummary": {
+    "primaryGraphicAssetShots": 42,
+    "overlayGraphicShots": 28,
+    "graphicBearingBeats": 70,
+    "graphicObjectCount": 77,
+    "multiObjectBeatCount": 4
+  },
+  "routeCorrection": {
+    "status": "PASS",
+    "approvalSha256": "d61a0a1c8fcc958b246e97d04a61892fbf98d7a5304413dd808c6756056cc977",
+    "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+    "affectedRows": 34
+  }
+}

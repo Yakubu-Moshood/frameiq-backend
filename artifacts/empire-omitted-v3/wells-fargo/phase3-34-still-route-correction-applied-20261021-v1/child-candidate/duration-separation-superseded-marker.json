@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "phase2.3b-duration-report-supersession/1.0.0",
+  "status": "SUPERSEDED_DIAGNOSTIC_HISTORY",
+  "reportSha256": "a6a880f11656c8fa98f0de02fcda211071a791cb2bf8a52dc72079531a30e32c",
+  "supersededValueSec": 623.36,
+  "reason": "Computed from the invalid audio binding; excluded from current validation."
+}

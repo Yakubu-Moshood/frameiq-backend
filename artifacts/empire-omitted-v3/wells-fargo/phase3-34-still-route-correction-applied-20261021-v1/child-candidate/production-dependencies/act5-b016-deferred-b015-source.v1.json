@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "phase3-act5-b016-deferred-source-binding/1.0.0",
+  "status": "APPROVED_COMPOSITION_SOURCE_BOUND_EXECUTION_BLOCKED_PENDING_B016_MEDIA",
+  "beatId": "ACT5_B016",
+  "approvalSha256": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703",
+  "dependsOnBeatId": "ACT5_B015",
+  "use": "composition-only reference for cracked-frame derivative",
+  "requiredSource": {
+    "status": "BOUND_APPROVED_PRODUCTION_GRAPHIC",
+    "path": "assets/graphics/ACT5_B015__g00.svg",
+    "packageRelativePath": "candidate/assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "mimeType": "image/svg+xml",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a",
+    "approvedBy": "Yakubu Moshood",
+    "approvalRecordPath": "approvals/act5-b015-compiled-visual-approval.v1.json",
+    "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "v4CandidateIndexSha256": "31e3cb2fd67efdb1d3ed04d9cf04688e66b9d8481d00fcfb33fcb75abd1445b3",
+    "visualSpecificationApprovalSha256": "76a7fef0ffc0ebe0f93d763395c1f667d87f78798f0f5c160b770e2a5c18773f",
+    "timingApprovalSha256": "ece9be52468fdd5c73882736c28f4c4acb2bed44c7662a9494ef0aeded29a909"
+  },
+  "blockedUntil": [],
+  "excludedSource": {
+    "path": "assets/graphics/ACT5_B015__g00.svg",
+    "sha256": "0fc16cfd6f697362805fbafccf50952c9740aa3ef43c4f74c7903d9661a40c24",
+    "reason": "Rejected takeaway graphic; never a B016 composition source",
+    "parentCandidateId": "phase3-act5-approved-decisions-consolidated-20261004-v1",
+    "parentPackagePath": "../phase3-consolidated-act5-production-candidate-20261004-v3/candidate/assets/graphics/ACT5_B015__g00.svg"
+  },
+  "crossBeatFinalMediaReuse": "NOT_AUTHORIZED",
+  "executionBlockedUntil": [
+    "ACT5_B016 production media output is not yet created or validated",
+    "A separate approved production execution plan and request authorization are required"
+  ],
+  "sourceUse": "COMPOSITION_ONLY_REFERENCE_FOR_CRACKED_FRAME_DERIVATIVE"
+}

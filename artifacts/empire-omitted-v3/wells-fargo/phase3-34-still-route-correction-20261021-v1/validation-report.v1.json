@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-validation/1.0.0",
+  "status": "PASS",
+  "checks": {
+    "affectedRowsExactly34": true,
+    "onlyProductionMethodAndAssetTypeChange": true,
+    "promptContractsExactly34": true,
+    "promptHashesExact": true,
+    "requestKeysUniqueAndUnused": true,
+    "batchesExactly10_10_10_4": true,
+    "replacementExposureExact": true,
+    "priorPlanUnchanged49At9_744": true,
+    "revisedPlan83At11_376": true,
+    "rejectedPackageHashBound": true,
+    "act3bB010RetirementPreserved": true,
+    "sourceFilesModified": false,
+    "providerCalls": 0,
+    "executionAuthorizationsCreated": 0,
+    "mediaGenerated": 0
+  },
+  "boundInputs": {
+    "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+    "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+    "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "evidenceManifestSha256": "91b6e96cc20d1b9d1f7ea0f636b4dd5d2c3bc50ac9952e70ea92f00bbb6a4c61",
+    "graphicManifestSha256": "4747c3f69e2b7f6881eea1d92d4d669c37e32a945c145e6b016ab919747359f6",
+    "rejectedPackageIndexSha256": "8ea25ef485e127a70e43fa2867a15d611be174c9925dcc59d5216448f79ce3e6"
+  }
+}

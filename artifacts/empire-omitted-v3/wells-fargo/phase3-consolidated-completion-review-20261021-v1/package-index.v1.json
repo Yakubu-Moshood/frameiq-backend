@@ -1,0 +1,285 @@
+{
+  "schemaVersion": "phase3-consolidated-completion-package-index/1.0.0",
+  "status": "PHASE3_CONSOLIDATED_COMPLETION_PACKAGE_PENDING_HUMAN_APPROVAL",
+  "packageId": "phase3-consolidated-completion-review-20261021-v1",
+  "createdAt": "2026-10-21T00:00:00.000+01:00",
+  "fileCount": 52,
+  "files": [
+    {
+      "path": "act1-b005-minimal-proposed-amendment.v1.json",
+      "bytes": 870,
+      "sha256": "e79786c423dddaa77173e0be0a60d417eb9006faa13287e947f7ec8d3db98118"
+    },
+    {
+      "path": "contact-sheets/controlled-stills-01.png",
+      "bytes": 29692,
+      "sha256": "da34198ab674dcbaa88410947ca5f9cafd76fe067846c87f4f1c1f41730dfb2c"
+    },
+    {
+      "path": "contact-sheets/controlled-stills-02.png",
+      "bytes": 29610,
+      "sha256": "1d5d5bb19395441e8f2b463abb9f125624c4ba00c617017296ad441bb8600dcc"
+    },
+    {
+      "path": "contact-sheets/controlled-stills-03.png",
+      "bytes": 24018,
+      "sha256": "b01208e0a4266e1f3f92808bbb30dce7554a35eb3ce4149e68c926af205365e1"
+    },
+    {
+      "path": "controlled-still-construction-record.v1.json",
+      "bytes": 18154,
+      "sha256": "fb7b8f452fa1b044f9dc355428f9950211a9b15bc4bab65e81f4b2b7d107fe9f"
+    },
+    {
+      "path": "controlled-still-matrix.v1.json",
+      "bytes": 72974,
+      "sha256": "54f60aff990bb71d068bbe4a98bfa8cdc8a2378fc4e166610c7398b9b3c0ffb4"
+    },
+    {
+      "path": "controlled-stills/ACT1_B011.png",
+      "bytes": 12873,
+      "sha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8"
+    },
+    {
+      "path": "controlled-stills/ACT1_B012.png",
+      "bytes": 11693,
+      "sha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae"
+    },
+    {
+      "path": "controlled-stills/ACT1_B013.png",
+      "bytes": 13551,
+      "sha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a"
+    },
+    {
+      "path": "controlled-stills/ACT1_B015.png",
+      "bytes": 11804,
+      "sha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f"
+    },
+    {
+      "path": "controlled-stills/ACT1_B020.png",
+      "bytes": 11275,
+      "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3"
+    },
+    {
+      "path": "controlled-stills/ACT1_B022.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb"
+    },
+    {
+      "path": "controlled-stills/ACT1_B030.png",
+      "bytes": 17884,
+      "sha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c"
+    },
+    {
+      "path": "controlled-stills/ACT2_B002.png",
+      "bytes": 10748,
+      "sha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4"
+    },
+    {
+      "path": "controlled-stills/ACT2_B003.png",
+      "bytes": 12164,
+      "sha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2"
+    },
+    {
+      "path": "controlled-stills/ACT2_B009.png",
+      "bytes": 17883,
+      "sha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb"
+    },
+    {
+      "path": "controlled-stills/ACT2_B011.png",
+      "bytes": 9433,
+      "sha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8"
+    },
+    {
+      "path": "controlled-stills/ACT2_B012.png",
+      "bytes": 9972,
+      "sha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560"
+    },
+    {
+      "path": "controlled-stills/ACT2_B013.png",
+      "bytes": 9914,
+      "sha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853"
+    },
+    {
+      "path": "controlled-stills/ACT2_B015.png",
+      "bytes": 13874,
+      "sha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f"
+    },
+    {
+      "path": "controlled-stills/ACT2_B020.png",
+      "bytes": 12141,
+      "sha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b"
+    },
+    {
+      "path": "controlled-stills/ACT2_B021.png",
+      "bytes": 12150,
+      "sha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094"
+    },
+    {
+      "path": "controlled-stills/ACT2_B024.png",
+      "bytes": 17886,
+      "sha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76"
+    },
+    {
+      "path": "controlled-stills/ACT2_B025.png",
+      "bytes": 18884,
+      "sha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75"
+    },
+    {
+      "path": "controlled-stills/ACT3_B006.png",
+      "bytes": 12305,
+      "sha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf"
+    },
+    {
+      "path": "controlled-stills/ACT3_B007.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb"
+    },
+    {
+      "path": "controlled-stills/ACT3_B010.png",
+      "bytes": 12059,
+      "sha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972"
+    },
+    {
+      "path": "controlled-stills/ACT3_B013.png",
+      "bytes": 13758,
+      "sha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035"
+    },
+    {
+      "path": "controlled-stills/ACT3_B020.png",
+      "bytes": 13027,
+      "sha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5"
+    },
+    {
+      "path": "controlled-stills/ACT3_B026.png",
+      "bytes": 12072,
+      "sha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b"
+    },
+    {
+      "path": "controlled-stills/ACT3_B027.png",
+      "bytes": 13400,
+      "sha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B001.png",
+      "bytes": 13420,
+      "sha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B004.png",
+      "bytes": 13422,
+      "sha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B007.png",
+      "bytes": 9888,
+      "sha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B013.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B016.png",
+      "bytes": 12001,
+      "sha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3"
+    },
+    {
+      "path": "controlled-stills/ACT3B_B018.png",
+      "bytes": 10842,
+      "sha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7"
+    },
+    {
+      "path": "controlled-stills/ACT5_B010.png",
+      "bytes": 11275,
+      "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3"
+    },
+    {
+      "path": "controlled-stills/ACT5_B013.png",
+      "bytes": 13238,
+      "sha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556"
+    },
+    {
+      "path": "human-review-docket.md",
+      "bytes": 1057,
+      "sha256": "0bd0d0320fa921a823ce3ade50311bad8f1e31fefd5e3862c13c8d505bb14d94"
+    },
+    {
+      "path": "master-phase3-completion-docket.v1.json",
+      "bytes": 4679,
+      "sha256": "7a04ff7bf8c7ff0cc6162f7e9e523c652b7e201cd7ed1a29566923429e2ba85b"
+    },
+    {
+      "path": "provider-batches/animation-batch-1.v1.json",
+      "bytes": 17182,
+      "sha256": "53dab22350643af7bf314507a885fa2d2e949b31fe06095835b644f96f552ec1"
+    },
+    {
+      "path": "provider-batches/animation-batch-2.v1.json",
+      "bytes": 17178,
+      "sha256": "d132ff94cee54f6eca37674f872661fee1cea887ccb877b3d05a1c3dfbf9f777"
+    },
+    {
+      "path": "provider-batches/animation-batch-3.v1.json",
+      "bytes": 2348,
+      "sha256": "be3d19aad5d60f99caa7fd7e967cc160e9771baad16a1074aadcab4010a23f62"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-1.v1.json",
+      "bytes": 13755,
+      "sha256": "9af181b06c110fa13471abda85b1cefd7458fedbfbee2ce188156af4a15320d9"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-2.v1.json",
+      "bytes": 13763,
+      "sha256": "6ff5179f3fd76dcbc27168ba687ca9c6869f036f9b624d82418e3666f647fdb1"
+    },
+    {
+      "path": "provider-batches/animation-source-still-batch-3.v1.json",
+      "bytes": 1948,
+      "sha256": "edbe8cfaa745a00cfe09900501dc1cba85e6c48b28e4bddc70c7f3aabf4009cb"
+    },
+    {
+      "path": "provider-batches/generated-final-still-batch.v1.json",
+      "bytes": 9643,
+      "sha256": "683fc4ec077beccac7899e47b98022095204307636805ce96c32590820532af7"
+    },
+    {
+      "path": "reproduction/build-package.cjs",
+      "bytes": 36224,
+      "sha256": "45d093910945ef58fc79e1eaa58fd4b9236f50cc7085d5f580e606d42340bf05"
+    },
+    {
+      "path": "request-key-reconciliation.v1.json",
+      "bytes": 5539,
+      "sha256": "a6f84b4d1e60f65adf277e6512aa39f3bddd0a311bd3c5a10fdd010b2844284f"
+    },
+    {
+      "path": "test-report.v1.json",
+      "bytes": 1690,
+      "sha256": "173e7dd353bdd840bd382de3ba98107ab94ff6934f64cc680a9ab2ec93a72363"
+    },
+    {
+      "path": "validation-report.v1.json",
+      "bytes": 10792,
+      "sha256": "4a6161b48577198be5c6278431514d2d3d5173ad32e3ead7645f71558077e644"
+    }
+  ],
+  "summary": {
+    "controlledStillRows": 34,
+    "constructedControlledStills": 33,
+    "blockedControlledStills": 1,
+    "providerBatchManifests": 7,
+    "remainingProviderRequests": 49,
+    "maximumExposureUsd": 9.744
+  },
+  "authority": {
+    "providerRequestsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionPathWrites": 0
+  }
+}

@@ -1,0 +1,310 @@
+{
+  "schemaVersion": "phase3-controlled-still-applied-child-amendment/1.0.0",
+  "status": "APPLIED_TO_ISOLATED_CHILD_CANDIDATE",
+  "sourceAmendmentSha256": "fa4fc0c43543c19d8be66303825e3ac713d6ce5d269623075daec46ad35c2df3",
+  "applicationApprovalSha256": "e4d93e08935ebdf1f84a6e532a2a39a736a261f92cfa338ace7fe84354aa742b",
+  "parentCandidateIndexSha256": "8ff011db727b1cf6ac47acff010f15d9559aa9dcfc763dc6830cbcba7916deac",
+  "childCandidateId": "phase2.3b-p-act3-refresh-controlled-still-child-20261004-v1",
+  "exactScope": {
+    "entryCount": 34,
+    "beatIds": [
+      "ACT1_B005",
+      "ACT1_B011",
+      "ACT1_B012",
+      "ACT1_B013",
+      "ACT1_B015",
+      "ACT1_B020",
+      "ACT1_B022",
+      "ACT1_B030",
+      "ACT2_B002",
+      "ACT2_B003",
+      "ACT2_B009",
+      "ACT2_B011",
+      "ACT2_B012",
+      "ACT2_B013",
+      "ACT2_B015",
+      "ACT2_B020",
+      "ACT2_B021",
+      "ACT2_B024",
+      "ACT2_B025",
+      "ACT3_B006",
+      "ACT3_B007",
+      "ACT3_B010",
+      "ACT3_B013",
+      "ACT3_B020",
+      "ACT3_B026",
+      "ACT3_B027",
+      "ACT3B_B001",
+      "ACT3B_B004",
+      "ACT3B_B007",
+      "ACT3B_B013",
+      "ACT3B_B016",
+      "ACT3B_B018",
+      "ACT5_B010",
+      "ACT5_B013"
+    ],
+    "onlyChangedField": "assetType",
+    "from": "generated_clip",
+    "to": "controlled_image",
+    "productionMethod": "CONTROLLED_STILL"
+  },
+  "rows": [
+    {
+      "beatId": "ACT1_B005",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B011",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B012",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B015",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B020",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B022",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT1_B030",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B002",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B003",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B009",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B011",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B012",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B015",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B020",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B021",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B024",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT2_B025",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B006",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B007",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B010",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B020",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B026",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3_B027",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT5_B010",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    },
+    {
+      "beatId": "ACT5_B013",
+      "productionMethod": "CONTROLLED_STILL",
+      "visualType": "CLIP",
+      "from": "generated_clip",
+      "to": "controlled_image"
+    }
+  ],
+  "changedFieldCount": 34,
+  "preservedFields": [
+    "beatId",
+    "narrationExcerpt",
+    "startSec",
+    "endSec",
+    "durationSec",
+    "startWordIndex",
+    "endWordIndex",
+    "visualIntent",
+    "visual",
+    "visualType",
+    "productionMethod",
+    "ownership",
+    "evidence bindings",
+    "revision history"
+  ],
+  "noMediaGenerated": true,
+  "noEpisodeRootWrites": true
+}

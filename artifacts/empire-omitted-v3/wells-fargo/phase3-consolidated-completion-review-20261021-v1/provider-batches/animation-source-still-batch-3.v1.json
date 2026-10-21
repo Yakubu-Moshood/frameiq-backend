@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "phase3-non-authorizing-provider-batch/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "batchId": "animation-source-still-batch-3",
+  "type": "ANIMATION_SOURCE_STILL",
+  "requestCount": 1,
+  "expectedExposureUsd": 0.048,
+  "maximumExposureUsd": 0.048,
+  "providerEnforced": false,
+  "dependencyOrder": "INDEPENDENT_WITHIN_BATCH",
+  "entries": [
+    {
+      "beatId": "ACT5_B017",
+      "operation": "GENERATE_ANIMATION_SOURCE_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "a03aec5a636e106eec0b989a38880bc3e6bdaf6013cfc2a6fc55705494cc4132",
+      "promptSha256": "97121c69e4ca88e48b41bc9f3d299b6267237ba6934d001e41c70accedc0de41",
+      "negativePromptSha256": "9208b57a0351d259876591015a632a3069e4713231bdcbbd779dd7b8a06e0f17",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/intermediate/animation-source-stills/ACT5_B017.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    }
+  ],
+  "authority": {
+    "providerRequestsAuthorized": 0,
+    "executionAuthorizationCreated": false,
+    "retries": 0,
+    "fallback": false,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionWrites": false
+  }
+}

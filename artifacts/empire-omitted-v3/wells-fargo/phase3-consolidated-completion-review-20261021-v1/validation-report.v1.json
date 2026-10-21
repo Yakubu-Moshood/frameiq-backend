@@ -1,0 +1,344 @@
+{
+  "schemaVersion": "phase3-consolidated-package-validation/1.0.0",
+  "status": "PASS",
+  "authoritativePackageIndexes": [
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-act5-production-candidate-20261004-v5/package-index.v2.json",
+      "sha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+      "indexedFileCount": 194,
+      "status": "PASS",
+      "failures": []
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-production-batch-planning-20261006-v1/package-index.v1.json",
+      "sha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+      "indexedFileCount": 8,
+      "status": "PASS",
+      "failures": []
+    }
+  ],
+  "generatedJson": {
+    "fileCount": 15,
+    "status": "PASS_ALL_PARSED"
+  },
+  "generatedPng": {
+    "fileCount": 36,
+    "status": "PASS_SIGNATURE_DIMENSIONS_AND_HASH",
+    "checks": [
+      {
+        "path": "controlled-stills/ACT1_B011.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B012.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B013.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B015.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B020.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B022.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT1_B030.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B002.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B003.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B009.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B011.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B012.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B013.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B015.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B020.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B021.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B024.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT2_B025.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B006.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B007.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B010.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B013.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B020.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B026.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3_B027.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B001.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B004.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B007.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B013.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B016.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT3B_B018.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT5_B010.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "status": "PASS"
+      },
+      {
+        "path": "controlled-stills/ACT5_B013.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556",
+        "status": "PASS"
+      },
+      {
+        "path": "contact-sheets/controlled-stills-01.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "da34198ab674dcbaa88410947ca5f9cafd76fe067846c87f4f1c1f41730dfb2c",
+        "status": "PASS"
+      },
+      {
+        "path": "contact-sheets/controlled-stills-02.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "1d5d5bb19395441e8f2b463abb9f125624c4ba00c617017296ad441bb8600dcc",
+        "status": "PASS"
+      },
+      {
+        "path": "contact-sheets/controlled-stills-03.png",
+        "signatureOk": true,
+        "width": 1920,
+        "height": 1080,
+        "sha256": "b01208e0a4266e1f3f92808bbb30dce7554a35eb3ce4149e68c926af205365e1",
+        "status": "PASS"
+      }
+    ]
+  },
+  "deterministicConstruction": {
+    "expected": 33,
+    "recorded": 33,
+    "allRepeatedBuildsByteIdentical": true
+  },
+  "census": {
+    "controlledRows": 34,
+    "constructed": 33,
+    "blocked": 1,
+    "providerRequests": 49
+  },
+  "providerPlan": {
+    "batchCount": 7,
+    "requestCount": 49,
+    "maximumExposureUsd": 9.744,
+    "requestKeysUnique": true,
+    "requestKeysDisjointFromCompletedConsumedAndRetired": true
+  },
+  "authority": {
+    "providerRequestsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionPathWrites": 0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "phase2.3b-act3-media-duration-check/1.0.0",
+  "mediaDurationSecondsTotal": 623.36,
+  "mediaDurationTotalBasis": "Previously verified sum of all six MP3 media durations; not compared with spoken-word timing.",
+  "act3OldMediaDurationSeconds": 99.552653,
+  "act3NewMediaDurationSecondsObserved": 104.446757,
+  "act3NewMediaDurationSecondsApprovedReference": 104.489796,
+  "observedAct3DeltaSeconds": 4.894104,
+  "approvedReferenceDeltaSeconds": 4.937143,
+  "absoluteDifferenceSeconds": 0.043039,
+  "existingToleranceSeconds": 0.1,
+  "withinTolerance": true,
+  "retimedSpokenWordDurationSeconds": null
+}

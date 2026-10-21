@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "phase3-timing-policy-child-renewal-binding/1.0.0",
+  "status": "APPROVED_CANDIDATE_SPECIFIC_CHILD_BINDING",
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "parentPolicyPath": "revision-lineage/parent-timing-policy.v5.json",
+  "parentTimingPolicySha256": "8a0173087b2e7364e8bd46c4a9e53c3acb738904fc3f94968099b357deea843b",
+  "parentTimingApprovalSha256": "fdbc2b00514772350c5b9acb1fafe771e18e8e7f52caa0778e84c67fd34a12b1",
+  "renewalApprovalPath": "approvals/act1-b030-timing-obligation-renewal-approval.v1.json",
+  "renewalApprovalSha256": "2db259b6ddfd8770e172056603192ec7d88f5fab4e8f8b37f537b6ca015c3373",
+  "childTimingPolicyPath": "approvals/refreshed-timing-policy.act1-b030-renewal.v1.json",
+  "childTimingPolicySha256": "59ced798488f668eb2f1a6a3a1a252e0253045fabe26fcbe154add65e4251dcb",
+  "childShotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+  "childProductionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+  "childRevisionLineageSha256": "74e3e93449c187a8b22fbb2f96031e83db338c2d81cd69ae272bc0c3934850bf",
+  "beatId": "ACT1_B030",
+  "oldProductionObligationSha256": "a86f89695d279c6e5ec9d88bf1ea1ed2d522e2e5f50eaaf032bca49091ccecd4",
+  "newProductionObligationSha256": "20eb5c8b67a9ca4475dbad7fbd5f993f7f817f0980c5143c23d6d5b566161b29",
+  "unchangedTimingAndEditorialFields": true,
+  "parentApprovalPreserved": true
+}

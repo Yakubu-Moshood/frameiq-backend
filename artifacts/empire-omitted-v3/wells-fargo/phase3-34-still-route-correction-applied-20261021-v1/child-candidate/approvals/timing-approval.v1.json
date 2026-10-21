@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "phase2.3b-p-timing-approval/1.0.0",
+  "status": "APPROVED",
+  "approvedBy": "Yakubu Moshood",
+  "approvalRef": "phase2.3b-act3-refresh-timing-2026-09-28",
+  "decision": "APPROVED",
+  "formalExceptionCount": 9,
+  "editorialIntentMigrationCount": 5,
+  "proposalSha256": "7e618440e80c7fe7314bbf48719ed90ff89dffac0ea669d88262074280ec637a",
+  "packageIndexSha256": "4ad51af55f4686b60ceed7c5fecad5d6fa477b6151ec8dcad05f6d9334fa86c0",
+  "alignmentApprovalSha256": "32936b3c7279c8636c0b1ba9709c4ee8afe04a4a84eb3bea32579cf0a42bad42",
+  "boundaryApprovalSha256": "29c6d85046da6d1d136c617d1f75e77b62cdcc88e69753593dd0b2a5f1fc113f",
+  "approvedFormalExceptionIds": [
+    "act1:ACT1_B030",
+    "act2:ACT2_B006",
+    "act2:ACT2_B023",
+    "act3:ACT3_B004",
+    "act3b:ACT3B_B008",
+    "act3b:ACT3B_B012",
+    "act4:ACT4_B022",
+    "act4:ACT4_B024",
+    "act5:ACT5_B012"
+  ],
+  "approvedEditorialMigrationIds": [
+    "act2:ACT2_B026",
+    "act3b:ACT3B_B018",
+    "act5:ACT5_B022",
+    "act5:ACT5_B023",
+    "act5:ACT5_B027"
+  ],
+  "excludedFormalExceptionIds": [
+    "act3:ACT3_B025"
+  ],
+  "recordedDate": "2026-09-28"
+}

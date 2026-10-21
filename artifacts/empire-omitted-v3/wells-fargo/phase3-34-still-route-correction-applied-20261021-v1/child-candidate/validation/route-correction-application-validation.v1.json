@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-application-validation/1.0.0",
+  "status": "PASS_EXECUTION_UNAUTHORIZED",
+  "approvalSha256": "d61a0a1c8fcc958b246e97d04a61892fbf98d7a5304413dd808c6756056cc977",
+  "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+  "promptContractsSha256": "8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb",
+  "parentShotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+  "resultShotDefinitionsSha256": "721258024a37e225ee65601214103beef0f9a34216cff8fbf5737ac12740cbc2",
+  "parentProductionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+  "resultProductionManifestSha256": "f91e67bbdf5163f0a5ce521564ad9980c2f0a3ce3b2dd16744ca40f2b9c9fa6a",
+  "checks": {
+    "exact34ApprovedBeatsChanged": true,
+    "productionManifestChangesExactly68ApprovedRouteScalars": true,
+    "shotDefinitionChangesExactly68ApprovedAssetTypeMirrors": true,
+    "changedFieldUnionExactlyAssetTypeAndProductionMethod": true,
+    "allLockedEditorialFieldsPreserved": true,
+    "act1B005Included": true,
+    "act3bB010RetirementPreserved": true,
+    "completedProductionRecordsPreserved": true,
+    "promptContracts34Bound": true,
+    "textSensitiveBeats16Bound": true,
+    "providerBatchManifests4Bound": true,
+    "providerSubmissionAuthorityAbsent": true,
+    "executionAuthorizationAbsent": true,
+    "mediaGenerated": false,
+    "stage04Modified": false,
+    "productionPathsWritten": 0,
+    "rendered": false,
+    "promoted": false,
+    "deployed": false
+  },
+  "errors": []
+}

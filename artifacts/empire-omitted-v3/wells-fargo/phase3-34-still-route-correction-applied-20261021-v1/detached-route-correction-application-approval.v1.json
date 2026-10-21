@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-application-approval/1.0.0",
+  "status": "APPROVED_FOR_ISOLATED_CHILD_CANDIDATE_APPLICATION_EXECUTION_UNAUTHORIZED",
+  "recordedAt": "2026-10-21T00:00:00.000+01:00",
+  "approvedBy": "Yakubu Moshood",
+  "approvalStatement": "I, Yakubu Moshood, approve the non-authorizing Phase 3 34-still route-correction package `phase3-34-still-route-correction-20261021-v1`, bound to package-index SHA-256:\n\n5cdee80e0762b7cb559def2e8d888d1b10d457817cb9bb6fdf14296faa6e6036\n\nI approve the exact 34-row amendment, SHA-256:\n\n6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973\n\nThis changes only:\n\n- `productionMethod`: `CONTROLLED_STILL` → `GENERATED_STILL`\n- `assetType`: `controlled_image` → `generated_image`\n\nThe amendment includes ACT1_B005 and must preserve every locked editorial field, evidence and ownership binding, unrelated candidate record, completed production record and ACT3B_B010’s retired status.\n\nI approve the prompt and negative-instruction contracts, SHA-256:\n\n8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb\n\nI approve the four bounded replacement-still manifests:\n\n- Batch 1: `bda967e41208c317e189691606d4763d33e70950af573a0a7d83b3a1bec1401b`\n- Batch 2: `9d057eddd17fb02bb271a759ed1310c0dcf0be0bf3050483a8755d7abb4c07e5`\n- Batch 3: `3de215b309a566be58745bb8bf1f309fe118f4eafbee2fb12b366c08cb709c2a`\n- Batch 4: `5670c11fa945b30966f9254ac4e1d76f842691973ebc1afa3c0b5da964c757d1`\n\nI accept USD 1.632 as the maximum human-approved exposure for these 34 replacement stills. I acknowledge the reconciled remaining plan of 83 provider submissions and USD 11.376 maximum planned exposure. Neither ceiling is provider-enforced.\n\nFor the 16 text-sensitive beats, critical readable text must be applied deterministically after generation and must not be delegated to the image model.\n\nThis approval is for planning and candidate application only. It creates no execution authorization, reserves no request key and authorizes no provider submission, retry, fallback, media generation, Stage04 modification, production-path installation, rendering or promotion.\n\nEvery provider batch requires separate authorization. Every generated image must be inspected and explicitly approved by a human before use. Every animation remains blocked until its source still is generated, inspected, human-approved and SHA-256-bound.\n\nRecord this as an immutable detached approval. Then apply the exact amendment to one isolated child candidate, regenerate only affected indexes, lineage and validation records, and prove that no field outside the approved 34-row route change was altered.\n\nRun the focused and complete canonical test suites. If validation passes, commit and push the candidate application to both authorized branches, but do not deploy or execute provider requests.",
+  "approvalStatementSha256": "fd0b068a51e234e435094967c1251244e12f656e38307e1d9792807528cf331d",
+  "bindings": {
+    "routePackageIndexSha256": "5cdee80e0762b7cb559def2e8d888d1b10d457817cb9bb6fdf14296faa6e6036",
+    "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+    "promptContractsSha256": "8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb",
+    "providerBatchManifestSha256s": [
+      "bda967e41208c317e189691606d4763d33e70950af573a0a7d83b3a1bec1401b",
+      "9d057eddd17fb02bb271a759ed1310c0dcf0be0bf3050483a8755d7abb4c07e5",
+      "3de215b309a566be58745bb8bf1f309fe118f4eafbee2fb12b366c08cb709c2a",
+      "5670c11fa945b30966f9254ac4e1d76f842691973ebc1afa3c0b5da964c757d1"
+    ],
+    "replacementMaximumExposureUsd": 1.632,
+    "remainingProviderSubmissions": 83,
+    "remainingMaximumExposureUsd": 11.376
+  },
+  "authority": {
+    "isolatedChildCandidateApplication": true,
+    "providerSubmissionsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "requestKeysReserved": 0,
+    "retriesAuthorized": 0,
+    "fallbacksAuthorized": 0,
+    "mediaGenerationAuthorized": false,
+    "stage04ModificationAuthorized": false,
+    "productionPathInstallationAuthorized": false,
+    "renderingAuthorized": false,
+    "promotionAuthorized": false,
+    "deploymentAuthorized": false
+  }
+}

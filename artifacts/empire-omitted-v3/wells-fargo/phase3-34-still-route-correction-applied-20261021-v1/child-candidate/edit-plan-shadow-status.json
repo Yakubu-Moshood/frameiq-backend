@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "phase2.3b-p-candidate-shadow-status/1.0.0",
+  "status": "complete",
+  "candidateOnly": true,
+  "editPlanStatus": "PASS",
+  "editPlanSha256": "9c2efb64c6cacfde55c4fb5492fdc9b5cff448bb907aa8aad629b3cd3f2ad02d",
+  "episodeRootWrite": false
+}

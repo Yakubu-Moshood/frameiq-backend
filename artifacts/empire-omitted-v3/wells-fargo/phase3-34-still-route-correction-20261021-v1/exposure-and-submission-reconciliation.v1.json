@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "phase3-route-correction-exposure-reconciliation/1.0.0",
+  "status": "PASS_ARITHMETIC_EXACT",
+  "arithmetic": {
+    "replacementGeneratedStills": {
+      "submissions": 34,
+      "unitMaximumExposureUsd": 0.048,
+      "maximumExposureUsd": 1.632,
+      "equation": "34 × 0.048 = 1.632"
+    },
+    "previousProviderPlan": {
+      "submissions": 49,
+      "maximumExposureUsd": 9.744
+    },
+    "revisedProviderPlan": {
+      "submissions": 83,
+      "maximumExposureUsd": 11.376,
+      "submissionsEquation": "34 + 7 + 21 + 21 = 83",
+      "exposureEquation": "9.744 + 1.632 = 11.376"
+    }
+  },
+  "discrepancy": null,
+  "providerEnforced": false
+}

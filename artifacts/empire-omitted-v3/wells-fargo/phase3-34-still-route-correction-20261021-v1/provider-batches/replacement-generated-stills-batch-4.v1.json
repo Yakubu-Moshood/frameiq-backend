@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "phase3-bounded-non-authorizing-generated-still-batch/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "batchId": "phase3-34-replacement-stills-batch-4",
+  "requestCount": 4,
+  "provider": "FLUX 3",
+  "endpoint": "blackforestlabs/flux-3/text-to-image",
+  "parameters": {
+    "resolution": "1k",
+    "aspectRatio": "16:9",
+    "outputFormat": "PNG",
+    "imagesPerRequest": 1,
+    "promptExpansion": false
+  },
+  "retries": 0,
+  "fallback": false,
+  "unitMaximumExposureUsd": 0.048,
+  "expectedExposureUsd": 0.192,
+  "maximumExposureUsd": 0.192,
+  "providerEnforced": false,
+  "entries": [
+    {
+      "beatId": "ACT3B_B016",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "1afcc9d0fbdd28861caad55efc7fb722209a964e35b369645b9b2451ea4f3b9f",
+      "positivePromptSha256": "2b8e7592f1b99f3420363084f234e50d5b51da6574d628b9ec239cb5821ab676",
+      "negativeInstructionsSha256": "722ddb303e37cfdbc061772860484795653dc2a33fffc1f291b282c1a7ea50af",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B016.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "fb1b1334ba1c60a9630f3d7887631ca02c2b3aa8c49318d604ff0ee15bca5329",
+      "positivePromptSha256": "3b993f79ae4e32b156a44a50cc041e6b2b506ac7bc625f378a1cf05d9ed9da04",
+      "negativeInstructionsSha256": "96a4c7aad8b5abff2c0d613e6f6b45ef2ee2939b79a14c08e5dd0a7c8840d287",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B018.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT5_B010",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "b84f6bdac3b1675cc6dcfb305edb9ff9a31abb90d952ecec98f2ed6d1f99e990",
+      "positivePromptSha256": "d34e101ecb54f0c510c19901f8d1b6e93fd920801de7db4844d1d55e7c51760d",
+      "negativeInstructionsSha256": "3fb0cac9c2b9425931a510041d5d0b1c6792ce640fc5685ca9d533db80c3d3de",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT5_B010.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT5_B013",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "0cd1923d93fa33f90783aacf730671e88c136ec5f264fd6ca0d150b18d3579ae",
+      "positivePromptSha256": "4710dfe7f592561f9c77671b6285f6fa592faea3a4988d0d6479cb64ccc71438",
+      "negativeInstructionsSha256": "b60e0d84382874b5fee598e5c2dd99502e32cb0ff24eca2006e64669d3757e30",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT5_B013.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    }
+  ],
+  "authority": {
+    "providerSubmissionsAuthorized": 0,
+    "requestKeysReserved": 0,
+    "executionAuthorizationCreated": false,
+    "generation": false,
+    "productionInstallation": false,
+    "rendering": false,
+    "promotion": false
+  }
+}

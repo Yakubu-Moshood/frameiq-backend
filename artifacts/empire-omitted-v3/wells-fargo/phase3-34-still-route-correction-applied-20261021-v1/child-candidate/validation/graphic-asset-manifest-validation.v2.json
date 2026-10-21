@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "graphic-asset-manifest-validation/1.0.0",
+  "status": "PASS",
+  "errors": [],
+  "candidateId": "phase3-act5-approved-decisions-consolidated-20261004-v2",
+  "graphicManifestSha256": "4747c3f69e2b7f6881eea1d92d4d669c37e32a945c145e6b016ab919747359f6",
+  "sourceProductionManifestSha256": "f91e67bbdf5163f0a5ce521564ad9980c2f0a3ce3b2dd16744ca40f2b9c9fa6a",
+  "shotDefinitionsSha256": "721258024a37e225ee65601214103beef0f9a34216cff8fbf5737ac12740cbc2",
+  "entries": 77,
+  "missing": 0,
+  "extra": 0,
+  "duplicate": 0,
+  "hashMismatched": 0,
+  "B015VisualApproval": {
+    "status": "PASS",
+    "approvalRecordSha256": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "v4ReviewPackageIndexSha256": "a71ff5bc0176b169ec8b0bb381bed0bd25cb9a2d69785216ca2e69a792c9dc46",
+    "sourcePath": "assets/graphics/ACT5_B015__g00.svg",
+    "format": "svg",
+    "bytes": 2279,
+    "sha256": "ebe0cca87c0356152560735b0fa867adc3ca599d45ecba0516911daa38ea7d5a"
+  },
+  "routeCorrectionGraphicImpact": "NONE"
+}

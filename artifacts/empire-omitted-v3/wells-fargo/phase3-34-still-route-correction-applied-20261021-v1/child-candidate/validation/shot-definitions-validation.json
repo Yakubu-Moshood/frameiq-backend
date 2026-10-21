@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "lineage": {
+    "status": "PASS",
+    "errors": [],
+    "counts": {
+      "baseMatches": 2884,
+      "approvedHistoricalRevisions": 23,
+      "currentApprovedAmendments": 698,
+      "unapprovedDifferences": 0
+    }
+  },
+  "routeCorrection": {
+    "status": "PASS",
+    "parentSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "resultSha256": "721258024a37e225ee65601214103beef0f9a34216cff8fbf5737ac12740cbc2",
+    "changedAssetTypeMirrors": 68,
+    "allOtherFieldsUnchanged": true
+  }
+}

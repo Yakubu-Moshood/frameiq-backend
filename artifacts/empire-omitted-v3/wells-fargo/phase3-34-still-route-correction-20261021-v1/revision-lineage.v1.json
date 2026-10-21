@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-lineage/1.0.0",
+  "status": "BOUND_TO_REJECTED_PACKAGE_AND_HUMAN_REJECTION",
+  "parentCandidate": {
+    "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-act5-production-candidate-20261004-v5/package-index.v2.json",
+    "sha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4"
+  },
+  "rejectedPlaceholderPackage": {
+    "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/package-index.v1.json",
+    "sha256": "8ea25ef485e127a70e43fa2867a15d611be174c9925dcc59d5216448f79ce3e6",
+    "controlledStillMatrixSha256": "54f60aff990bb71d068bbe4a98bfa8cdc8a2378fc4e166610c7398b9b3c0ffb4",
+    "constructionRecordSha256": "fb7b8f452fa1b044f9dc355428f9950211a9b15bc4bab65e81f4b2b7d107fe9f"
+  },
+  "visualAuditAndHumanRejection": {
+    "recordPath": "controlled-still-rejection-record.v1.json",
+    "recordSha256": "b82a1d8e036a4db4077f8a7d18445135492cf88eebfb0306390b5faaed8c1755",
+    "decisionTextSha256": "28c054c68bcbe9eb23812ccdfd2725e47d8cead33a96445483755fc2165359d0",
+    "inspected": 33,
+    "passed": 0,
+    "rejected": 33
+  },
+  "amendmentIntent": {
+    "from": {
+      "productionMethod": "CONTROLLED_STILL",
+      "assetType": "controlled_image"
+    },
+    "to": {
+      "productionMethod": "GENERATED_STILL",
+      "assetType": "generated_image"
+    },
+    "rows": 34,
+    "allOtherCandidateFieldsPreserved": true
+  },
+  "preservedState": {
+    "act3bB010Retirement": true,
+    "completedProductionRecordsUnaffected": [
+      "ACT1_B006",
+      "ACT1_B009",
+      "ACT1_B010"
+    ],
+    "sourceCandidateModified": false
+  }
+}

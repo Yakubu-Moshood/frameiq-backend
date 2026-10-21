@@ -1,0 +1,1664 @@
+{
+  "schemaVersion": "phase3-controlled-still-resolution-matrix/1.0.0",
+  "status": "REVIEW_READY_ONE_EXCEPTION",
+  "rowCount": 34,
+  "constructedCount": 33,
+  "blockedCount": 1,
+  "rows": [
+    {
+      "beatId": "ACT1_B005",
+      "narration": "while accountability at the top arrived slowly",
+      "timing": {
+        "startSec": 18.239999771118164,
+        "endSec": 22.139999389648438,
+        "durationSec": 3.8999996185302734,
+        "startWordIndex": 37,
+        "endWordIndex": 43
+      },
+      "visualIntent": "Empty executive corridor suggests delayed justice at the top.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "PENDING_EXACT_HUMAN_CHOICE: approve original deterministic corridor illustration or bind an approved licensed/source image",
+      "provenanceAndRights": "UNRESOLVED_PENDING_SOURCE_OR_CONSTRUCTION_CONTRACT",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B005.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "4a2adf5218e54132ae5971a5e1960400275e4461d0f93e974331b583b18179c1",
+        "imagePromptSha256": "f71b312b056f67ad2c9deb64acaea5a51d0605ffead0a3cfa2eca236a06f5672",
+        "externalSources": []
+      },
+      "blocker": "MISSING_APPROVED_SOURCE_OR_DETERMINISTIC_CONSTRUCTION_ROUTE",
+      "deterministicConstructionCanProceedNow": false,
+      "reviewOutput": null
+    },
+    {
+      "beatId": "ACT1_B011",
+      "narration": "who hadn't asked for them",
+      "timing": {
+        "startSec": 36.439998626708984,
+        "endSec": 38.779998779296875,
+        "durationSec": 2.3400001525878906,
+        "startWordIndex": 75,
+        "endWordIndex": 79
+      },
+      "visualIntent": "The nature of the fraud becomes clear—accounts without consent.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; screen-chair recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B011.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "853eb6bf22d77255f659be29ceae8b552b41519ce551f81d8c921cd160cc9a03",
+        "imagePromptSha256": "03a1008a22d8a9fd768e13e31fc053122656b41374485a7c27f780e50e844878",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B011",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/screen-chair",
+        "relativePath": "controlled-stills/ACT1_B011.png",
+        "bytes": 12873,
+        "sha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B012",
+      "narration": "credit cards checking accounts savings accounts all",
+      "timing": {
+        "startSec": 38.779998779296875,
+        "endSec": 42,
+        "durationSec": 3.220001220703125,
+        "startWordIndex": 80,
+        "endWordIndex": 86
+      },
+      "visualIntent": "Unauthorized products accumulate—cards and account documents pile up.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; printer-documents recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B012.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "a95432576162692ac3a728759f7037195f308e93e8d2dd22b111a634c5b6cdb9",
+        "imagePromptSha256": "5ad68bd131ab1a9dd9f16645ee27e7e401807bfce6e4fdc10d7802de2ad51d0b",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B012",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/printer-documents",
+        "relativePath": "controlled-stills/ACT1_B012.png",
+        "bytes": 11693,
+        "sha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B013",
+      "narration": "tied to real people who had no idea they existed",
+      "timing": {
+        "startSec": 42,
+        "endSec": 45.84000015258789,
+        "durationSec": 3.8400001525878906,
+        "startWordIndex": 87,
+        "endWordIndex": 96
+      },
+      "visualIntent": "Real customers unaware while accounts multiply in their names.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; mailbox-home recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B013.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "f9d69284d5794207f97ead726f3c6919bc05a8285da6d7e3a0569e167f2c99cf",
+        "imagePromptSha256": "05384ab1e1c48ac04b17e538de7c61bf29286b73bccabd72836542dab8f04a57",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B013",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/mailbox-home",
+        "relativePath": "controlled-stills/ACT1_B013.png",
+        "bytes": 13551,
+        "sha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B015",
+      "narration": "then to hr then to the ethics hotline",
+      "timing": {
+        "startSec": 47.86000061035156,
+        "endSec": 51.97999954223633,
+        "durationSec": 4.119998931884766,
+        "startWordIndex": 103,
+        "endWordIndex": 110
+      },
+      "visualIntent": "Escalation through institutional channels meets bureaucratic indifference.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; phone-notepad recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B015.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "b529cfccf0905e89efd4c0d26ff03c84f533a9caf8e1a829183f85cbd3d68969",
+        "imagePromptSha256": "0afa01e7876b0531d063c6dba96ec3bdf77cfa8f71743a06fa8d3833d2facb5f",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B015",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/phone-notepad",
+        "relativePath": "controlled-stills/ACT1_B015.png",
+        "bytes": 11804,
+        "sha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B020",
+      "narration": "create accounts customers had never requested never signed for and sometimes",
+      "timing": {
+        "startSec": 66.9000015258789,
+        "endSec": 71.9000015258789,
+        "durationSec": 5,
+        "startWordIndex": 143,
+        "endWordIndex": 153
+      },
+      "visualIntent": "The systematic pattern becomes clear—accounts never requested, never signed.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; kitchen-documents recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B020.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "9074815edfa50ae0894202aa53593317ae97fb6cc3847dc1f93b14fc3e17092e",
+        "imagePromptSha256": "47efad85e9928154c0e2c8e94997d247c424d55e2f949a4b5186f0cd605c9c3f",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B020",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/kitchen-documents",
+        "relativePath": "controlled-stills/ACT1_B020.png",
+        "bytes": 11275,
+        "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B022",
+      "narration": "false email addresses or misused customer identities",
+      "timing": {
+        "startSec": 76.72000122070312,
+        "endSec": 81.18000030517578,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 162,
+        "endWordIndex": 168
+      },
+      "visualIntent": "Fake emails and misused customer data complete the fraud pattern.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; blank-interface recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B022.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "309f36ac2745fcc3c0f5d78a9ef9958c21933f147af4c5a731f35fe54bba3fc1",
+        "imagePromptSha256": "aa33fedc22c4a68bed9fef6d46de6da9127d7580cfc9cb9729241d231d2fbeb1",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B022",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/blank-interface",
+        "relativePath": "controlled-stills/ACT1_B022.png",
+        "bytes": 11945,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT1_B030",
+      "narration": "none went to prison",
+      "timing": {
+        "startSec": 112.66000366210938,
+        "endSec": 114.013379,
+        "durationSec": 1.3533753378906255,
+        "startWordIndex": 226,
+        "endWordIndex": 229
+      },
+      "visualIntent": "Empty prison corridor—the justice that never came.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; prison-corridor recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT1_B030.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "544e302aec29a95d4e0b499320e56bdce184218bebd822626637e03de0176cb9",
+        "imagePromptSha256": "78c0f5566090a70ee4d9c2a2091c3ff565a3cc4aae9d94671a98e02072646750",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT1_B030",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/prison-corridor",
+        "relativePath": "controlled-stills/ACT1_B030.png",
+        "bytes": 17884,
+        "sha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B002",
+      "narration": "rush for over 150 years it built a reputation as",
+      "timing": {
+        "startSec": 118.53337898092651,
+        "endSec": 123.71337880926514,
+        "durationSec": 5.179999828338623,
+        "startWordIndex": 10,
+        "endWordIndex": 19
+      },
+      "visualIntent": "Time passage across American landscape.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; rural-landscape recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B002.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "e9af7536841acc0c34287029ca6b7d821749dbab0ea99920c2ac9606c96c3882",
+        "imagePromptSha256": "8b5c6e1ecb5b95f8640ecc5b93f946798abaa75ae3942d03c5ad3f86c3cac796",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B002",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/rural-landscape",
+        "relativePath": "controlled-stills/ACT2_B002.png",
+        "bytes": 10748,
+        "sha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B003",
+      "narration": "the bank of the american heartland conservative reliable",
+      "timing": {
+        "startSec": 123.71337880926514,
+        "endSec": 128.71337880926512,
+        "durationSec": 4.999999999999986,
+        "startWordIndex": 20,
+        "endWordIndex": 27
+      },
+      "visualIntent": "Land the virtue of institutional solidity.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; small-town-street recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B003.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "9eea34ec17396c6c3937be248d8a44e87a18353101c0045ddc0eedd049022777",
+        "imagePromptSha256": "0e07c5237fb3839ee2b8075e0dbcdf81b2f3c21429b4d9cf976d35c2e3078de4",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B003",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/small-town-street",
+        "relativePath": "controlled-stills/ACT2_B003.png",
+        "bytes": 12164,
+        "sha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B009",
+      "narration": "and at the center of this empire was a deceptively simple strategy",
+      "timing": {
+        "startSec": 144.27337922888182,
+        "endSec": 149.073380373291,
+        "durationSec": 4.80000114440918,
+        "startWordIndex": 64,
+        "endWordIndex": 75
+      },
+      "visualIntent": "Move from corporate exterior to the inner workings.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; corporate-lobby recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B009.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "e953ff5ddd7d82b12a584e5f949e4cbb457ecece05b8def8cb9047bc82f950ee",
+        "imagePromptSha256": "ffba493e5e4e193c37b90653e1045b1c4733f8ad8eaed28b3f5fe3ae557dbb4e",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B009",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/corporate-lobby",
+        "relativePath": "controlled-stills/ACT2_B009.png",
+        "bytes": 17883,
+        "sha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B011",
+      "narration": "convince them to open a savings account",
+      "timing": {
+        "startSec": 154.573380373291,
+        "endSec": 156.89338006811522,
+        "durationSec": 2.3199996948242188,
+        "startWordIndex": 89,
+        "endWordIndex": 95
+      },
+      "visualIntent": "The upsell begins with a second product.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; paperwork-one recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B011.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "557aef94a32cb21f4c1aea36090a515a555da7d54f91cfb7e745c27b83cc88f3",
+        "imagePromptSha256": "ef0251065fae6a5b0fbe5da4aae537fb776934aeb6b3238176824f784fe630df",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B011",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paperwork-one",
+        "relativePath": "controlled-stills/ACT2_B011.png",
+        "bytes": 9433,
+        "sha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B012",
+      "narration": "if they had a savings account sell them a credit card",
+      "timing": {
+        "startSec": 156.89338006811522,
+        "endSec": 160.11337747412108,
+        "durationSec": 3.2199974060058594,
+        "startWordIndex": 96,
+        "endWordIndex": 106
+      },
+      "visualIntent": "Another product added to the stack.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; paperwork-three recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B012.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "bab5223530ebea0a2e4941e2ab73b9e0b7d727bf2cf8ff20eaa67f0e40f86edc",
+        "imagePromptSha256": "eb90ce4d64c079c88dac753a700fc7d51a48e3d64c916eeab03822fa5b0e52b1",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B012",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paperwork-three",
+        "relativePath": "controlled-stills/ACT2_B012.png",
+        "bytes": 9972,
+        "sha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B013",
+      "narration": "if they had a credit card get them a mortgage",
+      "timing": {
+        "startSec": 160.11337747412108,
+        "endSec": 164.013379,
+        "durationSec": 3.9000015258789062,
+        "startWordIndex": 107,
+        "endWordIndex": 116
+      },
+      "visualIntent": "The mortgage completes the capture.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; paper-packet recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B013.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "f4c408cdacb8de90defd3c1f97e8cfe0ada749dc5674240a2dc48d984f60a677",
+        "imagePromptSha256": "551625362f4a273739f01b77d07ae3da6a904edf11cd37ddd4151d467fc96563",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B013",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paper-packet",
+        "relativePath": "controlled-stills/ACT2_B013.png",
+        "bytes": 9914,
+        "sha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B015",
+      "narration": "eight accounts eight fees eight relationships",
+      "timing": {
+        "startSec": 167.95337762670897,
+        "endSec": 171.89338006811522,
+        "durationSec": 3.94000244140625,
+        "startWordIndex": 125,
+        "endWordIndex": 130
+      },
+      "visualIntent": "Eight products per customer visualized as accumulating system.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; eight-products recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B015.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "0d433e15463e2e8f4ff986c5bcdcb405483e27dd43c36299286b79f2cbaf886d",
+        "imagePromptSha256": "1e24bd632eb1c297826edb1ce9d72c0a79b4d83ef036c7eb2dee280839efaada",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B015",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/eight-products",
+        "relativePath": "controlled-stills/ACT2_B015.png",
+        "bytes": 13874,
+        "sha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B020",
+      "narration": "became the internal motto branch managers were evaluated on it",
+      "timing": {
+        "startSec": 187.71337594824217,
+        "endSec": 192.65337838964842,
+        "durationSec": 4.94000244140625,
+        "startWordIndex": 168,
+        "endWordIndex": 177
+      },
+      "visualIntent": "The slogan spreads through the organization as evaluation metric.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; metrics-screen recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B020.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "f92449d4a7bd84dca1135c7c8214ab8acb21c8e46ba9c9587bcb8d0d1cd3065f",
+        "imagePromptSha256": "41e21adf58548cc7470de3eb7f4480d453e763e5daa0690d0a95bd9b89ee7d63",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B020",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/metrics-screen",
+        "relativePath": "controlled-stills/ACT2_B020.png",
+        "bytes": 12141,
+        "sha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B021",
+      "narration": "bonuses were tied to it careers depended on it",
+      "timing": {
+        "startSec": 192.65337838964842,
+        "endSec": 196.05337991552733,
+        "durationSec": 3.4000015258789062,
+        "startWordIndex": 178,
+        "endWordIndex": 186
+      },
+      "visualIntent": "Compensation and careers hang on one metric.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; badge-report recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B021.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "619a11fd0efbfa5eb2a0df661fc03299cb3aea8560fd33a196ba76a1fb4e76d4",
+        "imagePromptSha256": "c9ae1ab74a2ce4dd87958e05ddd89056644773853b35498d4e9d8bd8021e0602",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B021",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/badge-report",
+        "relativePath": "controlled-stills/ACT2_B021.png",
+        "bytes": 12150,
+        "sha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B024",
+      "narration": "the pressure came from above",
+      "timing": {
+        "startSec": 203.0333756430664,
+        "endSec": 205.27338113623046,
+        "durationSec": 2.2400054931640625,
+        "startWordIndex": 200,
+        "endWordIndex": 204
+      },
+      "visualIntent": "Pressure visualized as descending force.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; glass-tower recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B024.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "5e03c9a49c4c9d93ffa811ee8c637477c7b8297d82b42479f0b187af1df90035",
+        "imagePromptSha256": "cc274ef94ac49b25bdc5f5f6a8296ff242bbb5dbdcd3e88e99086b337c0fd244",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B024",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/glass-tower",
+        "relativePath": "controlled-stills/ACT2_B024.png",
+        "bytes": 17886,
+        "sha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT2_B025",
+      "narration": "the fraud came from below",
+      "timing": {
+        "startSec": 205.27338113623046,
+        "endSec": 208.15337838964842,
+        "durationSec": 2.8799972534179688,
+        "startWordIndex": 205,
+        "endWordIndex": 209
+      },
+      "visualIntent": "Fraud visualized as emerging from below.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; workstation-grid recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT2_B025.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "7e7092e2963b3e2498252691c1edadcff61b085969c825f1691d65fd3c8d54d2",
+        "imagePromptSha256": "ab25adabb1b17bf02bbcdd821109f6849fb4545b31f45a751ff415418d6c03b0",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT2_B025",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/workstation-grid",
+        "relativePath": "controlled-stills/ACT2_B025.png",
+        "bytes": 18884,
+        "sha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B006",
+      "narration": "but the banker would also open a savings account and a",
+      "timing": {
+        "startSec": 228.4959873051758,
+        "endSec": 232.815987,
+        "durationSec": 4.319999694824219,
+        "startWordIndex": 34,
+        "endWordIndex": 44
+      },
+      "visualIntent": "Unauthorized products multiply without customer awareness.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; forms-cascade recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B006.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "6526bedee8c6e1027e04fb73f0d70e10973282222e6971e75c099c12a42e4771",
+        "imagePromptSha256": "dd8a7abdcf02941e7fa4fa67ec4b95cc131d90654aa73a87538b67f32e4c6e4f",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B006",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/forms-cascade",
+        "relativePath": "controlled-stills/ACT3_B006.png",
+        "bytes": 12305,
+        "sha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B007",
+      "narration": "credit card and online banking with a new password",
+      "timing": {
+        "startSec": 232.815987,
+        "endSec": 237.27598608447266,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 45,
+        "endWordIndex": 53
+      },
+      "visualIntent": "Credit card and online banking added in rapid succession.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; blank-interface recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B007.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "df1e5ce44af19d0c781b340181c450f3c657242a4a8399c054b79a64ea4c9b1e",
+        "imagePromptSha256": "bcf9300242cb261009b28a7d76935e8c2213e24178a00bedf4eb06a812cc0729",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B007",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/blank-interface",
+        "relativePath": "controlled-stills/ACT3_B007.png",
+        "bytes": 11945,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B010",
+      "narration": "were fake often just the customer's real",
+      "timing": {
+        "startSec": 242.9959873051758,
+        "endSec": 245.9159854741211,
+        "durationSec": 2.9199981689453125,
+        "startWordIndex": 66,
+        "endWordIndex": 72
+      },
+      "visualIntent": "Establish email addresses were systematically falsified.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; email-field recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B010.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "90b9c4be62a089078917250f02b31439417fd2b9419100bfd1d40552a919c870",
+        "imagePromptSha256": "e498fc092f5719ca5787a98d5c14e8f7a20af80e3eedb2cde39eb2abf247ab19",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B010",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/email-field",
+        "relativePath": "controlled-stills/ACT3_B010.png",
+        "bytes": 12059,
+        "sha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B013",
+      "narration": "some employees got creative",
+      "timing": {
+        "startSec": 253.77598608447266,
+        "endSec": 256.6359866948242,
+        "durationSec": 2.8600006103515625,
+        "startWordIndex": 87,
+        "endWordIndex": 90
+      },
+      "visualIntent": "Signal the escalation from technique to predation.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; customer-files recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B013.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "36cc5244f8d76a66afd9e8c9b0912670a77ad3e225384c3993f6bf1502308ce5",
+        "imagePromptSha256": "ef7b81cd06280d36f6a564cee1ea06472d86fbe88dc7937e99c8712949df055f",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B013",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/customer-files",
+        "relativePath": "controlled-stills/ACT3_B013.png",
+        "bytes": 13758,
+        "sha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B020",
+      "narration": "per day tracking their progress toward quotas",
+      "timing": {
+        "startSec": 283.03598822070313,
+        "endSec": 287.0959857792969,
+        "durationSec": 4.05999755859375,
+        "startWordIndex": 155,
+        "endWordIndex": 161
+      },
+      "visualIntent": "Email surveillance as daily pressure mechanism.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; message-grid recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B020.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "2e63223257cccafe32566ea9603d4449a96ecfa92a075ff42fdf0f4abfa34381",
+        "imagePromptSha256": "50d5c0757f0cf854ac5ddd50d4472e12ba9023f0ea3e3a966209bed904132e5e",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B020",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/message-grid",
+        "relativePath": "controlled-stills/ACT3_B020.png",
+        "bytes": 13027,
+        "sha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B026",
+      "narration": "another said she developed an ulcer",
+      "timing": {
+        "startSec": 305.5959857792969,
+        "endSec": 307.8959888310547,
+        "durationSec": 2.3000030517578125,
+        "startWordIndex": 205,
+        "endWordIndex": 210
+      },
+      "visualIntent": "Physical manifestation of stress.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; break-room recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B026.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "4237a0878d4ee520e89081a3fd6317ce228bf67036861eba94a1dc4aa441c486",
+        "imagePromptSha256": "6f516e097a1bea0fe9f964e720e220faf9c74a3e9c71c4265097d8d299c8e82b",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B026",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/break-room",
+        "relativePath": "controlled-stills/ACT3_B026.png",
+        "bytes": 12072,
+        "sha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3_B027",
+      "narration": "a third said he vomited before work every morning",
+      "timing": {
+        "startSec": 307.8959888310547,
+        "endSec": 311.05598486376954,
+        "durationSec": 3.1599960327148438,
+        "startWordIndex": 211,
+        "endWordIndex": 219
+      },
+      "visualIntent": "The morning ritual of dread.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; bathroom-sink recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3_B027.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "7b1892a5ec7818ece73ff79d3f58d6580dd8a203d6d824420212b321d6679648",
+        "imagePromptSha256": "37429fe24a197018f27f50e94553bb74b881f7b6a16f37ed3b5e36c358ff30c5",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3_B027",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/bathroom-sink",
+        "relativePath": "controlled-stills/ACT3_B027.png",
+        "bytes": 13400,
+        "sha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "narration": "the customers paid first",
+      "timing": {
+        "startSec": 317.262744,
+        "endSec": 319.5627439523163,
+        "durationSec": 2.299999952316284,
+        "startWordIndex": 0,
+        "endWordIndex": 3
+      },
+      "visualIntent": "A customer opens a bank statement, face shifting from routine to confusion.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; envelope-statement recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B001.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "a972e45e214c44df2005c9992bbfe73663396e9934ffc65a8ccc66b26772989c",
+        "imagePromptSha256": "f79ea85b569aaac510b944eda157da2a83904add0172db1a2ed9d52bc7e9c1a2",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B001",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/envelope-statement",
+        "relativePath": "controlled-stills/ACT3B_B001.png",
+        "bytes": 13420,
+        "sha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "narration": "annual fees for credit cards they never applied for",
+      "timing": {
+        "startSec": 327.12274365667724,
+        "endSec": 330.22274403814697,
+        "durationSec": 3.1000003814697266,
+        "startWordIndex": 17,
+        "endWordIndex": 25
+      },
+      "visualIntent": "Credit card statement for a card never requested.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; card-mailer recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B004.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "29c7e66aae7252ced9916005266e9973935780bdb16931abdb1704f8b4092342",
+        "imagePromptSha256": "e933a13e0989eeb28b0580a1a00913273c6ab350f2066282037e641e3a441b43",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B004",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/card-mailer",
+        "relativePath": "controlled-stills/ACT3B_B004.png",
+        "bytes": 13422,
+        "sha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "narration": "others couldn't get car loans a few lost their homes",
+      "timing": {
+        "startSec": 338.5427446866455,
+        "endSec": 342.71274476293945,
+        "durationSec": 4.170000076293945,
+        "startWordIndex": 48,
+        "endWordIndex": 57
+      },
+      "visualIntent": "Car dealership rejection and the ultimate loss—homes taken.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; moving-box recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B007.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "2ba39eaa9ebf46aecc083d5630adb281e12b4071f6b6f5baf4cd904127670314",
+        "imagePromptSha256": "1c4f9bd50c5f42602b44d0f637c71af669a7d3e1535cd38864aaff4fc36ec762",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B007",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/moving-box",
+        "relativePath": "controlled-stills/ACT3B_B007.png",
+        "bytes": 9888,
+        "sha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "narration": "some had opened unauthorized accounts",
+      "timing": {
+        "startSec": 363.78274445776367,
+        "endSec": 367.06274323706054,
+        "durationSec": 3.279998779296875,
+        "startWordIndex": 101,
+        "endWordIndex": 105
+      },
+      "visualIntent": "Some employees genuinely committed fraud—the guilty acknowledged.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; terminal-hands recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B013.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "f30f926b1b90dcd06e06fee37a381582a7546bb02c1a9217c01142789be3daa7",
+        "imagePromptSha256": "5fb2eb51c07f315fb6e00a31b6a2b5cfa7315946cbd88ffd36ecb2af0c85c875",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B013",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/terminal-hands",
+        "relativePath": "controlled-stills/ACT3B_B013.png",
+        "bytes": 11945,
+        "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "narration": "the people who missed their targets were pushed out",
+      "timing": {
+        "startSec": 376.0227423215332,
+        "endSec": 379.0827436948242,
+        "durationSec": 3.0600013732910156,
+        "startWordIndex": 123,
+        "endWordIndex": 131
+      },
+      "visualIntent": "The employee who couldn't meet targets—pushed out.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; termination-desk recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B016.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "ec190c3789219779f1108c540adfe0656816067bf85fba3d3ae1c988fa6e7946",
+        "imagePromptSha256": "67b4b0099f9fe61b0b9aca7ee35fb1185bbf55a0cbd19feae557514bd67960d9",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B016",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/termination-desk",
+        "relativePath": "controlled-stills/ACT3B_B016.png",
+        "bytes": 12001,
+        "sha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "narration": "and some of the people who warned the bank said they were fired too",
+      "timing": {
+        "startSec": 381.6827421689453,
+        "endSec": 386.25093,
+        "durationSec": 4.568187831054672,
+        "startWordIndex": 142,
+        "endWordIndex": 155
+      },
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; phone-box recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT3B_B018.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "49230823b1cfe127437e0e55970a2dc35fb7545c67a7afab074889f4bac7967e",
+        "imagePromptSha256": "738e603bb82991ef3304ba072eda252d121d4d442334e7663516191c6d1e1518",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT3B_B018",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/phone-box",
+        "relativePath": "controlled-stills/ACT3B_B018.png",
+        "bytes": 10842,
+        "sha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT5_B010",
+      "narration": "reported misconduct the outcome was uneven federal investigators found",
+      "timing": {
+        "startSec": 544.5758733051757,
+        "endSec": 550.495871474121,
+        "durationSec": 5.9199981689453125,
+        "startWordIndex": 97,
+        "endWordIndex": 105
+      },
+      "visualIntent": "The uneven outcomes for those who spoke up.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; apartment-documents recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT5_B010.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "88d3229183add957ef6741151e0f20bd30d4007df4ba293aa0ddd687a07946b9",
+        "imagePromptSha256": "9d0aef5dd663c36121ceef4bd905f5fbf954c065e9a82444ec8463f67acf03a6",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT5_B010",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/apartment-documents",
+        "relativePath": "controlled-stills/ACT5_B010.png",
+        "bytes": 11275,
+        "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    },
+    {
+      "beatId": "ACT5_B013",
+      "narration": "spent years fighting settled privately or left banking altogether",
+      "timing": {
+        "startSec": 561.3758725422363,
+        "endSec": 566.5758733051757,
+        "durationSec": 5.200000762939453,
+        "startWordIndex": 128,
+        "endWordIndex": 136
+      },
+      "visualIntent": "Others left behind by the system entirely.",
+      "approvedDependency": {
+        "evidence": [],
+        "graphics": [],
+        "manifestSourceStatus": "NOT_REQUIRED",
+        "manifestGraphicStatus": "NOT_REQUIRED"
+      },
+      "proposedRoute": "Original source-free deterministic editorial illustration using locked visual intent; departure-silhouette recipe",
+      "provenanceAndRights": "PROJECT_ORIGINAL_DETERMINISTIC_CONSTRUCTION; no external source; no documentary-evidence claim",
+      "exactOutputPath": "planned/final/controlled-stills/ACT5_B013.png",
+      "required": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "mimeType": "image/png",
+        "alphaAllowed": false
+      },
+      "sourceHashes": {
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "visualIntentSha256": "f4ca75fd6fe5287e07eaa2756462326f29303ef4ba3c9bb796ec6f18d084b183",
+        "imagePromptSha256": "93de32a348791f427d6214a6412dff8107584da374c432e2e4a008e0d9b00b69",
+        "externalSources": []
+      },
+      "blocker": null,
+      "deterministicConstructionCanProceedNow": true,
+      "reviewOutput": {
+        "beatId": "ACT5_B013",
+        "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/departure-silhouette",
+        "relativePath": "controlled-stills/ACT5_B013.png",
+        "bytes": 13238,
+        "sha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556",
+        "width": 1920,
+        "height": 1080,
+        "mimeType": "image/png",
+        "repeatedBuildSha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556",
+        "byteIdenticalAcrossTwoBuilds": true
+      }
+    }
+  ]
+}

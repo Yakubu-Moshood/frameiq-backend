@@ -1,0 +1,2077 @@
+{
+  "schemaVersion": "phase3-generated-still-prompt-contracts/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "rowCount": 34,
+  "route": {
+    "productionMethod": "GENERATED_STILL",
+    "assetType": "generated_image",
+    "provider": "FLUX 3",
+    "endpoint": "blackforestlabs/flux-3/text-to-image",
+    "resolution": "1k",
+    "aspectRatio": "16:9",
+    "outputFormat": "PNG",
+    "imagesPerBeat": 1,
+    "promptExpansion": false,
+    "retries": 0,
+    "fallback": false,
+    "maximumSubmissions": 34,
+    "unitMaximumExposureUsd": 0.048,
+    "maximumExposureUsd": 1.632,
+    "providerEnforced": false,
+    "executionAuthorized": false
+  },
+  "requirements": {
+    "cinematicDocumentaryStyle": true,
+    "beatSpecificImagery": true,
+    "crossBeatSharingAllowed": false,
+    "realBankLogosOrTrademarksAllowed": false,
+    "identifiableRealPeopleAllowed": false,
+    "unsupportedDocumentaryEvidenceClaimsAllowed": false,
+    "malformedAnatomyOrObjectsAllowed": false,
+    "generatedCriticalReadableTextAllowed": false,
+    "fictionalizedInterfacesAndDocumentsOnly": true,
+    "historicalAndNarrativeAppropriatenessRequired": true,
+    "finalEpisodeDetailRequired": true
+  },
+  "rows": [
+    {
+      "ordinal": 1,
+      "beatId": "ACT1_B005",
+      "narration": "while accountability at the top arrived slowly",
+      "timing": {
+        "startSec": 18.239999771118164,
+        "endSec": 22.139999389648438,
+        "durationSec": 3.8999996185302734,
+        "startWordIndex": 37,
+        "endWordIndex": 43
+      },
+      "visualIntent": "Empty executive corridor suggests delayed justice at the top.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_02",
+        "shotId": "ACT1_B005",
+        "beatId": "ACT1_B005"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B005. Narration context: “while accountability at the top arrived slowly” Visual intent: Empty executive corridor suggests delayed justice at the top. Scene direction: Long polished executive corridor in corporate tower. Dark wood paneling, recessed lighting, closed mahogany doors on both sides. Empty hallway, no people visible. Plush carpet absorbs sound. Executive suite nameplates beside doors, text unreadable. Atmosphere of power and inaccessibility. Slight golden accent lighting from sconces. Perspective draws eye down empty corridor toward distant window. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "e39b0dd686bdfaf89f1941ce22fe937bc9ea097031818e6b975168aba44953ba",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable executives, faces, Wells Fargo branding, readable names, specific individuals, people, figures, celebrities, news footage.",
+      "negativeInstructionsSha256": "a0bbe821401f1e4b187bff10cd2be358c76e846c946751b7d547d1b1812efa23",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "635124f79ec7d78a4cdff2506b4496208482e392e2bd6614cd4a1bd8ac5a78c6",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 2,
+      "beatId": "ACT1_B011",
+      "narration": "who hadn't asked for them",
+      "timing": {
+        "startSec": 36.439998626708984,
+        "endSec": 38.779998779296875,
+        "durationSec": 2.3400001525878906,
+        "startWordIndex": 75,
+        "endWordIndex": 79
+      },
+      "visualIntent": "The nature of the fraud becomes clear—accounts without consent.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_04",
+        "shotId": "ACT1_B011",
+        "beatId": "ACT1_B011"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B011. Narration context: “who hadn't asked for them” Visual intent: The nature of the fraud becomes clear—accounts without consent. Scene direction: Close view of computer screen displaying account application form with fields being populated. Generic banking interface aesthetic. Customer information section visible but text abstracted or blurred. Empty customer chair prominently visible in background through reflection or direct view. Screen glow dominant light source. Cursor advancing through form fields. No Wells Fargo specific branding or interface. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "c74b6ab7ba9943aa3e07eba348cdefd0348de8ebf6c7f3cc78490740f952192c",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable personal information, Wells Fargo branding, specific software, identifiable faces, real customer data, documentary evidence appearance.",
+      "negativeInstructionsSha256": "f17fca77b3f35963f56868e731e624c7c32d60f3b0f0414e1e2d05abc06cdd0c",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "ACCOUNT APPLICATION",
+          "CUSTOMER CONSENT: NOT PRESENT"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "feb0f4e6541e2076a71cda7e3adc49e485bea5359c0ebc5ea763f7fe6bdc8357",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 3,
+      "beatId": "ACT1_B012",
+      "narration": "credit cards checking accounts savings accounts all",
+      "timing": {
+        "startSec": 38.779998779296875,
+        "endSec": 42,
+        "durationSec": 3.220001220703125,
+        "startWordIndex": 80,
+        "endWordIndex": 86
+      },
+      "visualIntent": "Unauthorized products accumulate—cards and account documents pile up.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "shotId": "ACT1_B012",
+        "beatId": "ACT1_B012"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B012. Narration context: “credit cards checking accounts savings accounts all” Visual intent: Unauthorized products accumulate—cards and account documents pile up. Scene direction: Close view of desk surface as credit card emerges from card printer. Account documents stacking beside printer. Signature lines on documents visibly blank. Multiple product types accumulating: credit card, debit card blanks, account folder. Institutional desk surface with standard office supplies. Overhead lighting creates clinical atmosphere. No customer present in frame. Papers accumulate suggesting volume. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "a6a1b8868fabf73b7fcd1cc0c5a03911309aca5af63d8b411720eca26199303d",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces, Wells Fargo branding, readable customer names, real account numbers, specific card designs, documentary evidence, real credit card numbers.",
+      "negativeInstructionsSha256": "7480cc4b1c3fba2c645a82a6a60f0be606780416501538b35dc0c6bb7d65b83d",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "CREDIT CARD",
+          "CHECKING",
+          "SAVINGS",
+          "SIGNATURE"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "78cf3acc9809b2ba7b67a7cedce414d009d8e40385f674c2fd27adf8ce251f9f",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 4,
+      "beatId": "ACT1_B013",
+      "narration": "tied to real people who had no idea they existed",
+      "timing": {
+        "startSec": 42,
+        "endSec": 45.84000015258789,
+        "durationSec": 3.8400001525878906,
+        "startWordIndex": 87,
+        "endWordIndex": 96
+      },
+      "visualIntent": "Real customers unaware while accounts multiply in their names.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "shotId": "ACT1_B013",
+        "beatId": "ACT1_B013"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B013. Narration context: “tied to real people who had no idea they existed” Visual intent: Real customers unaware while accounts multiply in their names. Scene direction: Person checking residential mailbox in ordinary suburban setting. Medium shot from street perspective. Figure shown from behind or in profile, no clear facial features. Hand reaching into mailbox. Everyday domestic scene with lawn, driveway, typical American residential architecture. Late afternoon natural lighting. Atmosphere of routine daily life, unaware of fraud occurring elsewhere. No bank imagery visible in scene. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "10885969b0b716f2bb1580cdb6fca63b29ed386a1bbda5704eda568d5bf293f3",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces, celebrities, specific individuals, bank buildings, Wells Fargo branding, corporate imagery, dramatic lighting, news footage appearance.",
+      "negativeInstructionsSha256": "6de5d3c504a8aa4c9cdd41c33b6886b2f3021a616b7a7824d8e344ef1f81eac6",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "ca002b7d837e28eb48f1bdbcdcf37a3efadbad94e12d2753ebf3fa25ee3ea96b",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 5,
+      "beatId": "ACT1_B015",
+      "narration": "then to hr then to the ethics hotline",
+      "timing": {
+        "startSec": 47.86000061035156,
+        "endSec": 51.97999954223633,
+        "durationSec": 4.119998931884766,
+        "startWordIndex": 103,
+        "endWordIndex": 110
+      },
+      "visualIntent": "Escalation through institutional channels meets bureaucratic indifference.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_06",
+        "shotId": "ACT1_B015",
+        "beatId": "ACT1_B015"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B015. Narration context: “then to hr then to the ethics hotline” Visual intent: Escalation through institutional channels meets bureaucratic indifference. Scene direction: Illustrative reconstruction, not documentary footage: anonymous adult seen from behind at home in a quiet evening interior, holding a plain handset beside a small notepad. The page contains only soft, non-letterlike marks with no digits, words, logos, or recognizable form design. Restrained domestic light, still composition, no readable screen or prop text. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "023cee2bc0f703ebf56dab4f9332cf406d1ea68467dbdf5ebd04187098581a48",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable digits, phone numbers, hotline labels, legible writing, real forms, logos, identifiable face, recognizable person, documentary footage, fabricated evidence.",
+      "negativeInstructionsSha256": "0643d1ebe625f4828d4d19baf063f79aa5fb9de37466e3520ab4f48a8a76768d",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "a7e05c7a1478c169662eb6d8b29e00a9d66e8fe7085516db1cc2fd786b8d1cec",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 6,
+      "beatId": "ACT1_B020",
+      "narration": "create accounts customers had never requested never signed for and sometimes",
+      "timing": {
+        "startSec": 66.9000015258789,
+        "endSec": 71.9000015258789,
+        "durationSec": 5,
+        "startWordIndex": 143,
+        "endWordIndex": 153
+      },
+      "visualIntent": "The systematic pattern becomes clear—accounts never requested, never signed.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_08",
+        "shotId": "ACT1_B020",
+        "beatId": "ACT1_B020"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B020. Narration context: “create accounts customers had never requested never signed for and sometimes” Visual intent: The systematic pattern becomes clear—accounts never requested, never signed. Scene direction: Customer seated at kitchen table examining bank documents with confusion. Account forms spread on table surface, signature lines visibly blank. Person shown in profile or three-quarter view, features generalized. Domestic setting with natural window light. Multiple documents visible suggesting volume. Customer's expression suggests discovery and confusion. No bank branding visible on documents. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "3dacc8ee0d528174fc2cb407c766ccf2f5abde47eddb234c377fba21157091f2",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, Wells Fargo branding, readable account numbers, specific customer information, celebrities, documentary evidence, news footage appearance.",
+      "negativeInstructionsSha256": "d70066c4d0e2458266b57d634cb1606ad03a5cb6fe914ec797047f454b3b5ccf",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "REQUESTED: NO",
+          "SIGNED: NO"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "5851d5c3c145350d5230bff7a3a713ccb61bfced4b34ab5c53d182839ffdad0b",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 7,
+      "beatId": "ACT1_B022",
+      "narration": "false email addresses or misused customer identities",
+      "timing": {
+        "startSec": 76.72000122070312,
+        "endSec": 81.18000030517578,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 162,
+        "endWordIndex": 168
+      },
+      "visualIntent": "Fake emails and misused customer data complete the fraud pattern.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_09",
+        "shotId": "ACT1_B022",
+        "beatId": "ACT1_B022"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B022. Narration context: “false email addresses or misused customer identities” Visual intent: Fake emails and misused customer data complete the fraud pattern. Scene direction: Illustrative reconstruction of a generic computer workstation showing one simple account-entry interface made only of blank fields and abstract gray placeholder blocks. No words, characters, digits, addresses, customer records, identifiable software design, or second data-bearing screen. Anonymous hands may rest near the keyboard; the interface remains unreadable. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "4fe6a061776350513bfe7ff796d957c8e6d143cf2c0d7a391cc6da1765417de3",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable text, real or plausible email addresses, customer data, account numbers, address, identifiable UI, multiple data screens, logos, documentary evidence.",
+      "negativeInstructionsSha256": "a7e42f759074e2fe1ed7da03420751fc889857ecb3a80f30e3cf01e8170e3a22",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "EMAIL",
+          "CUSTOMER IDENTITY"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "979ae06bef26e9ad13e67315a019105d3febdb6a0a6a07926c225cf4f7f72117",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 8,
+      "beatId": "ACT1_B030",
+      "narration": "none went to prison",
+      "timing": {
+        "startSec": 112.66000366210938,
+        "endSec": 114.013379,
+        "durationSec": 1.3533753378906255,
+        "startWordIndex": 226,
+        "endWordIndex": 229
+      },
+      "visualIntent": "Empty prison corridor—the justice that never came.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_11",
+        "shotId": "ACT1_B030",
+        "beatId": "ACT1_B030"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT1_B030. Narration context: “none went to prison” Visual intent: Empty prison corridor—the justice that never came. Scene direction: Empty prison corridor stretching into distance. Fluorescent lights overhead casting clinical illumination. Cell doors visible on both sides, all closed. No people visible anywhere in frame. Industrial institutional architecture. Polished floor reflects overhead lights. Distant end of corridor disappears into shadow. Atmosphere of absence and emptiness where accountability should exist. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "85262403e0672937731983efbed710b0ac195227efea6ba4de292b6dd8d363da",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: people, prisoners, guards, identifiable faces, specific prison identification, Wells Fargo imagery, corporate executives.",
+      "negativeInstructionsSha256": "8bb9266c94eea2bb060bdb5d09c4321d26c58d262d6b3f9b389c9023b999610c",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "fa93c0757c13e529bcc14f6798fa67161167756841c92f49bb749a4212da9762",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 9,
+      "beatId": "ACT2_B002",
+      "narration": "rush for over 150 years it built a reputation as",
+      "timing": {
+        "startSec": 118.53337898092651,
+        "endSec": 123.71337880926514,
+        "durationSec": 5.179999828338623,
+        "startWordIndex": 10,
+        "endWordIndex": 19
+      },
+      "visualIntent": "Time passage across American landscape.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "shotId": "ACT2_B002",
+        "beatId": "ACT2_B002"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B002. Narration context: “rush for over 150 years it built a reputation as” Visual intent: Time passage across American landscape. Scene direction: Illustrative atmospheric reconstruction of a rural American landscape: rolling fields, a small distant town, warm late-afternoon light, and no readable signs or identifiable businesses. Wide calm composition with natural haze. Do not depict a specific location or connect the landscape to a named institution. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "8936596fee5a95eb8920c8d72b5e06747b2027f7e054bf9a8179ec800d74a441",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: Wells Fargo, bank logos, readable signs, identifiable branch, specific location, documentary footage, fabricated signage.",
+      "negativeInstructionsSha256": "ec9467f13269e29673bafff317518d9c52af1bdaeee4db6d017c52402ace29a1",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "efdae312bef88c3deacfcee01e59d466067afc73bdb9aedbd090fdf4108b9800",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 10,
+      "beatId": "ACT2_B003",
+      "narration": "the bank of the american heartland conservative reliable",
+      "timing": {
+        "startSec": 123.71337880926514,
+        "endSec": 128.71337880926512,
+        "durationSec": 4.999999999999986,
+        "startWordIndex": 20,
+        "endWordIndex": 27
+      },
+      "visualIntent": "Land the virtue of institutional solidity.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "shotId": "ACT2_B003",
+        "beatId": "ACT2_B003"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B003. Narration context: “the bank of the american heartland conservative reliable” Visual intent: Land the virtue of institutional solidity. Scene direction: Illustrative reconstruction of a generic small-town commercial street in a historically plausible, non-specific period. A modest unbranded brick building and an American flag may appear; omit all business names, logos, readable signs, license plates, and identifiable people. Warm natural afternoon light. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "5f3b1a45d4ff9238f729eae599223535a24254276ebde66939a61785b8734f0c",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: Wells Fargo name or logo, recognizable bank branding, readable signage, specific branch, documentary footage, fabricated historical evidence.",
+      "negativeInstructionsSha256": "097fec0d2b1df43e84f0212ef0ce156d15ff05ab6f045806cd49eff52ce0a69f",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "f8919aef1cfc430aad6cdd0f2c2195f745ccde8c2c68b10a7ed79fdd0558aaf5",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 11,
+      "beatId": "ACT2_B009",
+      "narration": "and at the center of this empire was a deceptively simple strategy",
+      "timing": {
+        "startSec": 144.27337922888182,
+        "endSec": 149.073380373291,
+        "durationSec": 4.80000114440918,
+        "startWordIndex": 64,
+        "endWordIndex": 75
+      },
+      "visualIntent": "Move from corporate exterior to the inner workings.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "shotId": "ACT2_B009",
+        "beatId": "ACT2_B009"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B009. Narration context: “and at the center of this empire was a deceptively simple strategy” Visual intent: Move from corporate exterior to the inner workings. Scene direction: Illustrative reconstruction of an anonymous corporate banking lobby: polished floor, plain reception desk, neutral corridor, and soft institutional lighting. No logos, distinctive architecture, branded furniture, readable signage, employees, or details suggesting a verified Wells Fargo interior. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "b9039e8d89a4e54373c456814ac8b09ead834ebf12a05d3c4fc61acfbeb937f2",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: Wells Fargo, branded interior, identifiable location, logo, readable signs, specific real office, documentary footage.",
+      "negativeInstructionsSha256": "e5c7fbc30bc887ec1b6667695b7e69cba4b7906f7b32f74902fa60bcd2091629",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "c38944ef1a7d5c891265b82f981d354a1e4a248c7062d970b2c1c0ffa57fa0d0",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 12,
+      "beatId": "ACT2_B011",
+      "narration": "convince them to open a savings account",
+      "timing": {
+        "startSec": 154.573380373291,
+        "endSec": 156.89338006811522,
+        "durationSec": 2.3199996948242188,
+        "startWordIndex": 89,
+        "endWordIndex": 95
+      },
+      "visualIntent": "The upsell begins with a second product.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "shotId": "ACT2_B011",
+        "beatId": "ACT2_B011"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B011. Narration context: “convince them to open a savings account” Visual intent: The upsell begins with a second product. Scene direction: Controlled still, illustrative reconstruction: a plain blank form lies beside a small stack of generic papers on a warm wood desk. The page has no words, numbers, logos, personal information, or recognizable banking layout. Anonymous shirt cuffs may enter the edge of frame without an identifiable person. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "4444aa5c6efe9c4224ba3da92e1e8a3fa6ebd6f554d567ad611dcbf6e6f2a91e",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable text, customer data, logos, authentic banking forms, identifiable person, fabricated evidence.",
+      "negativeInstructionsSha256": "994ac415bd852e163b47d962efe495eebd3efc96ec2cc3a8c55a0d473be28928",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "SAVINGS"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "ddbc7823712d6ab6ef4f54f8f42d7ae80f7b8b56128553a3f91a05bd5cae8809",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 13,
+      "beatId": "ACT2_B012",
+      "narration": "if they had a savings account sell them a credit card",
+      "timing": {
+        "startSec": 156.89338006811522,
+        "endSec": 160.11337747412108,
+        "durationSec": 3.2199974060058594,
+        "startWordIndex": 96,
+        "endWordIndex": 106
+      },
+      "visualIntent": "Another product added to the stack.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "shotId": "ACT2_B012",
+        "beatId": "ACT2_B012"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B012. Narration context: “if they had a savings account sell them a credit card” Visual intent: Another product added to the stack. Scene direction: Controlled still, illustrative reconstruction: one blank generic application sheet rests beside two plain sheets on an anonymous desk. Use only abstract non-letterlike lines, no visible text, names, numbers, logos, card art, or identifiable form design. Compose as a quiet continuation of the prior paperwork image, without implying a growing measured count. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "bcb9ff98e56a0a64b43ced7b063573ace327691ab0d5660996c5a65e6b63eee7",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable text, customer data, real card design, bank logos, authentic application, numeric count, fabricated evidence.",
+      "negativeInstructionsSha256": "0df4394909383b65c3cc66227501a7c1468f8916804aa4d89dfb6ca10bae4e6d",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "SAVINGS",
+          "CREDIT CARD"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "6afabb7d58a1f92b9a07daa01a8d83cf4ab7e259853eb4d4923b7abae77e2492",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 14,
+      "beatId": "ACT2_B013",
+      "narration": "if they had a credit card get them a mortgage",
+      "timing": {
+        "startSec": 160.11337747412108,
+        "endSec": 164.013379,
+        "durationSec": 3.9000015258789062,
+        "startWordIndex": 107,
+        "endWordIndex": 116
+      },
+      "visualIntent": "The mortgage completes the capture.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "shotId": "ACT2_B013",
+        "beatId": "ACT2_B013"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B013. Narration context: “if they had a credit card get them a mortgage” Visual intent: The mortgage completes the capture. Scene direction: Controlled still, illustrative reconstruction: a thick unmarked paper packet with a plain binder clip rests on an anonymous office desk. The pages are blank or softly out of focus, with no readable words, numbers, names, logos, or recognizable lender layout. Soft overhead office light; no impact or added stack. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "4a8968b8fbf09493e2583536648a0591f40bd04e5621308999f4d7bc237367df",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable document text, names, addresses, mortgage terms, logos, authentic forms, dramatic impact, fabricated evidence.",
+      "negativeInstructionsSha256": "68a183a3609204796c6827efdfa65fcf63d3766bb1a964422ca98309628a0011",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "MORTGAGE"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "ec2e7a48293f95c7f01e505757e40db412128b77b039abd79348b3b74d177f41",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 15,
+      "beatId": "ACT2_B015",
+      "narration": "eight accounts eight fees eight relationships",
+      "timing": {
+        "startSec": 167.95337762670897,
+        "endSec": 171.89338006811522,
+        "durationSec": 3.94000244140625,
+        "startWordIndex": 125,
+        "endWordIndex": 130
+      },
+      "visualIntent": "Eight products per customer visualized as accumulating system.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_04",
+        "shotId": "ACT2_B015",
+        "beatId": "ACT2_B015"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B015. Narration context: “eight accounts eight fees eight relationships” Visual intent: Eight products per customer visualized as accumulating system. Scene direction: Abstract graphic composition with central numeral 8 in bold typography, eight simplified financial product icons arranging in circular pattern around the central number, icons representing checking account, savings account, credit card, mortgage, auto loan, investment account, insurance, and line of credit, clean dark background, Wells Fargo red color palette for number and icons, modern infographic aesthetic, no photographic elements Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "570f8ae47717f9846b754652248ea5107ad519bd863470315da4ce6bde60da70",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: realistic photography, identifiable people, cluttered design, competing text, bank interior backgrounds, low contrast, illegible icons, three-dimensional rendering.",
+      "negativeInstructionsSha256": "74e4875c28667f321a94701405044c72e136ec9cbbff5ad7f81fa5ddd6be26bd",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "de44fd7a1389b6757aad8ca194b31a0df7db772a5899b27ef369c0140ce46c33",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 16,
+      "beatId": "ACT2_B020",
+      "narration": "became the internal motto branch managers were evaluated on it",
+      "timing": {
+        "startSec": 187.71337594824217,
+        "endSec": 192.65337838964842,
+        "durationSec": 4.94000244140625,
+        "startWordIndex": 168,
+        "endWordIndex": 177
+      },
+      "visualIntent": "The slogan spreads through the organization as evaluation metric.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "shotId": "ACT2_B020",
+        "beatId": "ACT2_B020"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B020. Narration context: “became the internal motto branch managers were evaluated on it” Visual intent: The slogan spreads through the organization as evaluation metric. Scene direction: Over-shoulder view of manager reviewing performance spreadsheet on computer monitor, cross-sell metrics column highlighted or circled on screen, generic office environment with cubicle walls visible, fluorescent lighting, finger pointing at or tracing down the numbers column, screen shows sales data in spreadsheet format without readable personal information, professional but pressured atmosphere Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "fda0db451eda45797a325844884d0f5b786ed6b3298e14497c1541adccefc0c4",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces, readable employee names, specific bank branding on screen, home office, casual clothing, night scene, dramatic lighting, computer errors.",
+      "negativeInstructionsSha256": "5fe0a102a80409a9cda4c01bf98feb8831733aacb5aff3c448923f3e31e64bc7",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "SALES TARGET",
+          "PERFORMANCE REVIEW"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "0f639da2a31dfa367fbc95a4f64fa28e627520cf03c3e44743422b20a4abee4c",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 17,
+      "beatId": "ACT2_B021",
+      "narration": "bonuses were tied to it careers depended on it",
+      "timing": {
+        "startSec": 192.65337838964842,
+        "endSec": 196.05337991552733,
+        "durationSec": 3.4000015258789062,
+        "startWordIndex": 178,
+        "endWordIndex": 186
+      },
+      "visualIntent": "Compensation and careers hang on one metric.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "shotId": "ACT2_B021",
+        "beatId": "ACT2_B021"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B021. Narration context: “bonuses were tied to it careers depended on it” Visual intent: Compensation and careers hang on one metric. Scene direction: Desktop composition showing employee badge on lanyard beside bonus check document and performance report, badge shows generic employee photo silhouette without identifiable face, hand entering frame nervously adjusting or gripping the badge, documents arranged to suggest job security anxiety, warm desk lamp lighting creating slight shadows, corporate office desk surface Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "e77db0c0ae7e835fd38ec2c10c993035eba0c6561237bd9aa6acaae532f6b08c",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces on badge, readable names, specific dollar amounts, Wells Fargo explicit logos, outdoor setting, celebratory mood, crumpled documents, spilled items.",
+      "negativeInstructionsSha256": "c26dde157fb8ac616c57c863f59b024b77dec8c3464107d463e228fdb1d258be",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "BONUS",
+          "CAREER STATUS"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "bd73853fbccb2812d343862d5319b8f0ca013910b3fd58d91960a96a6dd49c64",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 18,
+      "beatId": "ACT2_B024",
+      "narration": "the pressure came from above",
+      "timing": {
+        "startSec": 203.0333756430664,
+        "endSec": 205.27338113623046,
+        "durationSec": 2.2400054931640625,
+        "startWordIndex": 200,
+        "endWordIndex": 204
+      },
+      "visualIntent": "Pressure visualized as descending force.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "shotId": "ACT2_B024",
+        "beatId": "ACT2_B024"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B024. Narration context: “the pressure came from above” Visual intent: Pressure visualized as descending force. Scene direction: Low angle view looking upward through multiple glass floors of modern corporate tower interior, silhouettes of executive figures visible on upper floors far above, geometric patterns of glass and steel creating sense of vertical hierarchy, harsh overhead lighting filtering down through transparent floors, cold blue corporate lighting, oppressive architectural perspective emphasizing power distance Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "602c9d9975dbeb5667d0bbfdabbbdbaa5e437020e81434eebb7ab62e1d320d9f",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces, outdoor view, warm lighting, single story building, residential space, natural materials, welcoming atmosphere, ground level perspective.",
+      "negativeInstructionsSha256": "87d6f6e15110b96256a4a179b5e7a1aca217aefa1a19479936ebfaf78d0a3103",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "05dbfa023dcf178c36a4d1224593525ac0edeaf28c8bdd5537bc711a51993b7c",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 19,
+      "beatId": "ACT2_B025",
+      "narration": "the fraud came from below",
+      "timing": {
+        "startSec": 205.27338113623046,
+        "endSec": 208.15337838964842,
+        "durationSec": 2.8799972534179688,
+        "startWordIndex": 205,
+        "endWordIndex": 209
+      },
+      "visualIntent": "Fraud visualized as emerging from below.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "shotId": "ACT2_B025",
+        "beatId": "ACT2_B025"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT2_B025. Narration context: “the fraud came from below” Visual intent: Fraud visualized as emerging from below. Scene direction: High angle surveillance-style view looking down on row of bank employees at computer workstations, identical desk arrangements in cubicle grid pattern, employees typing with similar posture, harsh fluorescent lighting creating flat institutional illumination, corporate office environment seen from security camera perspective, figures non-identifiable from above, systematic arrangement emphasizing institutional scale Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "651d529aa291c4fa4bad37ac286056c937447be3906dcce7e6daf158061d501b",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable faces, personal desk items, windows, natural lighting, casual clothing, empty desks, celebratory atmosphere, single employee focus.",
+      "negativeInstructionsSha256": "3e66fe9626b4daf5dd0117fe95416f4a7bb023e71a756d898c95e91e03957a09",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "25bcab5f2ebed62c6c2639bef46c264a79e0c2b60dc8545535e770568c29e1cc",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 20,
+      "beatId": "ACT3_B006",
+      "narration": "but the banker would also open a savings account and a",
+      "timing": {
+        "startSec": 228.4959873051758,
+        "endSec": 232.815987,
+        "durationSec": 4.319999694824219,
+        "startWordIndex": 34,
+        "endWordIndex": 44
+      },
+      "visualIntent": "Unauthorized products multiply without customer awareness.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "shotId": "ACT3_B006",
+        "beatId": "ACT3_B006"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B006. Narration context: “but the banker would also open a savings account and a” Visual intent: Unauthorized products multiply without customer awareness. Scene direction: Close-up of a computer monitor displaying generic banking software interface, a checking account application form visible with a second savings account form appearing beneath it in a cascading window arrangement, banker's fingers visible at keyboard edge continuing to type, screen glow illuminating hands, sterile office environment suggested in reflections Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "006148403194296633d9759bcf584d8471d233f257f5b7e7b5e1add9667d8dd1",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable software, real bank interfaces, Wells Fargo branding, readable personal information, faces, specific account numbers, authentic documents.",
+      "negativeInstructionsSha256": "b5f6b7bb38cee8297f89cad7c783b49ba857306bc577f2e4e465331e6179bc33",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "CHECKING",
+          "SAVINGS",
+          "CREDIT CARD"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "fe10e3c2cb97d5379d303f571b582ff7c4b03ac6a7befcefd1e61b0ff21d38d3",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 21,
+      "beatId": "ACT3_B007",
+      "narration": "credit card and online banking with a new password",
+      "timing": {
+        "startSec": 232.815987,
+        "endSec": 237.27598608447266,
+        "durationSec": 4.459999084472656,
+        "startWordIndex": 45,
+        "endWordIndex": 53
+      },
+      "visualIntent": "Credit card and online banking added in rapid succession.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "shotId": "ACT3_B007",
+        "beatId": "ACT3_B007"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B007. Narration context: “credit card and online banking with a new password” Visual intent: Credit card and online banking added in rapid succession. Scene direction: Illustrative reconstruction: a single anonymous monitor displays two simple overlapping abstract windows made of blank panels and non-letterlike placeholder blocks. A password field, if suggested, contains only uniform dots with no recoverable characters. No customer figure, readable text, account numbers, logos, or recognizable software styling. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "f4d7abd4ce00d410bf8af538592e53b39c2c3914c9a02c450bb00409ba0f68da",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: usable password, readable text, customer data, authentic application, real bank branding, identifiable face, documentary footage.",
+      "negativeInstructionsSha256": "1e02c4628998df8499af2d8eb77a72893a9c5c7aad0499ef4fc6a5cc697fe829",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "CREDIT CARD",
+          "ONLINE BANKING",
+          "PASSWORD"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "8faa8020a5bf863c908f3f5bfa8516cd3107f968be1894c37a658e02b725d08d",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 22,
+      "beatId": "ACT3_B010",
+      "narration": "were fake often just the customer's real",
+      "timing": {
+        "startSec": 242.9959873051758,
+        "endSec": 245.9159854741211,
+        "durationSec": 2.9199981689453125,
+        "startWordIndex": 66,
+        "endWordIndex": 72
+      },
+      "visualIntent": "Establish email addresses were systematically falsified.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_03",
+        "shotId": "ACT3_B010",
+        "beatId": "ACT3_B010"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B010. Narration context: “were fake often just the customer's real” Visual intent: Establish email addresses were systematically falsified. Scene direction: Extreme close-up of a computer screen showing an email address input field on a generic account application form, cursor blinking at end of field, banker's fingertips visible at keyboard edge about to type, sterile blue-white screen glow, shallow depth of field isolating the input field Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "7e204ddd3d34cceda35f8fed3a3f4e1ec7e49f17ceddbb0c7ed253a3fee69a13",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable software, real bank interfaces, readable personal information, actual email addresses, faces, authentic bank branding.",
+      "negativeInstructionsSha256": "b4411d7dc003678f7ff4a740ceb211b998cc67d5bce7e0fc4922c8e369da1c1d",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "EMAIL ADDRESS"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "aafbd6df90384e94ab89e9d31fbac83dfc71380db756d327ccff0353a983d733",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 23,
+      "beatId": "ACT3_B013",
+      "narration": "some employees got creative",
+      "timing": {
+        "startSec": 253.77598608447266,
+        "endSec": 256.6359866948242,
+        "durationSec": 2.8600006103515625,
+        "startWordIndex": 87,
+        "endWordIndex": 90
+      },
+      "visualIntent": "Signal the escalation from technique to predation.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_04",
+        "shotId": "ACT3_B013",
+        "beatId": "ACT3_B013"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B013. Narration context: “some employees got creative” Visual intent: Signal the escalation from technique to predation. Scene direction: Medium close-up of banker's hands flipping through a stack of manila customer folders on a desk, pausing on certain files, fingers lingering on folder tabs, selective consideration implied, institutional filing system visible, cold fluorescent lighting, methodical predatory selection suggested through gesture Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "5099502e7ed41702c5ad91490b3785855f9a5fe805c26c38bbc1a640817e329a",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable names on folders, readable personal information, faces, real bank branding, specific customer data, authentic documents.",
+      "negativeInstructionsSha256": "cac440551e52ddac39377b6080c9a7dbfd32718e2a65a4e163ffb8e81270a1fe",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "2b9a3c1f34e94775f6915a6806d1a610d7799de2019580d4c0e9b2429f3c7c13",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 24,
+      "beatId": "ACT3_B020",
+      "narration": "per day tracking their progress toward quotas",
+      "timing": {
+        "startSec": 283.03598822070313,
+        "endSec": 287.0959857792969,
+        "durationSec": 4.05999755859375,
+        "startWordIndex": 155,
+        "endWordIndex": 161
+      },
+      "visualIntent": "Email surveillance as daily pressure mechanism.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_05",
+        "shotId": "ACT3_B020",
+        "beatId": "ACT3_B020"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B020. Narration context: “per day tracking their progress toward quotas” Visual intent: Email surveillance as daily pressure mechanism. Scene direction: Controlled still, illustrative reconstruction: a generic monitor shows a quiet grid of abstract message rectangles and a few muted red accent blocks. No readable email, sender, subject, names, quota figures, count, or identifiable software interface. Keep the screen static and simple. Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "dcaffc00ce85471b6310b13ea2bc75e6c8685daff640f17460dbc15994e2c92c",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: readable email, authentic internal communication, employee names, quota numbers, logo, identifiable software, fabricated evidence.",
+      "negativeInstructionsSha256": "dde99d5e756a28f308b81eae4d5e8ccd36fb7d1db66d129c2cfbbc3213c94b61",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "DAILY QUOTA",
+          "PROGRESS"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "8f52074fcfae9035adf2ee1a59e89b9e8dc0a7218c30f433290ffcc43d01ce8e",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 25,
+      "beatId": "ACT3_B026",
+      "narration": "another said she developed an ulcer",
+      "timing": {
+        "startSec": 305.5959857792969,
+        "endSec": 307.8959888310547,
+        "durationSec": 2.3000030517578125,
+        "startWordIndex": 205,
+        "endWordIndex": 210
+      },
+      "visualIntent": "Physical manifestation of stress.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "shotId": "ACT3_B026",
+        "beatId": "ACT3_B026"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B026. Narration context: “another said she developed an ulcer” Visual intent: Physical manifestation of stress. Scene direction: Medium shot of woman sitting alone in institutional break room, hand pressed against stomach in discomfort, lunch tray untouched on table before her, staring at blank wall, fluorescent lighting casting harsh shadows, isolation emphasized by empty chairs, physical manifestation of psychological pressure Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "3c5944de25a14eea6f60e8e592e7dcb7ca9a55d8b955ff5af516355aaaa16a17",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face clearly visible, specific company branding, real individuals, documentary footage, medical imagery, graphic illness depiction.",
+      "negativeInstructionsSha256": "87a042fa662a62ffdf2be329372082c7c2086f205c2061a731724c4240ef1688",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "2299423564f767d23ddf9864dec1bfd48fdcff75b6152b724686b3b418bc3784",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 26,
+      "beatId": "ACT3_B027",
+      "narration": "a third said he vomited before work every morning",
+      "timing": {
+        "startSec": 307.8959888310547,
+        "endSec": 311.05598486376954,
+        "durationSec": 3.1599960327148438,
+        "startWordIndex": 211,
+        "endWordIndex": 219
+      },
+      "visualIntent": "The morning ritual of dread.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "shotId": "ACT3_B027",
+        "beatId": "ACT3_B027"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3_B027. Narration context: “a third said he vomited before work every morning” Visual intent: The morning ritual of dread. Scene direction: Illustrative reconstruction: anonymous person seen from behind at a plain bathroom sink in dim early-morning light. A blank unmarked card on a counter may be visible, with no logo, name, text, badge design, or identifying details. Keep the human figure non-identifiable and the scene restrained. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "94bc05bff9affafa4314668b7550e309cae870f21160b51fad43bf467f2b07f2",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: Wells Fargo badge, logo, readable name, identifiable face, real employee ID, documentary footage, graphic illness.",
+      "negativeInstructionsSha256": "1aa7dc177a022d43c19f1b44f11d2be749f5e73071036f3632ab34f889d1b8dc",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "a8db6443c2d188396290d45b6b4db94deb1473762ab53a294fe9f4e5c94fe588",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 27,
+      "beatId": "ACT3B_B001",
+      "narration": "the customers paid first",
+      "timing": {
+        "startSec": 317.262744,
+        "endSec": 319.5627439523163,
+        "durationSec": 2.299999952316284,
+        "startWordIndex": 0,
+        "endWordIndex": 3
+      },
+      "visualIntent": "A customer opens a bank statement, face shifting from routine to confusion.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_01",
+        "shotId": "ACT3B_B001",
+        "beatId": "ACT3B_B001"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B001. Narration context: “the customers paid first” Visual intent: A customer opens a bank statement, face shifting from routine to confusion. Scene direction: Close-up of anonymous hands opening a white business envelope at a kitchen table, fingers unfolding a bank statement document, shallow depth of field, soft natural window light from the side, muted earth tones, the paper slightly creased from the envelope, a coffee mug blurred in the background, photorealistic documentary style, 35mm film grain Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "0bce46e0734b9590954c4caf259b1ca4de26088e7958899983d3bd9c74ba9336",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, recognizable person, specific bank logo, readable account numbers, legible personal information, Wells Fargo branding, bright saturated colors, stylized lighting, fantasy elements.",
+      "negativeInstructionsSha256": "febced0b3ec077f6598a612d8e4119c71b224dcfe8f131edb5afdf7b35816d85",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "ACCOUNT SUMMARY"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "c1b85d20eabd6eecc78cc9e9ee905a728b3e94a9f79487382253c5d1fbcfa369",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 28,
+      "beatId": "ACT3B_B004",
+      "narration": "annual fees for credit cards they never applied for",
+      "timing": {
+        "startSec": 327.12274365667724,
+        "endSec": 330.22274403814697,
+        "durationSec": 3.1000003814697266,
+        "startWordIndex": 17,
+        "endWordIndex": 25
+      },
+      "visualIntent": "Credit card statement for a card never requested.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_02",
+        "shotId": "ACT3B_B004",
+        "beatId": "ACT3B_B004"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B004. Narration context: “annual fees for credit cards they never applied for” Visual intent: Credit card statement for a card never requested. Scene direction: Close-up of anonymous hands holding an unopened credit card mailer envelope, fingers turning it over to reveal the back, kitchen table setting with soft overhead light, neutral beige envelope with generic financial graphics, photorealistic documentary style, shallow depth of field, the paper texture visible Generate the photographic or illustrative base with clean text-free surfaces reserved for deterministic local typography; do not ask the image model to render critical readable text.",
+      "positivePromptSha256": "f1257f27db9ef832da9aa8adc750866018ba24b0eb9d217086cb5bf2436ddb0b",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, recognizable person, specific bank branding, Wells Fargo logo, readable personal information, actual credit card visible, bright saturated colors, fantasy elements, stylized lighting.",
+      "negativeInstructionsSha256": "7c6aec0e49ebde7ff9a478a7eda7d7575ae46e8eb054e84053012bda13dccf88",
+      "twoStageRoute": {
+        "required": true,
+        "stage1": "Generate the finished base image without readable text.",
+        "stage2": "Apply deterministic locally rendered typography/interface content after base-image approval.",
+        "exactLocalSemanticLabels": [
+          "ANNUAL FEE"
+        ],
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "6f5df9ea1dc0ec7c76ea0eb7c6584f5f405aaf3e599bb10f525873f41e4ebb5b",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 29,
+      "beatId": "ACT3B_B007",
+      "narration": "others couldn't get car loans a few lost their homes",
+      "timing": {
+        "startSec": 338.5427446866455,
+        "endSec": 342.71274476293945,
+        "durationSec": 4.170000076293945,
+        "startWordIndex": 48,
+        "endWordIndex": 57
+      },
+      "visualIntent": "Car dealership rejection and the ultimate loss—homes taken.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_03",
+        "shotId": "ACT3B_B007",
+        "beatId": "ACT3B_B007"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B007. Narration context: “others couldn't get car loans a few lost their homes” Visual intent: Car dealership rejection and the ultimate loss—homes taken. Scene direction: Controlled still, illustrative reconstruction: a single plain moving box sits on the porch of a generic suburban home at dusk. No person, car lot, for-sale text, visible address, readable sign, or location marker. One stable composition, quiet natural light. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "0f06b17a2f094d754c69e2730ef996eb642f479ca3d9f82e71b7dcd18cafe4c8",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: two-scene composition, dealership, identifiable person, readable address, for-sale text, specific home, documentary footage.",
+      "negativeInstructionsSha256": "0b2a1ff264cfa8ad4329628f43c4502aca7d2f838eb09ce19a2fa78f34480e7d",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "414a587a4653e2e73b9e5695c667862a542a6f19cfd7f0aa1d52b2c7f984597e",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 30,
+      "beatId": "ACT3B_B013",
+      "narration": "some had opened unauthorized accounts",
+      "timing": {
+        "startSec": 363.78274445776367,
+        "endSec": 367.06274323706054,
+        "durationSec": 3.279998779296875,
+        "startWordIndex": 101,
+        "endWordIndex": 105
+      },
+      "visualIntent": "Some employees genuinely committed fraud—the guilty acknowledged.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_05",
+        "shotId": "ACT3B_B013",
+        "beatId": "ACT3B_B013"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B013. Narration context: “some had opened unauthorized accounts” Visual intent: Some employees genuinely committed fraud—the guilty acknowledged. Scene direction: Close-up of anonymous employee hands typing rapidly at computer terminal in bank branch setting, screen showing generic account creation interface with multiple form fields, fluorescent office lighting, corporate cubicle environment, badge lanyard visible but unreadable, photorealistic documentary style, tension in the hand positioning Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "19225bbe4e8c05729e0f6966899e2d197b293967ffb80199055584fa32525a29",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, recognizable person, Wells Fargo branding, specific bank logo, readable personal information, customer data visible, bright cheerful colors, fantasy elements, stylized lighting.",
+      "negativeInstructionsSha256": "9551d8ef2300c27c3ac7aad413adc45084424ad3b7ccfb6f9422ba4c8dce26bb",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "37a8c05a9ae0384e2fe167bd9085ecc7005f5429de20c9943f1ba930eeb03b9b",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 31,
+      "beatId": "ACT3B_B016",
+      "narration": "the people who missed their targets were pushed out",
+      "timing": {
+        "startSec": 376.0227423215332,
+        "endSec": 379.0827436948242,
+        "durationSec": 3.0600013732910156,
+        "startWordIndex": 123,
+        "endWordIndex": 131
+      },
+      "visualIntent": "The employee who couldn't meet targets—pushed out.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "shotId": "ACT3B_B016",
+        "beatId": "ACT3B_B016"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B016. Narration context: “the people who missed their targets were pushed out” Visual intent: The employee who couldn't meet targets—pushed out. Scene direction: Medium shot of anonymous employee at desk receiving termination paperwork from off-screen hand, employee shown from side angle gathering personal items slowly, small cardboard box on desk, framed photo being placed inside, fluorescent office lighting, generic corporate cubicle, photorealistic documentary style, defeated body language Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "2b8e7592f1b99f3420363084f234e50d5b51da6574d628b9ec239cb5821ab676",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, recognizable person, Wells Fargo branding, specific bank logo, readable termination letter, personal information visible, bright colors, fantasy elements, stylized dramatic lighting.",
+      "negativeInstructionsSha256": "722ddb303e37cfdbc061772860484795653dc2a33fffc1f291b282c1a7ea50af",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "1afcc9d0fbdd28861caad55efc7fb722209a964e35b369645b9b2451ea4f3b9f",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 32,
+      "beatId": "ACT3B_B018",
+      "narration": "and some of the people who warned the bank said they were fired too",
+      "timing": {
+        "startSec": 381.6827421689453,
+        "endSec": 386.25093,
+        "durationSec": 4.568187831054672,
+        "startWordIndex": 142,
+        "endWordIndex": 155
+      },
+      "visualIntent": "The whistleblower—silenced by the same system they tried to save.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "shotId": "ACT3B_B018",
+        "beatId": "ACT3B_B018"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT3B_B018. Narration context: “and some of the people who warned the bank said they were fired too” Visual intent: The whistleblower—silenced by the same system they tried to save. Scene direction: Controlled still, illustrative reconstruction: one anonymous office composition places a plain telephone in the foreground and a closed, unmarked cardboard box farther back near a generic corridor. No person, face, logos, readable hotline material, elevator-door action, or scene transition. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "3b993f79ae4e32b156a44a50cc041e6b2b506ac7bc625f378a1cf05d9ed9da04",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: two-scene layout, identifiable face, company branding, readable number, authentic poster, specific employee, documentary footage.",
+      "negativeInstructionsSha256": "96a4c7aad8b5abff2c0d613e6f6b45ef2ee2939b79a14c08e5dd0a7c8840d287",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "fb1b1334ba1c60a9630f3d7887631ca02c2b3aa8c49318d604ff0ee15bca5329",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 33,
+      "beatId": "ACT5_B010",
+      "narration": "reported misconduct the outcome was uneven federal investigators found",
+      "timing": {
+        "startSec": 544.5758733051757,
+        "endSec": 550.495871474121,
+        "durationSec": 5.9199981689453125,
+        "startWordIndex": 97,
+        "endWordIndex": 105
+      },
+      "visualIntent": "The uneven outcomes for those who spoke up.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "shotId": "ACT5_B010",
+        "beatId": "ACT5_B010"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT5_B010. Narration context: “reported misconduct the outcome was uneven federal investigators found” Visual intent: The uneven outcomes for those who spoke up. Scene direction: Non-identifiable person from behind sitting alone at small kitchen table in modest apartment, reviewing scattered documents and papers, smartphone placed beside them unanswered, evening light through window blinds, isolating composition, documentary cinematography style, medium wide shot Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "d34e101ecb54f0c510c19901f8d1b6e93fd920801de7db4844d1d55e7c51760d",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: identifiable face, recognizable features, specific documents readable, corporate logos, Wells Fargo branding, bright cheerful lighting, multiple people.",
+      "negativeInstructionsSha256": "3fb0cac9c2b9425931a510041d5d0b1c6792ce640fc5685ca9d533db80c3d3de",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "b84f6bdac3b1675cc6dcfb305edb9ff9a31abb90d952ecec98f2ed6d1f99e990",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    },
+    {
+      "ordinal": 34,
+      "beatId": "ACT5_B013",
+      "narration": "spent years fighting settled privately or left banking altogether",
+      "timing": {
+        "startSec": 561.3758725422363,
+        "endSec": 566.5758733051757,
+        "durationSec": 5.200000762939453,
+        "startWordIndex": 128,
+        "endWordIndex": 136
+      },
+      "visualIntent": "Others left behind by the system entirely.",
+      "evidenceBinding": {
+        "required": false,
+        "evidenceType": null,
+        "description": null,
+        "sourceStatus": "not_applicable",
+        "rightsStatus": "not_applicable",
+        "authenticityStatus": "not_applicable",
+        "citationLabel": null,
+        "humanReviewRequired": false
+      },
+      "ownershipAndIdentityBinding": {
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "shotId": "ACT5_B013",
+        "beatId": "ACT5_B013"
+      },
+      "positivePrompt": "Cinematic documentary-style editorial reconstruction for a serious investigative film. Create one finished production-grade 16:9 frame with realistic lighting, natural materials, controlled depth, strong focal hierarchy, intentional negative space, and sufficient fine detail for full-resolution final-episode use. Make the imagery specific to this beat and do not reuse a composition, character arrangement, document layout, interface layout, or final image from any other beat. Use only anonymous fictional people where people are needed; do not reproduce a real customer, employee, executive, branch, office, or bank location. Use fictionalized unbranded interfaces and documents. Treat the scene as a representative reconstruction, never as documentary evidence. Beat ID: ACT5_B013. Narration context: “spent years fighting settled privately or left banking altogether” Visual intent: Others left behind by the system entirely. Scene direction: Controlled still, illustrative reconstruction: a distant non-identifiable silhouette stands beyond the entrance of a generic unbranded building in afternoon backlight. Keep the figure still and the composition quiet; no specific bank architecture, signage, or identifiable person. Keep any incidental writing fully abstract and non-semantic.",
+      "positivePromptSha256": "4710dfe7f592561f9c77671b6285f6fa592faea3a4988d0d6479cb64ccc71438",
+      "negativeInstructions": "No real bank logos, Wells Fargo branding, stagecoach marks, trademarks, recognizable uniforms, or identifiable real locations. No identifiable real customers, employees, executives, celebrities, public figures, or news-footage likenesses. No unsupported documentary-evidence appearance, surveillance-footage claim, authentic-record claim, or fabricated real document. No malformed hands, extra fingers, fused fingers, malformed faces, distorted anatomy, duplicated limbs, impossible objects, broken perspective, or incoherent reflections. No generated readable text, gibberish, misspelled labels, pseudo-letters, fake logos, watermarks, signatures, captions, or UI copy. No cross-beat image sharing, repeated template composition, duplicate final media, stock-placeholder look, flat icon art, primitive vector diagram, clip art, low detail, large accidental blank areas, or unfinished surfaces. No historically inappropriate props, implausible environment, melodramatic caricature, graphic illness, or sensationalized victim imagery. Documents and interfaces must be fictionalized and text-free at generation time; any essential semantic typography is added deterministically and locally after generation. Beat-specific exclusions: Wells Fargo, recognizable bank, identifiable face, readable signage, specific person, documentary footage.",
+      "negativeInstructionsSha256": "b60e0d84382874b5fee598e5c2dd99502e32cb0ff24eca2006e64669d3757e30",
+      "twoStageRoute": {
+        "required": false,
+        "imageModelCriticalTextProhibited": true
+      },
+      "requestKey": "0cd1923d93fa33f90783aacf730671e88c136ec5f264fd6ca0d150b18d3579ae",
+      "requestKeyStatus": "PROPOSED_UNUSED_NOT_RESERVED",
+      "route": {
+        "productionMethod": "GENERATED_STILL",
+        "assetType": "generated_image",
+        "provider": "FLUX 3",
+        "endpoint": "blackforestlabs/flux-3/text-to-image",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "outputFormat": "PNG",
+        "imagesPerBeat": 1,
+        "promptExpansion": false,
+        "retries": 0,
+        "fallback": false,
+        "maximumSubmissions": 34,
+        "unitMaximumExposureUsd": 0.048,
+        "maximumExposureUsd": 1.632,
+        "providerEnforced": false,
+        "executionAuthorized": false
+      }
+    }
+  ]
+}

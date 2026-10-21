@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "phase3-existing-provider-manifest-reconciliation/1.0.0",
+  "status": "PASS_EXISTING_SEVEN_MANIFESTS_UNCHANGED",
+  "manifestCount": 7,
+  "requestCount": 49,
+  "maximumExposureUsd": 9.744,
+  "providerEnforced": false,
+  "manifests": [
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/generated-final-still-batch.v1.json",
+      "sha256": "683fc4ec077beccac7899e47b98022095204307636805ce96c32590820532af7",
+      "requestCount": 7,
+      "expectedExposureUsd": 0.336,
+      "maximumExposureUsd": 0.336,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-source-still-batch-1.v1.json",
+      "sha256": "9af181b06c110fa13471abda85b1cefd7458fedbfbee2ce188156af4a15320d9",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-source-still-batch-2.v1.json",
+      "sha256": "6ff5179f3fd76dcbc27168ba687ca9c6869f036f9b624d82418e3666f647fdb1",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-source-still-batch-3.v1.json",
+      "sha256": "edbe8cfaa745a00cfe09900501dc1cba85e6c48b28e4bddc70c7f3aabf4009cb",
+      "requestCount": 1,
+      "expectedExposureUsd": 0.048,
+      "maximumExposureUsd": 0.048,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-batch-1.v1.json",
+      "sha256": "53dab22350643af7bf314507a885fa2d2e949b31fe06095835b644f96f552ec1",
+      "requestCount": 10,
+      "expectedExposureUsd": 4,
+      "maximumExposureUsd": 4,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-batch-2.v1.json",
+      "sha256": "d132ff94cee54f6eca37674f872661fee1cea887ccb877b3d05a1c3dfbf9f777",
+      "requestCount": 10,
+      "expectedExposureUsd": 4,
+      "maximumExposureUsd": 4,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    },
+    {
+      "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-completion-review-20261021-v1/provider-batches/animation-batch-3.v1.json",
+      "sha256": "be3d19aad5d60f99caa7fd7e967cc160e9771baad16a1074aadcab4010a23f62",
+      "requestCount": 1,
+      "expectedExposureUsd": 0.4,
+      "maximumExposureUsd": 0.4,
+      "status": "PROPOSED_NON_AUTHORIZING"
+    }
+  ],
+  "dependencyRule": "Every animation remains blocked until its corresponding animation-source still is generated, inspected, human-approved, and SHA-256-bound to a separate animation authorization.",
+  "authority": {
+    "providerSubmission": false,
+    "executionAuthorization": false
+  }
+}

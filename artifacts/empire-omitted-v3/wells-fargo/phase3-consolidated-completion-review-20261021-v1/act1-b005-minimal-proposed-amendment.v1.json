@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "phase3-act1-b005-source-construction-amendment/1.0.0",
+  "status": "PROPOSED_UNSIGNED_PENDING_HUMAN_DECISION",
+  "beatId": "ACT1_B005",
+  "lockedFieldsPreserved": [
+    "beat ID",
+    "narration",
+    "timing",
+    "visual intent",
+    "visual class",
+    "production method",
+    "asset type",
+    "evidence bindings",
+    "ownership",
+    "revision lineage"
+  ],
+  "missingDecision": "No approved source asset or exact deterministic construction contract is bound.",
+  "proposedExactDecision": "Authorize a project-original, source-free deterministic editorial illustration of the locked empty executive-corridor visual intent, rendered to 1920x1080 PNG, carrying no logos, readable names, identifiable people, or documentary-evidence claim. Review output must remain isolated until separately approved.",
+  "authorityGrantedByProposal": false
+}

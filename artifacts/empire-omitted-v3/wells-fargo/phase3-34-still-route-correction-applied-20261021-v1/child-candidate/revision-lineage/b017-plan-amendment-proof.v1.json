@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "phase2.3b-b017-plan-amendment-proof/1.0.0",
+  "sourcePlanSha256": "94366ed6e448b79ff6568d42ed0903708dda37da7ae93c80f4db7fa3bffe4504",
+  "inputPlanFingerprint": "dd93e0dc09befc563bef78f2f47600eba1d53f56378b8c7af245bb313be4e4c2",
+  "childAmendmentSha256": "93ebed017ff23b7487daa3591cdff2860917c0fe3ef1695a47659aa61a43d8f5",
+  "revisionLedgerSha256": "61a3fa3df81fe7350d43ad592820e1f04ca004fa9bf7f48e29d8d36685dd3b2a",
+  "outputPlanFingerprint": "6ed83289146316d939e9f0507d5d19e7ce2278b10250ca179285e1e74392c407",
+  "changes": [
+    {
+      "beatId": "ACT3_B017",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Introduce the account counts recorded by the board-commissioned investigation.",
+      "afterValue": "Present the SEC-filed Independent Directors’ report as the primary source for the branch manager family account counts."
+    },
+    {
+      "beatId": "ACT3_B017",
+      "fieldPath": "visual.description",
+      "beforeValue": "Original attributed graphic summarizing the SEC-filed Independent Directors’ report; it does not depict accounts opened in one day.",
+      "afterValue": "Original source-attributed account-count graphic based on the SEC-filed Independent Directors’ report, page 36; not a claim about accounts opened in one day."
+    },
+    {
+      "beatId": "ACT3_B017",
+      "fieldPath": "evidenceRequirement",
+      "beforeValue": {
+        "required": true,
+        "evidenceType": "SEC-filed Independent Directors’ investigation report",
+        "description": "The report states that a branch manager’s teenage daughter had 24 accounts, an adult daughter had 18, and the manager’s husband had 21.",
+        "sourceStatus": "pending",
+        "rightsStatus": "pending_review",
+        "authenticityStatus": "pending_review",
+        "citationLabel": "Independent Directors’ Report, p. 36",
+        "humanReviewRequired": true
+      },
+      "afterValue": {
+        "required": true,
+        "evidenceType": "SEC-filed Independent Directors’ investigation report",
+        "description": "The report states that a branch manager’s teenage daughter had 24 accounts, an adult daughter had 18, and the manager’s spouse had 21.",
+        "sourceStatus": "pending",
+        "rightsStatus": "pending_review",
+        "authenticityStatus": "pending_review",
+        "citationLabel": "Independent Directors’ Report, p. 36",
+        "humanReviewRequired": true
+      }
+    },
+    {
+      "beatId": "ACT3_B018",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Continue the attributed family-account count graphic, then hand back to the wider sales-pressure narrative.",
+      "afterValue": "Continue the board-report account-count finding with an original attributed comparison graphic, then transition to the wider sales-pressure account."
+    },
+    {
+      "beatId": "ACT3_B018",
+      "fieldPath": "visual.description",
+      "beforeValue": "Generic branch setting with an original source-attributed account-count graphic; no real customer or employee is depicted.",
+      "afterValue": "Original comparison graphic showing 24 accounts for the manager’s teenage daughter, 18 for an adult daughter, and 21 for the manager’s spouse, attributed to the SEC-filed board investigation, page 36."
+    },
+    {
+      "beatId": "ACT3_B018",
+      "fieldPath": "graphics",
+      "beforeValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Complete the board-report family-account comparison with source attribution.",
+          "text": "24 / 18 / 21 ACCOUNTS · BOARD REPORT, P. 36"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Show the three distinct account counts reported by the board investigation, with source attribution.",
+          "text": "24 · TEENAGE DAUGHTER | 18 · ADULT DAUGHTER | 21 · SPOUSE\nSOURCE: INDEPENDENT DIRECTORS’ REPORT, P. 36"
+        }
+      ]
+    }
+  ],
+  "preservedCandidateNarrationExcerpts": true,
+  "status": "PASS"
+}

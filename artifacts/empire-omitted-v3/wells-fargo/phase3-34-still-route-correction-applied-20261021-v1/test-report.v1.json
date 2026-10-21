@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-application-test-report/1.0.0",
+  "status": "PASS_WITH_ONE_PLATFORM_SKIP_AND_ISOLATED_ENVIRONMENTAL_RERUNS",
+  "sourceCodeChangedToMakeTestsPass": false,
+  "focusedPhase3": {
+    "files": [
+      "test/phase3-act1-b010-production-animation.test.cjs",
+      "test/phase3-render-preview.test.cjs"
+    ],
+    "execution": "serial with isolated workspace-local TEMP/TMP",
+    "tests": 155,
+    "passed": 154,
+    "failed": 0,
+    "skipped": 1,
+    "skipReason": "Windows junction creation is unavailable in this test environment"
+  },
+  "canonical28": {
+    "fileCount": 28,
+    "excludedFromCanonicalSet": [
+      "test/phase3-act1-b010-production-animation.test.cjs"
+    ],
+    "aggregateRun": {
+      "tests": 647,
+      "passed": 642,
+      "failed": 4,
+      "skipped": 1
+    },
+    "environmentalReruns": [
+      {
+        "file": "test/act-voice-generator.test.cjs",
+        "aggregateAffectedTests": 1,
+        "cause": "transient Windows local atomic-file handling surfaced the controlled local-execution wrapper",
+        "isolatedRerun": {
+          "tests": 20,
+          "passed": 20,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "file": "test/edit-plan-generator.test.cjs",
+        "aggregateAffectedTests": 1,
+        "cause": "transient Windows EPERM during atomic checkpoint rename",
+        "isolatedRerun": {
+          "tests": 118,
+          "passed": 118,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "file": "test/deployment-package-portability.test.cjs",
+        "aggregateAffectedTests": 2,
+        "cause": "sandbox denied temporary .git/index.lock creation",
+        "isolatedRerun": {
+          "permission": "temporary Git index write access",
+          "tests": 2,
+          "passed": 2,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "reconciledCaseDisposition": {
+      "tests": 647,
+      "passed": 646,
+      "productFailures": 0,
+      "skipped": 1
+    },
+    "skipReason": "Windows junction creation is unavailable in this test environment"
+  },
+  "providerCalls": 0,
+  "deploymentPerformed": false
+}

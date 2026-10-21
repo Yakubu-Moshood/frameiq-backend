@@ -1,0 +1,313 @@
+{
+  "schemaVersion": "phase3-non-authorizing-provider-batch/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "batchId": "animation-batch-2",
+  "type": "ANIMATION_CLIP",
+  "requestCount": 10,
+  "expectedExposureUsd": 4,
+  "maximumExposureUsd": 4,
+  "providerEnforced": false,
+  "dependencyOrder": "SOURCE_STILL_GENERATE -> INSPECT -> HUMAN_APPROVE_AND_BIND_SHA256 -> SEPARATE_ANIMATION_AUTHORIZATION -> SUBMIT",
+  "entries": [
+    {
+      "beatId": "ACT3_B008",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "588a3daa43fdfb131287a1e6376d0212779e70d1a5a5325a81a32399ba3ff605",
+      "promptSha256": "a1625c0fa4e0c9656aedf873d09e376e2d30d3471963e6a0990b00089c5883d8",
+      "negativePromptSha256": "d02a778c8ddd177cbd04e0ef8f1c2bad5ec3a202fad61733c7a04b27c9a11d07",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "b104b03d39392a83de9108379ddf416c6be8dfb892e244fb86ef0a7ad7a8ef34",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3_B008.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3_B008.mp4",
+        "targetFrames": 76,
+        "frameAccurateDurationSec": 2.533333333333333
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3_B014",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "80f939218084c4d4d876725f8f47f254bbe13a37e86a9fe2a752519bfd019509",
+      "promptSha256": "69fc4357240aa242654319e1a5896094e0aad6983d0d72b2dc6c28bcc1024e83",
+      "negativePromptSha256": "f189f7cde40ceff22466c938f62220440b5d9f7e68d8a759bce9e80cc326f106",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "17a1579f843e618d5ffc0c3a910107c788823c3911fe0ef2db3dc7c79b92e9ba",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3_B014.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3_B014.mp4",
+        "targetFrames": 151,
+        "frameAccurateDurationSec": 5.033333333333333
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3_B015",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "bdf045b5a2eb08649b8714759b67e98b3c481aa4b336d885a367adec99abc21a",
+      "promptSha256": "83baf5d417a78d37102f24031b0415d8ba8d35bf6e82c973cd0add744d66b220",
+      "negativePromptSha256": "ef079489ac87b5021c6531b9c5e37475327dc7eb2e1f5e4c37c1ad88bac49bff",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "b9427c3fbf6b4931a3e148bad89778d01c64836b8ca31b3451dd0f82dc7058f7",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3_B015.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3_B015.mp4",
+        "targetFrames": 106,
+        "frameAccurateDurationSec": 3.533333333333333
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3_B023",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "d82869e3d222c10939853e07af400f24cc079eb40737a93f8b562ac9720060f1",
+      "promptSha256": "f125e4f4cd6191232e37bca9e89c638ad6deba2d8c232b74d0cb8950011498a8",
+      "negativePromptSha256": "794ccec5a68a67705055488f3774b9acfb1a4c70adb1c70f59f59d33466895fe",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "5c71d33ed700d1bc1598f91c30f4251588e70f3e7bab34650b2e23a11d8b7546",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3_B023.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3_B023.mp4",
+        "targetFrames": 127,
+        "frameAccurateDurationSec": 4.233333333333333
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3_B028",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "1595192cb87253269bc83223054b53b78399941e90c853dc0c010712a0ccb901",
+      "promptSha256": "e73871a6fb9796ebff85f16bb746c3ab39d6fbe81fd911618e777e0cd3db7264",
+      "negativePromptSha256": "23c17e92199ff48c9695773870b5b4973d74a9c1fb81ff22a9a125db53e2f94d",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "dff23374bf5b3142b674c78127c321c2ac921af66dd44959b00a7fb91c042ec5",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3_B028.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3_B028.mp4",
+        "targetFrames": 86,
+        "frameAccurateDurationSec": 2.8666666666666667
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3B_B003",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "4eeed4af9eec49f3f44aaca388a03d7c5338da727af488c39b0f6a8787340535",
+      "promptSha256": "d2a6e91f845c95bd5b9cb3539c041dad140ba5036a042de27eb47a3c383f4c99",
+      "negativePromptSha256": "35905b9cfe2c27e4f438364f942df5ad46535eecf62694c036111a7630c75685",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "c6bfb6f0a805e6cf9dc5d83a019fc03a3d003cf95c09e92996f349433939d7b3",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3B_B003.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3B_B003.mp4",
+        "targetFrames": 115,
+        "frameAccurateDurationSec": 3.8333333333333335
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3B_B006",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "0d9c1a3b74eeec428ebe96828d3f3a98d0c34e044b142af4573a768ff8ad111c",
+      "promptSha256": "a2f49e799495e737d83c56c82d6f12eb429383cf8077a0a2e747f9dd902aadee",
+      "negativePromptSha256": "e805c864d7b263c31e01a7fb2d19642b7281b752be0dec94224dec92676cf70a",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "74160ea94e6cdb4cb603b359fd9726e9d037dad8545804b2149e79407147037d",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3B_B006.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3B_B006.mp4",
+        "targetFrames": 140,
+        "frameAccurateDurationSec": 4.666666666666667
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3B_B014",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "d5f81f4cc49ccfb40e82c0893f986ce5058700daf6d8931c118ac33d74e4c880",
+      "promptSha256": "6cb024a4122d52915b415d1cfb258bedcf7f4c26ade2950ac8cf7c714f8d8f8f",
+      "negativePromptSha256": "c5a096f5838d5e27cda229c0c5597f631e88651fbffbf93f6d263d0ecc4b91be",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "ba9bc41d25ed04362e68c8b64ad5c5157bde74058c6d33245d565c70ab646a6a",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3B_B014.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3B_B014.mp4",
+        "targetFrames": 121,
+        "frameAccurateDurationSec": 4.033333333333333
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT3B_B017",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "34f525ff9b532381d34d3dd600f18be70bc10b13119fef0d64b39f782f9c50be",
+      "promptSha256": "71a05986d33ebddb32db8d506e20a3c253688cb143b4be32be5943bc59214e29",
+      "negativePromptSha256": "7bde9559bc5c52b621dda04f917f5045f3b7b0143657d4ca5f26859cf2e068a6",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "0b3440555bb8e4225781f5a41be2e481a45ac5b8ccbe30b57ef43b3e37882110",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT3B_B017.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT3B_B017.mp4",
+        "targetFrames": 78,
+        "frameAccurateDurationSec": 2.6
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    },
+    {
+      "beatId": "ACT5_B012",
+      "operation": "GENERATE_ANIMATION",
+      "endpoint": "minimax/h3-max/image-to-video",
+      "requestKey": "9e6ef08435c96f0e2cb5af69ffe7da29b8e84ac7c2057f7985fb4efd721902ed",
+      "promptSha256": "b9682071c76da5af783f7271ab6bce84ba1a715d3a32fb81c4c04999bf74ae76",
+      "negativePromptSha256": "2562471cdf0ab41669770755198d1060cb6475d7ea8ce3cbe3c94c56c8a1c69a",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "sourceStillRequestKey": "63b71b45b79add7918c6b84a81680052b4808e73e93067ead488d1b80deeb9cc",
+        "sourceStillSha256": null
+      },
+      "expectedOutputContract": {
+        "id": "H3_FITTED_30FPS_SILENT",
+        "path": "planned/final/animation-clips/ACT5_B012.mp4",
+        "rawId": "H3_RAW_IMMUTABLE",
+        "rawPath": "planned/intermediate/animation-raw/ACT5_B012.mp4",
+        "targetFrames": 183,
+        "frameAccurateDurationSec": 6.1
+      },
+      "maximumExposureUsd": 0.4,
+      "providerEnforced": false,
+      "executionAuthorized": false,
+      "authorizationGate": "BLOCKED_UNTIL_SOURCE_STILL_GENERATED_INSPECTED_AND_HUMAN_APPROVED_WITH_SHA256_BOUND"
+    }
+  ],
+  "authority": {
+    "providerRequestsAuthorized": 0,
+    "executionAuthorizationCreated": false,
+    "retries": 0,
+    "fallback": false,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionWrites": false
+  }
+}

@@ -1,0 +1,442 @@
+{
+  "schemaVersion": "phase3-controlled-still-construction-record/1.0.0",
+  "status": "DETERMINISTIC_REVIEW_OUTPUTS_CONSTRUCTED_NOT_INSTALLED",
+  "sourceBindings": {
+    "shotDefinitions": {
+      "path": "../phase3-consolidated-act5-production-candidate-20261004-v5/candidate/shot-definitions.json",
+      "sha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a"
+    },
+    "productionManifest": {
+      "path": "../phase3-consolidated-act5-production-candidate-20261004-v5/candidate/production-manifest.json",
+      "sha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+    }
+  },
+  "recipe": {
+    "path": "reproduction/build-package.cjs",
+    "sha256": "45d093910945ef58fc79e1eaa58fd4b9236f50cc7085d5f580e606d42340bf05",
+    "renderer": "built-in deterministic RGB raster + PNG encoder",
+    "externalSources": 0,
+    "providerRequests": 0
+  },
+  "outputs": [
+    {
+      "beatId": "ACT1_B011",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/screen-chair",
+      "relativePath": "controlled-stills/ACT1_B011.png",
+      "bytes": 12873,
+      "sha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "2d92c2c3526a0873e712ae33be19af567544e2b6ef3c86ac7f4b08dc7075dfb8",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B012",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/printer-documents",
+      "relativePath": "controlled-stills/ACT1_B012.png",
+      "bytes": 11693,
+      "sha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "b5199427a7f1a2d4bdaf59b85d2c63b3c1dc9177d602a6802396b86e107d97ae",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B013",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/mailbox-home",
+      "relativePath": "controlled-stills/ACT1_B013.png",
+      "bytes": 13551,
+      "sha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "8bcc6a5544969f306723c4769d777d55b88a9830a71036283aaf60a87f6d506a",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B015",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/phone-notepad",
+      "relativePath": "controlled-stills/ACT1_B015.png",
+      "bytes": 11804,
+      "sha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "c4218f9fed4a63debc7c9f195278485412e9a2799651cea1600208cd02bbea0f",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B020",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/kitchen-documents",
+      "relativePath": "controlled-stills/ACT1_B020.png",
+      "bytes": 11275,
+      "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B022",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/blank-interface",
+      "relativePath": "controlled-stills/ACT1_B022.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT1_B030",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/prison-corridor",
+      "relativePath": "controlled-stills/ACT1_B030.png",
+      "bytes": 17884,
+      "sha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "2d79ee05c2c04cc5f031496759162af3e62dfb65942e3dfe3754abe94ee5770c",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B002",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/rural-landscape",
+      "relativePath": "controlled-stills/ACT2_B002.png",
+      "bytes": 10748,
+      "sha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "c607cb66be88a89d92353dd76245bf0391314a74820a1fb053fc0e05dceb4bf4",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B003",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/small-town-street",
+      "relativePath": "controlled-stills/ACT2_B003.png",
+      "bytes": 12164,
+      "sha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "122045222e794f6d9dbd8cbcb21b343d930b6a445d17e8a032bcff9dfe293ae2",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B009",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/corporate-lobby",
+      "relativePath": "controlled-stills/ACT2_B009.png",
+      "bytes": 17883,
+      "sha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "c279275d9acb1da5cb54702bce77ff8fd95881a1b16b14acc1bac1787fc876eb",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B011",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paperwork-one",
+      "relativePath": "controlled-stills/ACT2_B011.png",
+      "bytes": 9433,
+      "sha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "54bc6e16f3406fc0d8810c490abfafd0464661fa88cbf1c82e38794c949ddff8",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B012",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paperwork-three",
+      "relativePath": "controlled-stills/ACT2_B012.png",
+      "bytes": 9972,
+      "sha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "271ac8d0117f31317029a56c1eadba4d6d84aaa8c82bd758d13b887428c3a560",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B013",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/paper-packet",
+      "relativePath": "controlled-stills/ACT2_B013.png",
+      "bytes": 9914,
+      "sha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "5bb8b656725f2c9f2bfc9e4f5a5f5e8092b77a2471be936b8f5afefaffd6f853",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B015",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/eight-products",
+      "relativePath": "controlled-stills/ACT2_B015.png",
+      "bytes": 13874,
+      "sha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "c9af005dcff37e5c76496343a20f3a45dc6869c6a4c13bd488c5dd0d9aa8403f",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B020",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/metrics-screen",
+      "relativePath": "controlled-stills/ACT2_B020.png",
+      "bytes": 12141,
+      "sha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "f49c6857792286e7a73219c04ade980d98ad685cc6f7ffaf2ad4e56ab396e21b",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B021",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/badge-report",
+      "relativePath": "controlled-stills/ACT2_B021.png",
+      "bytes": 12150,
+      "sha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "0f03d2d0b7ea739ea8a3f54a111a33f686dc49086b1e05d51531a31987afc094",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B024",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/glass-tower",
+      "relativePath": "controlled-stills/ACT2_B024.png",
+      "bytes": 17886,
+      "sha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "83ee7e93c961fb5a53d76c9fb92d04e4f1c7a1da08217c342aaf34cc8c476c76",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT2_B025",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/workstation-grid",
+      "relativePath": "controlled-stills/ACT2_B025.png",
+      "bytes": 18884,
+      "sha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "71a64a01c35430a2415a6dfa11f0c190aee168cefde836521ad7260dbd113b75",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B006",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/forms-cascade",
+      "relativePath": "controlled-stills/ACT3_B006.png",
+      "bytes": 12305,
+      "sha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "a9bff2cb62a92cb5dc29c58669c7fe03f716a369becd5d10243422d49030ebdf",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B007",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/blank-interface",
+      "relativePath": "controlled-stills/ACT3_B007.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B010",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/email-field",
+      "relativePath": "controlled-stills/ACT3_B010.png",
+      "bytes": 12059,
+      "sha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d86b76ca2e10938dd49116e653cd5a950782107298f968b64beb7ea67f220972",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B013",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/customer-files",
+      "relativePath": "controlled-stills/ACT3_B013.png",
+      "bytes": 13758,
+      "sha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "00f8b1b1aa5c60582a089e716dafae0bf8e0e315e29ff94e5a1b005f45d3d035",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B020",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/message-grid",
+      "relativePath": "controlled-stills/ACT3_B020.png",
+      "bytes": 13027,
+      "sha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "b3e5ab3b66045beb2ddf779631891406f82b32145d6a035db407cbd0e682ffe5",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B026",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/break-room",
+      "relativePath": "controlled-stills/ACT3_B026.png",
+      "bytes": 12072,
+      "sha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "bce9a061f52e02abb80bdee9c96cf7b3607453a217578c3f80db1c917cd2b85b",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3_B027",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/bathroom-sink",
+      "relativePath": "controlled-stills/ACT3_B027.png",
+      "bytes": 13400,
+      "sha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "2c4d267cc23b0c017a8deafa4a7759b72d11f0fd003200d0a51437aad0b4d282",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/envelope-statement",
+      "relativePath": "controlled-stills/ACT3B_B001.png",
+      "bytes": 13420,
+      "sha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "e8eee00a8dfa9fa1a15f40b07e5be8bae2e5b5286fe235999924f3a76b8cb9e5",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/card-mailer",
+      "relativePath": "controlled-stills/ACT3B_B004.png",
+      "bytes": 13422,
+      "sha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d76c50ad43feb6a3fc8df026e2212d17cca16a8c07d1e1c037d492c238eb62f8",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/moving-box",
+      "relativePath": "controlled-stills/ACT3B_B007.png",
+      "bytes": 9888,
+      "sha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d78e13729652c166d420e4a1a9e06728e9064b9bb8a0e7a4470ab2bb843b6f50",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/terminal-hands",
+      "relativePath": "controlled-stills/ACT3B_B013.png",
+      "bytes": 11945,
+      "sha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "d980414d86445772fb6d3538a47921acf711eb7c7faceab03afb1194286c3cfb",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/termination-desk",
+      "relativePath": "controlled-stills/ACT3B_B016.png",
+      "bytes": 12001,
+      "sha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "9705e6741021fc7c4a77ab35a6a34785708223483589117efce51a9d8f2fa0a3",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/phone-box",
+      "relativePath": "controlled-stills/ACT3B_B018.png",
+      "bytes": 10842,
+      "sha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "cb4d80f301bbf1d08dbd89d22c197c0fb9358c413f3afffb713a4fbde9e565e7",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT5_B010",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/apartment-documents",
+      "relativePath": "controlled-stills/ACT5_B010.png",
+      "bytes": 11275,
+      "sha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "a212bb1195428b2830c6397c2ea81c0a6cb48fcf51be2de8186284e3e5bb89f3",
+      "byteIdenticalAcrossTwoBuilds": true
+    },
+    {
+      "beatId": "ACT5_B013",
+      "constructionRoute": "ORIGINAL_DETERMINISTIC_VECTOR_RASTER/departure-silhouette",
+      "relativePath": "controlled-stills/ACT5_B013.png",
+      "bytes": 13238,
+      "sha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556",
+      "width": 1920,
+      "height": 1080,
+      "mimeType": "image/png",
+      "repeatedBuildSha256": "ab12cf30e608c416b652b41bd57eb4d99879c89cdf7f4b4ae1c6084535ed6556",
+      "byteIdenticalAcrossTwoBuilds": true
+    }
+  ],
+  "contactSheets": [
+    {
+      "relativePath": "contact-sheets/controlled-stills-01.png",
+      "bytes": 29692,
+      "sha256": "da34198ab674dcbaa88410947ca5f9cafd76fe067846c87f4f1c1f41730dfb2c",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "relativePath": "contact-sheets/controlled-stills-02.png",
+      "bytes": 29610,
+      "sha256": "1d5d5bb19395441e8f2b463abb9f125624c4ba00c617017296ad441bb8600dcc",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "relativePath": "contact-sheets/controlled-stills-03.png",
+      "bytes": 24018,
+      "sha256": "b01208e0a4266e1f3f92808bbb30dce7554a35eb3ce4149e68c926af205365e1",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

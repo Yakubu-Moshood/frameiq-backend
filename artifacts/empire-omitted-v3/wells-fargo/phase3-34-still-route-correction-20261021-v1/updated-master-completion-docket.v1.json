@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "phase3-master-completion-docket/2.0.0",
+  "status": "PHASE3_34_STILL_ROUTE_CORRECTION_PENDING_HUMAN_APPROVAL",
+  "repository": {
+    "commit": "316177e7595e2e0874e298352cf77374a2fb9f84",
+    "branch": "codex/phase3-controlled-media-pilot"
+  },
+  "rejection": {
+    "rejectedPlaceholderPackageIndexSha256": "8ea25ef485e127a70e43fa2867a15d611be174c9925dcc59d5216448f79ce3e6",
+    "rejectedConstructedStills": 33,
+    "passedVisualReview": 0,
+    "disposition": "DO_NOT_REVISE_PLACEHOLDERS_INDIVIDUALLY"
+  },
+  "routeCorrection": {
+    "affectedBeats": 34,
+    "includesAct1B005": true,
+    "from": {
+      "productionMethod": "CONTROLLED_STILL",
+      "assetType": "controlled_image"
+    },
+    "to": {
+      "productionMethod": "GENERATED_STILL",
+      "assetType": "generated_image"
+    },
+    "route": {
+      "productionMethod": "GENERATED_STILL",
+      "assetType": "generated_image",
+      "provider": "FLUX 3",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "resolution": "1k",
+      "aspectRatio": "16:9",
+      "outputFormat": "PNG",
+      "imagesPerBeat": 1,
+      "promptExpansion": false,
+      "retries": 0,
+      "fallback": false,
+      "maximumSubmissions": 34,
+      "unitMaximumExposureUsd": 0.048,
+      "maximumExposureUsd": 1.632,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    "amendmentApplied": false
+  },
+  "replacementBatches": [
+    {
+      "batchId": "phase3-34-replacement-stills-batch-1",
+      "path": "provider-batches/replacement-generated-stills-batch-1.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "sha256": "bda967e41208c317e189691606d4763d33e70950af573a0a7d83b3a1bec1401b"
+    },
+    {
+      "batchId": "phase3-34-replacement-stills-batch-2",
+      "path": "provider-batches/replacement-generated-stills-batch-2.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "sha256": "9d057eddd17fb02bb271a759ed1310c0dcf0be0bf3050483a8755d7abb4c07e5"
+    },
+    {
+      "batchId": "phase3-34-replacement-stills-batch-3",
+      "path": "provider-batches/replacement-generated-stills-batch-3.v1.json",
+      "requestCount": 10,
+      "expectedExposureUsd": 0.48,
+      "maximumExposureUsd": 0.48,
+      "sha256": "3de215b309a566be58745bb8bf1f309fe118f4eafbee2fb12b366c08cb709c2a"
+    },
+    {
+      "batchId": "phase3-34-replacement-stills-batch-4",
+      "path": "provider-batches/replacement-generated-stills-batch-4.v1.json",
+      "requestCount": 4,
+      "expectedExposureUsd": 0.192,
+      "maximumExposureUsd": 0.192,
+      "sha256": "5670c11fa945b30966f9254ac4e1d76f842691973ebc1afa3c0b5da964c757d1"
+    }
+  ],
+  "existingSevenProviderManifests": {
+    "unchanged": true,
+    "manifestCount": 7,
+    "requestCount": 49,
+    "maximumExposureUsd": 9.744
+  },
+  "revisedRemainingPlan": {
+    "replacementGeneratedStills": 34,
+    "existingGeneratedFinalStills": 7,
+    "animationSourceStills": 21,
+    "animations": 21,
+    "totalSubmissions": 83,
+    "maximumExposureUsd": 11.376,
+    "providerEnforced": false
+  },
+  "preserved": {
+    "lockedFields": [
+      "beat IDs",
+      "narration",
+      "timing and frame allocation",
+      "visual intent",
+      "evidence bindings",
+      "ownership fields"
+    ],
+    "unrelatedCandidateRecords": true,
+    "act3bB010Retirement": true,
+    "completedProductionRecords": [
+      "ACT1_B006",
+      "ACT1_B009",
+      "ACT1_B010"
+    ]
+  },
+  "exactHumanApprovalsRequired": [
+    "Approve the 34-row route-only amendment.",
+    "Approve the 34 prompt/negative contracts and two-stage local-typography designations.",
+    "Approve the four non-authorizing replacement-still manifests and USD 1.632 maximum exposure.",
+    "Acknowledge the reconciled 83-submission, USD 11.376 maximum remaining provider plan.",
+    "Later provide separate exact execution authorization for each batch; this package does not authorize submission."
+  ],
+  "authority": {
+    "providerSubmissionsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "requestKeysReserved": 0,
+    "mediaGenerated": 0,
+    "stage04Modified": false,
+    "rendered": false,
+    "promoted": false,
+    "deployed": false,
+    "productionPathWrites": 0,
+    "committed": false,
+    "pushed": false
+  }
+}

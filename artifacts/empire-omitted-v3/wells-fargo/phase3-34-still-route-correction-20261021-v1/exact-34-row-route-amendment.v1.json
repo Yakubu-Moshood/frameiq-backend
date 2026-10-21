@@ -1,0 +1,1822 @@
+{
+  "schemaVersion": "phase3-controlled-to-generated-still-route-amendment/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING_UNAPPLIED",
+  "rowCount": 34,
+  "sourceManifest": {
+    "path": "artifacts/empire-omitted-v3/wells-fargo/phase3-consolidated-act5-production-candidate-20261004-v5/candidate/production-manifest.json",
+    "sha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+  },
+  "route": {
+    "productionMethod": "GENERATED_STILL",
+    "assetType": "generated_image",
+    "provider": "FLUX 3",
+    "endpoint": "blackforestlabs/flux-3/text-to-image",
+    "resolution": "1k",
+    "aspectRatio": "16:9",
+    "outputFormat": "PNG",
+    "imagesPerBeat": 1,
+    "promptExpansion": false,
+    "retries": 0,
+    "fallback": false,
+    "maximumSubmissions": 34,
+    "unitMaximumExposureUsd": 0.048,
+    "maximumExposureUsd": 1.632,
+    "providerEnforced": false,
+    "executionAuthorized": false
+  },
+  "preservationContract": {
+    "unchanged": [
+      "beat IDs",
+      "narration",
+      "timing and frame allocation",
+      "visual intent",
+      "evidence bindings",
+      "ownership fields",
+      "all unrelated candidate records",
+      "ACT3B_B010 retirement",
+      "completed ACT1_B006 production records",
+      "completed ACT1_B009 production records",
+      "completed ACT1_B010 production records"
+    ],
+    "onlyCandidateFieldChanges": [
+      "productionMethod",
+      "assetType"
+    ]
+  },
+  "rows": [
+    {
+      "beatId": "ACT1_B005",
+      "before": {
+        "shotId": "ACT1_B005",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B005",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "e39b0dd686bdfaf89f1941ce22fe937bc9ea097031818e6b975168aba44953ba",
+      "negativeInstructionsSha256": "a0bbe821401f1e4b187bff10cd2be358c76e846c946751b7d547d1b1812efa23",
+      "requestKey": "635124f79ec7d78a4cdff2506b4496208482e392e2bd6614cd4a1bd8ac5a78c6"
+    },
+    {
+      "beatId": "ACT1_B011",
+      "before": {
+        "shotId": "ACT1_B011",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_04",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B011",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_04",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "c74b6ab7ba9943aa3e07eba348cdefd0348de8ebf6c7f3cc78490740f952192c",
+      "negativeInstructionsSha256": "f17fca77b3f35963f56868e731e624c7c32d60f3b0f0414e1e2d05abc06cdd0c",
+      "requestKey": "feb0f4e6541e2076a71cda7e3adc49e485bea5359c0ebc5ea763f7fe6bdc8357"
+    },
+    {
+      "beatId": "ACT1_B012",
+      "before": {
+        "shotId": "ACT1_B012",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B012",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "a6a1b8868fabf73b7fcd1cc0c5a03911309aca5af63d8b411720eca26199303d",
+      "negativeInstructionsSha256": "7480cc4b1c3fba2c645a82a6a60f0be606780416501538b35dc0c6bb7d65b83d",
+      "requestKey": "78cf3acc9809b2ba7b67a7cedce414d009d8e40385f674c2fd27adf8ce251f9f"
+    },
+    {
+      "beatId": "ACT1_B013",
+      "before": {
+        "shotId": "ACT1_B013",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B013",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "10885969b0b716f2bb1580cdb6fca63b29ed386a1bbda5704eda568d5bf293f3",
+      "negativeInstructionsSha256": "6de5d3c504a8aa4c9cdd41c33b6886b2f3021a616b7a7824d8e344ef1f81eac6",
+      "requestKey": "ca002b7d837e28eb48f1bdbcdcf37a3efadbad94e12d2753ebf3fa25ee3ea96b"
+    },
+    {
+      "beatId": "ACT1_B015",
+      "before": {
+        "shotId": "ACT1_B015",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B015",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "023cee2bc0f703ebf56dab4f9332cf406d1ea68467dbdf5ebd04187098581a48",
+      "negativeInstructionsSha256": "0643d1ebe625f4828d4d19baf063f79aa5fb9de37466e3520ab4f48a8a76768d",
+      "requestKey": "a7e05c7a1478c169662eb6d8b29e00a9d66e8fe7085516db1cc2fd786b8d1cec"
+    },
+    {
+      "beatId": "ACT1_B020",
+      "before": {
+        "shotId": "ACT1_B020",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_08",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B020",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_08",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "3dacc8ee0d528174fc2cb407c766ccf2f5abde47eddb234c377fba21157091f2",
+      "negativeInstructionsSha256": "d70066c4d0e2458266b57d634cb1606ad03a5cb6fe914ec797047f454b3b5ccf",
+      "requestKey": "5851d5c3c145350d5230bff7a3a713ccb61bfced4b34ab5c53d182839ffdad0b"
+    },
+    {
+      "beatId": "ACT1_B022",
+      "before": {
+        "shotId": "ACT1_B022",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_09",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B022",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_09",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "4fe6a061776350513bfe7ff796d957c8e6d143cf2c0d7a391cc6da1765417de3",
+      "negativeInstructionsSha256": "a7e42f759074e2fe1ed7da03420751fc889857ecb3a80f30e3cf01e8170e3a22",
+      "requestKey": "979ae06bef26e9ad13e67315a019105d3febdb6a0a6a07926c225cf4f7f72117"
+    },
+    {
+      "beatId": "ACT1_B030",
+      "before": {
+        "shotId": "ACT1_B030",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_11",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT1_B030",
+        "actKey": "act1",
+        "sequenceId": "SEQ_ACT1_11",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "85262403e0672937731983efbed710b0ac195227efea6ba4de292b6dd8d363da",
+      "negativeInstructionsSha256": "8bb9266c94eea2bb060bdb5d09c4321d26c58d262d6b3f9b389c9023b999610c",
+      "requestKey": "fa93c0757c13e529bcc14f6798fa67161167756841c92f49bb749a4212da9762"
+    },
+    {
+      "beatId": "ACT2_B002",
+      "before": {
+        "shotId": "ACT2_B002",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B002",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "8936596fee5a95eb8920c8d72b5e06747b2027f7e054bf9a8179ec800d74a441",
+      "negativeInstructionsSha256": "ec9467f13269e29673bafff317518d9c52af1bdaeee4db6d017c52402ace29a1",
+      "requestKey": "efdae312bef88c3deacfcee01e59d466067afc73bdb9aedbd090fdf4108b9800"
+    },
+    {
+      "beatId": "ACT2_B003",
+      "before": {
+        "shotId": "ACT2_B003",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B003",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "5f3b1a45d4ff9238f729eae599223535a24254276ebde66939a61785b8734f0c",
+      "negativeInstructionsSha256": "097fec0d2b1df43e84f0212ef0ce156d15ff05ab6f045806cd49eff52ce0a69f",
+      "requestKey": "f8919aef1cfc430aad6cdd0f2c2195f745ccde8c2c68b10a7ed79fdd0558aaf5"
+    },
+    {
+      "beatId": "ACT2_B009",
+      "before": {
+        "shotId": "ACT2_B009",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B009",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "b9039e8d89a4e54373c456814ac8b09ead834ebf12a05d3c4fc61acfbeb937f2",
+      "negativeInstructionsSha256": "e5c7fbc30bc887ec1b6667695b7e69cba4b7906f7b32f74902fa60bcd2091629",
+      "requestKey": "c38944ef1a7d5c891265b82f981d354a1e4a248c7062d970b2c1c0ffa57fa0d0"
+    },
+    {
+      "beatId": "ACT2_B011",
+      "before": {
+        "shotId": "ACT2_B011",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B011",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "4444aa5c6efe9c4224ba3da92e1e8a3fa6ebd6f554d567ad611dcbf6e6f2a91e",
+      "negativeInstructionsSha256": "994ac415bd852e163b47d962efe495eebd3efc96ec2cc3a8c55a0d473be28928",
+      "requestKey": "ddbc7823712d6ab6ef4f54f8f42d7ae80f7b8b56128553a3f91a05bd5cae8809"
+    },
+    {
+      "beatId": "ACT2_B012",
+      "before": {
+        "shotId": "ACT2_B012",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B012",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "bcb9ff98e56a0a64b43ced7b063573ace327691ab0d5660996c5a65e6b63eee7",
+      "negativeInstructionsSha256": "0df4394909383b65c3cc66227501a7c1468f8916804aa4d89dfb6ca10bae4e6d",
+      "requestKey": "6afabb7d58a1f92b9a07daa01a8d83cf4ab7e259853eb4d4923b7abae77e2492"
+    },
+    {
+      "beatId": "ACT2_B013",
+      "before": {
+        "shotId": "ACT2_B013",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B013",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "4a8968b8fbf09493e2583536648a0591f40bd04e5621308999f4d7bc237367df",
+      "negativeInstructionsSha256": "68a183a3609204796c6827efdfa65fcf63d3766bb1a964422ca98309628a0011",
+      "requestKey": "ec2e7a48293f95c7f01e505757e40db412128b77b039abd79348b3b74d177f41"
+    },
+    {
+      "beatId": "ACT2_B015",
+      "before": {
+        "shotId": "ACT2_B015",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_04",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B015",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_04",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "570f8ae47717f9846b754652248ea5107ad519bd863470315da4ce6bde60da70",
+      "negativeInstructionsSha256": "74e4875c28667f321a94701405044c72e136ec9cbbff5ad7f81fa5ddd6be26bd",
+      "requestKey": "de44fd7a1389b6757aad8ca194b31a0df7db772a5899b27ef369c0140ce46c33"
+    },
+    {
+      "beatId": "ACT2_B020",
+      "before": {
+        "shotId": "ACT2_B020",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B020",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "fda0db451eda45797a325844884d0f5b786ed6b3298e14497c1541adccefc0c4",
+      "negativeInstructionsSha256": "5fe0a102a80409a9cda4c01bf98feb8831733aacb5aff3c448923f3e31e64bc7",
+      "requestKey": "0f639da2a31dfa367fbc95a4f64fa28e627520cf03c3e44743422b20a4abee4c"
+    },
+    {
+      "beatId": "ACT2_B021",
+      "before": {
+        "shotId": "ACT2_B021",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B021",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "e77db0c0ae7e835fd38ec2c10c993035eba0c6561237bd9aa6acaae532f6b08c",
+      "negativeInstructionsSha256": "c26dde157fb8ac616c57c863f59b024b77dec8c3464107d463e228fdb1d258be",
+      "requestKey": "bd73853fbccb2812d343862d5319b8f0ca013910b3fd58d91960a96a6dd49c64"
+    },
+    {
+      "beatId": "ACT2_B024",
+      "before": {
+        "shotId": "ACT2_B024",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B024",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "602c9d9975dbeb5667d0bbfdabbbdbaa5e437020e81434eebb7ab62e1d320d9f",
+      "negativeInstructionsSha256": "87d6f6e15110b96256a4a179b5e7a1aca217aefa1a19479936ebfaf78d0a3103",
+      "requestKey": "05dbfa023dcf178c36a4d1224593525ac0edeaf28c8bdd5537bc711a51993b7c"
+    },
+    {
+      "beatId": "ACT2_B025",
+      "before": {
+        "shotId": "ACT2_B025",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT2_B025",
+        "actKey": "act2",
+        "sequenceId": "SEQ_ACT2_07",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "651d529aa291c4fa4bad37ac286056c937447be3906dcce7e6daf158061d501b",
+      "negativeInstructionsSha256": "3e66fe9626b4daf5dd0117fe95416f4a7bb023e71a756d898c95e91e03957a09",
+      "requestKey": "25bcab5f2ebed62c6c2639bef46c264a79e0c2b60dc8545535e770568c29e1cc"
+    },
+    {
+      "beatId": "ACT3_B006",
+      "before": {
+        "shotId": "ACT3_B006",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B006",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "006148403194296633d9759bcf584d8471d233f257f5b7e7b5e1add9667d8dd1",
+      "negativeInstructionsSha256": "b5f6b7bb38cee8297f89cad7c783b49ba857306bc577f2e4e465331e6179bc33",
+      "requestKey": "fe10e3c2cb97d5379d303f571b582ff7c4b03ac6a7befcefd1e61b0ff21d38d3"
+    },
+    {
+      "beatId": "ACT3_B007",
+      "before": {
+        "shotId": "ACT3_B007",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B007",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "f4d7abd4ce00d410bf8af538592e53b39c2c3914c9a02c450bb00409ba0f68da",
+      "negativeInstructionsSha256": "1e02c4628998df8499af2d8eb77a72893a9c5c7aad0499ef4fc6a5cc697fe829",
+      "requestKey": "8faa8020a5bf863c908f3f5bfa8516cd3107f968be1894c37a658e02b725d08d"
+    },
+    {
+      "beatId": "ACT3_B010",
+      "before": {
+        "shotId": "ACT3_B010",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B010",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "7e204ddd3d34cceda35f8fed3a3f4e1ec7e49f17ceddbb0c7ed253a3fee69a13",
+      "negativeInstructionsSha256": "b4411d7dc003678f7ff4a740ceb211b998cc67d5bce7e0fc4922c8e369da1c1d",
+      "requestKey": "aafbd6df90384e94ab89e9d31fbac83dfc71380db756d327ccff0353a983d733"
+    },
+    {
+      "beatId": "ACT3_B013",
+      "before": {
+        "shotId": "ACT3_B013",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_04",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B013",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_04",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "5099502e7ed41702c5ad91490b3785855f9a5fe805c26c38bbc1a640817e329a",
+      "negativeInstructionsSha256": "cac440551e52ddac39377b6080c9a7dbfd32718e2a65a4e163ffb8e81270a1fe",
+      "requestKey": "2b9a3c1f34e94775f6915a6806d1a610d7799de2019580d4c0e9b2429f3c7c13"
+    },
+    {
+      "beatId": "ACT3_B020",
+      "before": {
+        "shotId": "ACT3_B020",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B020",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "dcaffc00ce85471b6310b13ea2bc75e6c8685daff640f17460dbc15994e2c92c",
+      "negativeInstructionsSha256": "dde99d5e756a28f308b81eae4d5e8ccd36fb7d1db66d129c2cfbbc3213c94b61",
+      "requestKey": "8f52074fcfae9035adf2ee1a59e89b9e8dc0a7218c30f433290ffcc43d01ce8e"
+    },
+    {
+      "beatId": "ACT3_B026",
+      "before": {
+        "shotId": "ACT3_B026",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B026",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "3c5944de25a14eea6f60e8e592e7dcb7ca9a55d8b955ff5af516355aaaa16a17",
+      "negativeInstructionsSha256": "87a042fa662a62ffdf2be329372082c7c2086f205c2061a731724c4240ef1688",
+      "requestKey": "2299423564f767d23ddf9864dec1bfd48fdcff75b6152b724686b3b418bc3784"
+    },
+    {
+      "beatId": "ACT3_B027",
+      "before": {
+        "shotId": "ACT3_B027",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3_B027",
+        "actKey": "act3",
+        "sequenceId": "SEQ_ACT3_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "94bc05bff9affafa4314668b7550e309cae870f21160b51fad43bf467f2b07f2",
+      "negativeInstructionsSha256": "1aa7dc177a022d43c19f1b44f11d2be749f5e73071036f3632ab34f889d1b8dc",
+      "requestKey": "a8db6443c2d188396290d45b6b4db94deb1473762ab53a294fe9f4e5c94fe588"
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "before": {
+        "shotId": "ACT3B_B001",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B001",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_01",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "0bce46e0734b9590954c4caf259b1ca4de26088e7958899983d3bd9c74ba9336",
+      "negativeInstructionsSha256": "febced0b3ec077f6598a612d8e4119c71b224dcfe8f131edb5afdf7b35816d85",
+      "requestKey": "c1b85d20eabd6eecc78cc9e9ee905a728b3e94a9f79487382253c5d1fbcfa369"
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "before": {
+        "shotId": "ACT3B_B004",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B004",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "f1257f27db9ef832da9aa8adc750866018ba24b0eb9d217086cb5bf2436ddb0b",
+      "negativeInstructionsSha256": "7c6aec0e49ebde7ff9a478a7eda7d7575ae46e8eb054e84053012bda13dccf88",
+      "requestKey": "6f5df9ea1dc0ec7c76ea0eb7c6584f5f405aaf3e599bb10f525873f41e4ebb5b"
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "before": {
+        "shotId": "ACT3B_B007",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B007",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_03",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "0f06b17a2f094d754c69e2730ef996eb642f479ca3d9f82e71b7dcd18cafe4c8",
+      "negativeInstructionsSha256": "0b2a1ff264cfa8ad4329628f43c4502aca7d2f838eb09ce19a2fa78f34480e7d",
+      "requestKey": "414a587a4653e2e73b9e5695c667862a542a6f19cfd7f0aa1d52b2c7f984597e"
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "before": {
+        "shotId": "ACT3B_B013",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B013",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_05",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "19225bbe4e8c05729e0f6966899e2d197b293967ffb80199055584fa32525a29",
+      "negativeInstructionsSha256": "9551d8ef2300c27c3ac7aad413adc45084424ad3b7ccfb6f9422ba4c8dce26bb",
+      "requestKey": "37a8c05a9ae0384e2fe167bd9085ecc7005f5429de20c9943f1ba930eeb03b9b"
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "before": {
+        "shotId": "ACT3B_B016",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B016",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "2b8e7592f1b99f3420363084f234e50d5b51da6574d628b9ec239cb5821ab676",
+      "negativeInstructionsSha256": "722ddb303e37cfdbc061772860484795653dc2a33fffc1f291b282c1a7ea50af",
+      "requestKey": "1afcc9d0fbdd28861caad55efc7fb722209a964e35b369645b9b2451ea4f3b9f"
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "before": {
+        "shotId": "ACT3B_B018",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT3B_B018",
+        "actKey": "act3b",
+        "sequenceId": "SEQ_ACT3B_06",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "3b993f79ae4e32b156a44a50cc041e6b2b506ac7bc625f378a1cf05d9ed9da04",
+      "negativeInstructionsSha256": "96a4c7aad8b5abff2c0d613e6f6b45ef2ee2939b79a14c08e5dd0a7c8840d287",
+      "requestKey": "fb1b1334ba1c60a9630f3d7887631ca02c2b3aa8c49318d604ff0ee15bca5329"
+    },
+    {
+      "beatId": "ACT5_B010",
+      "before": {
+        "shotId": "ACT5_B010",
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT5_B010",
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "d34e101ecb54f0c510c19901f8d1b6e93fd920801de7db4844d1d55e7c51760d",
+      "negativeInstructionsSha256": "3fb0cac9c2b9425931a510041d5d0b1c6792ce640fc5685ca9d533db80c3d3de",
+      "requestKey": "b84f6bdac3b1675cc6dcfb305edb9ff9a31abb90d952ecec98f2ed6d1f99e990"
+    },
+    {
+      "beatId": "ACT5_B013",
+      "before": {
+        "shotId": "ACT5_B013",
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "controlled_image",
+        "productionMethod": "CONTROLLED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "after": {
+        "shotId": "ACT5_B013",
+        "actKey": "act5",
+        "sequenceId": "SEQ_ACT5_02",
+        "visualClass": "RECONSTRUCTION",
+        "assetType": "generated_image",
+        "productionMethod": "GENERATED_STILL",
+        "status": "APPROVED",
+        "blockerCodes": [],
+        "sourceStatus": "NOT_REQUIRED",
+        "graphicStatus": "NOT_REQUIRED",
+        "primaryGraphicAsset": false,
+        "overlayGraphicRequirement": false,
+        "graphicObjectCount": 0,
+        "graphicObjects": [],
+        "sourceRequirement": null
+      },
+      "changedFields": [
+        {
+          "path": "productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ],
+      "positivePromptSha256": "4710dfe7f592561f9c77671b6285f6fa592faea3a4988d0d6479cb64ccc71438",
+      "negativeInstructionsSha256": "b60e0d84382874b5fee598e5c2dd99502e32cb0ff24eca2006e64669d3757e30",
+      "requestKey": "0cd1923d93fa33f90783aacf730671e88c136ec5f264fd6ca0d150b18d3579ae"
+    }
+  ],
+  "authority": {
+    "amendmentApplied": false,
+    "candidateModified": false,
+    "providerSubmission": false,
+    "executionAuthorization": false
+  }
+}

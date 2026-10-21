@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-package-index/1.0.0",
+  "status": "PHASE3_34_STILL_ROUTE_CORRECTION_PENDING_HUMAN_APPROVAL",
+  "packageId": "phase3-34-still-route-correction-20261021-v1",
+  "createdAt": "2026-10-21T00:00:00.000+01:00",
+  "fileCount": 17,
+  "files": [
+    {
+      "path": "before-after-difference-report.v1.json",
+      "bytes": 12565,
+      "sha256": "657e088b4db420269a717cb4c9ff4af4eb056e5c125098ceb3580954cedfeb17"
+    },
+    {
+      "path": "controlled-still-rejection-record.v1.json",
+      "bytes": 10004,
+      "sha256": "b82a1d8e036a4db4077f8a7d18445135492cf88eebfb0306390b5faaed8c1755"
+    },
+    {
+      "path": "exact-34-row-route-amendment.v1.json",
+      "bytes": 61637,
+      "sha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+    },
+    {
+      "path": "exact-human-approval-wording.md",
+      "bytes": 1515,
+      "sha256": "cfb913475b30932ee56e63d8c8ac1cf8d968ae8321405724c8c3f6e2781a0e55"
+    },
+    {
+      "path": "existing-seven-provider-manifests-reconciliation.v1.json",
+      "bytes": 3282,
+      "sha256": "d3d23e3b31974e749633716196137d4866324665d274ef54a3dbae01c9811721"
+    },
+    {
+      "path": "exposure-and-submission-reconciliation.v1.json",
+      "bytes": 670,
+      "sha256": "ffd931603262a4bda7d8ea38b01a87c085a52b932d5cebc4d00686e30240624f"
+    },
+    {
+      "path": "human-review-and-rejection-criteria.v1.json",
+      "bytes": 2480,
+      "sha256": "19f18b50c4f0cb31ec2422ce9344e56f5c8f9e54c9d70158ae3b1458a002f262"
+    },
+    {
+      "path": "prompt-and-negative-contracts.v1.json",
+      "bytes": 169074,
+      "sha256": "8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb"
+    },
+    {
+      "path": "provider-batches/replacement-generated-stills-batch-1.v1.json",
+      "bytes": 12366,
+      "sha256": "bda967e41208c317e189691606d4763d33e70950af573a0a7d83b3a1bec1401b"
+    },
+    {
+      "path": "provider-batches/replacement-generated-stills-batch-2.v1.json",
+      "bytes": 12363,
+      "sha256": "9d057eddd17fb02bb271a759ed1310c0dcf0be0bf3050483a8755d7abb4c07e5"
+    },
+    {
+      "path": "provider-batches/replacement-generated-stills-batch-3.v1.json",
+      "bytes": 12373,
+      "sha256": "3de215b309a566be58745bb8bf1f309fe118f4eafbee2fb12b366c08cb709c2a"
+    },
+    {
+      "path": "provider-batches/replacement-generated-stills-batch-4.v1.json",
+      "bytes": 5469,
+      "sha256": "5670c11fa945b30966f9254ac4e1d76f842691973ebc1afa3c0b5da964c757d1"
+    },
+    {
+      "path": "reproduction/build-package.cjs",
+      "bytes": 32117,
+      "sha256": "6ace47f0c900037fcff9d4598e90312a9a041832158e92869e53f4674b1cebea"
+    },
+    {
+      "path": "request-key-reconciliation.v1.json",
+      "bytes": 6358,
+      "sha256": "6def12383bec6b82c7624ceeb09fe93beb1543f19fb233f3c38e18c67f87fbcc"
+    },
+    {
+      "path": "revision-lineage.v1.json",
+      "bytes": 1671,
+      "sha256": "4fb426e66bdc6bcebe2d0badbdd5680fd2ce4c0b6c6061c9eedd8b58a8b5424b"
+    },
+    {
+      "path": "updated-master-completion-docket.v1.json",
+      "bytes": 4337,
+      "sha256": "6c9906219f5b08321d02fefc0cfe00e8ca005200ffe0db8b37e1312914040720"
+    },
+    {
+      "path": "validation-report.v1.json",
+      "bytes": 1278,
+      "sha256": "0020a18f83e763a86a8d3609b0d9681942151c0c1a55213dc737720f05b27bbc"
+    }
+  ],
+  "summary": {
+    "amendmentRows": 34,
+    "promptContracts": 34,
+    "replacementBatchManifests": 4,
+    "replacementRequests": 34,
+    "replacementMaximumExposureUsd": 1.632,
+    "existingProviderManifests": 7,
+    "revisedRemainingProviderSubmissions": 83,
+    "revisedMaximumPlannedExposureUsd": 11.376
+  },
+  "authority": {
+    "providerSubmissionsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "requestKeysReserved": 0,
+    "mediaGenerated": 0,
+    "stage04Modified": false,
+    "rendered": false,
+    "promoted": false,
+    "deployed": false,
+    "productionPathWrites": 0,
+    "committed": false,
+    "pushed": false
+  }
+}

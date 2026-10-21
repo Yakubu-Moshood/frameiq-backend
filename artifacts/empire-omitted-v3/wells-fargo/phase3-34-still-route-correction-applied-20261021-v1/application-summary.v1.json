@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-application-summary/1.0.0",
+  "status": "PHASE3_34_STILL_ROUTE_CORRECTION_APPLIED_EXECUTION_UNAUTHORIZED",
+  "approvalSha256": "d61a0a1c8fcc958b246e97d04a61892fbf98d7a5304413dd808c6756056cc977",
+  "childCandidateIndexSha256": "865d1535a9498765c5a4dd3d948e14d6dbb93142692b51640a506afffc8596b9",
+  "amendment": {
+    "rows": 34,
+    "sha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+    "changedFields": [
+      "productionMethod",
+      "assetType"
+    ]
+  },
+  "promptContracts": {
+    "rows": 34,
+    "textSensitiveRows": 16,
+    "sha256": "8ecb834a08acf2012f4555f371e762ee8f181e0a285a871d7b168e2251d367fb"
+  },
+  "remainingPlan": {
+    "providerSubmissions": 83,
+    "maximumExposureUsd": 11.376,
+    "providerEnforced": false
+  },
+  "authority": {
+    "providerSubmissionsAuthorized": 0,
+    "executionAuthorizationsCreated": 0,
+    "requestKeysReserved": 0,
+    "mediaGenerated": 0,
+    "stage04Modified": false,
+    "productionPathWrites": 0,
+    "rendered": false,
+    "promoted": false,
+    "deployed": false
+  }
+}

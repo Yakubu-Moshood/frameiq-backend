@@ -1,0 +1,360 @@
+{
+  "schemaVersion": "phase3-route-amendment-difference-report/1.0.0",
+  "status": "PASS_ONLY_PRODUCTION_METHOD_AND_ASSET_TYPE_CHANGE",
+  "rowCount": 34,
+  "changedPathUnion": [
+    "assetType",
+    "productionMethod"
+  ],
+  "changedValueCount": 68,
+  "sourceManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+  "rows": [
+    {
+      "beatId": "ACT1_B005",
+      "beforeRecordSha256": "a06b9a11db2b0eef617b779c191c916f3cd77fe05eb790384d7a2c569ef3001d",
+      "afterRecordSha256": "48d75d6f5fa6daa54b82f748a10e413e4d50d183c80da750d31af5ec6317b7c6",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B011",
+      "beforeRecordSha256": "2f8178d6fd712641ac2527ffe2d9002f890b05cb07e199fd348d4ebf24cdbc16",
+      "afterRecordSha256": "8e9c2f10a3dbb65e9ac0c99baa88b05cf0274acaebe7bd077860985004c4c55a",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B012",
+      "beforeRecordSha256": "21d8f2825eb2c62574d79e38ad1599a902a10bd78d7a3f1186234c5d21e1068d",
+      "afterRecordSha256": "353340552b3aec17f26199dc5bcf6b0e6c6c27537bf215d4f17f3cfb51c024d2",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B013",
+      "beforeRecordSha256": "41a3efd0353c4ebea55f647fc250ffc38e9ba8b7f7d6ee170229388ff8ea5e84",
+      "afterRecordSha256": "e2513f1b4e887a78013976cfe11959a96606d648ce9be90700b744af9c32bc36",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B015",
+      "beforeRecordSha256": "d35b741aad8be9fab84624f0ae54a49c316c528426e11d1683fc35446bc115e6",
+      "afterRecordSha256": "7aee7c1137836df382911a2d83e6b6e99445b47242b52999f2583f689750d277",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B020",
+      "beforeRecordSha256": "26d997b23240a4a67c189ac4c0b903e2ca1191c388763ab442a5d3cb625c9a08",
+      "afterRecordSha256": "39b021ea6ab6ba0f216bb296f5df934bd37f4fbed076bcfe8fa61050e303736c",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B022",
+      "beforeRecordSha256": "401622c6301c52735aa0e51c06f1085c6594f27569182436a90f60e42ceea770",
+      "afterRecordSha256": "412ffad8ac4f11809089e197139c5994c1205cfb51e6033724ca65e6b4438ba8",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT1_B030",
+      "beforeRecordSha256": "5023499d9837217a2141cca111e965d85da777c0a1d2f096f44211fc4d687d4b",
+      "afterRecordSha256": "310457eb3ff2ea1bfd3ab9b64b949634a9747f4823cf0b206c100dfe3d4389ab",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B002",
+      "beforeRecordSha256": "90109a4a2341f8c9dd345c8cdc9050be2d1aee0d01a49ca6b52effb62effd703",
+      "afterRecordSha256": "81257af8ed57df9025091c627b6c8d5f7369671dadc7f7d38ab93c3907930dce",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B003",
+      "beforeRecordSha256": "4513967780cb8a97e6d44e33889d42ac8ecd07909f332a150729212884905b65",
+      "afterRecordSha256": "67d80183e8946da9661f372a51c803f9a536a9085fecb87240bc88dad0c67b50",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B009",
+      "beforeRecordSha256": "975182da6276ba9b5d61e6e270e7047e2d29432a1e7fccf9daed14a7f0aadf87",
+      "afterRecordSha256": "9c4ff9f9abd3caa33b54312acf263f6cac0e5cba2e26243491c229decc8c197b",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B011",
+      "beforeRecordSha256": "dc19c0bbe6bd96c1b6bb791ce8ea8e69db1be77e4fc327910e2c253ef15605e8",
+      "afterRecordSha256": "3919ce1bbb43bc96abf5b138855a92c6df39aa6ba58209fc330a971eb3637ac9",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B012",
+      "beforeRecordSha256": "e8ec840cc3f7b21f3e7db2375231e94cbe7cce73e6f82712ac364019cffd89d4",
+      "afterRecordSha256": "de47b7b6f39f1c7284a1ac6cb7c9e0b68e82ccb98f64e26a9bd7e08efa135be3",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B013",
+      "beforeRecordSha256": "525c5f03df4cfca642fb78deecd84b5b0d9b1910d73626d1b3404b6c0c610b7a",
+      "afterRecordSha256": "92b5de96eded26038d7451af5da22021afde52e7ed2a38cae638eb4b93ba64f6",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B015",
+      "beforeRecordSha256": "542041b6c5f25d62d7b6ec2422226a40030b15f34a003e195c82c27f31515132",
+      "afterRecordSha256": "5587b24b481b69760c715bf5377ed1a4827618309dbd7a2aa96e24fc787d9217",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B020",
+      "beforeRecordSha256": "ea2e065bcf0aa25636eaf1756104c5238528964dd1cf48a17d15db4b04bed690",
+      "afterRecordSha256": "644a647039b26b7df7609fd98cbd37dead0c2404611c54449d8c86b127d67ba2",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B021",
+      "beforeRecordSha256": "cd4e58ac4947677054f36a7bebf8dc09f15cdaa26e6e0d1e310cbbb1f8da5f8c",
+      "afterRecordSha256": "c22fee02dcf86b80998f8c945998ed28d9037d3d2805995886cab9d7aa582ee6",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B024",
+      "beforeRecordSha256": "c78058e78da4735a8d5427759ac08a22e4ca217993763200eaeff372018ee343",
+      "afterRecordSha256": "444be30098bde81abef441193018a7b054c04e4d03d0d1543bd80f58ffae9932",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT2_B025",
+      "beforeRecordSha256": "6c475935ba5c0b2a5f8cf9df00f42023d089f68c343c0e547d7e89f651b77ca5",
+      "afterRecordSha256": "60235aa15b5425129e8fdc4633f71bfa062beff8c0c268ade971146783caa3b7",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B006",
+      "beforeRecordSha256": "8b6b7a67bfc1cc37b2caa13a257ec381f9fd84ce65f2d6f56168895d54468054",
+      "afterRecordSha256": "10724c63b40da49c7fc439fe5c8ef8363ff9df3a25c104906e105006c5affddf",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B007",
+      "beforeRecordSha256": "4b050e33ca59e1e402e9e9459ffa4f22c8b34191919f412581df20a9592eab24",
+      "afterRecordSha256": "ed74dc14d786fa6fb38d233904db83c910203b8299546e764f2e3aaf1c3f9f27",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B010",
+      "beforeRecordSha256": "7a108dd7956b84d3c9d8c0b9c3aa165091b1c3293b93884ac89177350ed976c1",
+      "afterRecordSha256": "778c447f1b37ba3e98151947058438b899ab825e652ba4876d013158d0108923",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B013",
+      "beforeRecordSha256": "49ef536f23176efa43b276c321404a6d6d70f0833e7f8ed88c700689ee6c4677",
+      "afterRecordSha256": "8958ec73052a1da9e13dcdec18684f5c5009a409696d467c29770e6c514165d5",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B020",
+      "beforeRecordSha256": "1f2c0dfd1eda6988c67cee2a8297ff59427353198e600af8ade940aaf236ce90",
+      "afterRecordSha256": "f2d4c80aaf6b3972b70ae0a26ef15bb47ac8fb3f0676194430d4675f13d74e4d",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B026",
+      "beforeRecordSha256": "54d97b1c2fd903443780ff78bbf5593941481ba03fd15a6bf445d9160ef42fff",
+      "afterRecordSha256": "5f46526bd6990f8d0b419834abffd4f887efd948477262e9dbfbe8ee2f81e3a9",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3_B027",
+      "beforeRecordSha256": "8fe24ed4c06a50effbefeee4c690d4b30a624ccfa39c71f4800007e8a8fcfacb",
+      "afterRecordSha256": "9c2326af66443f1d938b36155784068851698b9412a95c5d787ba29a7a9dcaab",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "beforeRecordSha256": "f824f6f3ff56ff93650533a9e0f64f3b93c3fefcb6b2c6a95df2b98a741773d8",
+      "afterRecordSha256": "d83260a8db54929b0573d89fd2469f22b9c3782881b0c34ac9124c65a6a25624",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "beforeRecordSha256": "9705e4a23f56fdb48619e0055164e93834b4aca347388e925f6f26cbfc79342d",
+      "afterRecordSha256": "b69fba4759e2e8ae3547fc7dae89726c83003479c0cd5d1847e6f3158fd26267",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "beforeRecordSha256": "9d93ba6f91c478fce98e3694d67aabd11d970446054159be1f4fd6b74a14b7a4",
+      "afterRecordSha256": "28177eee4016ab8105079c14681af60de96ef00a35a0820d1f63a96277a01e12",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "beforeRecordSha256": "d34121e49c6eec6f854e1c0cba04288a0794d23128ec512b804ed89d08d9904e",
+      "afterRecordSha256": "e5b54bea7572f08780c2bde0506459d793352b21b659416b26f0d654db240241",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B016",
+      "beforeRecordSha256": "5769773c19248174c5b2d0b5c0e0bebd38da74c8620132fc5f9527d5387c16c8",
+      "afterRecordSha256": "6918b45039454fa4aac3ac30460baf867b28171e97c6fec84e8b2cd42f308a60",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT3B_B018",
+      "beforeRecordSha256": "9f939774203b88d2239bd80e87f20694efac3888788154085feb1318fcdd894a",
+      "afterRecordSha256": "43884c9d7559eef7286f71cbd10f6e787d7ea6c5fb4c3cee4ba0b3dd76d7d8ef",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT5_B010",
+      "beforeRecordSha256": "f7ce26b89f8dad0cd9f93cb920e507253188dd5ce797b0abf754701efa4e34db",
+      "afterRecordSha256": "df36effdbacc2747b3ca798594a8161aa3ea0dfc81e22fefdbec2b2dff2aff4f",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    },
+    {
+      "beatId": "ACT5_B013",
+      "beforeRecordSha256": "5f90f1584eaacb124e1f21c1c6215372e3c339f00d5503d86dbd28f91a845672",
+      "afterRecordSha256": "55f9dba454720a2bb84ae41d30366676e0dd612fc7999b2dda6a6f628337ead6",
+      "changedPaths": [
+        "assetType",
+        "productionMethod"
+      ],
+      "unchangedFieldCount": 13
+    }
+  ],
+  "globalPreservationChecks": {
+    "shotDefinitionsUnmodifiedSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+    "evidenceManifestUnmodifiedSha256": "91b6e96cc20d1b9d1f7ea0f636b4dd5d2c3bc50ac9952e70ea92f00bbb6a4c61",
+    "graphicManifestUnmodifiedSha256": "4747c3f69e2b7f6881eea1d92d4d669c37e32a945c145e6b016ab919747359f6",
+    "unrelatedManifestRowsChanged": 0,
+    "act3bB010RemainsRetired": true
+  }
+}

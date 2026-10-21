@@ -1,0 +1,399 @@
+{
+  "ledgerVersion": "1.0.0",
+  "revisionId": "phase2.3b-b017-factual-correction",
+  "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION",
+  "lineageRole": "current",
+  "approvalStatus": "APPROVED",
+  "approval": {
+    "status": "APPROVED",
+    "basis": "User-approved exact replacement narration and SEC-filed Independent Directors’ report as the primary factual source."
+  },
+  "parentArtifactSha256": "6ab68c87b61c21b6b3bf74ee419885766c9603b021c0a9c8473be93715cdb71b",
+  "resultArtifactSha256": "0aaabb2ddac2b607d8b8580af578fd1375aff8aee4f5ee26354d1145f421bbb1",
+  "permittedImmutablePaths": [
+    "ACT3_B016.endWordIndex",
+    "ACT3_B016.narrationExcerpt",
+    "ACT3_B017.startWordIndex",
+    "ACT3_B017.narrationExcerpt",
+    "ACT3_B018.endWordIndex",
+    "ACT3_B018.narrationExcerpt",
+    "ACT3_B019.startWordIndex",
+    "ACT3_B019.narrationExcerpt",
+    "ACT3_B018.graphics",
+    "ACT3_B018.overlaySpecification"
+  ],
+  "entries": [
+    {
+      "shotId": "ACT3_B016",
+      "beatId": "ACT3_B016",
+      "mirrorActKey": "act3",
+      "fieldPath": "endWordIndex",
+      "beforeValue": 125,
+      "afterValue": 123,
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B016",
+      "beatId": "ACT3_B016",
+      "mirrorActKey": "act3",
+      "fieldPath": "narrationExcerpt",
+      "beforeValue": "they would create accounts for people who had died one whistleblower",
+      "afterValue": "They would create accounts for people who had died.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "startWordIndex",
+      "beforeValue": 126,
+      "afterValue": 124,
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "narrationExcerpt",
+      "beforeValue": "described watching a colleague open 24 accounts in a single",
+      "afterValue": "The board’s investigation found a branch manager’s teenage daughter had 24 accounts,",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "endWordIndex",
+      "beforeValue": 148,
+      "afterValue": 146,
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "narrationExcerpt",
+      "beforeValue": "day for customers who had never set foot in the branch the pressure",
+      "afterValue": "an adult daughter had 18, and the manager’s spouse had 21.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B019",
+      "beatId": "ACT3_B019",
+      "mirrorActKey": "act3",
+      "fieldPath": "startWordIndex",
+      "beforeValue": 149,
+      "afterValue": 147,
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B019",
+      "beatId": "ACT3_B019",
+      "mirrorActKey": "act3",
+      "fieldPath": "narrationExcerpt",
+      "beforeValue": "was relentless employees received multiple emails",
+      "afterValue": "The pressure was relentless. Employees received multiple emails",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Whistleblower testimony introduces the scale.",
+      "afterValue": "Present the SEC-filed Independent Directors’ report as the primary source for the branch manager family account counts.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "visual.description",
+      "beforeValue": "A whistleblower deposition excerpt or sworn statement describing observed fraud.",
+      "afterValue": "Original source-attributed account-count graphic based on the SEC-filed Independent Directors’ report, page 36; not a claim about accounts opened in one day.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "evidenceRequirement",
+      "beforeValue": {
+        "required": true,
+        "evidenceType": "whistleblower testimony or deposition",
+        "description": "Sworn testimony describing a colleague opening 24 accounts in a single day",
+        "sourceStatus": "pending",
+        "rightsStatus": "unknown",
+        "authenticityStatus": "pending_review",
+        "citationLabel": "Whistleblower Testimony",
+        "humanReviewRequired": true
+      },
+      "afterValue": {
+        "required": true,
+        "evidenceType": "SEC-filed Independent Directors’ investigation report",
+        "description": "The report states that a branch manager’s teenage daughter had 24 accounts, an adult daughter had 18, and the manager’s spouse had 21.",
+        "sourceStatus": "pending",
+        "rightsStatus": "pending_review",
+        "authenticityStatus": "pending_review",
+        "citationLabel": "Independent Directors’ Report, p. 36",
+        "humanReviewRequired": true
+      },
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B017",
+      "beatId": "ACT3_B017",
+      "mirrorActKey": "act3",
+      "fieldPath": "sourceSearchInstruction",
+      "beforeValue": "Locate sworn whistleblower testimony, deposition excerpts, or documented interview statements from Wells Fargo regulatory proceedings, congressional hearings, or litigation describing observation of colleagues opening multiple unauthorized accounts in single days. Priority sources: CFPB enforcement records, Senate Banking Committee testimony, court-filed declarations.",
+      "afterValue": "Use the SEC-filed Sales Practices Investigation Report of the Independent Directors, page 36; verify the exact family relationship and account counts in the primary report.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "visualIntent",
+      "beforeValue": "Quantify the absurd scale of single-day fraud.",
+      "afterValue": "Continue the board-report account-count finding with an original attributed comparison graphic, then transition to the wider sales-pressure account.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "visual.description",
+      "beforeValue": "An empty branch lobby; the banker continues typing at a workstation, alone.",
+      "afterValue": "Original comparison graphic showing 24 accounts for the manager’s teenage daughter, 18 for an adult daughter, and 21 for the manager’s spouse, attributed to the SEC-filed board investigation, page 36.",
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "graphics",
+      "beforeValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Quantify the single-day fraud.",
+          "text": "24 ACCOUNTS — ONE DAY"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Show the three distinct account counts reported by the board investigation, with source attribution.",
+          "text": "24 · TEENAGE DAUGHTER | 18 · ADULT DAUGHTER | 21 · SPOUSE\nSOURCE: INDEPENDENT DIRECTORS’ REPORT, P. 36"
+        }
+      ],
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    },
+    {
+      "shotId": "ACT3_B018",
+      "beatId": "ACT3_B018",
+      "mirrorActKey": "act3",
+      "fieldPath": "overlaySpecification",
+      "beforeValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Quantify the single-day fraud.",
+          "text": "24 ACCOUNTS — ONE DAY"
+        }
+      ],
+      "afterValue": [
+        {
+          "type": "data_graphic",
+          "intent": "Show the three distinct account counts reported by the board investigation, with source attribution.",
+          "text": "24 · TEENAGE DAUGHTER | 18 · ADULT DAUGHTER | 21 · SPOUSE\nSOURCE: INDEPENDENT DIRECTORS’ REPORT, P. 36"
+        }
+      ],
+      "reason": "User-approved hash-bound ACT3_B017 factual correction; preserve revised spoken clause and directly supporting SEC-filed board-investigation evidence.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    }
+  ],
+  "retirements": [
+    {
+      "beatId": "ACT3B_B010",
+      "shotId": "ACT3B_B010",
+      "actKey": "act3b",
+      "allShotsIndex": 94,
+      "actShotsIndex": 9,
+      "shot": {
+        "shotId": "ACT3B_B010",
+        "beatId": "ACT3B_B010",
+        "sequenceId": "SEQ_ACT3B_03",
+        "actKey": "act3b",
+        "startWordIndex": 77,
+        "endWordIndex": 83,
+        "startSec": 362.0155112207031,
+        "endSec": 365.73550862670896,
+        "durationSec": 3.7199974060058594,
+        "narrationExcerpt": "the real number is almost certainly higher",
+        "storyFunction": "context",
+        "visualIntent": "Attribute the stated refund figure to Wells Fargo as its own reported figure.",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "rhythmIntent": "building",
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "Restrained editorial card identifying the amount as the bank’s own figure, with no extrapolation.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "visualType": "STILL_ZOOM",
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "motionTreatment": {
+          "type": "dolly_forward"
+        },
+        "intentionalStillness": false,
+        "timingExceptionReason": null,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "audioDirection": {
+          "musicCue": "low tension returns",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "triggerWord": "the",
+        "hardcodedSec": null,
+        "estimatedDuration": 3.7199974060058594,
+        "assetType": "generated_image",
+        "requiresGraphicCompilation": false,
+        "imagePrompt": "Editorial illustration: an abstract field of incomplete, fragmented shapes fading into a dark background, suggesting uncertainty in a count without displaying any number, word, chart scale, or documentary artifact. Minimal white and charcoal geometry with no labels.",
+        "negativePrompt": "2.6 million, numerals, exact count, unsupported estimate, readable label, bank branding, fabricated document, photorealistic evidence",
+        "sourceSearchInstruction": null,
+        "animationPrompt": "",
+        "reconstructionSafeguards": null,
+        "colorGrade": "deep_shadow",
+        "sfx": null
+      },
+      "actShot": {
+        "shotId": "ACT3B_B010",
+        "beatId": "ACT3B_B010",
+        "sequenceId": "SEQ_ACT3B_03",
+        "actKey": "act3b",
+        "startWordIndex": 77,
+        "endWordIndex": 83,
+        "startSec": 362.0155112207031,
+        "endSec": 365.73550862670896,
+        "durationSec": 3.7199974060058594,
+        "narrationExcerpt": "the real number is almost certainly higher",
+        "storyFunction": "reveal",
+        "visualIntent": "The real number remains unknown—official count is the floor.",
+        "visualClass": "EDITORIAL_ILLUSTRATION",
+        "rhythmIntent": "building",
+        "visual": {
+          "type": "STILL_ZOOM",
+          "description": "The number fragments at edges—editorial suggestion of incompleteness.",
+          "motionType": "dolly_forward",
+          "secondaryAction": null
+        },
+        "visualType": "STILL_ZOOM",
+        "motionIntent": {
+          "type": "dolly_forward"
+        },
+        "motionTreatment": {
+          "type": "dolly_forward"
+        },
+        "intentionalStillness": false,
+        "timingExceptionReason": null,
+        "postNarrationHoldSec": 0,
+        "reconstructionMode": null,
+        "continuityRefs": [],
+        "evidenceRequirement": {
+          "required": false,
+          "evidenceType": null,
+          "description": null,
+          "sourceStatus": "not_applicable",
+          "rightsStatus": "not_applicable",
+          "authenticityStatus": "not_applicable",
+          "citationLabel": null,
+          "humanReviewRequired": false
+        },
+        "graphics": null,
+        "overlaySpecification": null,
+        "audioDirection": {
+          "musicCue": "low tension returns",
+          "musicEvent": null,
+          "musicLevelDb": null,
+          "duckUnderVO": null,
+          "sfx": [],
+          "silenceIntent": null
+        },
+        "triggerWord": "the",
+        "hardcodedSec": null,
+        "estimatedDuration": 3.7199974060058594,
+        "assetType": "generated_image",
+        "requiresGraphicCompilation": false,
+        "imagePrompt": "Editorial typographic composition showing the 2.6 MILLION figure with edges fragmenting and dissolving into darkness, suggesting incompleteness and uncertainty, deep black background, white typography breaking apart at margins, particles dispersing, abstract data visualization aesthetic, minimal and stark presentation",
+        "negativePrompt": "fabricated document, specific data claims, personal information, bank branding, Wells Fargo logo, bright colors, cheerful design, photorealistic elements, complete solid typography",
+        "sourceSearchInstruction": null,
+        "animationPrompt": "",
+        "reconstructionSafeguards": null,
+        "colorGrade": "deep_shadow",
+        "sfx": null
+      },
+      "reason": "Its former narration, “the real number is almost certainly higher,” was removed as unsupported. Its replacement visual merely repeats B009’s bank-attributed refund figure; no replacement narration or zero-duration beat is authorized.",
+      "revisionLineageEntry": "approved-retirement:act3b:ACT3B_B010",
+      "approvalStatus": "APPROVED"
+    }
+  ],
+  "bindings": [
+    {
+      "fieldPath": "sourceEditPlanSha256",
+      "beforeValue": "5b9c9fe7d7a1d36d989d7100fa66d3bf6064e2f0ae67796bb3c78a6e0d690736",
+      "afterValue": "6961a94a032a2f40450e90582788a781dac7f17a6ac0c5cebb8a5ce0dadbd748",
+      "reason": "Bind corrected candidate shot definitions to the corrected candidate edit plan.",
+      "approvalStatus": "APPROVED",
+      "revisionVersion": "2.3B-B017-FACTUAL-CORRECTION"
+    }
+  ]
+}

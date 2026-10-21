@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "phase3-generated-still-human-review-criteria/1.0.0",
+  "status": "PROPOSED_REVIEW_GATE",
+  "scope": {
+    "beats": 34,
+    "everyOutputRequiresIndividualHumanReview": true,
+    "batchApprovalDoesNotApproveOutputs": true
+  },
+  "approvalCriteria": [
+    "Exact beat, narration, timing context and locked visual intent are served.",
+    "Image is cinematic documentary-style editorial reconstruction with production-grade detail at full resolution.",
+    "Composition is unique to the beat and is neither byte-identical nor perceptually shared with another beat.",
+    "No real bank logo, trademark, identifiable real customer, employee, executive or location is present.",
+    "Image cannot reasonably be mistaken for authentic documentary evidence of a specific event, person, record or location.",
+    "Hands, faces, anatomy, objects, perspective and reflections are coherent and artifact-free.",
+    "Fictional interfaces and documents are plausible, unbranded and appropriate to the historical/narrative setting.",
+    "Frame has intentional composition, adequate detail, readable focal hierarchy and no accidental blank regions.",
+    "For two-stage beats, the generated base contains no critical generated text and has approved clean surfaces for deterministic local typography.",
+    "After local typography, all required semantic text is exact, readable, correctly spelled and separately hash-bound."
+  ],
+  "rejectionCriteria": [
+    "Any cross-beat reuse, exact duplicate, perceptual duplicate, template reuse that defeats beat specificity, or generic placeholder composition.",
+    "Any malformed hand, face, limb, object, perspective, reflection, duplicated subject or visual-generation artifact.",
+    "Any real or imitation bank logo/trademark, identifiable real person, unsupported documentary-evidence implication, or fabricated authentic record.",
+    "Any generated gibberish, unreadable critical text, misspelling, incorrect semantic label or request for the model to render critical readable text.",
+    "Any mismatch with narration, visual intent, period, environment, evidence/ownership safeguard, or final-episode quality threshold.",
+    "Any low-detail, flat-icon, primitive-vector, clip-art, construction-placeholder or unfinished appearance."
+  ],
+  "downstreamGate": "No output may be installed, rendered or promoted until individually inspected, approved, SHA-256-bound and admitted by a separately authorized production step."
+}

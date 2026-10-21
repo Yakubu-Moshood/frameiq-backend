@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "phase3-non-authorizing-provider-batch/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "batchId": "generated-final-still-batch",
+  "type": "GENERATED_FINAL_STILL",
+  "requestCount": 7,
+  "expectedExposureUsd": 0.336,
+  "maximumExposureUsd": 0.336,
+  "providerEnforced": false,
+  "dependencyOrder": "INDEPENDENT_WITHIN_BATCH",
+  "entries": [
+    {
+      "beatId": "ACT2_B004",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "402955033fb439d04a2d283ebb8b2793e6bfee079b174b2fd36443de2b9b8c4e",
+      "promptSha256": "dc109e6349f2d9417948a691101f297afdd63584145fc97975de5844b30394df",
+      "negativePromptSha256": "0099b7eac20a65946e7ecc854c8c7dcb9db7b5e76e4e0068ee3882eb36665cbf",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT2_B004.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT3_B004",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "58a56f26d8ce1cb356f8e7fd6f19e54c532e0e5c249a978746d83b427c9e01b0",
+      "promptSha256": "8678204324f22e8fd2342b16b4d5b29e3d0d8ddfffba9bfb0ed57f7ffe170c5b",
+      "negativePromptSha256": "b4e8440e33afe7cbf1afdd98b284b16f0e9e563d2bb7bd330611c3a3589f83e9",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT3_B004.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT3B_B009",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "9af337f1a7f97c87968c13009028e617483147ca95db8c096825dde15939fa52",
+      "promptSha256": "2c528a9ca3a6b4aeebf794b8673778239cdbd111efc4340c9288d416ac63f6df",
+      "negativePromptSha256": "0ea67b2cdf547ffc63c2230e021adb62bd44052954ef6fa75a35a0a9b9982388",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT3B_B009.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT5_B003",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "adf683c4ea673d97516aab1f9ccc3295ac69206aae78882c2ac84b05be2eb416",
+      "promptSha256": "3c30f7763f53118849f2cc896fe3cd57aa1665b61dd287408d870e2271ec2ef1",
+      "negativePromptSha256": "69334547d63fce630232335814d918348b85f747a1de081c5d74d8ba7c7223d2",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT5_B003.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT5_B016",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "2a52d00b41640c30ac574218c7e995beb215af499914c6d28d4ddfdbd3997a3c",
+      "promptSha256": "d46be32bfb86dd2929f5c76274914eeeec0d66555aaf285e85fc4493f7831d2b",
+      "negativePromptSha256": "f5fec7e2a4824526474e749d198955829f5f90b20485f93f69beb3f5911d95dd",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT5_B016.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT5_B021",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "236aa415d08ee70b71c2373f0e667c3c298f384b0659194ad840a423769beb5d",
+      "promptSha256": "c06e930ed086e17c6db0a4045f887f05483cfbd47e547a33a268fbddebe36d8b",
+      "negativePromptSha256": "e4232cb537bbee53e685cf5090ab6126280e2bb58695ca02ab3b9c7e07466606",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT5_B021.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    },
+    {
+      "beatId": "ACT5_B026",
+      "operation": "GENERATE_FINAL_STILL",
+      "endpoint": "blackforestlabs/flux-3/text-to-image",
+      "requestKey": "50aafb72323867efdaf2301ccddec7c1b3076f72b9f4620e80a18ed8f9d45db7",
+      "promptSha256": "f100214c3cfff6dbac4e97978b3c0d855088bbbdcf8eca9e56c1d0f812d74fb7",
+      "negativePromptSha256": "5c7cce5aba3f40add8b6b85caba6ff7553b1efd27d94ac97b91459b2dc752ad3",
+      "dependencyHashes": {
+        "planningPackageIndexSha256": "9f60d89fc3009542b804e8fe1dd8c10af6a2d9f16554c85024e1cdad223e29de",
+        "productionBatchPlanSha256": "2b7c8c6223b2ec3d4632ccd3f2c7a4ff8ad64c51b17de7fc97a0cca29eedcdf1",
+        "candidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d"
+      },
+      "expectedOutputContract": {
+        "id": "FLUX3_PNG_1360X768",
+        "path": "planned/final/generated-stills/ACT5_B026.png",
+        "format": "PNG",
+        "width": 1360,
+        "height": 768
+      },
+      "maximumExposureUsd": 0.048,
+      "providerEnforced": false,
+      "executionAuthorized": false
+    }
+  ],
+  "authority": {
+    "providerRequestsAuthorized": 0,
+    "executionAuthorizationCreated": false,
+    "retries": 0,
+    "fallback": false,
+    "rendering": false,
+    "promotion": false,
+    "stage04Modification": false,
+    "episodeProductionWrites": false
+  }
+}

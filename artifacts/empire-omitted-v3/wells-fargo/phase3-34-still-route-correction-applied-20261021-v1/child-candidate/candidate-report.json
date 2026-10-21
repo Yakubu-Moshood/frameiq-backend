@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "phase3-consolidated-act5-candidate-report/2.0.0",
+  "candidateId": "phase3-34-still-route-correction-child-20261021-v1",
+  "status": "PLANNING_READY_ROUTE_CORRECTION_APPLIED_EXECUTION_UNAUTHORIZED",
+  "indexedFiles": 174,
+  "activeShots": 153,
+  "durationSec": 633.782449,
+  "evidenceEntries": 46,
+  "evidenceAssets": 29,
+  "graphics": 77,
+  "retiredBeatIds": [
+    "ACT3B_B010"
+  ],
+  "validators": {
+    "productionManifest": "PASS_34_ROUTE_CORRECTIONS",
+    "graphicManifest": "PASS",
+    "evidence": "PASS",
+    "editPlan": "PASS_UNCHANGED",
+    "shotDefinitions": "PASS_34_ASSET_TYPE_CORRECTIONS",
+    "revisionLineage": "PASS_APPROVAL_AND_AMENDMENT_BOUND",
+    "renderReadiness": "BLOCKED_EXECUTION_UNAUTHORIZED",
+    "B015VisualApproval": "PASS_APPROVED_COMPILED_OUTPUT",
+    "B016CompositionSourceBinding": "PASS_EXACT_APPROVED_SOURCE"
+  },
+  "blockers": [
+    {
+      "code": "REMAINING_PROVIDER_MEDIA_EXECUTION_UNAUTHORIZED",
+      "replacementGeneratedStills": 34,
+      "existingGeneratedFinalStills": 7,
+      "animationSourceStills": 21,
+      "animations": 21,
+      "totalProviderSubmissions": 83,
+      "maximumPlannedExposureUsd": 11.376,
+      "providerEnforced": false
+    }
+  ],
+  "providerRequests": 0,
+  "episodeRootWrites": 0,
+  "approvals": {
+    "ACT5_B015CompiledVisual": "2357cd880a238e2c7c88dc923323f1448441622f9a91dbf1eacff8d719a01272",
+    "ACT5_B016Dependency": "e33dc2bac466deac2a1807994064d61e64d4189a56fce5f5b60165c2520f2703"
+  },
+  "readiness": {
+    "candidatePlanning": "PASS",
+    "mediaExecution": "UNAUTHORIZED",
+    "rendering": false,
+    "promotion": false,
+    "providerRequests": 0,
+    "episodeRootWrites": 0
+  }
+}

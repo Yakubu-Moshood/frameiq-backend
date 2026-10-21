@@ -1,0 +1,743 @@
+{
+  "schemaVersion": "phase3-34-still-route-correction-child-change-proof/1.0.0",
+  "status": "PASS_ONLY_APPROVED_ROUTE_FIELDS_CHANGED",
+  "parentCandidateIndexSha256": "a1981dd4c57a5c10c83fd2e3739d0630006e93e628a72cef3d574d07ef83b4cf",
+  "childCandidateIndexSha256": "865d1535a9498765c5a4dd3d948e14d6dbb93142692b51640a506afffc8596b9",
+  "approvalSha256": "d61a0a1c8fcc958b246e97d04a61892fbf98d7a5304413dd808c6756056cc977",
+  "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973",
+  "routeDataChanges": {
+    "productionManifest": {
+      "scalarChangeCount": 68,
+      "allowedScalarChangeCount": 68,
+      "changedFields": [
+        "assetType",
+        "productionMethod"
+      ],
+      "diffs": [
+        {
+          "path": "shots[4].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[4].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[10].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[10].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[11].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[11].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[12].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[14].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[14].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[19].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[19].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[21].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[21].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[29].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[29].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[31].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[31].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[32].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[32].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[38].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[38].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[40].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[40].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[41].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[41].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[42].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[42].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[44].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[44].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[49].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[49].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[50].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[50].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[53].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[53].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[54].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[54].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[61].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[61].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[62].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[62].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[65].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[65].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[68].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[68].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[75].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[75].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[81].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[81].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[82].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[82].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[85].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[85].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[88].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[88].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[91].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[91].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[96].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[96].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[99].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[99].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[101].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[101].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[135].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[135].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        },
+        {
+          "path": "shots[138].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "shots[138].productionMethod",
+          "before": "CONTROLLED_STILL",
+          "after": "GENERATED_STILL"
+        }
+      ]
+    },
+    "shotDefinitions": {
+      "scalarChangeCount": 68,
+      "allowedScalarChangeCount": 68,
+      "changedFields": [
+        "assetType"
+      ],
+      "diffs": [
+        {
+          "path": "acts.act1[4].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[10].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[11].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[14].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[19].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[21].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act1[29].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[1].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[2].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[8].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[10].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[11].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[14].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[19].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[20].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[23].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act2[24].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[5].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[6].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[9].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[19].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[25].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3[26].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[0].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[3].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[6].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[11].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[14].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act3b[16].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act5[9].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "acts.act5[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[4].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[10].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[11].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[12].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[14].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[19].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[21].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[29].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[31].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[32].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[38].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[40].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[41].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[42].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[44].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[49].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[50].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[53].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[54].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[61].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[62].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[65].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[68].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[75].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[81].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[82].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[85].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[88].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[91].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[96].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[99].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[101].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[135].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        },
+        {
+          "path": "allShots[138].assetType",
+          "before": "controlled_image",
+          "after": "generated_image"
+        }
+      ]
+    }
+  },
+  "fileLevelProof": {
+    "sourceCandidateIndexedFiles": 174,
+    "childCandidateIndexedFiles": 176,
+    "deliberatelyRegenerated": [
+      "candidate-report.json",
+      "production-manifest.json",
+      "shot-definitions.json",
+      "validation/boundary-and-timing-validation.json",
+      "validation/consolidated-candidate-validation.json",
+      "validation/graphic-asset-manifest-validation.v2.json",
+      "validation/production-manifest-validation.json",
+      "validation/render-readiness.json",
+      "validation/revision-lineage-validation.json",
+      "validation/shot-definitions-validation.json"
+    ],
+    "newLineageAndValidationRecords": [
+      "revision-lineage/phase3-34-still-route-correction-application.v1.json",
+      "validation/route-correction-application-validation.v1.json"
+    ],
+    "unexpectedChangedFiles": [],
+    "unexpectedNewFiles": [],
+    "allOtherParentFilesByteIdentical": true
+  },
+  "preservation": {
+    "lockedEditorialFields": "PASS",
+    "evidenceAndOwnershipBindings": "PASS",
+    "unrelatedCandidateRecords": "PASS",
+    "completedProductionRecords": [
+      "ACT1_B006",
+      "ACT1_B009",
+      "ACT1_B010"
+    ],
+    "act3bB010Retired": true
+  }
+}

@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "phase3-bounded-non-authorizing-generated-still-batch/1.0.0",
+  "status": "PROPOSED_NON_AUTHORIZING",
+  "batchId": "phase3-34-replacement-stills-batch-3",
+  "requestCount": 10,
+  "provider": "FLUX 3",
+  "endpoint": "blackforestlabs/flux-3/text-to-image",
+  "parameters": {
+    "resolution": "1k",
+    "aspectRatio": "16:9",
+    "outputFormat": "PNG",
+    "imagesPerRequest": 1,
+    "promptExpansion": false
+  },
+  "retries": 0,
+  "fallback": false,
+  "unitMaximumExposureUsd": 0.048,
+  "expectedExposureUsd": 0.48,
+  "maximumExposureUsd": 0.48,
+  "providerEnforced": false,
+  "entries": [
+    {
+      "beatId": "ACT3_B007",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "8faa8020a5bf863c908f3f5bfa8516cd3107f968be1894c37a658e02b725d08d",
+      "positivePromptSha256": "f4d7abd4ce00d410bf8af538592e53b39c2c3914c9a02c450bb00409ba0f68da",
+      "negativeInstructionsSha256": "1e02c4628998df8499af2d8eb77a72893a9c5c7aad0499ef4fc6a5cc697fe829",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B007.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": true
+    },
+    {
+      "beatId": "ACT3_B010",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "aafbd6df90384e94ab89e9d31fbac83dfc71380db756d327ccff0353a983d733",
+      "positivePromptSha256": "7e204ddd3d34cceda35f8fed3a3f4e1ec7e49f17ceddbb0c7ed253a3fee69a13",
+      "negativeInstructionsSha256": "b4411d7dc003678f7ff4a740ceb211b998cc67d5bce7e0fc4922c8e369da1c1d",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B010.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": true
+    },
+    {
+      "beatId": "ACT3_B013",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "2b9a3c1f34e94775f6915a6806d1a610d7799de2019580d4c0e9b2429f3c7c13",
+      "positivePromptSha256": "5099502e7ed41702c5ad91490b3785855f9a5fe805c26c38bbc1a640817e329a",
+      "negativeInstructionsSha256": "cac440551e52ddac39377b6080c9a7dbfd32718e2a65a4e163ffb8e81270a1fe",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B013.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT3_B020",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "8f52074fcfae9035adf2ee1a59e89b9e8dc0a7218c30f433290ffcc43d01ce8e",
+      "positivePromptSha256": "dcaffc00ce85471b6310b13ea2bc75e6c8685daff640f17460dbc15994e2c92c",
+      "negativeInstructionsSha256": "dde99d5e756a28f308b81eae4d5e8ccd36fb7d1db66d129c2cfbbc3213c94b61",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B020.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": true
+    },
+    {
+      "beatId": "ACT3_B026",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "2299423564f767d23ddf9864dec1bfd48fdcff75b6152b724686b3b418bc3784",
+      "positivePromptSha256": "3c5944de25a14eea6f60e8e592e7dcb7ca9a55d8b955ff5af516355aaaa16a17",
+      "negativeInstructionsSha256": "87a042fa662a62ffdf2be329372082c7c2086f205c2061a731724c4240ef1688",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B026.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT3_B027",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "a8db6443c2d188396290d45b6b4db94deb1473762ab53a294fe9f4e5c94fe588",
+      "positivePromptSha256": "94bc05bff9affafa4314668b7550e309cae870f21160b51fad43bf467f2b07f2",
+      "negativeInstructionsSha256": "1aa7dc177a022d43c19f1b44f11d2be749f5e73071036f3632ab34f889d1b8dc",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3_B027.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT3B_B001",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "c1b85d20eabd6eecc78cc9e9ee905a728b3e94a9f79487382253c5d1fbcfa369",
+      "positivePromptSha256": "0bce46e0734b9590954c4caf259b1ca4de26088e7958899983d3bd9c74ba9336",
+      "negativeInstructionsSha256": "febced0b3ec077f6598a612d8e4119c71b224dcfe8f131edb5afdf7b35816d85",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B001.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": true
+    },
+    {
+      "beatId": "ACT3B_B004",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "6f5df9ea1dc0ec7c76ea0eb7c6584f5f405aaf3e599bb10f525873f41e4ebb5b",
+      "positivePromptSha256": "f1257f27db9ef832da9aa8adc750866018ba24b0eb9d217086cb5bf2436ddb0b",
+      "negativeInstructionsSha256": "7c6aec0e49ebde7ff9a478a7eda7d7575ae46e8eb054e84053012bda13dccf88",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B004.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": true
+    },
+    {
+      "beatId": "ACT3B_B007",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "414a587a4653e2e73b9e5695c667862a542a6f19cfd7f0aa1d52b2c7f984597e",
+      "positivePromptSha256": "0f06b17a2f094d754c69e2730ef996eb642f479ca3d9f82e71b7dcd18cafe4c8",
+      "negativeInstructionsSha256": "0b2a1ff264cfa8ad4329628f43c4502aca7d2f838eb09ce19a2fa78f34480e7d",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B007.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    },
+    {
+      "beatId": "ACT3B_B013",
+      "operation": "GENERATE_REPLACEMENT_FINAL_STILL",
+      "requestKey": "37a8c05a9ae0384e2fe167bd9085ecc7005f5429de20c9943f1ba930eeb03b9b",
+      "positivePromptSha256": "19225bbe4e8c05729e0f6966899e2d197b293967ffb80199055584fa32525a29",
+      "negativeInstructionsSha256": "9551d8ef2300c27c3ac7aad413adc45084424ad3b7ccfb6f9422ba4c8dce26bb",
+      "dependencyHashes": {
+        "candidateIndexSha256": "c50dd2d054c430f0daf5748de9a6d3e5c946cef1e8b4fbe57a4f986f6a48dac4",
+        "productionManifestSha256": "e26cc97d9327f75c25d69e8a0d6aa759045d5f9a797c32fa4fea617092bbf63d",
+        "shotDefinitionsSha256": "08de92b26f39e06a86912454b588d0b112b62f7ab99f5e6e2a44134d628b1a3a",
+        "amendmentSha256": "6695bd45e055a6d0c91c3f96291901affbad99fd37e8b98182c2362a8043d973"
+      },
+      "expectedOutputContract": {
+        "mediaType": "image/png",
+        "resolution": "1k",
+        "aspectRatio": "16:9",
+        "imageCount": 1,
+        "isolatedReviewRelativePath": "generated-stills/ACT3B_B013.png",
+        "productionPathInstallationAuthorized": false
+      },
+      "twoStageTextRouteRequired": false
+    }
+  ],
+  "authority": {
+    "providerSubmissionsAuthorized": 0,
+    "requestKeysReserved": 0,
+    "executionAuthorizationCreated": false,
+    "generation": false,
+    "productionInstallation": false,
+    "rendering": false,
+    "promotion": false
+  }
+}
